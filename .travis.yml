@@ -11,10 +11,13 @@ services:
 before_install:
 # once the docker file is uploaded and working run this instead of pull
 # docker build -t dro248/ayamel .
-- docker pull dro248/ayamel
-- docker run -d -p 127.0.0.1:80:4567 dro248/ayamel /bin/sh -c "cd /root/ayamel; bundle exec foreman start;"
+# docker run -t -i dro248/yvideo:latest /bin/bash
+# - docker pull dro248/ayamel
+- docker pull dro248/yvideo
+# - docker run -d -p 127.0.0.1:80:4567 dro248/ayamel /bin/sh -c "cd /root/ayamel; bundle exec foreman start;"
 - docker ps -a
-- docker run dro248/ayamel /bin/sh -c "cd /root/ayamel;
+# - docker run dro248/ayamel /bin/sh -c "cd /root/ayamel;
+- docker run -t -i dro248/yvideo:latest /bin/bash
 
 
 after_success:
