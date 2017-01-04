@@ -32,9 +32,6 @@
                 @if(user.hasCoursePermission(course, "viewData")) {
                     <a href="#studentInfoModal" role="button" class="btn" data-toggle="modal"><i class="icon-user"></i> Course members</a>
                 }
-                @if(user.hasCoursePermission(course, "addStudent")) {
-                    <a href="#joinLinkModal" role="button" class="btn" data-toggle="modal"><i class="icon-link"></i> Join Url</a>
-                }
             </div>
             @if(user.hasCoursePermission(course, "editCourse")) {
                 <a href="#editCourseModal" role="button" class="btn btn-yellow" data-toggle="modal"><i class="icon-pencil"></i> Edit</a>
@@ -47,11 +44,7 @@
             }
             @if(course.getMembers.contains(user)) {
                 <a href="#quitCourseModal" role="button" class="btn btn-magenta" data-toggle="modal"><i class="icon-reply"></i> Quit</a>
-            } else { @if(course.enrollment == 'open) {
-                <form method="post" action="@routes.Courses.submitCourseRequest(course.id.get)" style="position:absolute;">
-                    <input class="btn btn-blue" type="submit" value="Join Course"/>
-                </form>
-            }}
+            }
         </div>
 
         <div class="face-nav">
@@ -117,7 +110,6 @@
     @views.html.courses.helpers.deleteCourse(user, course)
     @views.html.courses.helpers.quitCourse(user, course)
     @views.html.courses.helpers.studentInfo(user, course)
-    @views.html.courses.helpers.joinLink(user, course)
     @views.html.courses.helpers.makeAnnouncement(user, course)
     @views.html.courses.helpers.deleteAnnouncement(user, course)
     @views.html.courses.helpers.removeContent(user, course)
