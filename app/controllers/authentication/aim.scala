@@ -32,11 +32,9 @@ object aim {
 
       nonceFromJson match {
         case JsSuccess(n: Nonce, path: JsPath) => {
-          Logger.info(s"Got nonce: nonceKey:[$n.nonceKey], nonceValue:[$n.nonceValue]")
           n
         }
         case e: JsError => {
-          Logger.error(s"aim:getNonce:Errors: ${JsError.toJson(e).toString}")
           throw new Exception(s"Errors: ${JsError.toJson(e).toString}")
         }
       }
@@ -46,7 +44,6 @@ object aim {
       Await.result(request, 10 seconds)
     } catch {
       case _: Throwable => {
-        Logger.debug("Aim: Getting Nonce timed out")
         throw new Exception("Error getting Nonce")
       }
     }
