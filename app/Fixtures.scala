@@ -36,11 +36,11 @@ object Fixtures {
     )
 
     val courses = List(
-      ("Course 101", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z", "key1"),
-      ("Course 102", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z", "key2"),
-      ("Course 103", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z", "key3"),
-      ("Course 104", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z", "key4"),
-      ("Course 105", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z", "key5")
+      ("Course 101", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z"),
+      ("Course 102", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z"),
+      ("Course 103", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z"),
+      ("Course 104", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z"),
+      ("Course 105", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z")
     )
 
     val courseListings = List(
@@ -132,8 +132,6 @@ object Fixtures {
     "Becoming a teacher",
     "Creating a course",
     "Adding content you don't own to a course",
-    "Adding a course to a LMS",
-    "Adding course content to a LMS",
     "Setting course captions and annotations",
     "How playlists work",
     "Creating a playlist",

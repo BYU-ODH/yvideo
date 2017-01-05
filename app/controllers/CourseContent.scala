@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc.{Action, Controller, Result, ResponseHeader}
-import service.{TimeTools, MobileDetection, LMSAuth}
+import service.{TimeTools, MobileDetection}
 import play.core.parsers.FormUrlEncodedParser
 import controllers.authentication.Authentication
 import play.api.Play
@@ -43,32 +43,6 @@ object CourseContent extends Controller {
   }
 
   /**
-   * Content view page from an LMS
-   */
-  def ltiAccess(id: Long, courseId: Long) = Action.async(parse.tolerantText) {
-    implicit request =>
-      ContentController.getContent(id) { content =>
-        Courses.getCourse(courseId) { course =>
-          Future {
-            LMSAuth.ltiCourseAuth(course) match {
-            case Some(user) => Ok(
-              if(request.queryString.get("embed").flatMap(_.lift(0)).exists(_.toBoolean)){
-                views.html.content.share.embed(content, ResourceController.baseUrl, Some(user), Some(course))
-              } else if (MobileDetection.isMobile()) {
-                views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user), Some(course))
-              } else {
-                views.html.content.view(content, ResourceController.baseUrl, Some(user), Some(course))
-              }
-            )
-            case _ =>
-              Errors.forbidden
-            }
-          }
-        }
-      }
-  }
-
-  /**
    * Adds a particular content object to a course
    * @param id The ID of the content
    */
@@ -103,7 +77,7 @@ object CourseContent extends Controller {
           if (user.hasCoursePermission(course, "removeContent")) {
             ContentController.getContent(id) { content =>
               ContentListing.listByContent(content).find(_.courseId == courseId).map(_.delete())
-              Future { 
+              Future {
                 Redirect(routes.Courses.view(courseId))
                   .flashing("info" -> "Content removed")
               }

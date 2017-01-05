@@ -6,4 +6,4 @@ alter table helpPage add column category varchar(255) not null default "Uncatego
 
 # --- !Downs
 
-alter table drop column category;
+alter table helpPage drop column category;

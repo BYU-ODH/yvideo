@@ -16,10 +16,9 @@ import play.api.Play.current
  * @param name The name of the course
  * @param startDate When the course become functional
  * @param endDate When the course ceases to be functional
- * @param lmsKey A key for connecting with LMSs
  */
 case class Course(id: Option[Long], name: String, startDate: String, endDate: String,
-                  featured: Boolean = false, lmsKey: String = HashTools.md5Hex(Random.nextString(32))) extends SQLSavable with SQLDeletable {
+  featured: Boolean = false) extends SQLSavable with SQLDeletable {
 
   /**
    * Saves the course to the DB
@@ -28,11 +27,11 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
   def save =
     if (id.isDefined) {
       update(Course.tableName, 'id -> id.get, 'name -> name, 'startDate -> startDate, 'endDate -> endDate,
-        'featured -> featured, 'lmsKey -> lmsKey)
+        'featured -> featured)
       this
     } else {
       val id = insert(Course.tableName, 'name -> name, 'startDate -> startDate, 'endDate -> endDate,
-        'featured -> featured, 'lmsKey -> lmsKey)
+        'featured -> featured)
       this.copy(id)
     }
 
@@ -219,10 +218,9 @@ object Course extends SQLSelectable[Course] {
       get[String](tableName + ".name") ~
       get[String](tableName + ".startDate") ~
       get[String](tableName + ".endDate") ~
-      get[Boolean](tableName + ".featured") ~
-      get[String](tableName + ".lmsKey") map {
-      case id~name~startDate~endDate~featured~lmsKey =>
-        Course(id, name, startDate, endDate, featured, lmsKey)
+      get[Boolean](tableName + ".featured") map {
+      case id~name~startDate~endDate~featured =>
+        Course(id, name, startDate, endDate, featured)
     }
   }
 
@@ -244,8 +242,8 @@ object Course extends SQLSelectable[Course] {
    * @param data Fixture data
    * @return The user
    */
-  def fromFixture(data: (String, String, String, String)): Course =
-    Course(None, data._1, data._2, data._3, false, data._4)
+  def fromFixture(data: (String, String, String)): Course =
+    Course(None, data._1, data._2, data._3, false)
 
   /**
    * Search the names of courses

@@ -9,6 +9,7 @@ TwirlKeys.templateImports += "dependencies._"
 lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
   libraryDependencies ++= Seq(
     // Add your project dependencies here,
+    evolutions,
     jdbc,
     cache,
 	ws,
@@ -20,5 +21,3 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
 	"com.typesafe.play" %% "anorm" % "2.4.0"
   )
 )
-
-

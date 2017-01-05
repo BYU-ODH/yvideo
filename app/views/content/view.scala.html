@@ -80,9 +80,6 @@
                 <li><a href="@routes.Courses.view(course.get.id.get)">@course.get.name</a> <span class="divider">/</span></li>
                 <li class="active">@content.name</li>
             </ul>
-            @if(user.isDefined) {
-                @views.html.content.header.LTISettings(content, course.get, user.get)
-            }
         }
         @if(user.isDefined) {
             <div class="navbar">
@@ -119,9 +116,6 @@
                                                 <i class="icon-book"></i> Course <b class="caret"></b>
                                             </a>
                                             <ul class="dropdown-menu">
-                                              @if(user.get.hasCoursePermission(course.get, "teacher")) {
-                                                <li><a href="#lmsModal" data-toggle="modal"><i class="icon-briefcase"></i> Add to LMS</a></li>
-                                              }
                                               @if(user.get.hasCoursePermission(course.get, "removeContent")) {
                                                 <li><a href="#" id="courseremovebtn"><i class="icon-remove"></i> Remove from course</a></li>
                                                 <script>

@@ -51,7 +51,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   /**
    * Deletes the user from the DB
    */
-  def delete() {  
+  def delete() {
     // Delete the user's content
     getContent.foreach(_.delete())
 
@@ -544,31 +544,6 @@ object User extends SQLSelectable[User] {
           Logger.debug("Failed in User.scala / findByAuthInfo")
           Logger.debug(e.getMessage())
           None
-      }
-    }
-  }
-
-  /**
-   * Search the DB for a lti user with the given authentication info
-   * @param name The user's name
-   * @param email The user's email
-   * @return If a user was found, then Some[User], otherwise None
-   */
-  def findLtiUserByNameAndEmail(name: Option[String], email: Option[String]): Option[User] = {
-    if (email.isEmpty) {
-      None
-    } else {
-      DB.withConnection { implicit connection =>
-        try {
-          SQL("select * from userAccount where authScheme = 'ltiAuth' and name = {name} and email = {email}")
-            .on('name -> name.getOrElse(""), 'email -> email.get)
-            .as(simple.singleOpt)
-        } catch {
-          case e: SQLException =>
-            Logger.debug("Failed in User.scala / findLtiUserByNameAndEmail")
-            Logger.debug(e.getMessage())
-            None
-        }
       }
     }
   }
