@@ -61,25 +61,7 @@ object Cas extends Controller {
     }
   }
 
-  /**
-    * classes have these attributes
-        "sequence": "parent",
-        "course": "C S 498R",
-        "section": "002",
-        "section_type": null,
-        "block": null,
-        "curriculum_id": "12417",
-        "title_code": "000",
-        "lab_quiz_section": null,
-        "credit_hours": "3.0",
-        "class_period": "4:00p - 4:50p",
-        "days": "MWF",
-        "room": "1127",
-        "building": "JKB",
-        "course_title": "Undergraduate Special Projects",
-        "instructor": "Seamons, Kent Eldon"
-    */
-  def updateAccount(personId: String, username: String, user: User) = {
+  def updateAccount(personId: String, username: String, user: User, isInstructor: Boolean) = {
     val logpre = logPrefix("[UPDATE ACCOUNT]:")
     aim.getStudentData("records", personId, username).map { future =>
       future.map { response =>
@@ -88,9 +70,14 @@ object Cas extends Controller {
         val jsonResponse = Json.parse(jsonString) \ "RecMainService" \ "response"
         val regEligibility = (jsonResponse \ "regEligibility").asOpt[String]
         // update the user's permissions
-        if (eligibleList.contains(regEligibility.getOrElse(""))) {
+        if (isInstructor) {
+          SitePermissions.removeAllUserPermissions(user)
+          SitePermissions.assignRole(user, 'teacher)
+        } else if (eligibleList.contains(regEligibility.getOrElse(""))) {
           SitePermissions.removeAllUserPermissions(user)
           SitePermissions.assignRole(user, 'student)
+        } else {
+          Logger.error(s"User is not a teacher or eligible student: ${user.toString}")
         }
         val currentYearTerm = (jsonResponse \ "currentYearTerm").asOpt[String]
         if (!currentYearTerm.isEmpty) {
@@ -143,8 +130,11 @@ object Cas extends Controller {
         val username = ((xml \ "authenticationSuccess") \ "user").text
         val user = Authentication.getAuthenticatedUser(username, 'cas, getAttribute(xml, "name"), getAttribute(xml, "emailAddress"))
         val personId = getAttribute(xml, "personId").getOrElse("")
+        val fulltime = getAttribute(xml, "activeFullTimeInstructor").getOrElse("false").toBoolean
+        val parttime = getAttribute(xml, "activePartTimeInstructor").getOrElse("false").toBoolean
+        val isInstructor = fulltime || parttime
 
-        updateAccount(personId, username, user)
+        updateAccount(personId, username, user, isInstructor)
 
         if (action == "merge")
           Authentication.merge(user)
