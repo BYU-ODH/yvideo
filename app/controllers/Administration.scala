@@ -197,7 +197,7 @@ object Administration extends Controller {
   }
 
   /**
-   * Updates the name and enrollment of the course
+   * Updates the name of the course
    * @param id The ID of the course
    */
   def editCourse(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
@@ -209,7 +209,6 @@ object Administration extends Controller {
             val params = request.body.mapValues(_(0))
             course.copy(
 			  name = params("name"),
-			  enrollment = Symbol(params("enrollment")),
 			  featured = (params("status") == "featured")
 			).save
             Future {

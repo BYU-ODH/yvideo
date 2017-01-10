@@ -11,6 +11,7 @@ $(function() {
             return {value: code, text: engname, desc: localname!==engname?localname:void 0};
         });
 
+
     var saveDiv = document.createElement('div'),
     saveImg = new Image(),
     saveText = document.createElement('p');
@@ -24,6 +25,11 @@ $(function() {
     saveDiv.appendChild(saveImg);
     saveDiv.appendChild(saveText);
     document.body.appendChild(saveDiv);
+
+    // EVENT TRACK EDITOR html
+   
+
+    ///////////////////////////////////////
 
     langList.push({ value: "apc", text: "North Levantine Arabic"});
     langList.push({ value: "arz", text: "Egyptian Arabic"});
@@ -65,7 +71,7 @@ $(function() {
     Ractive.partials.trackLangSelect = '<div class="control-group">\
         <label class="control-label">Language</label>\
         <div class="controls">\
-            <SuperSelect icon="icon-globe" text="Select Language" value="{{trackLang}}" button="left" open="{{selectOpen}}" multiple="false" options="{{languages}}" modal="{{modalId}}" defaultValue={{defaultValue}}>\
+            <SuperSelect icon="icon-globe" text="Select Language" value="{{trackLang}}" button="left" open="{{selectOpen}}" multiple="false" options="{{languages}}" modal="{{modalId}}" defaultOption={{defaultOption}}>\
         </div>\
     </div>';
 
@@ -117,7 +123,7 @@ $(function() {
                 types: types,
                 modalId: "newTrackModal",
                 buttons: [{event:"create",label:"Create"}],
-                defaultValue: {value:'zxx',text:'No Linguistic Content'}
+                defaultOption: {value:'zxx',text:'No Linguistic Content'}
             },
             partials:{ dialogBody: document.getElementById('createTrackTemplate').textContent },
             actions: {
@@ -166,7 +172,7 @@ $(function() {
                 trackName: "",
                 modalId: "editTrackModal",
                 buttons: [{event:"save",label:"Save"}],
-                defaultValue: {value:'zxx',text:'No Linguistic Content'}
+                defaultOption: {value:'zxx',text:'No Linguistic Content'}
             },
             partials:{ dialogBody: document.getElementById('editTrackTemplate').textContent },
             actions: {
@@ -379,7 +385,7 @@ $(function() {
                 trackLang: [],
                 trackKind: "subtitles",
                 modalId: 'loadTrackModal',
-                defaultValue: {value:'zxx',text:'No Linguistic Content'},
+                defaultOption: {value:'zxx',text:'No Linguistic Content'},
                 sources: Object.keys(sources).map(function(key){ return {name: key, label: sources[key].label}; }),
                 buttons: [{event:"load",label:"Load"}]
             },
@@ -669,6 +675,13 @@ $(function() {
             timeline.cacheTextTrack(track,trackMimes.get(track),'server');
         });
 
+        // EVENT TRACK EDITOR event listeners
+        timeline.on('select', function(selected){
+            selected.segments[0].makeEventTrackEditor(selected.segments[0].cue, videoPlayer);
+        })
+
+        timeline.on('unselect', function(deselected){ deselected.segments[0].destroyEventTrackEditor(); })
+
         //keep the editor and the player menu in sync
         timeline.on('altertrack', function(){ videoPlayer.refreshCaptionMenu(); });
 
@@ -733,4 +746,5 @@ $(function() {
             }
         });
     }
+
 });

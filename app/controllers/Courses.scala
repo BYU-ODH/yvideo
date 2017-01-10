@@ -126,11 +126,10 @@ object Courses extends Controller {
 		  Future {
             if (user.hasCoursePermission(course, "editCourse")) {
               val name = request.body("name")(0)
-              val enrollment = Symbol(request.body("enrollment")(0))
               val featured = if (SitePermissions.userHasPermission(user, "admin")){
                 request.body("status")(0) == "featured"
               } else { course.featured }
-              course.copy(name = name, enrollment = enrollment, featured = featured).save
+              course.copy(name = name, featured = featured).save
               Redirect(routes.Courses.view(id)).flashing("info" -> "Course updated")
             } else
               Errors.forbidden
@@ -247,10 +246,9 @@ object Courses extends Controller {
 
             // Collect info
             val courseName = request.body("courseName")(0)
-            val enrollment = Symbol(request.body("enrollment")(0))
 
             // Create the course
-            val course = Course(None, courseName, "", "", enrollment).save
+            val course = Course(None, courseName, "", "").save
             user.enroll(course, teacher = true)
 
             // Redirect to the course page
@@ -305,10 +303,7 @@ object Courses extends Controller {
 			      .find(req => req.userId == user.id.get)
                   .map { _ => Ok(views.html.courses.pending(course)) }
 				  .getOrElse {
-                    if (course.enrollment == 'open)
-                      Ok(views.html.courses.view(course))
-                    else
-                      Ok(views.html.courses.request(course))
+                    Ok(views.html.courses.request(course))
 			      }
 			  }
             }
@@ -326,10 +321,6 @@ object Courses extends Controller {
         Authentication.enforcePermission("joinCourse") {
           getCourse(id) { course =>
 		    Future {
-
-              // Check to see what kind of enrollment the course is
-              if (course.enrollment == 'closed) {
-
                 val message = request.body("message")(0)
                 AddCourseRequest(None, user.id.get, course.id.get, message).save
 
@@ -340,20 +331,7 @@ object Courses extends Controller {
                 }
 
                 Ok(views.html.courses.pending(course))
-              } else if (course.enrollment == 'open) {
-
-                // Notify the teachers
-                val notificationMessage = s"A student has joined your course ${course.name}."
-                course.getTeachers.foreach {
-                  _.sendNotification(notificationMessage)
-                }
-
-                user.enroll(course, teacher = false)
-                Redirect(routes.Courses.view(course.id.get))
-              } else {
-                Redirect(routes.Application.home())
-				  .flashing("error" -> "Error: Unknown course enrollment type")
-              }
+            
 			}
           }
         }
@@ -523,32 +501,6 @@ object Courses extends Controller {
               }
               Ok
             } else Results.Forbidden
-		  }
-        }
-  }
-
-  /**
-   * Teachers can share a link with student which, when visited, will cause the user to join the course.
-   * This has an authenticated action so if the user doesn't have an account, as I imagine most students won't, they
-   * will be redirected to the login page where they can create an account or login via a service and then be taken to
-   * this join page.
-   * @param id The ID of the course to join
-   */
-  def joinLink(id: Long, key: String) = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        getCourse(id) { course =>
-		  Future {
-            if(course.getMembers.contains(user)) { // Make sure the user isn't already in the course
-              Redirect(routes.Courses.view(id))
-			    .flashing("error" -> "You are already in this course")
-            } else if (key == course.lmsKey) {
-              user.enroll(course)
-              Redirect(routes.Courses.view(id))
-			    .flashing("info" -> ("Welcome to the course \"" + course.name + "\"."))
-            } else {
-              Unauthorized("Invalid key")
-            }
 		  }
         }
   }

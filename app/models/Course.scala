@@ -18,7 +18,7 @@ import play.api.Play.current
  * @param endDate When the course ceases to be functional
  * @param lmsKey A key for connecting with LMSs
  */
-case class Course(id: Option[Long], name: String, startDate: String, endDate: String, enrollment: Symbol = 'closed,
+case class Course(id: Option[Long], name: String, startDate: String, endDate: String,
                   featured: Boolean = false, lmsKey: String = HashTools.md5Hex(Random.nextString(32))) extends SQLSavable with SQLDeletable {
 
   /**
@@ -28,11 +28,11 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
   def save =
     if (id.isDefined) {
       update(Course.tableName, 'id -> id.get, 'name -> name, 'startDate -> startDate, 'endDate -> endDate,
-        'enrollment -> enrollment.name, 'featured -> featured, 'lmsKey -> lmsKey)
+        'featured -> featured, 'lmsKey -> lmsKey)
       this
     } else {
       val id = insert(Course.tableName, 'name -> name, 'startDate -> startDate, 'endDate -> endDate,
-        'enrollment -> enrollment.name, 'featured -> featured, 'lmsKey -> lmsKey)
+        'featured -> featured, 'lmsKey -> lmsKey)
       this.copy(id)
     }
 
@@ -219,11 +219,10 @@ object Course extends SQLSelectable[Course] {
       get[String](tableName + ".name") ~
       get[String](tableName + ".startDate") ~
       get[String](tableName + ".endDate") ~
-      get[String](tableName + ".enrollment") ~
       get[Boolean](tableName + ".featured") ~
       get[String](tableName + ".lmsKey") map {
-      case id~name~startDate~endDate~enrollment~featured~lmsKey =>
-        Course(id, name, startDate, endDate, Symbol(enrollment), featured, lmsKey)
+      case id~name~startDate~endDate~featured~lmsKey =>
+        Course(id, name, startDate, endDate, featured, lmsKey)
     }
   }
 
@@ -245,8 +244,8 @@ object Course extends SQLSelectable[Course] {
    * @param data Fixture data
    * @return The user
    */
-  def fromFixture(data: (String, String, String, Symbol, String)): Course =
-    Course(None, data._1, data._2, data._3, data._4, false, data._5)
+  def fromFixture(data: (String, String, String, String)): Course =
+    Course(None, data._1, data._2, data._3, false, data._4)
 
   /**
    * Search the names of courses
