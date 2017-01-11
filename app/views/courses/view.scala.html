@@ -78,7 +78,7 @@
                         ContentItemRenderer.renderAll({
                             content: [@Html(content.map(_.toJson).mkString(","))],
                             holder: document.getElementById("courseContent"),
-                            format: "auto",
+                            format: "table",
                             sizing: true,
                             sorting: true,
                             labels: [@Html(content.flatMap(_.labels).distinct.map(s => Literal(Constant(s)).toString).mkString(","))],
