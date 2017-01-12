@@ -60,7 +60,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
         BatchSql(
           "delete from {table} where userId = {id}",
           List('table -> "courseMembership", 'id -> id.get),
-          List('table -> "announcement", 'id -> id.get),
           List('table -> "notification", 'id -> id.get),
           List('table -> "addCourseRequest", 'id -> id.get),
           List('table -> "sitePermissionRequest", 'id -> id.get),
@@ -184,9 +183,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
 
     // Move the notifications over
     user.getNotifications.foreach { _.copy(userId = thisid).save }
-
-    // Move the announcements over
-    Announcement.list.filter(_.userId == user.id.get).foreach { _.copy(userId = thisid).save }
 
     // Move the course membership over. Check this user's membership to prevent duplicates
     val myMembership = CourseMembership.listByUser(this).map(_.courseId)
@@ -339,17 +335,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
       contentFeed.get
     }
 
-    var announcementFeed: Option[List[(Announcement, Course)]] = None
-
-    def getAnnouncementFeed = {
-      if (announcementFeed.isEmpty)
-        announcementFeed = Some(
-          getEnrollment.flatMap(course => course.getAnnouncements.map(announcement => (announcement, course)))
-            .sortWith((d1, d2) => TimeTools.dateToTimestamp(d1._1.timeMade) > TimeTools.dateToTimestamp(d2._1.timeMade))
-        )
-      announcementFeed.get
-    }
-
     var notifications: Option[List[Notification]] = None
 
     def getNotifications = {
@@ -420,13 +405,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
    * @return The content
    */
   def getContentFeed(limit: Int = 5): List[(Content, Long)] = cache.getContentFeed.take(limit)
-
-  /**
-   * Gets the latest announcements made in this user's courses.
-   * @param limit The number of announcement to get
-   * @return The announcements paired with the course they came from
-   */
-  def getAnnouncementFeed(limit: Int = 5): List[(Announcement, Course)] = cache.getAnnouncementFeed.take(limit)
 
   /**
    * Gets a list of the user's notifications

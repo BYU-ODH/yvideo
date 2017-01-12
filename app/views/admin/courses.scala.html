@@ -26,7 +26,6 @@
                 <th>Email</th>
                 <th># Students</th>
                 <th># Content</th>
-                <th># Announcements</th>
                 <th>Actions</th>
             </tr>
             @for(course <- courses) {
@@ -39,7 +38,6 @@
                         @optStr(course.getTeachers(0).email)}</td>
                     <td>@course.getMembers.size</td>
                     <td>@course.getContent.size</td>
-                    <td>@course.getAnnouncements.size</td>
                     <td>
                         <a href="@routes.Courses.view(course.id.get)" target="_blank" class="btn btn-small"><i class="icon-eye-open"></i></a>
                         <a href="#editModal" role="button" data-toggle="modal" class="btn btn-small btn-yellow editCourse" data-id="@course.id.get" data-name="@course.name" data-status="@{if (course.featured) "featured" else "normal"}"><i class="icon-pencil"></i></a>

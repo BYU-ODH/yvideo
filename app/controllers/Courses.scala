@@ -117,53 +117,6 @@ object Courses extends Controller {
   }
 
   /**
-   * Makes an announcement in a course
-   * @param id The ID of the course
-   */
-  def addAnnouncement(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
-    implicit request =>
-      implicit user =>
-        getCourse(id) { course =>
-          Future {
-            // Only non-guest members and admins can add content
-            if (user.hasCoursePermission(course, "makeAnnouncement")) {
-              // Add the content to the course
-              val announcement = request.body("announcement")(0)
-              if (announcement.getBytes("UTF-8").length < 65534) { //2^16-2: max length of MySQL Text
-                course.makeAnnouncement(user, announcement)
-                Redirect(routes.Courses.view(id))
-				  .flashing("success" -> "Announcement published.")
-              } else {
-                Redirect(routes.Courses.view(id))
-				  .flashing("error" -> "Announcement text was too long.")
-              }
-            } else
-              Errors.forbidden
-		  }
-      }
-  }
-
-  /**
-   * Deletes an announcement
-   * @param id The ID of the course
-   */
-  def deleteAnnouncement(courseId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
-    implicit request =>
-      implicit user =>
-        getCourse(courseId) { course =>
-		  Future {
-            if (user.hasCoursePermission(course, "makeAnnouncement")) {
-              val announcementId = request.body("announcementId")(0).toLong
-              Announcement.deleteAnnouncement(announcementId, courseId)
-              Redirect(routes.Courses.view(courseId))
-			    .flashing("success" -> "Announcement deleted")
-            } else
-              Errors.forbidden
-		  }
-        }
-  }
-
-  /**
    * Creates a new course
    */
   def create = Authentication.authenticatedAction(parse.urlFormEncoded) {
@@ -260,7 +213,7 @@ object Courses extends Controller {
                 }
 
                 Ok(views.html.courses.pending(course))
-            
+
 			}
           }
         }

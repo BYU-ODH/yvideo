@@ -11,7 +11,7 @@ import play.api.db.DB
 import play.api.Play.current
 
 /**
- * A course. Students and teachers are members. Content and announcements can be posted here.
+ * A course. Students and teachers are members. Content can be posted here.
  * @param id The id of the course
  * @param name The name of the course
  * @param startDate When the course become functional
@@ -95,15 +95,6 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
     this
   }
 
-  /**
-   * Makes an announcement to this course
-   * @param user The user making the announcement
-   * @param message The content of the announcement
-   * @return The saved announcement
-   */
-  def makeAnnouncement(user: User, message: String): Announcement =
-    Announcement(None, this.id.get, user.id.get, TimeTools.now(), message).save
-
   //       _____      _   _
   //      / ____|    | | | |
   //     | |  __  ___| |_| |_ ___ _ __ ___
@@ -140,14 +131,6 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
         content = Some(ContentListing.listClassContent(cacheTarget))
       content.get
     }
-
-    var announcements: Option[List[Announcement]] = None
-
-    def getAnnouncements = {
-      if (announcements.isEmpty)
-        announcements = Some(Announcement.listByCourse(cacheTarget))
-      announcements.get
-    }
   }
 
   /**
@@ -183,19 +166,6 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
     else cache.getContent.filter { c =>
       c.visibility != Content.visibility._private || user.getContent.contains(c)
     }
-
-  /**
-   * Get the list of announcement for this course
-   * @return The list of announcements
-   */
-  def getAnnouncements: List[Announcement] = cache.getAnnouncements
-
-  /**
-   * Get the list of announcement for this course, ordered by date
-   * @return The list of announcements
-   */
-  def getSortedAnnouncements: List[Announcement] = cache.getAnnouncements
-    .sortWith((a1, a2) => TimeTools.dateToTimestamp(a1.timeMade) > TimeTools.dateToTimestamp(a2.timeMade))
 
   /**
    * Get the list of requests by other users to join this course
