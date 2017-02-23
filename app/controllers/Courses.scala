@@ -34,7 +34,7 @@ object Courses extends Controller {
     implicit request =>
       implicit user =>
         getCourse(id) { course =>
-		  Future {
+          Future {
             // TODO: Once the users get the "viewCourse" permission, use
             // if (user.hasCoursePermission(course, "viewCourse")) instead
             if (course.getMembers.contains(user) ||  SitePermissions.userHasPermission(user, "admin"))
@@ -52,7 +52,7 @@ object Courses extends Controller {
     implicit request =>
       implicit user =>
         getCourse(id) { course =>
-		  Future {
+          Future {
             if (user.hasCoursePermission(course, "editCourse")) {
               val name = request.body("name")(0)
               val featured = if (SitePermissions.userHasPermission(user, "admin")){
@@ -74,20 +74,18 @@ object Courses extends Controller {
     implicit request =>
       implicit user =>
         getCourse(id) { course =>
-		  Future {
+          Future {
             // Only non-guest members and admins can add content
             if (user.hasCoursePermission(course, "addContent")) {
-
               for ( // Add the content to the course
-			    id <- request.body.dataParts("addContent");
-				content <- Content.findById(id.toLong)
-			  ) { course.addContent(content) }
-
+                id <- request.body.dataParts("addContent");
+                content <- Content.findById(id.toLong)
+              ) { course.addContent(content) }
               Redirect(routes.Courses.view(id))
-			    .flashing("success" -> "Content added to course.")
+              .flashing("success" -> "Content added to course.")
             } else
               Errors.forbidden
-		  }
+          }
         }
   }
 
@@ -102,17 +100,15 @@ object Courses extends Controller {
           Future {
             // Only non-guest members and admins can remove content
             if (user.hasCoursePermission(course, "removeContent")) {
-
               for ( // Remove the content to the course
-	            id <- request.body("removeContent");
-			    content <- Content.findById(id.toLong)
-			  ) { course.removeContent(content) }
-
+                id <- request.body("removeContent");
+                content <- Content.findById(id.toLong)
+              ) { course.removeContent(content) }
               Redirect(routes.Courses.view(id))
-	            .flashing("success" -> "Content removed from course.")
+              .flashing("success" -> "Content removed from course.")
             } else
               Errors.forbidden
-		  }
+          }
         }
   }
 
@@ -137,7 +133,7 @@ object Courses extends Controller {
             Redirect(routes.Courses.view(course.id.get)).flashing("success" -> "Course Added")
           } else
           Errors.forbidden
-		}
+        }
   }
 
   /**
@@ -149,11 +145,11 @@ object Courses extends Controller {
 
         // Check if the user is allowed to create a course
         Future {
-		  if (user.hasSitePermission("createCourse"))
+          if (user.hasSitePermission("createCourse"))
             Ok(views.html.courses.create())
           else
             Errors.forbidden
-		}
+        }
   }
 
   /**
@@ -176,18 +172,18 @@ object Courses extends Controller {
       implicit user =>
         Authentication.enforcePermission("joinCourse") {
           getCourse(id) { course =>
-		    Future {
+            Future {
               if(course.getMembers.contains(user)) { // Make sure the user isn't already in the course
                 Redirect(routes.Courses.view(id))
 	              .flashing("error" -> "You are already in this course")
               } else {
                 AddCourseRequest.listByCourse(course)
-			      .find(req => req.userId == user.id.get)
+                .find(req => req.userId == user.id.get)
                   .map { _ => Ok(views.html.courses.pending(course)) }
-				  .getOrElse {
+                  .getOrElse {
                     Ok(views.html.courses.request(course))
-			      }
-			  }
+                  }
+              }
             }
           }
         }
@@ -202,7 +198,7 @@ object Courses extends Controller {
       implicit user =>
         Authentication.enforcePermission("joinCourse") {
           getCourse(id) { course =>
-		    Future {
+            Future {
                 val message = request.body("message")(0)
                 AddCourseRequest(None, user.id.get, course.id.get, message).save
 
@@ -214,7 +210,7 @@ object Courses extends Controller {
 
                 Ok(views.html.courses.pending(course))
 
-			}
+            }
           }
         }
   }
@@ -233,7 +229,7 @@ object Courses extends Controller {
             else
               Errors.forbidden
           }
-		}
+        }
   }
 
   /**
@@ -243,7 +239,7 @@ object Courses extends Controller {
   def approveRequest(courseId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
-	    Future {
+        Future {
           if (user.hasCoursePermission(Course.findById(courseId).get, "addStudent")) {
             for( id <- request.body("reqid");
                  req <- AddCourseRequest.findById(id.toLong);
@@ -251,8 +247,8 @@ object Courses extends Controller {
             ) { req.approve() }
             Redirect(routes.Courses.approvePage(courseId))
           } else
-		    Errors.forbidden
-		}
+            Errors.forbidden
+        }
   }
 
   /**
@@ -262,7 +258,7 @@ object Courses extends Controller {
   def denyRequest(courseId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
-	    Future {
+        Future {
           if (user.hasCoursePermission(Course.findById(courseId).get, "addStudent")) {
             for( id <- request.body("reqid");
                  req <- AddCourseRequest.findById(id.toLong);
@@ -271,7 +267,7 @@ object Courses extends Controller {
             Redirect(routes.Courses.approvePage(courseId))
           } else
             Errors.forbidden
-		}
+        }
   }
 
   /**
@@ -281,7 +277,7 @@ object Courses extends Controller {
   def approveRequests(courseId: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
-	    Future {
+        Future {
           if (user.hasCoursePermission(Course.findById(courseId).get, "addStudent")) {
             for ( id <- request.body.dataParts("reqid");
                   req <- AddCourseRequest.findById(id.toLong);
@@ -289,8 +285,8 @@ object Courses extends Controller {
             ) { req.approve() }
             Ok
           } else
-		    Errors.forbidden
-		}
+            Errors.forbidden
+        }
   }
 
   /**
@@ -300,7 +296,7 @@ object Courses extends Controller {
   def denyRequests(courseId: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
-	    Future {
+        Future {
           if (user.hasCoursePermission(Course.findById(courseId).get, "addStudent")) {
             for ( id <- request.body.dataParts("reqid");
                   req <- AddCourseRequest.findById(id.toLong);
@@ -308,7 +304,7 @@ object Courses extends Controller {
             ) { req.deny() }
             Ok
           } else
-		    Errors.forbidden
+            Errors.forbidden
         }
   }
 
@@ -321,19 +317,19 @@ object Courses extends Controller {
     implicit request =>
       implicit user =>
         getCourse(id) { course =>
-		  Future {
+          Future {
             if (user.hasCoursePermission(course, "removeStudent")) {
               User.findById(studentId) match {
               case Some(student) =>
                 student.unenroll(course)
                 Redirect(routes.Courses.view(course.id.get))
-			      .flashing("info" -> "Student removed")
+                  .flashing("info" -> "Student removed")
               case _ =>
                 Errors.notFound
               }
             } else
               Errors.forbidden
-		  }
+          }
         }
   }
 
@@ -346,13 +342,45 @@ object Courses extends Controller {
       implicit user =>
         getCourse(id) { course =>
           user.unenroll(course)
-		  Future {
+          Future {
             Redirect(routes.Application.home)
-			  .flashing("info" -> s"You just quit ${course.name}")
-		  }
+              .flashing("info" -> s"You just quit ${course.name}")
+          }
         }
   }
 
+  /**
+   * Add a TA to the course based on a Cas username
+   * @param id The course id
+   */
+  def addTA(id: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+    implicit request =>
+      implicit user =>
+        val netid: Option[String] = for {
+          parts <- request.body.dataParts.get("netid")
+          netid <- parts.headOption
+        } yield netid
+        Future {
+          if (netid.isEmpty) {
+            Results.BadRequest
+          } else {
+            val userOpt = User.findByUsername('cas, netid.get)
+            if (userOpt.isEmpty) {
+              Results.BadRequest("User not found. Make sure the user has logged in via cas.")
+            } else {
+              var user = userOpt.get
+              val courseOpt = Course.findById(id)
+              if (courseOpt.isEmpty) {
+                Results.BadRequest("Course does not exist")
+              } else {
+                user = user.enroll(courseOpt.get)
+                CoursePermissions.addTA(courseOpt.get, user)
+                Ok
+              }
+            }
+          }
+        }
+  }
 
   /**
    * Give permissions to a user
@@ -363,7 +391,7 @@ object Courses extends Controller {
       implicit user =>
         val data = request.body.dataParts
         getCourse(id) { course =>
-		  Future {
+          Future {
             if(user.hasCoursePermission(course, "teacher")) {
               User.findById(data("userId")(0).toLong) foreach { member =>
                 operation match {
@@ -383,7 +411,7 @@ object Courses extends Controller {
               }
               Ok
             } else Results.Forbidden
-		  }
+          }
         }
   }
 }

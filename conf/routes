@@ -45,6 +45,7 @@ POST    /course/:id/quit                                controllers.Courses.quit
 POST    /course/:id/request/denyMultiple                controllers.Courses.denyRequests(id: Long)
 POST    /course/:id/remove/:studentId                   controllers.Courses.removeStudent(id: Long, studentId: Long)
 POST    /course/:id/setPermission/:operation            controllers.Courses.setPermission(id: Long, operation: String)
+POST    /course/:id/addTA                               controllers.Courses.addTA(id: Long)
 GET     /course/:courseId/content/:id                   controllers.CourseContent.viewInCourse(id: Long, courseId: Long)
 POST    /course/:courseId/content/:id/remove            controllers.CourseContent.removeFromCourse(id: Long, courseId: Long)
 

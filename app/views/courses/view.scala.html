@@ -29,6 +29,9 @@
                 @if(user.hasCoursePermission(course, "viewData")) {
                     <a href="#studentInfoModal" role="button" class="btn" data-toggle="modal"><i class="icon-user"></i> Course members</a>
                 }
+                @if(user.hasCoursePermission(course, "teacher")) {
+                    <a href="#addTAModal" role="button" class="btn" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
+                }
             </div>
             @if(user.hasCoursePermission(course, "editCourse")) {
                 <a href="#editCourseModal" role="button" class="btn btn-yellow" data-toggle="modal"><i class="icon-pencil"></i> Edit</a>
@@ -97,4 +100,5 @@
     @views.html.courses.helpers.quitCourse(user, course)
     @views.html.courses.helpers.studentInfo(user, course)
     @views.html.courses.helpers.removeContent(user, course)
+    @views.html.courses.helpers.addTA(user, course)
 }

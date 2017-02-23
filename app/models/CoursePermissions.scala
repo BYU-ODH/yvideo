@@ -102,12 +102,23 @@ object CoursePermissions {
       try {
         SQL(s"delete from $tableName where courseId = {cid} and userId = {uid}")
           .on('cid -> course.id.get, 'uid -> user.id)
-		  .executeUpdate()
+          .executeUpdate()
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in CoursePermissions.scala / removeAllUserPermissions")
           Logger.debug(e.getMessage())
       }
+    }
+  }
+
+  /**
+   * adds the TA permission set to the specified user in the specified course
+   */
+  def addTA(course: Course, user: User) = {
+    val taPermissions = List("viewData", "editCourse", "addContent", "makeAnnouncement", "removeContent", "addStudent", "removeStudent")
+    removeAllUserPermissions(course, user)
+    taPermissions.foreach { role =>
+      addUserPermission(course, user, role)
     }
   }
 
