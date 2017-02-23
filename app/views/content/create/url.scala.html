@@ -23,13 +23,13 @@
 
         @defining(request.queryString.getOrElse("annotations", List("false"))(0).toBoolean) { annotations =>
             <form class="form-horizontal" method="post" enctype="multipart/form-data" action="@{routes.ContentController.createFromUrl(courseId, annotations)}">
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="url">URL</label>
                     <div class="controls">
                         <input type="text" id="url" name="url" placeholder="URL" autofocus>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="contentType">Content Type</label>
                     <div class="controls">
                         <select id="contentType" name="contentType">
@@ -40,23 +40,23 @@
                         </select>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="title">Title</label>
                     <div class="controls">
                         <input type="text" required id="title" name="title" placeholder="Title">
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="description">Description</label>
                     <div class="controls">
                         <textarea class="form-control" rows="3" id="description" name="description" placeholder="Description" maxlength="5000"></textarea>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="languages">Languages</label>
                     <div class="controls" id="langLocation"></div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="categories">Categories</label>
                     <div class="controls">
                         <select multiple="multiple" id="categories" name="categories">
@@ -81,19 +81,19 @@
                         </select>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="labels">Keywords</label>
                     <div class="controls">
                         <input type="labels" id="keywords" name="keywords" value="">
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="labels">Labels</label>
                     <div class="controls">
                         <input type="labels" id="labels" name="labels" value="">
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <div class="controls">
                         <input name="create" type="submit" class="btn btn-blue" value="Create">
                         <input name="createAndAdd" type="submit" class="btn btn-yellow" value="Create, then Add More Content">

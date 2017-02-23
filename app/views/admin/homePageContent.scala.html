@@ -25,35 +25,35 @@
                 @if(homePageContent.active) {
                     <span class="badge badge-yellow">Active</span>
                     <form style="display:inline;" action="@routes.Administration.toggleHomePageContent(homePageContent.id.get)" method="POST">
-                        <button class="btn"><i class="icon-remove"></i> Deactivate</button>
+                        <button class="btn btn-default"><i class="icon-remove"></i> Deactivate</button>
                     </form>
                 } else {
                     <span class="badge badge-blue">Not Active</span>
                     <form style="display:inline;" action="@routes.Administration.toggleHomePageContent(homePageContent.id.get)" method="POST">
-                        <button class="btn"><i class="icon-ok"></i> Activate</button>
+                        <button class="btn btn-default"><i class="icon-ok"></i> Activate</button>
                     </form>
                 }
                 <form style="display:inline;" action="@routes.Administration.deleteHomePageContent(homePageContent.id.get)" method="POST">
-                    <button class="btn"><i class="icon-trash"></i> Delete</button>
+                    <button class="btn btn-default"><i class="icon-trash"></i> Delete</button>
                 </form>
             </div>
             <hr>
         }
         <h2>Create new content</h2>
         <form class="form-horizontal" action="@routes.Administration.createHomePageContent()" method="post" enctype="multipart/form-data">
-            <div class="control-group">
+            <div class="form-group">
                 <label class="control-label" for="title">Title</label>
                 <div class="controls">
                     <input type="text" id="title" name="title" placeholder="Title" maxlength="255">
                 </div>
             </div>
-            <div class="control-group">
+            <div class="form-group">
                 <label class="control-label" for="text">Text</label>
                 <div class="controls">
                     <textarea name="text" id="text" maxlength="255"></textarea>
                 </div>
             </div>
-            <div class="control-group">
+            <div class="form-group">
                 <label class="control-label" for="background">Background Image URL</label>
                 <div class="controls">
                     <div class="inline-block">
@@ -73,7 +73,7 @@
                     </div>
                 </div>
             </div>
-            <div class="control-group">
+            <div class="form-group">
                 <label class="control-label" for="link">Link URL</label>
                 <div class="controls">
                     <input type="text" id="link" name="link" placeholder="Link" maxlength="255">
@@ -82,15 +82,15 @@
                     </p>
                 </div>
             </div>
-            <div class="control-group">
+            <div class="form-group">
                 <label class="control-label" for="linkText">Link Text</label>
                 <div class="controls">
                     <input type="text" id="linkText" name="linkText" placeholder="Link Text" maxlength="255">
                 </div>
             </div>
-            <div class="control-group">
+            <div class="form-group">
                 <div class="controls">
-                    <button type="submit" class="btn">Create</button>
+                    <button type="submit" class="btn btn-default">Create</button>
                 </div>
             </div>
         </form>

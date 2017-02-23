@@ -9,7 +9,7 @@
 @setVal(name: String) = @{settings.find(_.name == name).get.value}
 
 @settingCheckBox(name: String, description: String) = {
-    <div class="control-group">
+    <div class="form-group">
         <label class="control-label" for="@{name}_checkbox">@description</label>
         <div class="controls">
             <input type="checkbox" id="@{name}_checkbox" @checked(name) >
@@ -19,7 +19,7 @@
 }
 
 @settingTextField(name: String, description: String) = {
-    <div class="control-group">
+    <div class="form-group">
         <label class="control-label" for="@name">@description</label>
         <div class="controls">
             <input type="text" id="@name" name="@name" placeholder="Nothing" value="@setVal(name)">
@@ -51,9 +51,9 @@
             @settingCheckBox("notifications.users.emailOn.notification", "Email users when they receive a notification")
             @settingTextField("help.gettingStartedContent", "Getting started video ID (0 for none)")
 
-            <div class="control-group">
+            <div class="form-group">
                 <div class="controls">
-                    <button type="submit" class="btn">Save changes</button>
+                    <button type="submit" class="btn btn-default">Save changes</button>
                 </div>
             </div>
         </form>

@@ -9,7 +9,7 @@ var ContentSettings = (function(){
 
     var settingsTemplate = '<form class="form-horizontal">\
         {{#controls:c}}\
-        <div class="control-group">\
+        <div class="form-group">\
             {{#(controlsSettings[c].include(context, content))}}\
                 {{#(type == \'radio\')}}\
                 {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
@@ -43,7 +43,7 @@ var ContentSettings = (function(){
                 </div>\
                 {{/type}}\
                 {{#(type == \'superselect\')}}\
-                    <div class="control-group">\
+                    <div class="form-group">\
                         {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
                         <SuperSelect icon="icon-globe" text="Select Language" value="{{setting}}" btnpos="left" multiple="true" options="{{items}}" modal="configurationModal">\
                     </div>\

@@ -9,7 +9,7 @@
         <p>Are you sure you want to quit @course.name?</p>
     </div>
     <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+        <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
         <form action="@routes.Courses.quitCourse(course.id.get)" method="POST">
             <button class="btn btn-magenta">Yes, Quit</button>
         </form>

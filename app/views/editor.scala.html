@@ -18,7 +18,7 @@
               CSS("main.css")),
             Rel("javascripts/",
               Rel("libraries/",
-                JS("jquery-1.9.0.min.js"),
+                JS("jquery.min.js"),
                 JS("bootstrap.min.js"),
                 JS("Ractive.min.js"),
                 JS("Ractive-events-tap.js")),
@@ -132,7 +132,7 @@
         <div class="messageContainer">
                 <!-- Messages/alerts -->
             @if(request.flash.get("alert").isDefined) {
-                <div class="alert">
+                <div class="alert alert-warning">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Just a sec...</strong> @Html(request.flash("alert"))
                 </div>

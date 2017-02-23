@@ -28,7 +28,7 @@ var PopupBrowser = (function(){
             </div>\
             <div class="modal-footer">\
                 <div>\
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>\
+                    <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>\
                     <button class="btn btn-yellow" id="createContentForCourse">Create Content</button>\
                     <button class="btn btn-primary disabled" id="popupBrowserSelectButton">Select</button>\
                 </div>\

@@ -31,23 +31,23 @@
         </div>
         <div class="modal-body">
             <form id="metadataForm" class="form-horizontal" method="post" action="@routes.ContentEditing.setMetadata(content.id.get)">
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="title">Title</label>
                     <div class="controls">
                         <input type="text" id="title" name="title" placeholder="Title">
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="description">Description</label>
                     <div class="controls">
                         <textarea class="form-control" rows="3" id="description" name="description" placeholder="Description" maxlength="5000"></textarea>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="languages">Languages</label>
                     <div class="controls" id="langLocation"></div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="categories">Categories</label>
                     <div class="controls">
                         <select multiple="multiple" id="categories" name="categories">
@@ -72,13 +72,13 @@
                         </select>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="keywords">Keywords</label>
                     <div class="controls">
                         <input type="labels" id="keywords" name="keywords">
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="labels">Labels</label>
                     <div class="controls">
                         <input type="labels" id="labels" name="labels">
@@ -88,7 +88,7 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
             <button id="saveMetadata" class="btn btn-blue">Save</button>
         </div>
     </div>
@@ -161,13 +161,13 @@
             <h3 id="thumbnailModalLabel">Set Thumbnail</h3>
         </div>
         <div class="modal-body" id="thumbnailBody">
-            <div class="row-fluid">
-                <div class="span4">
+            <div class="row">
+                <div class="col-md-4">
                     <div class="contentItem iconFormat">
                         <div class="contentBadge @content.contentType.name" style="@background"></div>
                     </div>
                 </div>
-                <div class="span8">
+                <div class="col-md-8">
                     <form id="thumbnailForm" method="post" action="@routes.ContentEditing.changeThumbnail(content.id.get)" enctype="multipart/form-data">
 
                         <p>You can update the thumbnail for this content by either uploading a new image or specifying a URL.</p>
@@ -196,7 +196,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
             <button class="btn btn-blue" id="saveThumbnail">Save</button>
         </div>
     </div>
@@ -251,7 +251,7 @@
             <p>Are you sure you want to delete @content.name?</p>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
             <form method="POST" action="@routes.ContentController.delete(content.id.get)">
                 <button id="deleteContentButton" class="btn btn-magenta">Yes</button>
             </form>
@@ -278,13 +278,13 @@
             <p>Please enter the new URL of the media:</p>
 
             <form class="form-horizontal" method="post" action="@routes.ContentEditing.setMediaSource(content.id.get)">
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="sourceUrl">URL</label>
                     <div class="controls">
                         <input type="text" id="sourceUrl" name="url" placeholder="URL">
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <div class="controls">
                         <input type="submit" class="btn btn-blue" value="Save">
                     </div>
@@ -292,7 +292,7 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>
         </div>
     </div>
 }

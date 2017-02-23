@@ -68,7 +68,7 @@
                     <td>@content.resourceId</td>
                     <td>@content.contentType.name</td>
                     <td>
-                        <a href="@routes.ContentController.view(content.id.get)" class="btn">View</a>
+                        <a href="@routes.ContentController.view(content.id.get)" class="btn btn-default">View</a>
 					    <form method="POST" action="@routes.ContentController.delete(content.id.get)">
                             <button class="btn btn-magenta">Delete</button>
                         </form>
@@ -92,7 +92,7 @@
         <div class="modal-body">
             <form class="form-horizontal" method="post" action="@routes.ContentEditing.batchUpdateContent()">
                 <input type="hidden" name="ids" id="ids">
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label">Shareability</label>
                     <div class="controls">
                         <label class="radio">
@@ -109,7 +109,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label">Visibility</label>
                     <div class="controls">
                         <label class="radio">
@@ -130,7 +130,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <div class="controls">
                         <button type="submit" class="btn btn-blue">Save</button>
                     </div>
@@ -138,7 +138,7 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
         </div>
     </div>
 

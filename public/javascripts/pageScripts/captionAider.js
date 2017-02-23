@@ -45,7 +45,7 @@ $(function() {
             {{#buttons}}\
             <button class="btn btn-blue" on-tap="buttonpress:{{.event}}">{{.label}}</button>\
             {{/buttons}}\
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>\
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>\
         </div>',
         onrender: function(){
             var actions = this.actions;
@@ -56,7 +56,7 @@ $(function() {
         }
     });
 
-    Ractive.partials.trackKindSelect = '<div class="control-group">\
+    Ractive.partials.trackKindSelect = '<div class="form-group">\
         <label class="control-label">Kind</label>\
         <div class="controls">\
             <select value="{{trackKind}}">\
@@ -68,14 +68,14 @@ $(function() {
             </select>\
         </div>\
     </div>';
-    Ractive.partials.trackLangSelect = '<div class="control-group">\
+    Ractive.partials.trackLangSelect = '<div class="form-group">\
         <label class="control-label">Language</label>\
         <div class="controls">\
             <SuperSelect icon="icon-globe" text="Select Language" value="{{trackLang}}" button="left" open="{{selectOpen}}" multiple="false" options="{{languages}}" modal="{{modalId}}" defaultOption={{defaultOption}}>\
         </div>\
     </div>';
 
-    Ractive.partials.trackSelect = '<div class="control-group">\
+    Ractive.partials.trackSelect = '<div class="form-group">\
         <div class="controls">\
                 <SuperSelect icon="icon-laptop" text="Select Track" value="{{selectedTracks}}" button="left" open="{{selectOpen}}" multiple="true" options="{{tracks}}" modal="{{modalId}}">\
         </div>\

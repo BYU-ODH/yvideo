@@ -27,7 +27,7 @@
             <label>Send a notification to user #<span id="noteUserIdDisplay"></span>:</label>
 
             <form id="notificationForm" class="form-horizontal" method="post" action="@routes.Administration.sendNotification(0)">
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="message">Message</label>
                     <div class="controls">
                         <textarea id="message" name="message"></textarea>
@@ -38,7 +38,7 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
             <button class="btn btn-blue formSubmitter" data-target="#notificationForm">Save changes</button>
         </div>
     </div>
@@ -52,7 +52,7 @@
             <p>Are you sure you want to delete user #<span id="deleteUserId"></span>?</p>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
             <form style="display:inline;" id="deleteForm" method="POST">
                 <button class="btn btn-magenta">Yes, Delete</button>
             </form>

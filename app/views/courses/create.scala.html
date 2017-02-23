@@ -4,14 +4,14 @@
     <h1>Create Course Page</h1>
 
     <form class="form-horizontal" action="@routes.Courses.create()" method="post">
-        <div class="control-group">
+        <div class="form-group">
             <label class="control-label" for="courseName">Course Name</label>
             <div class="controls">
                 <input type="text" name="courseName" id="courseName" placeholder="Course Name" maxlength="60" pattern=".{1,60}" required
                     autofocus />
             </div>
         </div>
-        <div class="control-group">
+        <div class="form-group">
             <div class="controls">
                 <input class="btn btn-blue" type="submit" value="Create Course Page" />
             </div>

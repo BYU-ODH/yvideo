@@ -8,7 +8,7 @@
         </div>
         <div class="modal-body">
             <form class="form-horizontal" method="post" action="@routes.Courses.edit(course.id.get)">
-              <div class="control-group">
+              <div class="form-group">
                 <label class="control-label" for="courseName">Name</label>
                 <div class="controls">
                   <input type="text" id="courseName" name="name" value="@course.name" maxlength="60" pattern=".{1,60}" required />
@@ -16,7 +16,7 @@
               </div>
 
               @if(user.hasSitePermission("admin")){
-              <div class="control-group">
+              <div class="form-group">
                   <label class="control-label" for="courseStatus">Status</label>
                   <div class="controls">
                       <select name="status" id="courseStatus">
@@ -34,9 +34,9 @@
                 <input type="hidden" name="status" value="@{if (course.featured) "featured" else "normal"}" />
               }
 
-              <div class="control-group">
+              <div class="form-group">
                 <div class="controls">
-                  <button type="submit" class="btn">Save changes</button>
+                  <button type="submit" class="btn btn-default">Save changes</button>
                 </div>
               </div>
             </form>

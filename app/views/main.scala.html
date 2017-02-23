@@ -20,7 +20,7 @@
               CSS("main.css")),
             Rel("javascripts/",
               Rel("libraries/",
-                JS("jquery-1.9.0.min.js"),
+                JS("jquery.min.js"),
                 JS("bootstrap.min.js"),
                 JS("Ractive.min.js"),
                 JS("Ractive-events-tap.js")),
@@ -149,26 +149,26 @@
 
                 <div class="footer">
                     <div class="padded">
-                        <div class="row-fluid">
-                            <div class="span10 offset1">
-                                <div class="row-fluid">
-                                    <div class="span3">
+                        <div class="row">
+                            <div class="col-md-10 offset1">
+                                <div class="row">
+                                    <div class="col-md-3">
                                         @if(user.exists(_.hasSitePermission("joinCourse"))) {
                                             <div><a href="@routes.Courses.list()">Course Directory</a></div>
                                         }
                                         <div><a href="@routes.Application.about()">About Ayamel</a></div>
                                         <div><a href="mailto:@configuration.getString("smtp.address").get">Contact Us</a></div>
                                     </div>
-                                    <div class="span3">
+                                    <div class="col-md-3">
                                         <div><a href="@routes.Application.terms()">Terms of Use</a></div>
                                         <div><a href="@routes.Application.policy()">Privacy Policy</a></div>
                                     </div>
-                                    <div class="span3">
+                                    <div class="col-md-3">
                                         <div>Copyright © 2013 <a href="http://byu.edu">Brigham Young University</a></div>
                                         <div>By the <a href="http://arclite.byu.edu">ARCLITE Lab</a></div>
                                         <div>Funding from <a href="http://www.thelanguageflagship.org/">The Language Flagship</a></div>
                                     </div>
-                                    <div class="span3">
+                                    <div class="col-md-3">
                                         <div>All source code is <a href="https://github.com/BYU-ARCLITE">Open Source</a></div>
                                         <div>Uses the <a href="http://ayamel.org/">Ayamel Resource Library</a></div>
                                         <div>and the <a href="http://y-lex.byu.edu/about">Y-Lex Dictionary Service</a></div>
@@ -184,7 +184,7 @@
         <div class="messageContainer">
                 <!-- Messages/alerts -->
             @if(request.flash.get("alert").isDefined) {
-                <div class="alert">
+                <div class="alert alert-warning">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Just a sec...</strong> @Html(request.flash("alert"))
                 </div>

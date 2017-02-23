@@ -15,7 +15,7 @@
 		  CSS("index.css")),
 		Rel("javascripts/",
 		  Rel("libraries/",
-			JS("jquery-1.9.0.min.js"),
+			JS("jquery.min.js"),
 			JS("bootstrap.min.js")),
 		  JS("pageScripts/index.js")))
 	)
@@ -45,7 +45,7 @@
         <div class="getStarted">
 
             @if(request.flash.get("alert").isDefined) {
-                <div class="alert">
+                <div class="alert alert-warning">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Just a sec...</strong> @request.flash("alert")
                 </div>
@@ -92,8 +92,8 @@
         </div>
 
         <div id="aboutAyamel">
-            <div class="row-fluid">
-                <div class="span3">
+            <div class="row">
+                <div class="col-md-3">
                     <h3 class="text-center"><span class="ayamel-icon"></span> What is Ayamel?</h3>
                     <p>
                         Ayamel is a web-based system for streaming video and audio content especially as it applies to
@@ -101,7 +101,7 @@
                         helping you learn languages.
                     </p>
                 </div>
-                <div class="span3">
+                <div class="col-md-3">
                     <h3 class="text-center"><i class="icon-comment"></i> Text helps</h3>
                     <p>
                         Additional aids are available to be used in conjunction with the
@@ -110,7 +110,7 @@
                         iew relevant annotations.
                     </p>
                 </div>
-                <div class="span3">
+                <div class="col-md-3">
                     <h3 class="text-center"><i class="icon-pencil"></i> For school</h3>
                     <p>
                         Teachers or course designers are able to aggregate media into a single location and set up specific
@@ -129,81 +129,91 @@
         <div>Funding from <a href="http://www.thelanguageflagship.org/">The Language Flagship</a></div>
     </div>
 
-    <div id="signupModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="signupModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="signupModalLabel">Create an account</h3>
+    <div id="signupModal" class="modal fade" role="dialog" aria-labelledby="signupModalLabel" >
+        <div class="modal-content">
+
+                <div class="modal-dialog">
+    
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3 id="signupModalLabel">Create an account</h3>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="signupForm" method="post" action="@controllers.authentication.routes.Password.createAccount(path)">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="username">Username</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" autofocus>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="password1">Password</label>
+                        <div class="col-sm-6">
+                            <input type="password" class="form-control" id="password1" name="password1" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="password2">Password again</label>
+                        <div class="col-sm-6">
+                            <input type="password" class="form-control" id="password2" name="password2" placeholder="Password again">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="name">Your name</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Your name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="email">Email address</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Email address">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                <button id="signup" class="btn btn-blue">Sign up</button>
+            </div>
         </div>
-        <div class="modal-body">
-            <form class="form-horizontal" id="signupForm" method="post" action="@controllers.authentication.routes.Password.createAccount(path)">
-                <div class="control-group">
-                    <label class="control-label" for="username">Username</label>
-                    <div class="controls">
-                        <input type="text" id="username" name="username" placeholder="Username" autofocus pattern=".{3,}" required>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="password1">Password</label>
-                    <div class="controls">
-                        <input type="password" id="password1" name="password1" placeholder="Password" pattern=".{6,}" required>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="password2">Password again</label>
-                    <div class="controls">
-                        <input type="password" id="password2" name="password2" placeholder="Password again" pattern=".{6,}" required>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="name">Your name</label>
-                    <div class="controls">
-                        <input type="text" id="name" name="name" placeholder="Your name">
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="email">Email address</label>
-                    <div class="controls">
-                        <input type="text" id="email" name="email" placeholder="Email address">
-                    </div>
-                </div>
-                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button id="signup" class="btn btn-blue">Sign up</button>
         </div>
     </div>
 
-    <div id="loginModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+
+  <div id="loginModal" class="modal fade" role="dialog" aria-labelledby="loginModalLabel" >
+    <div class="modal-dialog">
+    
+      <div class="modal-content">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <button type="button" class="close" data-dismiss="modal" >×</button>
             <h3 id="loginModalLabel">Sign in</h3>
         </div>
-
         <div class="modal-body">
-            <form class="form-horizontal" id="loginForm" method="post" action="@controllers.authentication.routes.Password.login("login", path)">
-                <div class="control-group">
-                    <label class="control-label" for="username">Username</label>
-                    <div class="controls">
-                        <input type="text" id="username" name="username" placeholder="Username" autofocus>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="password">Password</label>
-                    <div class="controls">
-                        <input type="password" id="password" name="password" placeholder="Password">
-                    </div>
-                </div>
-                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+          <form class="form-horizontal" id="loginForm" method="post" action="@controllers.authentication.routes.Password.login("login", path)">
+            <div class="form-group">
+            <label class="control-label col-sm-4" for="username">Username:</label>
+            <div class="col-sm-6">
+                <input class="form-control" id="username" name="username" placeholder="Enter username">
+            </div>
+            </div>
+            <div class="form-group">
+            <label class="control-label col-sm-4" for="password">Password:</label>
+            <div class="col-sm-6">          
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+            </div>
+            </div>
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
             <button id="login" class="btn btn-blue">Sign in</button>
         </div>
-
+      </div>
+      
     </div>
+  </div>
 
     <script type="text/javascript">
         $(function() {

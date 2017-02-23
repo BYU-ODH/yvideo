@@ -13,8 +13,8 @@
 
         <h1>Notifications</h1>
 
-        <div class="row-fluid">
-            <div class="span4">
+        <div class="row">
+            <div class="col-md-4">
                 <table class="pad-bottom-high">
                     <tr>
                         <td>Unread messages:</td>
@@ -28,7 +28,7 @@
                 <p>Click on an unread notification to mark it as read.</p>
                 <p>Click on a read notification to delete it.</p>
             </div>
-            <div class="span8 notifications">
+            <div class="col-md-8 notifications">
                 @if(user.getNotifications.isEmpty) {
                     <em>You don't have any notifications</em>
                 } else {

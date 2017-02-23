@@ -18,7 +18,7 @@
                 <strong><em>There is no content in this course.</em></strong>
             } else {
                 <form class="form-horizontal" id="removeContentForm" method="post" action="@routes.Courses.removeContent(course.id.get)">
-                    <div class="control-group">
+                    <div class="form-group">
                         <label class="control-label" for="removeContent">Content to remove:</label>
                         <div class="controls">  
                             <select id="removeContent" name="removeContent" multiple="multiple">
@@ -33,7 +33,7 @@
             }
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
             @if(!availableContent.isEmpty) {
                 <button class="btn btn-blue" id="removeContentButton" disabled="true">Remove Content</button>
             }

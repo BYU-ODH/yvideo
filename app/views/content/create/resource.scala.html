@@ -20,13 +20,13 @@
         <p>If you don't know what to enter here, then you probably want to use a different method of adding content.</p>
 
         <form class="form-horizontal" method="post" action="@routes.ContentController.createFromResource(courseId)">
-            <div class="control-group">
+            <div class="form-group">
                 <label class="control-label" for="resourceId">Resource ID</label>
                 <div class="controls">
                     <input type="text" id="resourceId" name="resourceId" placeholder="Resource ID" autofocus>
                 </div>
             </div>
-            <div class="control-group">
+            <div class="form-group">
                 <div class="controls">
                     <input name="create" type="submit" class="btn btn-blue" value="Create">
                     <input name="createAndAdd" type="submit" class="btn btn-yellow" value="Create, then Add More Content">

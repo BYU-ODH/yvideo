@@ -8,15 +8,15 @@
     <div class="padded">
         <h1>Account Settings</h1>
 
-        <div class="row-fluid">
-            <div class="span6">
+        <div class="row">
+            <div class="col-md-6">
 
                 <h2>Profile Picture</h2>
-                <div class="row-fluid">
-                    <div class="span3">
+                <div class="row">
+                    <div class="col-md-3">
                         <div class="face" data-toggle="tooltip" title="@user.displayName" style="background: url('@user.getPicture'); background-size: cover;"></div>
                     </div>
-                    <div class="span9">
+                    <div class="col-md-9">
                         <form action="@routes.Users.uploadProfilePicture()" method="post" enctype="multipart/form-data">
                             <div>
                                 <label for="file">To update your profile picture, upload a new image:</label>
@@ -35,19 +35,19 @@
                 <p>To change your personal information, fill in the following fields and click <em>Save Changes</em>.</p>
 
                 <form class="form-horizontal" method="post" action="@routes.Users.saveSettings()">
-                    <div class="control-group">
+                    <div class="form-group">
                         <label class="control-label" for="name">Name</label>
                         <div class="controls">
                             <input type="text" id="name" name="name" placeholder="Name" value="@user.name.getOrElse("")">
                         </div>
                     </div>
-                    <div class="control-group">
+                    <div class="form-group">
                         <label class="control-label" for="email">Email</label>
                         <div class="controls">
                             <input type="text" id="email" name="email" placeholder="Email" value="@user.email.getOrElse("")">
                         </div>
                     </div>
-                    <div class="control-group">
+                    <div class="form-group">
                         <div class="controls">
                             <button type="submit" class="btn btn-blue">Save Changes</button>
                         </div>
@@ -58,19 +58,19 @@
                     <h2>Change Password</h2>
                     <p>Use the folowing form to reset your password.</p>
                     <form class="form-horizontal" method="post" action="@routes.Users.changePassword()">
-                        <div class="control-group">
+                        <div class="form-group">
                             <label class="control-label" for="password1">New Password</label>
                             <div class="controls">
                                 <input type="password" id="password1" name="password1" placeholder="New Password">
                             </div>
                         </div>
-                        <div class="control-group">
+                        <div class="form-group">
                             <label class="control-label" for="password2">Repeat New Password</label>
                             <div class="controls">
                                 <input type="password" id="password2" name="password2" placeholder="Repeat New Password">
                             </div>
                         </div>
-                        <div class="control-group">
+                        <div class="form-group">
                             <div class="controls">
                                 <button type="submit" class="btn btn-blue">Change Password</button>
                             </div>
@@ -79,7 +79,7 @@
                 }
 
             </div>
-            <div class="span6">
+            <div class="col-md-6">
 
                 <h2>Permissions</h2>
                 <p>
@@ -97,7 +97,7 @@
                     Account merge status:
 
                     @if(user.getAccountLink.isDefined) {
-                        <span class="label label-magenta">Merged with @{user.getAccountLink.get.userIds.size - 1} other(s)</span>
+                        <span class="label label-default label-magenta">Merged with @{user.getAccountLink.get.userIds.size - 1} other(s)</span>
 
                         <table class="table table-bordered pad-top-med">
                             <thead>
@@ -114,9 +114,9 @@
                                     <td>@user.username</td>
                                     <td>
                                         @if(user.id.get == user.getAccountLink.get.primaryAccount) {
-                                            <span class="label label-yellow">Primary</span>
+                                            <span class="label label-default label-yellow">Primary</span>
                                         } else {
-                                            <span class="label label-blue">Secondary</span>
+                                            <span class="label label-default label-blue">Secondary</span>
                                         }
                                     </td>
                                     </tr>
@@ -124,15 +124,15 @@
                             </tbody>
                         </table>
                     } else {
-                        <span class="label label-magenta">Not merged</span>
+                        <span class="label label-default label-magenta">Not merged</span>
                     }
                 </div>
                 <div class="pad-top-med">
                     <p>
                         To merge your account with another, please authenticate with one of the following methods:
                     </p>
-                    <div class="row-fluid">
-                        <div class="span6 offset3">
+                    <div class="row">
+                        <div class="col-md-6 offset3">
                             <div class="well">
                                 <a class="btn btn-danger btn-block" href="@controllers.authentication.routes.Google.login("merge", "")"><i class="icon-google-plus"></i> Google</a>
                                 <a class="btn btn-primary btn-block" href="@controllers.authentication.routes.Cas.login("merge", "")"><img src="@routes.Assets.at("images/auth/byu.png")" style="height: 14px; margin-top: -2px;" /> BYU</a>
@@ -153,13 +153,13 @@
 
         <div class="modal-body">
             <form class="form-horizontal" id="loginForm" method="post" action="@controllers.authentication.routes.Password.login("merge", "")">
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="username">Username</label>
                     <div class="controls">
                         <input type="text" id="username" name="username" placeholder="Username">
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="password">Password</label>
                     <div class="controls">
                         <input type="password" id="password" name="password" placeholder="Password">
@@ -169,7 +169,7 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
             <button id="login" class="btn btn-blue">Sign in</button>
         </div>
 

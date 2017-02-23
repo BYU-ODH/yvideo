@@ -10,7 +10,7 @@
             <p>Are you sure you want to delete @course.name?</p>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
             <form action="@routes.Administration.deleteCourse(course.id.get)" method="POST">
                 <button class="btn btn-magenta">Yes, Delete</button>
             </form>
