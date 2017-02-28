@@ -52,8 +52,15 @@ object Password extends Controller {
       val name = request.body("name")(0)
       val email = request.body("email")(0)
 
-      // Check the username isn't taken
-      if (User.findByUsername('password, username).isEmpty) {
+      if (username.length < 3) {
+        Redirect(controllers.routes.Application.index().toString(), request.queryString)
+          .flashing("alert" -> "Username is too short.")
+      }
+      else if (password1.length < 6 || password2.length < 6) {
+        Redirect(controllers.routes.Application.index().toString(), request.queryString)
+          .flashing("alert" -> "Passwords should be a minimum of six characters long.")
+      }
+      else if (User.findByUsername('password, username).isEmpty) {
 
         // Check the passwords match
         if (password1 == password2) {

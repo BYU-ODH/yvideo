@@ -139,19 +139,19 @@
                 <div class="control-group">
                     <label class="control-label" for="username">Username</label>
                     <div class="controls">
-                        <input type="text" id="username" name="username" placeholder="Username" autofocus>
+                        <input type="text" id="username" name="username" placeholder="Username" autofocus pattern=".{3,}" required>
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="password1">Password</label>
                     <div class="controls">
-                        <input type="password" id="password1" name="password1" placeholder="Password">
+                        <input type="password" id="password1" name="password1" placeholder="Password" pattern=".{6,}" required>
                     </div>
                 </div>
                 <div class="control-group">
                     <label class="control-label" for="password2">Password again</label>
                     <div class="controls">
-                        <input type="password" id="password2" name="password2" placeholder="Password again">
+                        <input type="password" id="password2" name="password2" placeholder="Password again" pattern=".{6,}" required>
                     </div>
                 </div>
                 <div class="control-group">
