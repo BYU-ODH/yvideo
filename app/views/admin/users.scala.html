@@ -18,44 +18,52 @@
         <span id="usertable"></span>
     </div>
 
-    <div id="notificationModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h3 id="notificationModalLabel">Send a notification</h3>
-        </div>
-        <div class="modal-body">
-            <label>Send a notification to user #<span id="noteUserIdDisplay"></span>:</label>
-
-            <form id="notificationForm" class="form-horizontal" method="post" action="@routes.Administration.sendNotification(0)">
-                <div class="form-group">
-                    <label class="control-label" for="message">Message</label>
-                    <div class="controls">
-                        <textarea id="message" name="message"></textarea>
-                    </div>
+    <div id="notificationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                    <h3 id="notificationModalLabel">Send a notification</h3>
                 </div>
-                <input type="hidden" name="userId" id="noteUserId" value="">
-                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button class="btn btn-blue formSubmitter" data-target="#notificationForm">Save changes</button>
+                <div class="modal-body">
+                    <label>Send a notification to user #<span id="noteUserIdDisplay"></span>:</label>
+
+                    <form id="notificationForm" class="form-horizontal" method="post" action="@routes.Administration.sendNotification(0)">
+                        <div class="form-group">
+                            <label class="control-label" for="message">Message</label>
+                            <div class="controls">
+                                <textarea id="message" name="message"></textarea>
+                            </div>
+                        </div>
+                        <input type="hidden" name="userId" id="noteUserId" value="">
+                        <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <button class="btn btn-blue formSubmitter" data-target="#notificationForm">Save changes</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="deleteModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h3 id="deleteModalLabel">Delete user</h3>
-        </div>
-        <div class="modal-body">
-            <p>Are you sure you want to delete user #<span id="deleteUserId"></span>?</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
-            <form style="display:inline;" id="deleteForm" method="POST">
-                <button class="btn btn-magenta">Yes, Delete</button>
-            </form>
+    <div id="deleteModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                    <h3 id="deleteModalLabel">Delete user</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete user #<span id="deleteUserId"></span>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">No</button>
+                    <form style="display:inline;" id="deleteForm" method="POST">
+                        <button class="btn btn-magenta">Yes, Delete</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 

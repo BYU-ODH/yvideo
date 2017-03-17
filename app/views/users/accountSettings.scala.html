@@ -149,34 +149,37 @@
         </div>
     </div>
 </div>
-    <div id="passwordModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="passwordModalLabel">Enter your username and password</h3>
-        </div>
-
-        <div class="modal-body">
-            <form class="form-horizontal" id="loginForm" method="post" action="@controllers.authentication.routes.Password.login("merge", "")">
-                <div class="form-group">
-                    <label class="control-label" for="username">Username</label>
-                    <div class="controls">
-                        <input type="text" id="username" name="username" placeholder="Username">
-                    </div>
+    <div id="passwordModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="passwordModalLabel">Enter your username and password</h3>
                 </div>
-                <div class="form-group">
-                    <label class="control-label" for="password">Password</label>
-                    <div class="controls">
-                        <input type="password" id="password" name="password" placeholder="Password">
-                    </div>
-                </div>
-                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button id="login" class="btn btn-blue">Sign in</button>
-        </div>
 
+                <div class="modal-body">
+                    <form class="form-horizontal" id="loginForm" method="post" action="@controllers.authentication.routes.Password.login("merge", "")">
+                        <div class="form-group">
+                            <label class="control-label" for="username">Username</label>
+                            <div class="controls">
+                                <input type="text" id="username" name="username" placeholder="Username">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="password">Password</label>
+                            <div class="controls">
+                                <input type="password" id="password" name="password" placeholder="Password">
+                            </div>
+                        </div>
+                        <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <button id="login" class="btn btn-blue">Sign in</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <style type="text/css">
