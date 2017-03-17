@@ -129,9 +129,9 @@ var ContentItemRenderer = (function(){
     function createSizer(args){
         var element = Ayamel.utils.parseHTML(
             '<div class="btn-group" data-toggle="buttons-radio">\
-                <button class="btn btn-default" data-format="block"><i class="icon-th-large"></i></button>\
-                <button class="btn btn-default" data-format="table"><i class="icon-th-list"></i></button>\
-                <button class="btn btn-default" data-format="icon"><i class="icon-th"></i></button>\
+                <button class="btn btn-gray" data-format="block"><i class="icon-th-large"></i></button>\
+                <button class="btn btn-gray" data-format="table"><i class="icon-th-list"></i></button>\
+                <button class="btn btn-gray" data-format="icon"><i class="icon-th"></i></button>\
             </div>'
         );
 
@@ -166,11 +166,11 @@ var ContentItemRenderer = (function(){
     function createOrganizer(args){
         var element = Ayamel.utils.parseHTML(
             '<div class="btn-group" data-toggle="buttons-radio">\
-                <button class="btn btn-default" data-organization="contentType"><i class="icon-play-circle"></i> Content Type</button>\
-                <button class="btn btn-default" data-organization="labels"><i class="icon-tags"></i> Labels</button>\
-                <button class="btn btn-default" data-organization="title"><i class="icon-sort-by-alphabet"></i> Title</button>\
+                <button class="btn btn-gray" data-organization="contentType"><i class="icon-play-circle"></i> Content Type</button>\
+                <button class="btn btn-gray" data-organization="labels"><i class="icon-tags"></i> Labels</button>\
+                <button class="btn btn-gray" data-organization="title"><i class="icon-sort-by-alphabet"></i> Title</button>\
             </div>'
-            // <button class="btn btn-default" data-organization="language"><i class="icon-globe"></i> Language</button>\
+            // <button class="btn btn-gray" data-organization="language"><i class="icon-globe"></i> Language</button>\
         );
 
         $(element).button();

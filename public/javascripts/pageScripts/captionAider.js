@@ -45,7 +45,7 @@ $(function() {
             {{#buttons}}\
             <button class="btn btn-blue" on-tap="buttonpress:{{.event}}">{{.label}}</button>\
             {{/buttons}}\
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>\
+            <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>\
         </div>',
         onrender: function(){
             var actions = this.actions;
