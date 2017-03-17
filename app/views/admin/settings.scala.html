@@ -34,32 +34,31 @@
     </div>
 
     <div class="padded">
+        <div class="container-fluid">
 
-        @views.html.admin.navbar("settings")
+            @views.html.admin.navbar("settings")
 
-        <h1>Site Settings</h1>
+            <h1>Site Settings</h1>
 
-        <h2>Admin Email Notifications</h2>
+            <h2>Admin Email Notifications</h2>
 
-        <form class="form-horizontal" method="post" action="@routes.Administration.saveSiteSettings()">
-            @settingTextField("notifications.emails", "Admin Emails (comma separated)")
-            @settingCheckBox("notifications.notifyOn.error", "Email on error")
-            @settingCheckBox("notifications.notifyOn.errorReport", "Email on error report")
-            @settingCheckBox("notifications.notifyOn.bugReport", "Email on bug report")
-            @settingCheckBox("notifications.notifyOn.rating", "Email on rating")
-            @settingCheckBox("notifications.notifyOn.suggestion", "Email on feature suggestion")
-            @settingCheckBox("notifications.users.emailOn.notification", "Email users when they receive a notification")
-            @settingTextField("help.gettingStartedContent", "Getting started video ID (0 for none)")
+            <form class="form-horizontal" method="post" action="@routes.Administration.saveSiteSettings()">
+                @settingTextField("notifications.emails", "Admin Emails (comma separated)")
+                @settingCheckBox("notifications.notifyOn.error", "Email on error")
+                @settingCheckBox("notifications.notifyOn.errorReport", "Email on error report")
+                @settingCheckBox("notifications.notifyOn.bugReport", "Email on bug report")
+                @settingCheckBox("notifications.notifyOn.rating", "Email on rating")
+                @settingCheckBox("notifications.notifyOn.suggestion", "Email on feature suggestion")
+                @settingCheckBox("notifications.users.emailOn.notification", "Email users when they receive a notification")
+                @settingTextField("help.gettingStartedContent", "Getting started video ID (0 for none)")
 
-            <div class="form-group">
-                <div class="controls">
-                    <button type="submit" class="btn btn-default">Save changes</button>
+                <div class="form-group">
+                    <div class="controls">
+                        <button type="submit" class="btn btn-default">Save changes</button>
+                    </div>
                 </div>
-            </div>
-        </form>
-
-
-
+            </form>
+        </div>
     </div>
 
     <!-- TODO: Eliminate the hidden form fields -->

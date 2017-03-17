@@ -21,68 +21,72 @@
     <i class="icon-bullhorn pad-right-med"></i> Feedback
 </div>
 
-<div id="feedbackModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="feedbackModalLabel">We want your opinion</h3>
-    </div>
-    <div class="modal-body">
-        <div class="inline-block">
-            <div class="well">
-                <button class="btn btn-magenta feedbackCategory" data-target="#feedbackProblem">
-                    <i class="icon-fire-extinguisher icon-2x"></i><br>
-                    Problem
-                </button>
-                <button class="btn btn-yellow feedbackCategory" data-target="#feedbackSuggestion">
-                    <i class="icon-lightbulb icon-2x"></i><br>
-                    Suggestion
-                </button>
-                <button class="btn btn-blue feedbackCategory" data-target="#feedbackThoughts">
-                    <i class="icon-thumbs-up icon-2x"></i><br>
-                    Thoughts
-                </button>
-            </div>
-        </div>
+<div id="feedbackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+	    <div class="modal-content">
+		    <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		        <h3 id="feedbackModalLabel">We want your opinion</h3>
+		    </div>
+		    <div class="modal-body">
+		        <div class="inline-block">
+		            <div class="well">
+		                <button class="btn btn-magenta feedbackCategory" data-target="#feedbackProblem">
+		                    <i class="icon-fire-extinguisher icon-2x"></i><br>
+		                    Problem
+		                </button>
+		                <button class="btn btn-yellow feedbackCategory" data-target="#feedbackSuggestion">
+		                    <i class="icon-lightbulb icon-2x"></i><br>
+		                    Suggestion
+		                </button>
+		                <button class="btn btn-blue feedbackCategory" data-target="#feedbackThoughts">
+		                    <i class="icon-thumbs-up icon-2x"></i><br>
+		                    Thoughts
+		                </button>
+		            </div>
+		        </div>
 
-        <div id="feedbackProblem" class="feedbackContent">
-            <h4>Report a problem</h4>
+		        <div id="feedbackProblem" class="feedbackContent">
+		            <h4>Report a problem</h4>
 
-            <p>Please describe the problem:</p>
-            <div><textarea id="problem"></textarea></div>
+		            <p>Please describe the problem:</p>
+		            <div><textarea id="problem"></textarea></div>
 
-            <p>List the steps needed to reproduce the issue:</p>
-            <div><textarea id="reproduce"></textarea></div>
+		            <p>List the steps needed to reproduce the issue:</p>
+		            <div><textarea id="reproduce"></textarea></div>
 
-            <button class="btn btn-magenta" id="problemButton">Send Feedback</button>
-        </div>
+		            <button class="btn btn-magenta" id="problemButton">Send Feedback</button>
+		        </div>
 
-        <div id="feedbackSuggestion" class="feedbackContent">
-            <h4>Suggest a new feature</h4>
+		        <div id="feedbackSuggestion" class="feedbackContent">
+		            <h4>Suggest a new feature</h4>
 
-            <p>Please describe the feature you would like to add:</p>
-            <div><textarea id="feature"></textarea></div>
+		            <p>Please describe the feature you would like to add:</p>
+		            <div><textarea id="feature"></textarea></div>
 
-            <button class="btn btn-yellow" id="suggestionButton">Send Feedback</button>
-        </div>
+		            <button class="btn btn-yellow" id="suggestionButton">Send Feedback</button>
+		        </div>
 
-        <div id="feedbackThoughts" class="feedbackContent">
-            <h4>Rate the site</h4>
+		        <div id="feedbackThoughts" class="feedbackContent">
+		            <h4>Rate the site</h4>
 
-            <p>How easy is it to navigate the site? @starRating("navigate")</p>
-            <p>How easy it to find what you are looking for? @starRating("find")</p>
-            <p>How useful is Ayamel to your language learning? @starRating("useful")</p>
-            <p>Additional comments:</p>
-            <div><textarea id="comments"></textarea></div>
-            <button class="btn btn-blue" id="thoughtButton">Send Feedback</button>
-        </div>
+		            <p>How easy is it to navigate the site? @starRating("navigate")</p>
+		            <p>How easy it to find what you are looking for? @starRating("find")</p>
+		            <p>How useful is Ayamel to your language learning? @starRating("useful")</p>
+		            <p>Additional comments:</p>
+		            <div><textarea id="comments"></textarea></div>
+		            <button class="btn btn-blue" id="thoughtButton">Send Feedback</button>
+		        </div>
 
-        <div id="feedbackThanks" class="feedbackContent">
-            Thank you for your feedback!
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
-    </div>
+		        <div id="feedbackThanks" class="feedbackContent">
+		            Thank you for your feedback!
+		        </div>
+		    </div>
+		    <div class="modal-footer">
+		        <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
+		    </div>
+	    </div>
+	</div>
 </div>
 
 <script type="text/javascript">

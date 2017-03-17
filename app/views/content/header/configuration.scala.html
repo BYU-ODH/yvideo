@@ -1,15 +1,19 @@
 @(content: models.Content, resourceLibraryUrl: String, course: Option[Course], user: User)
 
-<div id="configurationModal" class="modal bigModal hide fade" tabindex="-1" role="dialog" aria-labelledby="configurationModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-        <h3 id="configurationModalLabel">Edit Configuration</h3>
-    </div>
-    <div class="modal-body" id="settingsBox">
-    </div>
-    <div class="modal-footer">
-        <div>
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
+<div id="configurationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="configurationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                <h3 id="configurationModalLabel">Edit Configuration</h3>
+            </div>
+            <div class="modal-body" id="settingsBox">
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

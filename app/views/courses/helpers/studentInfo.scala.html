@@ -3,35 +3,39 @@
 
 @if(user.hasCoursePermission(course, "teacher") || user.hasCoursePermission(course, "viewData")) {
     @Dependencies(Local(JS("javascripts/pageScripts/coursePermissions.js")))
-    <div id="studentInfoModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="studentInfoModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h3 id="studentInfoModalLabel">Student Information</h3>
-        </div>
-        <div class="modal-body">
-            <h4>Teachers</h4>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for(teacher <- course.getTeachers) {
-                        <tr>
-                            <td>@teacher.displayName</td>
-                            <td>@Html(teacher.email.getOrElse("<em>None</em>"))</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    <div id="studentInfoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="studentInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                    <h3 id="studentInfoModalLabel">Student Information</h3>
+                </div>
+                <div class="modal-body">
+                    <h4>Teachers</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for(teacher <- course.getTeachers) {
+                                <tr>
+                                    <td>@teacher.displayName</td>
+                                    <td>@Html(teacher.email.getOrElse("<em>None</em>"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
 
-            <h4>Students</h4>
-            <span id="membertable"></span>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-blue" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <h4>Students</h4>
+                    <span id="membertable"></span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-blue" data-dismiss="modal" aria-hidden="true">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -12,15 +12,15 @@
         <div id="slider" class="swipe">
             <div class="swipe-wrap">
                 @for(homePageContent <- HomePageContent.list.filter(_.active)) {
-                    <div class="slide" style="background: url('@homePageContent.background') center; background-size: cover">
-                        <div class="slideTextHolder">
-                            <h1>@homePageContent.title</h1>
-                            <p>@homePageContent.text</p>
-                            @if(!homePageContent.link.isEmpty) {
-                                <a href="@homePageContent.link" class="btn btn-blue">@homePageContent.linkText</a>
-                            }
-                        </div>
+                <div class="slide" style="background: url('@homePageContent.background') center; background-size: cover">
+                    <div class="slideTextHolder">
+                        <h1>@homePageContent.title</h1>
+                        <p>@homePageContent.text</p>
+                        @if(!homePageContent.link.isEmpty) {
+                            <a href="@homePageContent.link" class="btn btn-blue">@homePageContent.linkText</a>
+                        }
                     </div>
+                </div>
                 }
             </div>
         </div>
@@ -32,7 +32,7 @@
         @*<h1>Spotlight</h1>*@
     </div>
 
-    <div class="homeNav">
+    <!--<div class="homeNav">
         <div class="row">
             <div class="col-md-4">
                 <button class="btn btn-inverse btn-large btn-block homeNavButton color-light-blue clicked" data-target="#myAyamel"><i class="icon-home"></i> My Ayamel</button>
@@ -44,50 +44,51 @@
                 <button class="btn btn-inverse btn-large btn-block homeNavButton" data-target="#siteNews"><i class="icon-bullhorn"></i> Site News</button>
             </div>
         </div>
-    </div>
+    </div>-->
 
     <div class="padded">
 
         <div id="myAyamel" class="homeNavContent">
             <h1>My Ayamel</h1>
-
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="homeContent">
-                        <div class="homeContentContainer">
-                            <h3>Course Content Feed</h3>
-                            <div id="latestContent"></div>
-                            <script type="text/javascript">
-                                $(function() {
-                                    var contentFeed = [];
-                                    @for(contentData <- user.getContentFeed(6)) {
-                                        var content_@contentData._1.id.get = @Html(contentData._1.toJson.toString);
-                                        content_@{contentData._1.id.get}.courseId = @contentData._2;
-                                        contentFeed.push(content_@contentData._1.id.get);
-                                    }
-                                    ContentItemRenderer.renderAll({
-                                        content: contentFeed,
-                                        holder: document.getElementById("latestContent"),
-                                        format: "icon"
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="homeContent">
+                            <div class="homeContentContainer">
+                                <h3>Course Content Feed</h3>
+                                <div id="latestContent"></div>
+                                <script type="text/javascript">
+                                    $(function() {
+                                        var contentFeed = [];
+                                        @for(contentData <- user.getContentFeed(6)) {
+                                            var content_@contentData._1.id.get = @Html(contentData._1.toJson.toString);
+                                            content_@{contentData._1.id.get}.courseId = @contentData._2;
+                                            contentFeed.push(content_@contentData._1.id.get);
+                                        }
+                                        ContentItemRenderer.renderAll({
+                                            content: contentFeed,
+                                            holder: document.getElementById("latestContent"),
+                                            format: "icon"
+                                        });
                                     });
-                                });
-                            </script>
+                                </script>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="homeContent">
-                        <div class="homeContentContainer">
-                            <h3>My Courses</h3>
-                            <ul>
-                                @for(course <- user.getEnrollment) {
-                                    <li><a href="@routes.Courses.view(course.id.get)">@course.name</a></li>
-                                }
-                            </ul>
+                    <div class="col-md-4">
+                        <div class="homeContent">
+                            <div class="homeContentContainer">
+                                <h3>My Courses</h3>
+                                <ul>
+                                    @for(course <- user.getEnrollment) {
+                                        <li><a href="@routes.Courses.view(course.id.get)">@course.name</a></li>
+                                    }
+                                </ul>
 
-                            @if(user.hasSitePermission("createCourse")) {
-                                <a href="@routes.Courses.create()" class="btn btn-magenta"><i class="icon-group"></i> Create a new course</a>
-                            }
+                                @if(user.hasSitePermission("createCourse")) {
+                                    <a href="@routes.Courses.create()" class="btn btn-magenta"><i class="icon-group"></i> Create a new course</a>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>

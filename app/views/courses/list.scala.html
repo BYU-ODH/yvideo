@@ -4,22 +4,24 @@
     <h1>Course Directory</h1>
 
     <p>The following is a complete list of all the courses on Ayamel</p>
-    <div class="row">
-        <div class="col-md-6">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Course Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for(course
-                    <- courses.sortWith(_.name < _.name)) { <tr>
-                        <td><a href="@routes.Courses.view(course.id.get)">@course.name</a></td>
+        <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Course Name</th>
                         </tr>
-                        }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @for(course
+                        <- courses.sortWith(_.name < _.name)) { <tr>
+                            <td><a href="@routes.Courses.view(course.id.get)">@course.name</a></td>
+                            </tr>
+                            }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

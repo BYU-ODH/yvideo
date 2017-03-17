@@ -31,7 +31,7 @@ body {
 }
 
 .getStarted {
-    background: rgba(255,255,255,0.65);
+    background: rgba(255,255,255,255);
     border-radius: 12px;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;

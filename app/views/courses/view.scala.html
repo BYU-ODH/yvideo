@@ -27,10 +27,10 @@
             <h1>@course.name</h1>
             <div class="btn-group">
                 @if(user.hasCoursePermission(course, "viewData")) {
-                    <a href="#studentInfoModal" role="button" class="btn btn-default" data-toggle="modal"><i class="icon-user"></i> Course members</a>
+                    <a href="#studentInfoModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Course members</a>
                 }
                 @if(user.hasCoursePermission(course, "teacher")) {
-                    <a href="#addTAModal" role="button" class="btn" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
+                    <a href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
                 }
             </div>
             @if(user.hasCoursePermission(course, "editCourse")) {
@@ -68,10 +68,10 @@
             <div class="col-md-8">
                 <div class="pull-right">
                     @if(user.hasCoursePermission(course, "addContent")){
-                       <a id="browseContent" class="btn btn-inverse"><i class="icon-plus"></i> Add content</a>
+                       <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add content</a>
                     }
                     @if(user.hasCoursePermission(course, "removeContent")){
-                        <a href="#removeContentModal" role="button" class="btn btn-inverse" data-toggle="modal"><i class="icon-minus"></i> Remove Content</a>
+                        <a href="#removeContentModal" role="button" class="btn btn-black" data-toggle="modal"><i class="icon-minus"></i> Remove Content</a>
                     }
                 </div>
                 <div id="courseContent"></div>

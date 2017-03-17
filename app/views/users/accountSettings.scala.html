@@ -5,138 +5,142 @@
     CSS("stylesheets/course.css"),
     JS("javascripts/formFixes/fileFix.js"))
 ){
+<div class="container-fluid">
     <div class="padded">
         <h1>Account Settings</h1>
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="container-fluid">
+                <div class="col-md-6">
 
-                <h2>Profile Picture</h2>
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="face" data-toggle="tooltip" title="@user.displayName" style="background: url('@user.getPicture'); background-size: cover;"></div>
-                    </div>
-                    <div class="col-md-9">
-                        <form action="@routes.Users.uploadProfilePicture()" method="post" enctype="multipart/form-data">
-                            <div>
-                                <label for="file">To update your profile picture, upload a new image:</label>
-                                <input type="file" id="file" name="file">
+                    <h2>Profile Picture</h2>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="face" data-toggle="tooltip" title="@user.displayName" style="background: url('@user.getPicture'); background-size: cover;">
                             </div>
-                            <div class="pad-top-high">
-                                <input type="submit" class="btn btn-blue" value="Update"/>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-
-                <h2>Personal Information</h2>
-
-                <p>To change your personal information, fill in the following fields and click <em>Save Changes</em>.</p>
-
-                <form class="form-horizontal" method="post" action="@routes.Users.saveSettings()">
-                    <div class="form-group">
-                        <label class="control-label" for="name">Name</label>
-                        <div class="controls">
-                            <input type="text" id="name" name="name" placeholder="Name" value="@user.name.getOrElse("")">
+                        </div>
+                        <div class="col-md-9">
+                            <form action="@routes.Users.uploadProfilePicture()" method="post" enctype="multipart/form-data">
+                                <div>
+                                    <label for="file">To update your profile picture, upload a new image:</label>
+                                    <input type="file" id="file" name="file">
+                                </div>
+                                <div class="pad-top-high">
+                                    <input type="submit" class="btn btn-blue" value="Update"/>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="control-label" for="email">Email</label>
-                        <div class="controls">
-                            <input type="text" id="email" name="email" placeholder="Email" value="@user.email.getOrElse("")">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="controls">
-                            <button type="submit" class="btn btn-blue">Save Changes</button>
-                        </div>
-                    </div>
-                </form>
 
-                @if(user.authScheme == 'password) {
-                    <h2>Change Password</h2>
-                    <p>Use the folowing form to reset your password.</p>
-                    <form class="form-horizontal" method="post" action="@routes.Users.changePassword()">
+
+                    <h2>Personal Information</h2>
+
+                    <p>To change your personal information, fill in the following fields and click <em>Save Changes</em>.</p>
+
+                    <form class="form-horizontal" method="post" action="@routes.Users.saveSettings()">
                         <div class="form-group">
-                            <label class="control-label" for="password1">New Password</label>
+                            <label class="control-label" for="name">Name</label>
                             <div class="controls">
-                                <input type="password" id="password1" name="password1" placeholder="New Password">
+                                <input type="text" id="name" name="name" placeholder="Name" value="@user.name.getOrElse("")">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label" for="password2">Repeat New Password</label>
+                            <label class="control-label" for="email">Email</label>
                             <div class="controls">
-                                <input type="password" id="password2" name="password2" placeholder="Repeat New Password">
+                                <input type="text" id="email" name="email" placeholder="Email" value="@user.email.getOrElse("")">
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="controls">
-                                <button type="submit" class="btn btn-blue">Change Password</button>
+                                <button type="submit" class="btn btn-blue">Save Changes</button>
                             </div>
                         </div>
                     </form>
-                }
 
-            </div>
-            <div class="col-md-6">
-
-                <h2>Permissions</h2>
-                <p>
-                    <!-- Build Permissions Display -->
-                </p>
-				@if(user.hasSitePermission("requestPermission")) {
-                  <a href="@routes.Users.permissionRequestPage()" class="btn btn-blue">Request Additional Permissions</a>
-                }
-                <h2>Merge accounts</h2>
-                <p>
-                    There are many ways to log on to Ayamel, all provided for your convenience. You can combine these accounts
-                    so no matter which account you use to log in the same content will be available.
-                </p>
-                <div>
-                    Account merge status:
-
-                    @if(user.getAccountLink.isDefined) {
-                        <span class="label label-default label-magenta">Merged with @{user.getAccountLink.get.userIds.size - 1} other(s)</span>
-
-                        <table class="table table-bordered pad-top-med">
-                            <thead>
-                                <tr>
-                                    <th>Login method</th>
-                                    <th>Username</th>
-                                    <th>Primary account? <i class="icon-question-sign color-blue" id="primaryHelp"></i></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for(user <- user.getAccountLink.get.getUsers) {
-                                    <tr>
-                                    <td>@user.authScheme.name</td>
-                                    <td>@user.username</td>
-                                    <td>
-                                        @if(user.id.get == user.getAccountLink.get.primaryAccount) {
-                                            <span class="label label-default label-yellow">Primary</span>
-                                        } else {
-                                            <span class="label label-default label-blue">Secondary</span>
-                                        }
-                                    </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    } else {
-                        <span class="label label-default label-magenta">Not merged</span>
+                    @if(user.authScheme == 'password) {
+                        <h2>Change Password</h2>
+                        <p>Use the folowing form to reset your password.</p>
+                        <form class="form-horizontal" method="post" action="@routes.Users.changePassword()">
+                            <div class="form-group">
+                                <label class="control-label" for="password1">New Password</label>
+                                <div class="controls">
+                                    <input type="password" id="password1" name="password1" placeholder="New Password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="password2">Repeat New Password</label>
+                                <div class="controls">
+                                    <input type="password" id="password2" name="password2" placeholder="Repeat New Password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="controls">
+                                    <button type="submit" class="btn btn-blue">Change Password</button>
+                                </div>
+                            </div>
+                        </form>
                     }
+
                 </div>
-                <div class="pad-top-med">
+                <div class="col-md-6">
+
+                    <h2>Permissions</h2>
                     <p>
-                        To merge your account with another, please authenticate with one of the following methods:
+                        <!-- Build Permissions Display -->
                     </p>
-                    <div class="row">
-                        <div class="col-md-6 offset3">
-                            <div class="well">
-                                <a class="btn btn-danger btn-block" href="@controllers.authentication.routes.Google.login("merge", "")"><i class="icon-google-plus"></i> Google</a>
-                                <a class="btn btn-primary btn-block" href="@controllers.authentication.routes.Cas.login("merge", "")"><img src="@routes.Assets.at("images/auth/byu.png")" style="height: 14px; margin-top: -2px;" /> BYU</a>
-                                <a href="#passwordModal" role="button" class="btn btn-magenta btn-block" data-toggle="modal"><i class="icon-key"></i> Username/Password</a>
+    				@if(user.hasSitePermission("requestPermission")) {
+                      <a href="@routes.Users.permissionRequestPage()" class="btn btn-blue">Request Additional Permissions</a>
+                    }
+                    <h2>Merge accounts</h2>
+                    <p>
+                        There are many ways to log on to Ayamel, all provided for your convenience. You can combine these accounts
+                        so no matter which account you use to log in the same content will be available.
+                    </p>
+                    <div>
+                        Account merge status:
+
+                        @if(user.getAccountLink.isDefined) {
+                            <span class="label label-default label-magenta">Merged with @{user.getAccountLink.get.userIds.size - 1} other(s)</span>
+
+                            <table class="table table-bordered pad-top-med">
+                                <thead>
+                                    <tr>
+                                        <th>Login method</th>
+                                        <th>Username</th>
+                                        <th>Primary account? <i class="icon-question-sign color-blue" id="primaryHelp"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for(user <- user.getAccountLink.get.getUsers) {
+                                        <tr>
+                                        <td>@user.authScheme.name</td>
+                                        <td>@user.username</td>
+                                        <td>
+                                            @if(user.id.get == user.getAccountLink.get.primaryAccount) {
+                                                <span class="label label-default label-yellow">Primary</span>
+                                            } else {
+                                                <span class="label label-default label-blue">Secondary</span>
+                                            }
+                                        </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } else {
+                            <span class="label label-default label-magenta">Not merged</span>
+                        }
+                    </div>
+                    <div class="pad-top-med">
+                        <p>
+                            To merge your account with another, please authenticate with one of the following methods:
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6 offset3">
+                                <div class="well">
+                                    <a class="btn btn-danger btn-block" href="@controllers.authentication.routes.Google.login("merge", "")"><i class="icon-google-plus"></i> Google</a>
+                                    <a class="btn btn-primary btn-block" href="@controllers.authentication.routes.Cas.login("merge", "")"><img src="@routes.Assets.at("images/auth/byu.png")" style="height: 14px; margin-top: -2px;" /> BYU</a>
+                                    <a href="#passwordModal" role="button" class="btn btn-magenta btn-block" data-toggle="modal"><i class="icon-key"></i> Username/Password</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -144,7 +148,7 @@
             </div>
         </div>
     </div>
-
+</div>
     <div id="passwordModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>

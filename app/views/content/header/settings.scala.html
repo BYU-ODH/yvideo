@@ -24,72 +24,78 @@
     * ==========================================================================================================
     *@
 
-    <div id="metadataModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="metadataModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="metadataModalLabel">Edit Metadata</h3>
-        </div>
-        <div class="modal-body">
-            <form id="metadataForm" class="form-horizontal" method="post" action="@routes.ContentEditing.setMetadata(content.id.get)">
-                <div class="form-group">
-                    <label class="control-label" for="title">Title</label>
-                    <div class="controls">
-                        <input type="text" id="title" name="title" placeholder="Title">
+    <div id="metadataModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="metadataModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="metadataModalLabel">Edit Metadata</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <form id="metadataForm" class="form-horizontal" method="post" action="@routes.ContentEditing.setMetadata(content.id.get)">
+                            <div class="form-group">
+                                <label class="control-label" for="title">Title</label>
+                                <div class="controls">
+                                    <input type="text" id="title" name="title" placeholder="Title">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="description">Description</label>
+                                <div class="controls">
+                                    <textarea class="form-control" rows="3" id="description" name="description" placeholder="Description" maxlength="5000"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="languages">Languages</label>
+                                <div class="controls" id="langLocation"></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="categories">Categories</label>
+                                <div class="controls">
+                                    <select multiple="multiple" id="categories" name="categories">
+                                        <option value="Arts">Arts</option>
+                                        <option value="Culture">Culture</option>
+                                        <option value="Economy">Economy</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Entertainment">Entertainment</option>
+                                        <option value="Food">Food</option>
+                                        <option value="Geography">Geography</option>
+                                        <option value="Health/beauty">Health/beauty</option>
+                                        <option value="Hobbies">Hobbies</option>
+                                        <option value="Home/garden">Home/garden</option>
+                                        <option value="News">News</option>
+                                        <option value="Occupation">Occupation</option>
+                                        <option value="Opinion">Opinion</option>
+                                        <option value="Politics">Politics</option>
+                                        <option value="Social">Social</option>
+                                        <option value="Sports">Sports</option>
+                                        <option value="Technology">Technology</option>
+                                        <option value="Weather">Weather</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="keywords">Keywords</label>
+                                <div class="controls">
+                                    <input type="labels" id="keywords" name="keywords">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="labels">Labels</label>
+                                <div class="controls">
+                                    <input type="labels" id="labels" name="labels">
+                                </div>
+                            </div>
+                            <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+                        </form>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="control-label" for="description">Description</label>
-                    <div class="controls">
-                        <textarea class="form-control" rows="3" id="description" name="description" placeholder="Description" maxlength="5000"></textarea>
-                    </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <button id="saveMetadata" class="btn btn-blue">Save</button>
                 </div>
-                <div class="form-group">
-                    <label class="control-label" for="languages">Languages</label>
-                    <div class="controls" id="langLocation"></div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label" for="categories">Categories</label>
-                    <div class="controls">
-                        <select multiple="multiple" id="categories" name="categories">
-                            <option value="Arts">Arts</option>
-                            <option value="Culture">Culture</option>
-                            <option value="Economy">Economy</option>
-                            <option value="Education">Education</option>
-                            <option value="Entertainment">Entertainment</option>
-                            <option value="Food">Food</option>
-                            <option value="Geography">Geography</option>
-                            <option value="Health/beauty">Health/beauty</option>
-                            <option value="Hobbies">Hobbies</option>
-                            <option value="Home/garden">Home/garden</option>
-                            <option value="News">News</option>
-                            <option value="Occupation">Occupation</option>
-                            <option value="Opinion">Opinion</option>
-                            <option value="Politics">Politics</option>
-                            <option value="Social">Social</option>
-                            <option value="Sports">Sports</option>
-                            <option value="Technology">Technology</option>
-                            <option value="Weather">Weather</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label" for="keywords">Keywords</label>
-                    <div class="controls">
-                        <input type="labels" id="keywords" name="keywords">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label" for="labels">Labels</label>
-                    <div class="controls">
-                        <input type="labels" id="labels" name="labels">
-                    </div>
-                </div>
-                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button id="saveMetadata" class="btn btn-blue">Save</button>
+            </div>
         </div>
     </div>
 
@@ -155,49 +161,55 @@
     * ==========================================================================================================
     *@
 
-    <div id="thumbnailModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="thumbnailModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-            <h3 id="thumbnailModalLabel">Set Thumbnail</h3>
-        </div>
-        <div class="modal-body" id="thumbnailBody">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="contentItem iconFormat">
-                        <div class="contentBadge @content.contentType.name" style="@background"></div>
+    <div id="thumbnailModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="thumbnailModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                    <h3 id="thumbnailModalLabel">Set Thumbnail</h3>
+                </div>
+                <div class="modal-body" id="thumbnailBody">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="contentItem iconFormat">
+                                    <div class="contentBadge @content.contentType.name" style="@background"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <form id="thumbnailForm" method="post" action="@routes.ContentEditing.changeThumbnail(content.id.get)" enctype="multipart/form-data">
+
+                                    <p>You can update the thumbnail for this content by either uploading a new image or specifying a URL.</p>
+
+                                    <div class="pad-top-high">
+                                        <p>Upload image:</p>
+                                        <input type="file" name="file"/>
+                                    </div>
+                                    <div class="pad-top-high">
+                                        <p>Load from URL:</p>
+                                        <input type="text" name="url"/>
+                                    </div>
+
+                                    <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+                                </form>
+
+                                @if(content.contentType == 'video) {
+                                    <hr>
+                                    <p>
+                                        Alternately, you may use the current location of the video as the thumbnail. To do so, just
+                                        press the following button.
+                                    </p>
+                                    <button id="makeThumbnail" class="btn btn-yellow"><i class="icon-film"></i> Make thumbnail</button>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-8">
-                    <form id="thumbnailForm" method="post" action="@routes.ContentEditing.changeThumbnail(content.id.get)" enctype="multipart/form-data">
-
-                        <p>You can update the thumbnail for this content by either uploading a new image or specifying a URL.</p>
-
-                        <div class="pad-top-high">
-                            <p>Upload image:</p>
-                            <input type="file" name="file"/>
-                        </div>
-                        <div class="pad-top-high">
-                            <p>Load from URL:</p>
-                            <input type="text" name="url"/>
-                        </div>
-
-                        <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
-                    </form>
-
-                    @if(content.contentType == 'video) {
-                        <hr>
-                        <p>
-                            Alternately, you may use the current location of the video as the thumbnail. To do so, just
-                            press the following button.
-                        </p>
-                        <button id="makeThumbnail" class="btn btn-yellow"><i class="icon-film"></i> Make thumbnail</button>
-                    }
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <button class="btn btn-blue" id="saveThumbnail">Save</button>
                 </div>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button class="btn btn-blue" id="saveThumbnail">Save</button>
         </div>
     </div>
 
@@ -242,19 +254,23 @@
      * ==========================================================================================================
      *@
 
-    <div id="deleteModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="deleteModalLabel">Delete Content</h3>
-        </div>
-        <div class="modal-body">
-            <p>Are you sure you want to delete @content.name?</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
-            <form method="POST" action="@routes.ContentController.delete(content.id.get)">
-                <button id="deleteContentButton" class="btn btn-magenta">Yes</button>
-            </form>
+    <div id="deleteModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="deleteModalLabel">Delete Content</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete @content.name?</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">No</button>
+                    <form method="POST" action="@routes.ContentController.delete(content.id.get)">
+                        <button id="deleteContentButton" class="btn btn-magenta">Yes</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -269,30 +285,35 @@
      * ==========================================================================================================
      *@
 
-    <div id="changeSourceModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="changeSourceModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="changeSourceModalLabel">Change Media Source</h3>
-        </div>
-        <div class="modal-body">
-            <p>Please enter the new URL of the media:</p>
-
-            <form class="form-horizontal" method="post" action="@routes.ContentEditing.setMediaSource(content.id.get)">
-                <div class="form-group">
-                    <label class="control-label" for="sourceUrl">URL</label>
-                    <div class="controls">
-                        <input type="text" id="sourceUrl" name="url" placeholder="URL">
+    <div id="changeSourceModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="changeSourceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="changeSourceModalLabel">Change Media Source</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Please enter the new URL of the media:</p>
+                    <div class="container-fluid">
+                        <form class="form-horizontal" method="post" action="@routes.ContentEditing.setMediaSource(content.id.get)">
+                            <div class="form-group">
+                                <label class="control-label" for="sourceUrl">URL</label>
+                                <div class="controls">
+                                    <input type="text" id="sourceUrl" name="url" placeholder="URL">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="controls">
+                                    <input type="submit" class="btn btn-blue" value="Save">
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div class="controls">
-                        <input type="submit" class="btn btn-blue" value="Save">
-                    </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Cancel</button>
                 </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            </div>
         </div>
     </div>
 }

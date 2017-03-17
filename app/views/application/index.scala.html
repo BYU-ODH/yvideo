@@ -22,7 +22,7 @@
 </head>
 <body>
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="text-center">
             <img src="@routes.Assets.at("images/logo.png")" style="height: 200px; margin-top: 20px;">
 
@@ -75,10 +75,10 @@
 
             <div class="clearfix">
                 <div class="pull-left">
-                    <a class="btn btn-danger btn-large" href="@controllers.authentication.routes.Google.login("login", path)"><i class="icon-google-plus"></i> Sign in with Google</a>
+                    <a class="btn btn-magenta btn-large" href="@controllers.authentication.routes.Google.login("login", path)"><i class="icon-google-plus"></i> Sign in with Google</a>
                 </div>
                 <div class="pull-right">
-                    <a class="btn btn-primary btn-large" href="@controllers.authentication.routes.Cas.login("login", path)"><img src="@routes.Assets.at("images/auth/byu.png")" /> Sign in with BYU</a>
+                    <a class="btn btn-blue btn-large" href="@controllers.authentication.routes.Cas.login("login", path)"><img src="@routes.Assets.at("images/auth/byu.png")" /> Sign in with BYU</a>
                 </div>
             </div>
 
@@ -92,35 +92,36 @@
         </div>
 
         <div id="aboutAyamel">
-            <div class="row">
-                <div class="col-md-3">
-                    <h3 class="text-center"><span class="ayamel-icon"></span> What is Ayamel?</h3>
-                    <p>
-                        Ayamel is a web-based system for streaming video and audio content especially as it applies to
-                        learning a foreign language. It houses a collection of media all with the express purpose of
-                        helping you learn languages.
-                    </p>
-                </div>
-                <div class="col-md-3">
-                    <h3 class="text-center"><i class="icon-comment"></i> Text helps</h3>
-                    <p>
-                        Additional aids are available to be used in conjunction with the
-                        media, such as captions and annotations. A key feature of the site enables learners to directly
-                        interact with subtitle tracks to quickly access translations for foreign words and phrases and
-                        iew relevant annotations.
-                    </p>
-                </div>
-                <div class="col-md-3">
-                    <h3 class="text-center"><i class="icon-pencil"></i> For school</h3>
-                    <p>
-                        Teachers or course designers are able to aggregate media into a single location and set up specific
-                        conditions in order to optimize the learning experience. Statistics and analytics are available to
-                        improve the learning experience.
-                    </p>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3 class="text-center"><span class="ayamel-icon"></span> What is Ayamel?</h3>
+                        <p>
+                            Ayamel is a web-based system for streaming video and audio content especially as it applies to
+                            learning a foreign language. It houses a collection of media all with the express purpose of
+                            helping you learn languages.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-center"><i class="icon-comment"></i> Text helps</h3>
+                        <p>
+                            Additional aids are available to be used in conjunction with the
+                            media, such as captions and annotations. A key feature of the site enables learners to directly
+                            interact with subtitle tracks to quickly access translations for foreign words and phrases and
+                            view relevant annotations.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-center"><i class="icon-pencil"></i> For school</h3>
+                        <p>
+                            Teachers or course designers are able to aggregate media into a single location and set up specific
+                            conditions in order to optimize the learning experience. Statistics and analytics are available to
+                            improve the learning experience.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="closing">
@@ -129,17 +130,15 @@
         <div>Funding from <a href="http://www.thelanguageflagship.org/">The Language Flagship</a></div>
     </div>
 
-    <div id="signupModal" class="modal fade" role="dialog" aria-labelledby="signupModalLabel" >
-        <div class="modal-content">
-
-                <div class="modal-dialog">
-    
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">×</button>
-                <h3 id="signupModalLabel">Create an account</h3>
-            </div>
-            <div class="modal-body">
-                <form class="form-horizontal" id="signupForm" method="post" action="@controllers.authentication.routes.Password.createAccount(path)">
+    <div id="signupModal" class="modal fade" role="dialog" aria-labelledby="signupModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">    
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3 id="signupModalLabel">Create an account</h3>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="signupForm" method="post" action="@controllers.authentication.routes.Password.createAccount(path)">
                     <div class="form-group">
                         <label class="control-label col-sm-4" for="username">Username</label>
                         <div class="col-sm-6">
@@ -170,13 +169,13 @@
                             <input type="text" class="form-control" id="email" name="email" placeholder="Email address">
                         </div>
                     </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal">Close</button>
+                    <button id="signup" class="btn btn-blue">Sign up</button>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                <button id="signup" class="btn btn-blue">Sign up</button>
-            </div>
-        </div>
         </div>
     </div>
 
@@ -206,8 +205,7 @@
             </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+          <button class="btn btn-gray" data-dismiss="modal">Close</button>
             <button id="login" class="btn btn-blue">Sign in</button>
         </div>
       </div>
