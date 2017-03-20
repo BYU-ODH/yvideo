@@ -94,9 +94,8 @@ var ContentRenderer = (function(){
         player.addEventListener("translation", function(event){
 
         var translationSize, detail = event.detail,
-                 translations = detail.translations,
-                 wordList = !document.body.classList.contains("share")? // Only allow saving words if the user is logged in (not sharing)
-                     '<div class="addToWordList"><button class="btn btn-small"><i class="icon-paste"></i> Add to Word List</button></div>':"",
+                translations = detail.translations,
+                wordList = '<div class="addToWordList"><button class="btn btn-small"><i class="icon-paste"></i> Add to Word List</button></div>',
                 html = document.createElement('div');
                 html.innerHTML = YLex.renderResult(event.detail) + wordList;
                 translationsHolder.appendChild(html);

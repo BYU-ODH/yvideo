@@ -49,10 +49,10 @@ object ContentController extends Controller {
       implicit user =>
         getContent(id) { content =>
 
-          // A user can get the JSON if he can see the content or has provided the auth key (sharing)
+          // A user can get the JSON if he can see the content
           Future {
             val authKey = request.queryString.get("authKey").getOrElse("")
-            if (content.isVisibleBy(user) || content.shareability != Content.shareability.notShareable && content.authKey == authKey)
+            if (content.isVisibleBy(user))
               Ok(content.toJson)
             else
               Forbidden
@@ -503,9 +503,7 @@ object ContentController extends Controller {
               //TODO: make this a whitelist instead of blacklist
               // Check that the user can view the content
               if (content isVisibleBy user) Ok(
-                if(request.queryString.get("embed").flatMap(_.lift(0)).exists(_.toBoolean)){
-                  views.html.content.share.embed(content, ResourceController.baseUrl, Some(user))
-                } else if (MobileDetection.isMobile()) {
+                if (MobileDetection.isMobile()) {
                   views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user))
                 } else {
                   views.html.content.view(content, ResourceController.baseUrl, Some(user))
@@ -519,36 +517,6 @@ object ContentController extends Controller {
             }
           }
         }
-  }
-
-  /**
-   * When content is shared, this is the endpoint that viewers come to.
-   * No authentication is necessary to view the content if its share
-   * settings are set appropriately.
-   *
-   * @param id The ID of the content
-   * @param authKey The content's access key
-   */
-  def shareAccess(id: Long, authKey: String) = Action.async {
-    implicit request =>
-      getContent(id) { content =>
-        Future {
-          // Check that everything is in place to view the content
-          if (content.authKey == authKey && content.shareability != Content.shareability.notShareable) {
-            Ok(
-              if(request.queryString.get("embed").flatMap(_.lift(0)).exists(_.toBoolean)){
-                views.html.content.share.embed(content, ResourceController.baseUrl)
-              } else if (MobileDetection.isMobile()) {
-                views.html.content.viewMobile(content, ResourceController.baseUrl)
-              } else {
-                views.html.content.view(content, ResourceController.baseUrl)
-              }
-            )
-          } else //TODO: Create error page for embedding
-            Redirect(routes.Application.home)
-              .flashing("error" -> "You do not have permission to view the requested content.")
-        }
-      }
   }
 
   /**

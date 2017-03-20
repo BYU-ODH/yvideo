@@ -91,12 +91,6 @@
                             <span class="icon-bar"></span>
                         </a>
                         <div class="nav-collapse collapse">
-                            <ul class="nav">
-                                @if(content.isShareableBy(user.get)) {
-                                    <li><a href="#shareModal" data-toggle="modal"><i class="icon-share-alt"></i> Share</a></li>
-                                    @views.html.content.header.share(content, user.get)
-                                }
-                            </ul>
                             <ul class="nav pull-right">
                                 <li class="dropdown">
                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">

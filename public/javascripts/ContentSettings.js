@@ -227,27 +227,6 @@ var ContentSettings = (function(){
                 });
             }
         },
-        shareability: {
-            type: "radio",
-            label: "Shareability:",
-            name: "shareability",
-            include: function(context, content){ return true; },
-            setting: function(context, content){
-                return content.shareability || 1;
-            },
-            items: function(context, content){
-                return [{
-                    text: "Not Shareable",
-                    value: 1
-                },{
-                    text: "Shareable by owner only",
-                    value: 2
-                },{
-                    text: "Shareable by anybody",
-                    value: 3
-                }];
-            }
-        },
         visibility: {
             type: "radio",
             label: "Visibility:",
@@ -286,7 +265,6 @@ var ContentSettings = (function(){
             predefined.showAnnotations,
             predefined.enabledAnnotations,
             predefined.visibility,
-            predefined.shareability,
             predefined.saveButton
         ],
         audio: [
@@ -299,7 +277,6 @@ var ContentSettings = (function(){
             predefined.enabledCaptionTracks,
             predefined.enabledAnnotations,
             predefined.visibility,
-            predefined.shareability,
             predefined.saveButton
         ],
         image: [
@@ -312,7 +289,6 @@ var ContentSettings = (function(){
             predefined.enabledCaptionTracks,
             predefined.enabledAnnotations,
             predefined.visibility,
-            predefined.shareability,
             predefined.saveButton
         ],
         text: [
@@ -322,7 +298,6 @@ var ContentSettings = (function(){
             predefined.showAnnotations,
             predefined.enabledAnnotations,
             predefined.visibility,
-            predefined.shareability,
             predefined.saveButton
         ]
     };

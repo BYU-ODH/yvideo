@@ -2,7 +2,7 @@
 
 # --- !Ups
 
-drop table is exists announcement;
+drop table if exists announcement;
 
 # --- !Downs
 
