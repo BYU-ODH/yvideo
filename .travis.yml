@@ -22,10 +22,10 @@ before_install:
 #- docker run -t -i dro248/yvideo:latest /bin/bash
 
 # clone dockerfile repo
-git clone https://github.com/dro248/setupYvideo.git;
-cd setupYvideo;
+- git clone https://github.com/dro248/setupYvideo.git
+- cd setupYvideo
 # chmod 775 setup_yvideo.sh  # shouldn't need this on travis
-./setup_yvideo.sh 
+- ./setup_yvideo.sh 
 
 after_success:
 # Push to docker repo
