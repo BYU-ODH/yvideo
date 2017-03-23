@@ -22,7 +22,9 @@ before_install:
 #- docker run -t -i dro248/yvideo:latest /bin/bash
 
 # clone dockerfile repo
-- git clone https://github.com/dro248/setupYvideo.git
+- echo working
+- git clone https://github.com/BYU-ODH/Ayamel.git
+- echo cloned
 - cd setupYvideo
 # chmod 775 setup_yvideo.sh  # shouldn't need this on travis
 - ./setup_yvideo.sh 
