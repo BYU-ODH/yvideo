@@ -8,6 +8,7 @@ language: scala
 services:
   - docker
   - docker-engine
+  - git
 
 before_install:
 # once the docker file is uploaded and working run this instead of pull
@@ -28,8 +29,8 @@ cd setupYvideo;
 
 after_success:
 # Push to docker repo
- - if [ "$TRAVIS_BRANCH" == "master" ]; then
-    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    docker push USER/REPO;
-    fi
+# - if [ "$TRAVIS_BRANCH" == "master" ]; then
+#    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+#    docker push USER/REPO;
+#    fi
     
