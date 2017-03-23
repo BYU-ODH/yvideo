@@ -23,7 +23,7 @@ before_install:
 
 # clone dockerfile repo
 - mkdir setup; cd setup
-- git clone git@github.com:trevren11/setupYvideo.git
+- git clone https://github.com/trevren11/setupYvideo.git
 - cd setupYvideo
 - chmod 775 setup_yvideo.sh
 - ./setup_yvideo.sh 
