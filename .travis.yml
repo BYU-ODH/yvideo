@@ -7,18 +7,24 @@ language: scala
 
 services:
   - docker
+  - docker-engine
 
 before_install:
 # once the docker file is uploaded and working run this instead of pull
 # docker build -t dro248/ayamel .
 # docker run -t -i dro248/yvideo:latest /bin/bash
 # - docker pull dro248/ayamel
-- docker pull dro248/yvideo
+#- docker pull dro248/yvideo
 # - docker run -d -p 127.0.0.1:80:4567 dro248/ayamel /bin/sh -c "cd /root/ayamel; bundle exec foreman start;"
-- docker ps -a
+#- docker ps -a
 # - docker run dro248/ayamel /bin/sh -c "cd /root/ayamel;
-- docker run -t -i dro248/yvideo:latest /bin/bash
+#- docker run -t -i dro248/yvideo:latest /bin/bash
 
+# clone dockerfile repo
+git clone https://github.com/dro248/setupYvideo.git;
+cd setupYvideo;
+# chmod 775 setup_yvideo.sh  # shouldn't need this on travis
+./setup_yvideo.sh 
 
 after_success:
 # Push to docker repo
