@@ -8,7 +8,7 @@ language: scala
 services:
   - docker
   - docker-engine
-  - git
+  - sshpass
 
 before_install:
 # once the docker file is uploaded and working run this instead of pull
@@ -22,10 +22,13 @@ before_install:
 #- docker run -t -i dro248/yvideo:latest /bin/bash
 
 # clone dockerfile repo
-- git clone https://github.com/dro248/AyamelDockerfile.git
+- mkdir setup; cd setup
+- git clone git@github.com:trevren11/setupYvideo.git
 - cd setupYvideo
-- chmod 775 setup_yvideo.sh  # apparently this is needed still
+- chmod 775 setup_yvideo.sh
 - ./setup_yvideo.sh 
+# asks for secret
+
 
 after_success:
 # Push to docker repo
