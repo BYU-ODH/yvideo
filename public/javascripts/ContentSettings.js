@@ -9,57 +9,59 @@ var ContentSettings = (function(){
 
     var settingsTemplate = '<form class="form-horizontal">\
         {{#controls:c}}\
-        <div class="form-group">\
-            {{#(controlsSettings[c].include(context, content))}}\
-                {{#(type == \'radio\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                <div class="controls">\
-                    {{#items}}\
-                    <label>\
-                        <input type="radio" name="{{setting}}" value="{{.value}}">{{.text}}\
-                    </label>\
-                    {{/items}}\
-                </div>\
-                {{/type}}\
-                {{#(type == \'checkbox\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                <div class="controls">\
-                    <input type="checkbox" checked="{{setting}}">\
-                </div>\
-                {{/type}}\
-                {{#(type == \'multicheck\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                <div class="controls">\
-                    {{#items}}\
-                    <label>\
-                        <input type="checkbox" name="{{setting}}" value="{{.value}}">{{.text}}\
-                    </label>\
-                    {{/items}}\
-                </div>\
-                {{/type}}\
-                {{#(type == \'button\')}}\
-                <div class="controls">\
-                    <button class="btn {{classes}}" on-click="click:{{name}}">{{label}}</button>\
-                </div>\
-                {{/type}}\
-                {{#(type == \'superselect\')}}\
-                    <div class="form-group">\
-                        {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                        <SuperSelect icon="icon-globe" text="Select Language" value="{{setting}}" btnpos="left" multiple="true" options="{{items}}" modal="configurationModal">\
-                    </div>\
-                {{/type}}\
-            {{/include}}\
-            {{^(controlsSettings[c].include(context, content))}}\
-                {{#(type == \'radio\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                {{#none}}<div class="controls">\{{none}}</div>{{/none}}\
-                {{/type}}\
-                {{#(type != \'radio\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                {{#none}}<div class="controls">\<i>{{none}}</i></div>{{/none}}\
-                {{/type}}\
-            {{/include}}\
-        </div>\
+        <div class="container-fluid">\
+	        <div class="form-group">\
+	            {{#(controlsSettings[c].include(context, content))}}\
+	                {{#(type == \'radio\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                <div class="controls">\
+	                    {{#items}}\
+	                    <label>\
+	                        <input type="radio" name="{{setting}}" value="{{.value}}">{{.text}}\
+	                    </label>\
+	                    {{/items}}\
+	                </div>\
+	                {{/type}}\
+	                {{#(type == \'checkbox\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                <div class="controls">\
+	                    <input type="checkbox" checked="{{setting}}">\
+	                </div>\
+	                {{/type}}\
+	                {{#(type == \'multicheck\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                <div class="controls">\
+	                    {{#items}}\
+	                    <label>\
+	                        <input type="checkbox" name="{{setting}}" value="{{.value}}">{{.text}}\
+	                    </label>\
+	                    {{/items}}\
+	                </div>\
+	                {{/type}}\
+	                {{#(type == \'button\')}}\
+	                <div class="controls">\
+	                    <button class="btn {{classes}}" on-click="click:{{name}}">{{label}}</button>\
+	                </div>\
+	                {{/type}}\
+	                {{#(type == \'superselect\')}}\
+	                    <div class="form-group">\
+	                        {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                        <SuperSelect icon="icon-globe" text="Select Language" value="{{setting}}" btnpos="left" multiple="true" options="{{items}}" modal="configurationModal">\
+	                    </div>\
+	                {{/type}}\
+	            {{/include}}\
+	            {{^(controlsSettings[c].include(context, content))}}\
+	                {{#(type == \'radio\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                {{#none}}<div class="controls">\{{none}}</div>{{/none}}\
+	                {{/type}}\
+	                {{#(type != \'radio\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                {{#none}}<div class="controls">\<i>{{none}}</i></div>{{/none}}\
+	                {{/type}}\
+	            {{/include}}\
+	        </div>\
+	    </div>\
         {{/controls}}\
     </form>';
 

@@ -46,22 +46,22 @@
 
         <h1><i class="@contentIcons(content.contentType)"></i> @content.name <small>Edit Annotations</small></h1>
 
-        <div class="navbar navbar-default">
+        <nav class="navbar navbar-default">
             <div class="container-fluid"> 
-                <div class="navbar-nav">
-                    <ul class="nav">
+                <ul class="navbar-nav">
+                    <ul class="nav navbar-nav navbar-left">
                         <li><a href="#metadataModal" data-toggle="modal"><i class="icon-pencil"></i> Edit metadata</a></li>
                     </ul>
-                    <ul class="nav pull-right">
+                    <ul class="nav navbar-nav navbar-right">
                         <li><a href="#saveAnnotationsModal" data-toggle="modal"><i class="icon-save"></i> Save</a></li>
                         <li><a href="#editAnnotationsModal" data-toggle="modal"><i class="icon-pencil"></i> Edit</a></li>
                         <li><a href="#" id="emptyManifest"><i class="icon-trash"></i> Clear Annotations</a></li>
                         <li><a href="#annotationsModal" data-toggle="modal"><i class="icon-trash"></i> Delete</a></li>
                         <li><a href="#" id="quit"><i class="icon-signout"></i> Quit</a></li>
                     </ul>
-                </div>
+                </ul>
             </div>
-        </div>
+        </nav>
         <div id="annotationEditor"></div>
 
     @if(true) {
@@ -74,11 +74,15 @@
                         <h3 id="annotationsModalLabel">Annotations</h3>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
-                            <div>
-                                <h4>Delete Annotations</h4>
-                                <div class="clearfix"></div>
-                                <div id="annotationsTable"></div>
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div>
+                                    <div class="container-fluid">
+                                        <h4>Delete Annotations</h4>
+                                        <div class="clearfix"></div>
+                                        <div id="annotationsTable"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -99,18 +103,22 @@
                         <h3 id="saveAnnotationsModalLabel">Annotations</h3>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
-                            <div>
-                                <h4>Save Annotations</h4>
-                                <div class="clearfix"></div>
-                                <form>
-                                    <fieldset>
-                                        <div id="saveOptions" class="form-inline">
-                                        </div>
-                                        <br>
-                                        <input id="filename" type="text" placeholder="Filename">
-                                    </fieldset>
-                                </form>
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div>
+                                    <div class="container-fluid">
+                                        <h4>Save Annotations</h4>
+                                        <div class="clearfix"></div>
+                                        <form>
+                                            <fieldset>
+                                                <div id="saveOptions" class="form-inline">
+                                                </div>
+                                                <br>
+                                                <input id="filename" type="text" placeholder="Filename">
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -134,21 +142,25 @@
                         <h3 id="editAnnotationsModalLabel">Annotations</h3>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
-                            <div>
-                                <h4>Edit Annotations</h4>
-                                <div class="clearfix"></div>
-                                <form>
-                                    <fieldset>
-                                        <table class="table table-bordered pad-top-high">
-                                            <thead><tr>
-                                                <th>Track name</th><th>Language</th><th>Options</th>
-                                            </tr></thead>
-                                            <tbody id="editTable">
-                                            </tbody>
-                                        </table>
-                                    </fieldset>
-                                </form>
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div>
+                                    <div class="container-fluid">
+                                        <h4>Edit Annotations</h4>
+                                        <div class="clearfix"></div>
+                                        <form>
+                                            <fieldset>
+                                                <table class="table table-bordered pad-top-high">
+                                                    <thead><tr>
+                                                        <th>Track name</th><th>Language</th><th>Options</th>
+                                                    </tr></thead>
+                                                    <tbody id="editTable">
+                                                    </tbody>
+                                                </table>
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -169,16 +181,18 @@
                         <h3 id="metadataModalLabel">Edit Metadata</h3>
                     </div>
                     <div class="modal-body">
-                        <div class="form-horizontal">
-                            <div class="form-group">
-                                <label class="control-label" for="title">Title</label>
-                                <div class="controls">
-                                    <input type="text" id="title" placeholder="Title" autofocus>
+                        <div class="container-fluid">
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="control-label" for="title">Title</label>
+                                    <div class="controls">
+                                        <input type="text" id="title" placeholder="Title" autofocus>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label" for="language">Language</label>
-                                <div class="controls" id="langLocation"></div>
+                                <div class="form-group">
+                                    <label class="control-label" for="language">Language</label>
+                                    <div class="controls" id="langLocation"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
