@@ -1,39 +1,14 @@
-# https://docs.travis-ci.com/user/docker/
-
-# docker compose has slightly different specs
 sudo: required
-
 language: scala
-
 services:
-  - docker
-  - docker-engine
-  - sshpass
-
+- docker
+- docker-engine
 before_install:
-# once the docker file is uploaded and working run this instead of pull
-# docker build -t dro248/ayamel .
-# docker run -t -i dro248/yvideo:latest /bin/bash
-# - docker pull dro248/ayamel
-#- docker pull dro248/yvideo
-# - docker run -d -p 127.0.0.1:80:4567 dro248/ayamel /bin/sh -c "cd /root/ayamel; bundle exec foreman start;"
-#- docker ps -a
-# - docker run dro248/ayamel /bin/sh -c "cd /root/ayamel;
-#- docker run -t -i dro248/yvideo:latest /bin/bash
-
-# clone dockerfile repo
+- openssl aes-256-cbc -K $encrypted_2d74c2f51991_key -iv $encrypted_2d74c2f51991_iv
+  -in application.conf.enc -out application.conf -d
 - mkdir setup; cd setup
 - git clone https://github.com/trevren11/setupYvideo.git
 - cd setupYvideo
 - chmod 775 setup_yvideo.sh
-- ./setup_yvideo.sh 
-# asks for secret
-
-
-after_success:
-# Push to docker repo
-# - if [ "$TRAVIS_BRANCH" == "master" ]; then
-#    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-#    docker push USER/REPO;
-#    fi
-    
+- "./setup_yvideo.sh"
+after_success: 
