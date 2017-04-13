@@ -1,8 +1,10 @@
 sudo: required
 language: scala
+dist: trusty
 services:
 - docker
 - docker-engine
+- openssl
 before_install:
 - openssl aes-256-cbc -K $encrypted_2d74c2f51991_key -iv $encrypted_2d74c2f51991_iv
   -in application.conf.enc -out application.conf -d
