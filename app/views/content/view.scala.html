@@ -77,7 +77,7 @@
     <div class="padded">
         @if(course.isDefined) {
             <ul class="breadcrumb">
-                <li><a href="@routes.Courses.view(course.get.id.get)">@course.get.name</a> <span class="divider">/</span></li>
+                <li><a href="@routes.Courses.view(course.get.id.get)">@course.get.name</a> <span class="divider"></span></li>
                 <li class="active">@content.name</li>
             </ul>
         }

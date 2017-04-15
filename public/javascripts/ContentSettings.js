@@ -40,7 +40,7 @@ var ContentSettings = (function(){
 	                {{/type}}\
 	                {{#(type == \'button\')}}\
 	                <div class="controls">\
-	                    <button class="btn {{classes}}" on-click="click:{{name}}">{{label}}</button>\
+	                    <button class="btn-gray {{classes}}" on-click="click:{{name}}">{{label}}</button>\
 	                </div>\
 	                {{/type}}\
 	                {{#(type == \'superselect\')}}\
@@ -63,7 +63,10 @@ var ContentSettings = (function(){
 	        </div>\
 	    </div>\
         {{/controls}}\
-    </form>';
+    </form>\
+    <style>\
+.controls { white-space: pre-line; }\
+</style>';
 
     var predefined = {
         saveButton: {

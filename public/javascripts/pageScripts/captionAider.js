@@ -36,17 +36,21 @@ $(function() {
     langList.sort(function(a,b){ return a.text.localeCompare(b.text); });
 
     Dialog = Ractive.extend({
-        template: '<div class="modal-header">\
+        template: '<div class="modal-dialog">\
+        <div class="modal-content">\
+        <div class="modal-header">\
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>\
             <h3>{{dialogTitle}}</h3>\
         </div>\
+        <div class="container-fluid">\
         <div class="modal-body">{{>dialogBody}}</div>\
+        </div>\
         <div class="modal-footer">\
             {{#buttons}}\
             <button class="btn btn-blue" on-tap="buttonpress:{{.event}}">{{.label}}</button>\
             {{/buttons}}\
             <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>\
-        </div>',
+        </div></div></div>',
         onrender: function(){
             var actions = this.actions;
             this.on('buttonpress',function(event,which){
