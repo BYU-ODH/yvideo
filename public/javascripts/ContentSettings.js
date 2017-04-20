@@ -16,7 +16,7 @@ var ContentSettings = (function(){
 	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
 	                <div class="controls">\
 	                    {{#items}}\
-	                    <label>\
+	                    <label style="display:block;">\
 	                        <input type="radio" name="{{setting}}" value="{{.value}}">{{.text}}\
 	                    </label>\
 	                    {{/items}}\
@@ -40,7 +40,7 @@ var ContentSettings = (function(){
 	                {{/type}}\
 	                {{#(type == \'button\')}}\
 	                <div class="controls">\
-	                    <button class="btn-gray {{classes}}" on-click="click:{{name}}">{{label}}</button>\
+	                    <button class="btn {{classes}}" on-click="click:{{name}}">{{label}}</button>\
 	                </div>\
 	                {{/type}}\
 	                {{#(type == \'superselect\')}}\
