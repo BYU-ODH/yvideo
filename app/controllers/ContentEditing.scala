@@ -103,11 +103,9 @@ object ContentEditing extends Controller {
           Future {
             // Make sure the user is able to edit
             if (content isEditableBy user) {
-              val shareability = data("shareability").lift(0)
-                .map(_.toInt).getOrElse(content.shareability)
               val visibility = data("visibility").lift(0)
                 .map(_.toInt).getOrElse(content.visibility)
-              val newcontent = content.copy(shareability = shareability, visibility = visibility).save
+              val newcontent = content.copy(visibility = visibility).save
               recordSettings(newcontent, data)
               Ok
             } else
@@ -315,7 +313,6 @@ object ContentEditing extends Controller {
         Future {
           try {
             val params = request.body.mapValues(_(0))
-            val shareability = params("shareability").toInt
             val visibility = params("visibility").toInt
             val contentList = params("ids").split(",").collect {
               case id:String if !id.isEmpty => Content.findById(id.toLong)
@@ -323,7 +320,7 @@ object ContentEditing extends Controller {
 
             if(contentList.forall(_.isEditableBy(user))) {
               for(content <- contentList) {
-                content.copy(shareability = shareability, visibility = visibility).save
+                content.copy(visibility = visibility).save
               }
               redirect.flashing("info" -> "Content updated")
             } else {

@@ -28,9 +28,7 @@ object CourseContent extends Controller {
             Future {
               // Check that the user can view the content
               if (content isVisibleBy user) Ok(
-                if(request.queryString.get("embed").flatMap(_.lift(0)).exists(_.toBoolean)){
-                  views.html.content.share.embed(content, ResourceController.baseUrl, Some(user), Some(course))
-                } else if (MobileDetection.isMobile()) {
+                if (MobileDetection.isMobile()) {
                   views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user), Some(course))
                 } else {
                   views.html.content.view(content, ResourceController.baseUrl, Some(user), Some(course))

@@ -21,7 +21,6 @@ import java.text.Normalizer
 case class Content(id: Option[Long], name: String, contentType: Symbol, thumbnail: String, resourceId: String,
                    dateAdded: String = TimeTools.now(),
                    visibility: Int = Content.visibility.tightlyRestricted,
-                   shareability: Int = Content.shareability.shareable,
                    authKey: String = HashTools.md5Hex(util.Random.nextString(16)), labels: List[String] = Nil, views: Long = 0)
   extends SQLSavable with SQLDeletable {
 
@@ -32,12 +31,12 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, thumbnai
   def save =
     if (id.isDefined) {
       update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name, 'thumbnail -> thumbnail,
-        'resourceId -> resourceId, 'dateAdded -> dateAdded, 'visibility -> visibility, 'shareability -> shareability,
+        'resourceId -> resourceId, 'dateAdded -> dateAdded, 'visibility -> visibility,
         'authKey -> authKey, 'labels -> normalize(labels.mkString(",")), 'views -> views)
       this
     } else {
       val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name, 'thumbnail -> thumbnail,
-        'resourceId -> resourceId, 'dateAdded -> dateAdded, 'visibility -> visibility, 'shareability -> shareability,
+        'resourceId -> resourceId, 'dateAdded -> dateAdded, 'visibility -> visibility,
         'authKey -> authKey, 'labels -> normalize(labels.mkString(",")), 'views -> views)
       this.copy(id)
     }
@@ -123,22 +122,6 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, thumbnai
   }
 
   /**
-   * Shareability has three levels:
-   * 1. Not sharable
-   * 2. Sharable by me only.
-   * 3. Sharable by anybody who can see this.
-   * @param user The user to be checked
-   * @return Shareable or not
-   */
-  def isShareableBy(user: User): Boolean = {
-    shareability match {
-      case Content.shareability.notShareable => false
-      case Content.shareability.byMeOnly => user.getContent.contains(this)
-      case Content.shareability.shareable => isVisibleBy(user)
-    }
-  }
-
-  /**
    * Checks if the user is authorized to edit this content. Owners and admins can edit.
    * @param user The user to check
    * @return Can edit or not
@@ -171,7 +154,6 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, thumbnai
     "resourceId" -> resourceId,
     "dateAdded" -> dateAdded,
     "visibility" -> visibility,
-    "shareability" -> shareability,
     "settings" -> Content.getSettingMap(this).mapValues(_.mkString(",")),
     "authKey" -> authKey,
     "views" -> views,
@@ -215,13 +197,6 @@ object Content extends SQLSelectable[Content] {
     val public = 4
   }
 
-  /* Shareability levels */
-  object shareability {
-    val notShareable = 1
-    val byMeOnly = 2
-    val shareable = 3
-  }
-
   val simple = {
     get[Option[Long]](tableName + ".id") ~
       get[String](tableName + ".name") ~
@@ -230,12 +205,11 @@ object Content extends SQLSelectable[Content] {
       get[String](tableName + ".resourceId") ~
       get[String](tableName + ".dateAdded") ~
       get[Int](tableName + ".visibility") ~
-      get[Int](tableName + ".shareability") ~
       get[String](tableName + ".authKey") ~
       get[String](tableName + ".labels") ~
       get[Long](tableName + ".views") map {
-      case id ~ name ~ contentType ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ shareability ~ authKey ~ labels ~ views =>
-        Content(id, name, Symbol(contentType), thumbnail, resourceId, dateAdded, visibility, shareability,
+      case id ~ name ~ contentType ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ authKey ~ labels ~ views =>
+        Content(id, name, Symbol(contentType), thumbnail, resourceId, dateAdded, visibility,
           authKey, labels.split(",").toList.filterNot(_.isEmpty), views)
     }
   }
@@ -252,7 +226,6 @@ object Content extends SQLSelectable[Content] {
     get[String]("resourceId") ~
     get[String]("dateAdded") ~
     get[Int]("visibility") ~
-    get[Int]("shareability") ~
     get[String]("authKey") ~
     get[String]("labels") ~
     get[Long]("views") ~
@@ -267,9 +240,9 @@ object Content extends SQLSelectable[Content] {
     get[Long]("accountLinkId") ~
     get[String]("created") ~
     get[String]("lastLogin") map {
-      case contentId ~ cname ~ contentType ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ shareability ~ authKey ~ labels ~ views ~
+      case contentId ~ cname ~ contentType ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ authKey ~ labels ~ views ~
         userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
-          Content(contentId, cname, Symbol(contentType), thumbnail, resourceId, dateAdded, visibility, shareability,
+          Content(contentId, cname, Symbol(contentType), thumbnail, resourceId, dateAdded, visibility,
           authKey, labels.split(",").toList.filterNot(_.isEmpty), views) -> 
           User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
     }

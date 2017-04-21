@@ -29,7 +29,6 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Shareability</th>
                 <th>Visibility</th>
                 <th>Resource Id</th>
                 <th>Type</th>
@@ -40,17 +39,6 @@
                 <tr>
                     <td>@content.id.get</td>
                     <td>@content.name</td>
-                    <td>
-                        @if(content.shareability == models.Content.shareability.notShareable) {
-                            Not Shareable
-                        }
-                        @if(content.shareability == models.Content.shareability.byMeOnly) {
-                            By Owner Only
-                        }
-                        @if(content.shareability == models.Content.shareability.shareable) {
-                            Shareable
-                        }
-                    </td>
                     <td>
                         @if(content.visibility == models.Content.visibility._private) {
                             Private
@@ -84,6 +72,7 @@
 
     </div>
 
+<<<<<<< HEAD
     <div id="batchEditModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="batchEditModal" aria-hidden="true">
     	<div class="modal-dialog">
     		<div class="modal-content">
@@ -96,23 +85,6 @@
                         <form class="form-horizontal" method="post" action="@routes.ContentEditing.batchUpdateContent()">
     		                <input type="hidden" name="ids" id="ids">
     			            <div class="container-fluid">
-    			                <div class="form-group">
-    			                    <label class="control-label">Shareability</label>
-    			                    <div class="controls">
-    			                        <label class="radio">
-    			                            <input type="radio" name="shareability" id="shareability1" value="1" checked>
-    			                            Not shareable
-    			                        </label>
-    			                        <label class="radio">
-    			                            <input type="radio" name="shareability" id="shareability2" value="2">
-    			                            Shareable by owner only
-    			                        </label>
-    			                        <label class="radio">
-    			                            <input type="radio" name="shareability" id="shareability3" value="3">
-    			                            Shareable by anybody who can see the content
-    			                        </label>
-    			                    </div>
-    			                </div>
     			                <div class="form-group">
     			                    <label class="control-label">Visibility</label>
     			                    <div class="controls">

@@ -263,12 +263,11 @@ object Administration extends Controller {
           val redirect = Redirect(routes.Administration.manageContent())
           try {
             val params = request.body.mapValues(_(0))
-            val shareability = params("shareability").toInt
             val visibility = params("visibility").toInt
 
             for(id <- params("ids").split(",") if !id.isEmpty;
                 content <- Content.findById(id.toLong)) {
-              content.copy(shareability = shareability, visibility = visibility).save
+              content.copy(visibility = visibility).save
             }
             Future(redirect.flashing("info" -> "Contents updated"))
           } catch {

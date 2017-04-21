@@ -121,7 +121,6 @@ object Fixtures {
     "Content settings",
     "Updating metadata",
     "Setting a thumbnail",
-    "Setting the shareability",
     "Setting the visibility",
     "Deleting content",
     "Ownership and availability",
