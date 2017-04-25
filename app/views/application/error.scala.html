@@ -28,21 +28,21 @@
                         We've taken note that something went wrong, but we can't read your mind. To help us fix this,
                         please describe what you were doing. Thanks!
                     </p>
-                    <div class="container-fluid">
-                        <span class="form-horizontal" id="feedbackForm">
-                            <div class="form-group">
-                                <label class="control-label" for="description">Describe what you were doing:</label>
-                                <div class="controls">
-                                    <textarea id="description"></textarea>
-                                </div>
+                    <div class="container">
+                    <span class="form-horizontal" id="feedbackForm">
+                        <div class="form-group">
+                            <label class="control-label" for="description">Describe what you were doing:</label>
+                            <div class="controls">
+                                <textarea id="description"></textarea>
                             </div>
-                            <input type="hidden" id="errorCode" value="@ex.toString.substring(1,10)"/>
-                            <div class="form-group">
-                                <div class="controls">
-                                    <button type="submit" id="saveButton" class="btn btn-gray">Save</button>
-                                </div>
+                        </div>
+                        <input type="hidden" id="errorCode" value="@ex.toString.substring(1,10)"/>
+                        <div class="form-group">
+                            <div class="controls">
+                                <button type="submit" id="saveButton" class="btn btn-gray">Save</button>
                             </div>
-                        </span>
+                        </div>
+                    </span>
                     </div>
                     <div id="feedbackSaved">
                         Thank you for providing feedback!

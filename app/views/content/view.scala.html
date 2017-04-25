@@ -131,14 +131,7 @@
                                     </li>
                                 }
                             }
-                            @defining(Course.list.filter { course =>
-                                user.get.hasCoursePermission(course, "addContent") && !course.getContent.contains(content)
-                            }) { possibleCourses =>
-                                @if(possibleCourses.length > 0) {
-                                    <li><a href="#addToCourseModal" data-toggle="modal"><i class="icon-book"></i> Add to Course</a></li>
-                                    @views.html.content.header.addToCourse(content, possibleCourses, user.get)
-                                }
-                            }
+                            
                             @if(content.isEditableBy(user.get)) {
                                 <li class="dropdown">
                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">

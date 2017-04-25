@@ -1,4 +1,4 @@
-@(courseList: List[Course])(implicit request: RequestHeader, user: User)
+@()(implicit request: RequestHeader, user: User)
 
 @main("Ayamel", Some(user),
   Local(
@@ -31,20 +31,6 @@
 
         @*<h1>Spotlight</h1>*@
     </div>
-
-    <!--<div class="homeNav">
-        <div class="row">
-            <div class="col-md-4">
-                <button class="btn btn-inverse btn-large btn-block homeNavButton color-light-blue clicked" data-target="#myAyamel"><i class="icon-home"></i> My Ayamel</button>
-            </div>
-            <div class="col-md-4">
-                <a class="btn btn-inverse btn-large btn-block color-light-yellow" href="@routes.HelpPages.tableOfContents()" ><i class="icon-beaker"></i> Help Lab</a>
-            </div>
-            <div class="col-md-4">
-                <button class="btn btn-inverse btn-large btn-block homeNavButton" data-target="#siteNews"><i class="icon-bullhorn"></i> Site News</button>
-            </div>
-        </div>
-    </div>-->
 
     <div class="padded">
 

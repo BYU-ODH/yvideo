@@ -31,7 +31,8 @@ object Application extends Controller {
   def home = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Future(Ok(views.html.application.home(Course.list)))
+        Future(Ok(views.html.application.home()))
+
   }
 
   /**
