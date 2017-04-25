@@ -1,13 +1,26 @@
 import models.{Content, User, Course}
 import org.specs2.mutable._
+import org.specs2.execute._
+import play.api.test._
 
 import play.api.libs.json.Json
 import service.DocumentPermissionChecker
 
-/**
- * Tests all the methods in the course model
- */
-class EditableDocumentPermissionCheckerSpec extends Specification {
+  /**
+   * Tests all the methods in the course model
+   */
+  class EditableDocumentPermissionCheckerSpec extends Specification {
+
+  abstract class TestApplication extends WithApplication {
+	override def around[T: AsResult](t: => T): Result = super.around {
+	  setupData()
+	  t
+	}
+
+	def setupData() {
+	  // setup data
+	}
+  }
 
   val personalResource = Json.obj(
     "id" -> "josh1",
@@ -31,21 +44,21 @@ class EditableDocumentPermissionCheckerSpec extends Specification {
 
   val user1 = User(Some(5), "", 'a, "")
 
-  val user2 = User(Some(5), "", 'a, "", role = User.roles.admin)
+  val user2 = User(Some(5), "", 'a, "")
 
   val course = Course(Some(8), "", "", "")
   course.cache.teachers = Some(Nil)
 
   "The editable document permission checker" should {
 
-    "allow personal documents" in {
+    "allow personal documents" in new TestApplication {
       val content = Content(None, "", 'a, "", "")
       val checker = new DocumentPermissionChecker(user1, content, None, "captionTrack")
 
       checker.canEnable(personalResource) shouldEqual true
     }
 
-    "not allow global docs to a user who isn't the owner" in {
+    "not allow global docs to a user who isn't the owner" in new TestApplication {
       val content = Content(None, "", 'a, "", "")
       user1.cache.content = Some(Nil)
       val checker = new DocumentPermissionChecker(user1, content, None, "captionTrack")
@@ -53,7 +66,7 @@ class EditableDocumentPermissionCheckerSpec extends Specification {
       checker.canEnable(globalResource) shouldEqual false
     }
 
-    "allow global docs to a user who is the owner" in {
+    "allow global docs to a user who is the owner" in new TestApplication {
       val content = Content(None, "", 'a, "", "")
       user1.cache.content = Some(List(content))
       val checker = new DocumentPermissionChecker(user1, content, None, "captionTrack")
@@ -61,21 +74,21 @@ class EditableDocumentPermissionCheckerSpec extends Specification {
       checker.canEnable(globalResource) shouldEqual true
     }
 
-    "not allow course docs to a user who isn't a teacher in a course" in {
+    "not allow course docs to a user who isn't a teacher in a course" in new TestApplication {
       val content = Content(None, "", 'a, "", "")
       val checker = new DocumentPermissionChecker(user1, content, Some(course), "captionTrack")
 
       checker.canEnable(courseResource) shouldEqual false
     }
 
-    "allow course docs to a user who is a teacher in a course" in {
+    "allow course docs to a user who is a teacher in a course" in new TestApplication {
       val content = Content(None, "", 'a, "", "")
       val checker = new DocumentPermissionChecker(user2, content, Some(course), "captionTrack")
 
       checker.canEnable(courseResource) shouldEqual true
     }
 
-    "not allow course docs outside a course" in {
+    "not allow course docs outside a course" in new TestApplication {
       val content = Content(None, "", 'a, "", "")
       val checker = new DocumentPermissionChecker(user2, content, None, "captionTrack")
 
@@ -85,3 +98,4 @@ class EditableDocumentPermissionCheckerSpec extends Specification {
 
   }
 }
+

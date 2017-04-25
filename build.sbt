@@ -18,6 +18,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
     "com.google.gdata" % "core" % "1.47.1",
     "com.amazonaws" % "aws-java-sdk" % "1.4.1",
     "org.codemonkey.simplejavamail" % "simple-java-mail" % "2.1",
-	"com.typesafe.play" %% "anorm" % "2.4.0"
+    "com.typesafe.play" %% "anorm" % "2.4.0",
+    specs2 % Test
   )
 )
