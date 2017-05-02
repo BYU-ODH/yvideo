@@ -1,6 +1,6 @@
 @(wordList: List[WordListEntry])(implicit request: RequestHeader, user: User)
 
-@main("Ayamel - My Word List", Some(user)) {
+@main("Y-Video - My Word List", Some(user)) {
 
     @views.html.content.header.includes()
 
@@ -125,7 +125,7 @@
                 var destLang = this.dataset.destLang;
                 var srcLangName = Ayamel.utils.getLangName(srcLang);
                 var destLangName = Ayamel.utils.getLangName(destLang)
-                var title = ((srcLang === destLang)?srcLangName:srcLangName+"-"+destLangName) + " words from Ayamel";
+                var title = ((srcLang === destLang)?srcLangName:srcLangName+"-"+destLangName) + " words from Y-Video";
                 var words = $(".exportCheckbox:checked[data-src-lang="+this.dataset.srcLang+"][data-dest-lang="+this.dataset.destLang+"]").toArray().map(function (e) {
                     return e.dataset.text;
                 });

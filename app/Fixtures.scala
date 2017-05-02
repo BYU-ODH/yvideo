@@ -191,7 +191,7 @@ object Fixtures {
     Logger.info("Creating home page content fixtures")
 
     HomePageContent(None, "Enrich your studies",
-      "With Ayamel, increase your language speaking ability.",
+      "With Y-Video, increase your language speaking ability.",
       "", "", "/assets/images/home/byu-campus.jpg", active = true).save
 
     HomePageContent(None, "Pardon our dust",

@@ -1,6 +1,6 @@
 @(courseId: Long)(implicit request: RequestHeader, user: User)
 
-@main("Ayamel - Add Content", Some(user),
+@main("Y-Video - Add Content", Some(user),
   Local(
     CSS("stylesheets/content.css"),
     CSS("stylesheets/batchUpload.css"),
@@ -19,7 +19,7 @@
             <li><a href="@routes.ContentController.createPage("resource", courseId)">Load from Resource</a></li>
         </ul>
 
-        <h2>Ayamel Batch Upload Utility 2.0</h2>
+        <h2>Y-Video Batch Upload Utility 2.0</h2>
 
         <style>
           .dropZone{

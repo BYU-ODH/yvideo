@@ -12,7 +12,7 @@
     )
 }
 
-@main("Ayamel - " + content.name, user,
+@main("Y-Video - " + content.name, user,
   Meta("og:image", content.thumbnail),
   Local(
     Rel("javascripts/",
@@ -36,7 +36,7 @@
         //content page at the wrong address. If that happens, we need to re-write history to display
         //the correct URL for this page here.
         if(location.pathname !== "/content/@{content.id.get}" && history.pushState){
-            history.pushState(null, "Ayamel - @{content.name}", "/content/@{content.id.get}");
+            history.pushState(null, "Y-Video - @{content.name}", "/content/@{content.id.get}");
         }
 
         function setupXapi(args) {

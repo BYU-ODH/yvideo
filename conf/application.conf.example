@@ -34,9 +34,9 @@ play.i18n.langs="en"
 # By convention, the default datasource is named `default`
 #
 db.default.driver=com.mysql.jdbc.Driver
-db.default.url="jdbc:mysql://localhost/ayamel?characterEncoding=UTF-8"
-db.default.username=root
-db.default.password=root
+db.default.url="jdbc:mysql://localhost/yvideodb?characterEncoding=UTF-8"
+db.default.username=TestGuy
+db.default.password=t3stm3
 
 # Evolutions
 # ~~~~~
