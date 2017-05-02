@@ -22,3 +22,5 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
     specs2 % Test
   )
 )
+
+resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
