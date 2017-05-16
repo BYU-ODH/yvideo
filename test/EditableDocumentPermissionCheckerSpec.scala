@@ -29,10 +29,6 @@ class EditableDocumentPermissionCheckerSpec extends Specification {
     "id" -> "josh3"
   )
 
-  val user1 = User(Some(5), "", 'a, "")
-
-  val user2 = User(Some(5), "", 'a, "", role = User.roles.admin)
-
   val course = Course(Some(8), "", "", "")
   course.cache.teachers = Some(Nil)
 
