@@ -1,4 +1,4 @@
-/**
+/*
  * Created with IntelliJ IDEA.
  * User: josh
  * Date: 6/21/13
@@ -32,7 +32,7 @@ var ContentSettings = (function(){
 	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
 	                <div class="controls">\
 	                    {{#items}}\
-	                    <label>\
+	                    <label style="display:block;">\
 	                        <input type="checkbox" name="{{setting}}" value="{{.value}}">{{.text}}\
 	                    </label>\
 	                    {{/items}}\
@@ -44,7 +44,7 @@ var ContentSettings = (function(){
 	                </div>\
 	                {{/type}}\
 	                {{#(type == \'superselect\')}}\
-	                    <div class="form-group">\
+	                    <div>\
 	                        {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
 	                        <SuperSelect icon="icon-globe" text="Select Language" value="{{setting}}" btnpos="left" multiple="true" options="{{items}}" modal="configurationModal">\
 	                    </div>\

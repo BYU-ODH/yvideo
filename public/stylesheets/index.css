@@ -31,31 +31,25 @@ body {
 }
 
 .getStarted {
-    background: rgba(255,255,255,255);
+    background: rgba(0,0,0,0.35);
     border-radius: 12px;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
     padding: 25px;
     margin: 20px auto;
-    box-shadow: 2px 3px 12px rgba(0,0,0,0.4);
-    -webkit-box-shadow: 2px 3px 12px rgba(0,0,0,0.4);
-    -moz-box-shadow: 2px 3px 12px rgba(0,0,0,0.4);
     width: 450px;
+    color: white;
 }
 
 #aboutAyamel {
     background: rgba(0,0,0,0.35);
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
     color: white;
-    padding: 20px 10px;
-    -webkit-box-shadow: inset 1px 1px 8px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: inset 1px 1px 8px rgba(0, 0, 0, 0.2);
-    box-shadow: inset 1px 1px 8px rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(255,255,255,0.4);
-    border-top: 1px solid rgba(0,0,0,0.6);
-    margin-bottom: 50px;
+    padding: 10px 20px;
+    margin: 30px auto;
+    width: 95%;
 }
 
 .ayamel-icon {
@@ -76,14 +70,12 @@ body {
 }
 
 .closing {
+    background: rgba(0,0,0,0.35);
     width: 100%;
     text-align: center;
     padding: 7px 0;
-    background: #333;
-    -webkit-box-shadow: inset 1px 1px 22px rgba(0, 0, 0, 0.7);
-    -moz-box-shadow: inset 1px 1px 22px rgba(0, 0, 0, 0.7);
-    box-shadow: inset 1px 1px 22px rgba(0, 0, 0, 0.7);
-    color: #cccccc;
+    color: white;
+    bottom:0
 }
 
 .closing div {

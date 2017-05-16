@@ -361,7 +361,7 @@
 .dropdown-menu > li > a:hover > .captionsIcon,
 .dropdown-menu > .active > a > .captionsIcon,
 .dropdown-submenu:hover > a > .captionsIcon {
-    background: url("../images/videos/captions_white.png") center no-repeat;
+    background: url("../images/videos/captions.png") center no-repeat;
     background-size: contain;
 }
 

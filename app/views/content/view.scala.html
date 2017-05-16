@@ -85,12 +85,13 @@
             <nav class="navbar navbar-default">
                 <div class="container-fluid">
                     <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#contentNavbar">
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
+                        </button>
                     </div>
-                    <div class="collapse navbar-collapse">
+                    <div class="collapse navbar-collapse" id="contentNavbar">
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -98,7 +99,7 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     @if(content.contentType == 'video || content.contentType == 'audio) {
-                                        <li><a href="#captionTrackModal" data-toggle="modal"><span class="captionsIcon"></span> Captions/Subtitles</a></li>
+                                        <li><a href="#captionTrackModal" data-toggle="modal"><i class="captionsIcon"></i> Captions/Subtitles</a></li>
                                     }
                                     <li><a href="#annotationsModal" data-toggle="modal"><i class="icon-comments"></i> Annotations</a></li>
                                 </ul>

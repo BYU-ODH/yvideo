@@ -19,7 +19,7 @@
 			JS("bootstrap.min.js")),
 		  JS("pageScripts/index.js")))
 	)
-</head>f
+</head>
 <body>
 
     <div class="container-fluid">
@@ -69,31 +69,29 @@
                 </div>
             }
 
-            <p>
+            <p class="text-center">
                 Sign in with one of the following services to get started.
             </p>
 
-            <div class="clearfix">
-                <div class="pull-left">
-                    <a class="btn btn-magenta btn-large" href="@controllers.authentication.routes.Google.login("login", path)"><i class="icon-google-plus"></i> Sign in with Google</a>
-                </div>
-                <div class="pull-right">
-                    <a class="btn btn-blue btn-large" href="@controllers.authentication.routes.Cas.login("login", path)"><img src="@routes.Assets.at("images/auth/byu.png")" /> Sign in with BYU</a>
-                </div>
+            <div class="text-center">
+                <a class="btn btn-magenta" href="@controllers.authentication.routes.Google.login("login", path)"><i class="icon-google-plus"></i> Sign in with Google</a>
+                <a class="btn btn-blue" href="@controllers.authentication.routes.Cas.login("login", path)"><img src="@routes.Assets.at("images/auth/byu.png")" /> Sign in with BYU</a>
             </div>
 
             <hr>
 
-            <p>You can, alternatively, sign in with an Y-Video account.</p>
+            <p class="text-center">
+                You can, alternatively, sign in with an Y-Video account.
+            </p>
             <div class="text-center">
-                <a href="#signupModal" role="button" class="btn btn-yellow" data-toggle="modal">Create an account</a>
-                <a href="#loginModal" role="button" class="btn btn-magenta" data-toggle="modal">Use existing account</a>
+                <a href="#signupModal" class="btn btn-yellow" data-toggle="modal">Create an account</a>
+                <a href="#loginModal" class="btn btn-magenta" data-toggle="modal">Use existing account</a>
             </div>
         </div>
 
         <div id="aboutAyamel">
             <div class="container-fluid">
-                <div class="row">
+                <div class="justify-content-md-center">
                     <div class="col-md-4">
                         <h3 class="text-center"><span class="ayamel-icon"></span> What is Y-Video?</h3>
                         <p>

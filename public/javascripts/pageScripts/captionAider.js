@@ -42,8 +42,9 @@ $(function() {
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>\
             <h3>{{dialogTitle}}</h3>\
         </div>\
-        <div class="container-fluid">\
-        <div class="modal-body">{{>dialogBody}}</div>\
+        \
+        <div class="modal-body">\
+            <div class="container-fluid">{{>dialogBody}}</div>\
         </div>\
         <div class="modal-footer">\
             {{#buttons}}\
