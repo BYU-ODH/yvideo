@@ -15,4 +15,7 @@ before_install:
 - cd setupYvideo
 - chmod 775 setup_yvideo.sh
 - ./setup_yvideo.sh --test
+script:
+- chmod 775 sbt_test_result.sh
+- ./sbt_test_result.sh
 after_success: 
