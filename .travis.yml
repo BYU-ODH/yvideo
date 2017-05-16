@@ -10,17 +10,13 @@ before_install:
 - ./docker_install.sh
 - openssl aes-256-cbc -K $encrypted_09d70e6b8d10_key -iv $encrypted_09d70e6b8d10_iv
   -in application.conf.enc -out conf/application.conf -d
-- pwd
-- ls -lh
 - mkdir setup; cd setup
 - git clone https://github.com/dro248/setupYvideo.git
 - cd setupYvideo
-- pwd
 - chmod 775 setup_yvideo.sh
-- pwd 
+- ./setup_yvideo.sh --test
 script:
-- pwd
-- ls -lh
+- cd /home/travis/build/BYU-ODH/Ayamel
 - chmod 775 sbt_test_result.sh
 - ./sbt_test_result.sh
 after_success: 
