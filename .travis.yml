@@ -9,8 +9,8 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_09d70e6b8d10_key -iv $encrypted_09d70e6b8d10_iv
   -in application.conf.enc -out conf/application.conf -d
 - mkdir setup; cd setup
-- git clone https://github.com/trevren11/setupYvideo.git
+- git clone https://github.com/dro248/setupYvideo.git
 - cd setupYvideo
 - chmod 775 setup_yvideo.sh
-- "./setup_yvideo.sh"
+- ./setup_yvideo.sh --test
 after_success: 
