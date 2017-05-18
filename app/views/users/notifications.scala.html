@@ -8,54 +8,55 @@
 
 @main("Y-Video - Notifications", Some(user),
   Local(CSS("stylesheets/notifications.css"))) {
+    <div class="container-fluid">
+        <div class="padded">
 
-    <div class="padded">
+            <h1>Notifications</h1>
 
-        <h1>Notifications</h1>
-
-        <div class="row">
-            <div class="col-md-4">
-                <table class="pad-bottom-high">
-                    <tr>
-                        <td>Unread messages:</td>
-                        <td><span class="badge badge-yellow">@user.getNotifications.filterNot(_.messageRead).size</span></td>
-                    </tr>
-                    <tr>
-                        <td>Total messages:</td>
-                        <td><span class="badge badge-blue">@user.getNotifications.size</span></td>
-                    </tr>
-                </table>
-                <p>Click on an unread notification to mark it as read.</p>
-                <p>Click on a read notification to delete it.</p>
-            </div>
-            <div class="col-md-8 notifications">
-                @if(user.getNotifications.isEmpty) {
-                    <em>You don't have any notifications</em>
-                } else {
-                  @for(notification <- user.getNotifications) {
-                    <div class="notification @read(notification)" data-id="@notification.id.get">
-                        <div class="message">@Html(notification.message)</div>
-                        <div class="date">@service.TimeTools.prettyTime(notification.dateSent)</div>
-                    </div>
-                  }
-                  <script>
-                    [].forEach.call(document.querySelectorAll(".notification"),function(note){
-                        note.addEventListener('click',function(e){
-                            var xhr = new XMLHttpRequest(),
-                                formData = new FormData();
-                            formData.append("id", note.dataset.id);
-                            if(note.classList.contains("unread")){
-                                xhr.open("POST", "@routes.Users.markNotification()");
-                                note.classList.remove("unread");
-                            }else{
-                                xhr.open("POST", "@routes.Users.deleteNotification()");
-                                note.parentElement.removeChild(note);
-                            }
-                            xhr.send(formData);
-                        },false);
-                    });
-                  </script>
-                }
+            <div class="row">
+                <div class="col-md-4">
+                    <table class="pad-bottom-high">
+                        <tr>
+                            <td>Unread messages:</td>
+                            <td><span class="badge badge-yellow">@user.getNotifications.filterNot(_.messageRead).size</span></td>
+                        </tr>
+                        <tr>
+                            <td>Total messages:</td>
+                            <td><span class="badge badge-blue">@user.getNotifications.size</span></td>
+                        </tr>
+                    </table>
+                    <p>Click on an unread notification to mark it as read.</p>
+                    <p>Click on a read notification to delete it.</p>
+                </div>
+                <div class="col-md-8 notifications">
+                    @if(user.getNotifications.isEmpty) {
+                        <em>You don't have any notifications</em>
+                    } else {
+                      @for(notification <- user.getNotifications) {
+                        <div class="notification @read(notification)" data-id="@notification.id.get">
+                            <div class="message">@Html(notification.message)</div>
+                            <div class="date">@service.TimeTools.prettyTime(notification.dateSent)</div>
+                        </div>
+                      }
+                      <script>
+                        [].forEach.call(document.querySelectorAll(".notification"),function(note){
+                            note.addEventListener('click',function(e){
+                                var xhr = new XMLHttpRequest(),
+                                    formData = new FormData();
+                                formData.append("id", note.dataset.id);
+                                if(note.classList.contains("unread")){
+                                    xhr.open("POST", "@routes.Users.markNotification()");
+                                    note.classList.remove("unread");
+                                }else{
+                                    xhr.open("POST", "@routes.Users.deleteNotification()");
+                                    note.parentElement.removeChild(note);
+                                }
+                                xhr.send(formData);
+                            },false);
+                        });
+                      </script>
+                    }
+                </div>
             </div>
         </div>
     </div>
