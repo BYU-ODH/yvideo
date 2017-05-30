@@ -686,6 +686,8 @@ $(function() {
 
         timeline.on('unselect', function(deselected){ deselected.segments[0].destroyEventTrackEditor(); })
 
+        //Add on here later for an exit button
+
         //keep the editor and the player menu in sync
         timeline.on('altertrack', function(){ videoPlayer.refreshCaptionMenu(); });
 
