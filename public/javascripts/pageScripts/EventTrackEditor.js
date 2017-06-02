@@ -19,7 +19,8 @@ var EventTrackEditor = (function(){
             speedCheckbox   = document.createElement('input'),
             blurTextbox     = document.createElement('input'),
             volumeRange     = document.createElement('input'),
-            speedRange      = document.createElement('input');
+            speedRange      = document.createElement('input'),
+            exitButton      = document.createElement('button');
 
         pauseCheckbox.type = 'checkbox';
         skipCheckbox.type = 'checkbox';
@@ -31,6 +32,7 @@ var EventTrackEditor = (function(){
         blurTextbox.type = 'textbox';
         volumeRange.type = 'range';
         speedRange.type = 'range';
+        exitButton.type = 'button';
 
         // Create Editor > toolContainer > topSection & bottomSection
         editor.setAttribute('class', 'eventTrackEditor');
@@ -44,6 +46,13 @@ var EventTrackEditor = (function(){
         // Add Header
         var header = document.createElement('h4');
         header.innerHTML = "Event Track Editor";
+
+        // Add exit button
+        exitButton.setAttribute('class', 'btn btn-magenta');
+        exitButton.setAttribute('id', 'exitButton');    
+        exitButton.setAttribute('style', 'float: right');
+        exitButton.innerHTML = "X";    
+        editor.appendChild(exitButton);
 
         editor.appendChild(header);
         editor.appendChild(toolContainer);
@@ -210,7 +219,9 @@ var EventTrackEditor = (function(){
         editor.addEventListener('mousedown',function(){ dragEditor.startMoving(this,"container",event); });
         editor.addEventListener('mouseup',function(){ dragEditor.stopMoving("container"); });
 
-
+        //somewhat jerry-rigged but works for now
+        exitButton.addEventListener('click', function () {editor.parentNode.removeChild(editor);
+        });
 
         // Set values of tools from the given cue
         (function setFromCue(cue){
