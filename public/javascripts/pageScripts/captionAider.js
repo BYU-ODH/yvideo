@@ -268,7 +268,7 @@ $(function() {
             }
         });
         // Saving modal opening
-        $("#saveTrackModal").on("show", function(){
+        $("#saveTrackModal").on("shown.bs.modal", function(){
 
             // We do this because ractive can't seem to update correctly with partials
             // even when we use ractive.set
