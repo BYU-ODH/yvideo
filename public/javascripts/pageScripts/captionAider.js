@@ -203,7 +203,7 @@ $(function() {
                 }
             }
         });
-        $("#editTrackModal").on("show", function() {
+        $("#editTrackModal").on("shown.bs.modal", function() {
             var trackList = timeline.trackNames.slice();
             ractive.set({
                 trackList: trackList,
