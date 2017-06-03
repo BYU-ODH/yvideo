@@ -686,6 +686,9 @@ $(function() {
 
         timeline.on('unselect', function(deselected){ deselected.segments[0].destroyEventTrackEditor(); })
 
+        //Auto delete eventTrackEditor when track is deleted
+        timeline.on('delete', function(deleted){ deleted.segments[0].destroyEventTrackEditor(); })
+        
         //keep the editor and the player menu in sync
         timeline.on('altertrack', function(){ videoPlayer.refreshCaptionMenu(); });
 
