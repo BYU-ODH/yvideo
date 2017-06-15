@@ -248,6 +248,7 @@ $(function() {
             partials:{ dialogBody: document.getElementById('saveTrackTemplate').textContent },
             actions: {
                 save: function(event){
+                    var stracks = this.get("selectedTracks");
                     var tracks = stracks;
 
                     $("#saveTrackModal").modal("hide");

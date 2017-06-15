@@ -122,18 +122,21 @@
     </script>
     <script id='setLocTemplate' type='text/ractive'>
         <span class="form-horizontal">
-            <div class="control-group">
-                <label class="control-label">Current Save Location</label>
-                <div class="controls">
-                    <div id="saveLocation">
-                        <label class="radio">
-                            <input type="radio" name="{{saveLocation}}" value="server">Server
-                        </label>
-                        {{#saveLocations}}
-                        <label class="radio">
-                            <input type="radio" name="{{saveLocation}}" value="{{.value}}">{{.name}}
-                        </label>
-                        {{/saveLocations}}
+            <div class="container">    
+                <div class="control-group">
+                    <label class="control-label">Current Save Location</label>
+                    <div class="controls">
+                        <div id="saveLocation">
+                            
+                            <label class="radio">
+                                <input type="radio" name="{{saveLocation}}" value="server">Server
+                            </label>
+                            {{#saveLocations}}
+                            <label class="radio">
+                                <input type="radio" name="{{saveLocation}}" value="{{.value}}">{{.name}}
+                            </label>
+                            {{/saveLocations}}
+                        </div>
                     </div>
                 </div>
             </div>
