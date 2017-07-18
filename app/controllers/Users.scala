@@ -12,7 +12,10 @@ import ExecutionContext.Implicits.global
 /**
  * Controller dealing with users
  */
-object Users extends Controller {
+trait Users {
+
+  // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
+  this: Controller =>
 
   /**
    * View notifications
@@ -185,3 +188,6 @@ object Users extends Controller {
         }
   }
 }
+
+object Users extends Controller with Users
+
