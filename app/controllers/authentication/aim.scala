@@ -2,117 +2,115 @@ package controllers.authentication
 
 import play.api.Logger
 import play.api.Play.current
-import play.api.libs.ws.{WS, WSResponse}
+import play.api.Play
+import play.api.libs.ws.{WS, WSResponse, WSAuthScheme}
 import play.api.libs.json._
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
 
 object aim {
 
-  val SERVICE_URLS:Map[String, String] = Map("records" -> "https://api.byu.edu/rest/v1/apikey/academic/records/studentrecord/",
-    "schedule" -> "https://ws.byu.edu/rest/v1.0/academic/registration/studentschedule/")
-  val VALID_KEY_TYPES = List("API", "WsSession")
+  case class UserEnrollment(
+    person_id: String,
+    byu_id: String,
+    sort_name: String,
+    surname: String,
+    preferred_first_name: String,
+    email_address: String,
+    student_class_count: Int,
+    class_list: List[BYU_Class]
+  )
 
-  // automated json parsing
-  case class Nonce(nonceKey: String, nonceValue: String)
-  implicit val nonceReads = Json.reads[Nonce]
+  case class BYU_Class(
+    year_term: String,
+    subject_area: String,
+    catalog_number: String,
+    section_number: String,
+    curriculum_id: String,
+    title_code: String,
+    section_type: String,
+    block_code: String,
+    course_title: String
+  )
 
-  /**
-    * Retrieve the body of the nonce which will contain a nonceKey and nonceValue
-    */
-  private def getNonce(apiKey: String, actor: String): Nonce = {
-    val actorPath = if (actor.isEmpty) "" else "/" + actor
-    val uri = "https://ws.byu.edu/authentication/services/rest/v1/hmac/nonce/" + apiKey + actorPath
-    val request = WS.url(uri).post("").map { response =>
-      val body = response.json
-      val nonceFromJson: JsResult[Nonce] = Json.fromJson[Nonce](body)
+  implicit val byuClassReads = Json.reads[BYU_Class]
+  implicit val userEnrollmentReads = Json.reads[UserEnrollment]
 
-      nonceFromJson match {
-        case JsSuccess(n: Nonce, path: JsPath) => {
-          n
+  val CONSUMER_KEY = Play.application.configuration.getString("aim.consumerkey").get
+  val CONSUMER_SECRET = Play.application.configuration.getString("aim.consumersecret").get
+
+  def getScheduleUrl(idValue: String, yearTerm: String, idType: String = "netid")(implicit isInstructor: Boolean = false) = {
+    val service = if (isInstructor) "instructorschedule" else "studentschedule"
+    s"https://api.byu.edu:443/domains/legacy/academic/registration/enrollment/v1/$service/$idType/$idValue/$yearTerm"
+  }
+
+  def getSchedule(netid: String, yearTerm: String, token: String)(implicit isInstructor: Boolean) = {
+    WS.url(getScheduleUrl(netid, yearTerm))
+    .withHeaders("Accept" -> "application/json", "Authorization" -> s"Bearer $token")
+    .get().map { scheduleResp =>
+      scheduleResp.status match {
+        case 200 => {
+          Logger.info("The schedule url returned with a 200 status code")
+          val jsonLookup = (scheduleResp.json \ "EnrollmentService" \ "response").toOption
+          if (jsonLookup.isDefined) {
+            val json = jsonLookup.get
+            val userEnrollmentFromJson = Json.fromJson[UserEnrollment](json)
+
+             userEnrollmentFromJson match {
+              case JsSuccess(userEnrollment: UserEnrollment, path: JsPath) => {
+                userEnrollment
+              }
+              case e: JsError => {
+                Logger.info(s"There was an exception in the conversion: ${JsError.toJson(e).toString}")
+                throw new Exception(s"Errors: ${JsError.toJson(e).toString}")
+              }
+              case _ => Logger.info(s"Issue with the conversion and didn't even return a json success or error...")
+            }
+          } else {
+            Logger.error("Error parsing AIM service student information. [aim.scala]")
+          }
         }
-        case e: JsError => {
-          throw new Exception(s"Errors: ${JsError.toJson(e).toString}")
+        case _ => Logger.error(s"Error Getting student schedule: [${scheduleResp.status}] ${scheduleResp.statusText}")
+      }
+    }
+  }
+
+  def getCurrentSemester(netid: String, token: String)(implicit isInstructor: Boolean) = {
+    val format = new java.text.SimpleDateFormat("yyyyMMdd")
+    val date = format.format(new java.util.Date())
+    WS.url(s"https://ws.byu.edu/rest/v1/academic/controls/controldatesws/asofdate/$date/semester.json").get().foreach { yearTermResp =>
+      yearTermResp.status match {
+        case 200 => {
+          ((yearTermResp.json \ "ControldateswsService" \ "response" \ "date_list")(0) \ "year_term").as[String] match {
+            case yearTerm: String =>
+              if (yearTerm.length == 5) {
+                getSchedule(netid, yearTerm, token)
+              }
+            case _ => Logger.error(s"Invalid year term value: ${yearTermResp.json}")
+          }
         }
+        case _ => Logger.error(s"Got an error with the current semester request: ${yearTermResp.statusText}")
       }
-    }
-    try {
-      // blocks
-      Await.result(request, 10 seconds)
-    } catch {
-      case _: Throwable => {
-        throw new Exception("Error getting Nonce")
-      }
+      
     }
   }
 
-  /**
-    * Produce a base-64 encoded sha512 hmac, as per https://github.com/BYU-ODH/byu-ws/blob/master/src/byu_ws/core.clj#L107
-    */
-  private def makeSHA512Hmac(sharedSecret: String, itemToEncode: String) = {
-    val algorithm = "HmacSHA512"
-    val keySpec = new SecretKeySpec(sharedSecret.getBytes("UTF8"), algorithm)
-    val macAlgorithm = Mac.getInstance(keySpec.getAlgorithm())
-    macAlgorithm.init(keySpec)
-    val hmac = macAlgorithm.doFinal(itemToEncode.getBytes("UTF8"))
-    val encoder = new org.apache.commons.codec.binary.Base64(0)
-    encoder.encodeToString(hmac)
-  }
-
-  private def nonceEncode(sharedSecret: String, itemToEncode: String) = makeSHA512Hmac(sharedSecret, itemToEncode)
-
-  /**
-    * Get the authorization header necessary for some BYU web services
-    */
-  private def getHttpAuthorizationHeader(keys: Map[String, String], actorInHash: Boolean): String = {
-    keys.get("encoding-type") match {
-    case Some("Nonce") => {
-        val nonceObj: Nonce = getNonce(keys.getOrElse("api-key", ""), keys.getOrElse("actor", ""))
-        val encodedUrl = nonceEncode(keys.getOrElse("shared-secret", ""), nonceObj.nonceValue)
-        "Nonce-Encoded-" + keys.get("key-type").getOrElse("API") + "-Key " + keys.get("api-key").getOrElse("") + "," + nonceObj.nonceKey + "," + encodedUrl
-      }
-      case Some("URL") => "Not-Implemented"
-      case _ => throw new Exception("Invalid AIM key-type")
-    }
-  }
-
-  /**
-    * @param service A String: "records" or "schedule"
-    * @param param The person id (some number). But if the service is schedule, then it is "$personId/$currentYearTerm"
-    * @param netid The person's netid
-    * @return Future. In javascript speak this is a promise. Wrapped in an option.
-    * You'll have to map the Option and then the Future inside of that.
-    */
-  def getStudentData(service: String, param: String, netid: String): Option[Future[WSResponse]] = {
-    val baseUrl:Option[String] = SERVICE_URLS.get(service)
-    if (!baseUrl.isEmpty) {
-      var key = ""
-      var secret = ""
-      var urlParam = param
-      if (service == "records" || service == "schedule") {
-        key = current.configuration.getString("aim." + service + ".apikey").get
-        secret = current.configuration.getString("aim." + service + ".secret").get
+  def tokenRequest = WS.url("https://api.byu.edu/token")
+    .withAuth(CONSUMER_KEY, CONSUMER_SECRET, WSAuthScheme.BASIC)
+    .withBody(Map("grant_type" -> Seq("client_credentials")))
+    .post("grant_type=client_credentials")
+    
+  def getEnrollment(netid: String)(implicit isInstructor: Boolean) = {
+    tokenRequest.map { response =>
+      if (response.status != 200) {
+        Logger.error(s"Error getting aim api token: ${response.statusText}")
+        Logger.error(s"AIM api token request response code: ${response.status}")
       } else {
-        throw new Exception(s"Invalid service type: [$service]")
+        var token = (response.json \ "access_token").as[String]
+        getCurrentSemester(netid, token)
       }
-      val serviceUrl = baseUrl.get + urlParam
-      val authHeader = getHttpAuthorizationHeader(Map(
-        "api-key" -> key,
-        "shared-secret" -> secret,
-        "key-type" -> "API",
-        "encoding-type" -> "Nonce",
-        "url" -> serviceUrl,
-        "request-body" -> "",
-        "actor" -> netid,
-        "content-type" -> "application/json",
-        "http-method" -> "GET"
-      ), true)
-      Some(WS.url(serviceUrl).withHeaders("authorization" -> authHeader).get())
-    } else {
-      None
     }
   }
 }
+

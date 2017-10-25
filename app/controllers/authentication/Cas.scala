@@ -61,55 +61,9 @@ object Cas extends Controller {
     }
   }
 
-  def updateAccount(personId: String, username: String, user: User, isInstructor: Boolean) = {
+  def updateAccount(username: String, user: User)(implicit isInstructor: Boolean) = {
     val logpre = logPrefix("[UPDATE ACCOUNT]:")
-    aim.getStudentData("records", personId, username).map { future =>
-      future.map { response =>
-        // some string manipulation is needed in order to parse the json
-        val jsonString = response.body.replaceAll("data list is missing ending delimiter", "")
-        val jsonResponse = Json.parse(jsonString) \ "RecMainService" \ "response"
-        val regEligibility = (jsonResponse \ "regEligibility").asOpt[String]
-        // update the user's permissions
-        if (isInstructor) {
-          SitePermissions.removeAllUserPermissions(user)
-          SitePermissions.assignRole(user, 'teacher)
-        } else if (eligibleList.contains(regEligibility.getOrElse(""))) {
-          SitePermissions.removeAllUserPermissions(user)
-          SitePermissions.assignRole(user, 'student)
-        } else {
-          Logger.error(s"User is not a teacher or eligible student: ${user.toString}")
-        }
-        val currentYearTerm = (jsonResponse \ "currentYearTerm").asOpt[String]
-        if (!currentYearTerm.isEmpty) {
-          aim.getStudentData("schedule", personId + "/" + currentYearTerm.get, username).map { future =>
-            future.map { response =>
-              val schedule = (response.json \ "WeeklySchedService" \ "response" \ "schedule_table").as[List[JsValue]]
-              val aim_courses: List[String] = schedule.flatMap { course =>
-                Json.fromJson(course) match {
-                  case JsSuccess(c: BYU_Course, _) => c.course :: Nil
-                  case _ => Nil
-                }
-              }
-              user.getEnrollment.foreach { course =>
-                if (!aim_courses.contains(course)) {
-                  Course.search(course.name).take(1).foreach(user.unenroll(_))
-                }
-              }
-              aim_courses.foreach { course =>
-                val courses = Course.search(course)
-                if (courses.length > 1) Logger.error(s"${logpre}Too many courses match $course[${courses.length}]")
-                Logger.info(s"${logpre}User:${user.id.get} AIM CourseName:${course} Ayamel CourseName:${courses.toString}")
-                courses.take(1).foreach(user.enroll(_))
-              }
-              Some(response.body)
-            }
-          }
-        } else {
-          Logger.error(s"[Cas.scala]: Error parsing AIM records for [$username]: ${response.body}")
-          None
-        }
-      }
-    }
+    aim.getEnrollment(username)
   }
 
   /**
@@ -132,9 +86,9 @@ object Cas extends Controller {
         val personId = getAttribute(xml, "personId").getOrElse("")
         val fulltime = getAttribute(xml, "activeFullTimeInstructor").getOrElse("false").toBoolean
         val parttime = getAttribute(xml, "activePartTimeInstructor").getOrElse("false").toBoolean
-        val isInstructor = fulltime || parttime
+        implicit val isInstructor = fulltime || parttime
 
-        updateAccount(personId, username, user, isInstructor)
+        updateAccount(username, user)
 
         if (action == "merge")
           Authentication.merge(user)
