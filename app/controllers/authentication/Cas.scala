@@ -66,6 +66,22 @@ object Cas extends Controller {
     aim.getEnrollment(username)
   }
 
+
+  /**
+   *  Used to create a YVideo Course which parallels a BYU course
+   *  @param courseName: Given an existing BYU course name, create a parallel YVideo Course
+   *  @return : Returns a reference to the given YVideo Course
+   */
+  def createYVideoCourse(courseName: String) = Course(None, courseName, "", "").save
+
+  /**
+   *  
+   */
+  def addToCourse(user: User, course: Course, isInstructor: Boolean) = user.enroll(course, teacher = isInstructor)
+
+  def removeFromCourse(user: User, course: Course) = user.unenroll(course)
+
+
   /**
    * When the CAS login is successful, it is redirected here, where the TGT and login are taken care of.
    */
