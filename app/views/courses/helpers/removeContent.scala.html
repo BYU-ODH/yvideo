@@ -20,17 +20,19 @@
                         <strong><em>There is no content in this course.</em></strong>
                     } else {
                         <form class="form-horizontal" id="removeContentForm" method="post" action="@routes.Courses.removeContent(course.id.get)">
-                            <div class="form-group">
-                                <label class="control-label" for="removeContent">Content to remove:</label>
-                                <div class="controls">  
-                                    <select id="removeContent" name="removeContent" multiple="multiple">
-                                        @for(contentObj <- availableContent) {
-                                            <option value="@contentObj.id.get">@contentObj.name (@contentObj.contentType.name)</option>
-                                        }
-                                    </select>
-                                </div>
-                                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
-                            </div>
+                           <div class="container-fluid"> 
+			       <div class="form-group">
+                               <label class="control-label" for="removeContent">Content to remove:</label>
+                                   <div class="controls">  
+                                       <select id="removeContent" name="removeContent" multiple="multiple">
+                                           @for(contentObj <- availableContent) {
+                        	               <option value="@contentObj.id.get">@contentObj.name (@contentObj.contentType.name)</option>
+                	                   }
+        	                       </select>
+	                           </div>
+                                   <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+                               </div>
+			    </div>
                         </form>
                     }
                 </div>
