@@ -62,10 +62,15 @@ object Cas extends Controller {
   }
 
   def updateAccount(username: String, user: User)(implicit isInstructor: Boolean) = {
-    val logpre = logPrefix("[UPDATE ACCOUNT]:")
-    aim.getEnrollment(username)
+    aim.getEnrollment(username, user).map { enrollmentOpt =>
+      enrollmentOpt.map { enrollment =>
+        Logger.warn(enrollment.toString)
+        enrollment.class_list.foreach { byuClass =>
+          //Logger.warn(byuClass.toString)
+        }
+      }
+    }
   }
-
 
   /**
    *  Used to create a YVideo Course which parallels a BYU course

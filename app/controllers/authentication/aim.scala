@@ -9,6 +9,9 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import models.User
+import models.Course
+
 object aim {
 
   case class UserEnrollment(
@@ -45,7 +48,7 @@ object aim {
     s"https://api.byu.edu:443/domains/legacy/academic/registration/enrollment/v1/$service/$idType/$idValue/$yearTerm"
   }
 
-  def getSchedule(netid: String, yearTerm: String, token: String)(implicit isInstructor: Boolean) = {
+  def getSchedule(netid: String, yearTerm: String, token: String)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
     WS.url(getScheduleUrl(netid, yearTerm))
     .withHeaders("Accept" -> "application/json", "Authorization" -> s"Bearer $token")
     .get().map { scheduleResp =>
@@ -59,40 +62,52 @@ object aim {
 
              userEnrollmentFromJson match {
               case JsSuccess(userEnrollment: UserEnrollment, path: JsPath) => {
-                userEnrollment
+                Some(userEnrollment)
               }
               case e: JsError => {
                 Logger.info(s"There was an exception in the conversion: ${JsError.toJson(e).toString}")
                 throw new Exception(s"Errors: ${JsError.toJson(e).toString}")
               }
-              case _ => Logger.info(s"Issue with the conversion and didn't even return a json success or error...")
+              case _ => {
+                Logger.info(s"Issue with the conversion and didn't even return a json success or error...")
+                None
+              }
             }
           } else {
-            Logger.error("Error parsing AIM service student information. [aim.scala]")
+              Logger.error("Error parsing AIM service student information. [aim.scala]")
+              None
           }
         }
-        case _ => Logger.error(s"Error Getting student schedule: [${scheduleResp.status}] ${scheduleResp.statusText}")
+        case _ => {
+          Logger.error(s"Error Getting student schedule: [${scheduleResp.status}] ${scheduleResp.statusText}")
+          None
+        }
       }
     }
   }
 
-  def getCurrentSemester(netid: String, token: String)(implicit isInstructor: Boolean) = {
+  def getCurrentSemester(netid: String, token: String)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
     val format = new java.text.SimpleDateFormat("yyyyMMdd")
     val date = format.format(new java.util.Date())
-    WS.url(s"https://ws.byu.edu/rest/v1/academic/controls/controldatesws/asofdate/$date/semester.json").get().foreach { yearTermResp =>
+    WS.url(s"https://ws.byu.edu/rest/v1/academic/controls/controldatesws/asofdate/$date/semester.json").get().flatMap { yearTermResp =>
       yearTermResp.status match {
         case 200 => {
           ((yearTermResp.json \ "ControldateswsService" \ "response" \ "date_list")(0) \ "year_term").as[String] match {
             case yearTerm: String =>
               if (yearTerm.length == 5) {
                 getSchedule(netid, yearTerm, token)
-              }
-            case _ => Logger.error(s"Invalid year term value: ${yearTermResp.json}")
+              } else Future(None)
+            case _ => {
+              Logger.error(s"Invalid year term value: ${yearTermResp.json}")
+              Future(None)
+            }
           }
         }
-        case _ => Logger.error(s"Got an error with the current semester request: ${yearTermResp.statusText}")
+        case _ => {
+          Logger.error(s"Got an error with the current semester request: ${yearTermResp.statusText}")
+          Future(None)
+        }
       }
-      
     }
   }
 
@@ -101,11 +116,12 @@ object aim {
     .withBody(Map("grant_type" -> Seq("client_credentials")))
     .post("grant_type=client_credentials")
     
-  def getEnrollment(netid: String)(implicit isInstructor: Boolean) = {
-    tokenRequest.map { response =>
+  def getEnrollment(netid: String, user: User)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
+    tokenRequest.flatMap { response =>
       if (response.status != 200) {
         Logger.error(s"Error getting aim api token: ${response.statusText}")
         Logger.error(s"AIM api token request response code: ${response.status}")
+        Future(None)
       } else {
         var token = (response.json \ "access_token").as[String]
         getCurrentSemester(netid, token)
