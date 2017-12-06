@@ -54,19 +54,19 @@
 
                     @if(!user.getEnrollment.isEmpty) {
                         <div class="link">
-                            <a class="headerDropdownLink" data-target="#coursesDropdown" href="#">
-                                <i class="icon-group"></i> My Courses
+                            <a class="headerDropdownLink" data-target="#collectionsDropdown" href="#">
+                                <i class="icon-group"></i> My Collections
                             </a>
-                            <div class="headerDropdown" id="coursesDropdown">
+                            <div class="headerDropdown" id="collectionsDropdown">
                                 <div class="dropdownPoint"></div>
-                                @for(course <- user.getEnrollment) {
+                                @for(collection <- user.getEnrollment) {
                                     <div class="dropdownItem">
-                                        <a href="@routes.Courses.view(course.id.get)"><i class="icon-book"></i> @course.name</a>
+                                        <a href="@routes.Collections.view(collection.id.get)"><i class="icon-book"></i> @collection.name</a>
                                     </div>
                                 }
-                                @if(user.hasSitePermission("createCourse")) {
+                                @if(user.hasSitePermission("createCollection")) {
                                     <div class="dropdownItem">
-                                        <a href="@routes.Courses.createPage()"><i class="icon-plus"></i> Create a new course</a>
+                                        <a href="@routes.Collections.createPage()"><i class="icon-plus"></i> Create a new collection</a>
                                     </div>
                                 }
                             </div>

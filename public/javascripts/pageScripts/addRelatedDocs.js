@@ -16,7 +16,7 @@ $(function(){
     var viewCapR, addCapR,
         addAnnR, viewAnnR,
         langList, altered = false,
-        courseQuery = courseId ? "?course=" + courseId : "",
+        collectionQuery = collectionId ? "?collection=" + collectionId : "",
         addCapTemplate = '<table class="table table-bordered">\
             <thead><tr>\
                 <th>File</th><th>Track name</th><th>Language</th><th>Kind</th>\
@@ -118,7 +118,7 @@ $(function(){
     function deleteDoc(rid, type, resource) {
         if(!confirm("Are you sure you want to delete?")){ return false; }
 
-        $.ajax("/content/" + content.id + "/delete/" + rid + courseQuery, {
+        $.ajax("/content/" + content.id + "/delete/" + rid + collectionQuery, {
             type: "post",
             cache: false,
             contentType: false,

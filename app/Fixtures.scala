@@ -35,15 +35,15 @@ object Fixtures {
       ("Resource 8", 'video, "", "resource8")
     )
 
-    val courses = List(
-      ("Course 101", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z"),
-      ("Course 102", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z"),
-      ("Course 103", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z"),
-      ("Course 104", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z"),
-      ("Course 105", "2013-03-14T20:37:01.665Z", "2014-03-14T20:37:01.665Z")
+    val collections = List(
+      (1L, "Collection Test 1"),
+      (2L, "Collection Test 2"),
+      (3L, "Collection Test 3"),
+      (4L, "Collection Test 4"),
+      (5L, "Collection Test 5")
     )
 
-    val courseListings = List(
+    val collectionListings = List(
       (0, 0),
       (1, 0),
       (2, 1),
@@ -51,7 +51,7 @@ object Fixtures {
       (4, 3)
     )
 
-    val courseMembership = List(
+    val collectionMembership = List(
       (0, 0, false),
       (1, 0, false),
       (1, 1, false),
@@ -100,10 +100,10 @@ object Fixtures {
     "Merging accounts",
     "Notifications",
     "Searching",
-    "Course directory",
-    "Joining courses",
+    "Collection directory",
+    "Joining collections",
     "Making announcements",
-    "Adding content you own to a course",
+    "Adding content you own to a collection",
     "Content types",
     "Browsing content",
     "Viewing content",
@@ -129,9 +129,9 @@ object Fixtures {
     "Editing existing annotations",
     "Publishing personal captions and annotations",
     "Becoming a teacher",
-    "Creating a course",
-    "Adding content you don't own to a course",
-    "Setting course captions and annotations",
+    "Creating a collection",
+    "Adding content you don't own to a collection",
+    "Setting collection captions and annotations",
     "How playlists work",
     "Creating a playlist",
     "Viewing a playlist"
@@ -153,7 +153,7 @@ object Fixtures {
     // Create the objects
     val users = new ListBuffer[User]()
     val content = new ListBuffer[Content]()
-    val courses = new ListBuffer[Course]()
+    val collections = new ListBuffer[Collection]()
 
     Logger.info("Creating user fixtures")
     data.users foreach {
@@ -165,19 +165,19 @@ object Fixtures {
       contentData => content.append(Content.fromFixture(contentData).save)
     }
 
-    Logger.info("Creating course fixtures")
-    data.courses foreach {
-      courseData => courses.append(Course.fromFixture(courseData).save)
+    Logger.info("Creating collection fixtures")
+    data.collections foreach {
+      collectionData => collections.append(Collection.fromFixture(collectionData).save)
     }
 
-    Logger.info("Creating course membership fixtures")
-    data.courseMembership.foreach {
-      data => CourseMembership(None, users(data._2).id.get, courses(data._1).id.get, data._3).save
+    Logger.info("Creating collection membership fixtures")
+    data.collectionMembership.foreach {
+      data => CollectionMembership(None, users(data._2).id.get, collections(data._1).id.get, data._3).save
     }
 
     Logger.info("Creating content listing fixtures")
     data.contentListing.foreach {
-      data => ContentListing(None, courses(data._1).id.get, content(data._2).id.get).save
+      data => ContentListing(None, collections(data._1).id.get, content(data._2).id.get).save
     }
 
     Logger.info("Creating content ownership fixtures")

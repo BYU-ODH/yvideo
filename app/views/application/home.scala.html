@@ -4,7 +4,7 @@
   Local(
     Rel("stylesheets/",
       CSS("home.css"),
-      CSS("course.css"),
+      CSS("collection.css"),
       CSS("content.css")))
 ) {
 
@@ -41,14 +41,14 @@
                     <div class="col-md-4">
                         <div class="homeContent">
                             <div class="homeContentContainer">
-                                <h3>Course Content Feed</h3>
+                                <h3>Collection Content Feed</h3>
                                 <div id="latestContent"></div>
                                 <script type="text/javascript">
                                     $(function() {
                                         var contentFeed = [];
                                         @for(contentData <- user.getContentFeed(6)) {
                                             var content_@contentData._1.id.get = @Html(contentData._1.toJson.toString);
-                                            content_@{contentData._1.id.get}.courseId = @contentData._2;
+                                            content_@{contentData._1.id.get}.collectionId = @contentData._2;
                                             contentFeed.push(content_@contentData._1.id.get);
                                         }
                                         ContentItemRenderer.renderAll({
@@ -64,15 +64,15 @@
                     <div class="col-md-4">
                         <div class="homeContent">
                             <div class="homeContentContainer">
-                                <h3>My Courses</h3>
+                                <h3>My Collections</h3>
                                 <ul>
-                                    @for(course <- user.getEnrollment) {
-                                        <li><a href="@routes.Courses.view(course.id.get)">@course.name</a></li>
+                                    @for(collection <- user.getEnrollment) {
+                                        <li><a href="@routes.Collections.view(collection.id.get)">@collection.name</a></li>
                                     }
                                 </ul>
 
-                                @if(user.hasSitePermission("createCourse")) {
-                                    <a href="@routes.Courses.create()" class="btn btn-magenta"><i class="icon-group"></i> Create a new course</a>
+                                @if(user.hasSitePermission("createCollection")) {
+                                    <a href="@routes.Collections.create()" class="btn btn-magenta"><i class="icon-group"></i> Create a new collection</a>
                                 }
                             </div>
                         </div>

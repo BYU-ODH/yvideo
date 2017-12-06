@@ -27,45 +27,38 @@ POST    /auth/createAccount                            controllers.authenticatio
 POST    /auth/createAccount/redirect*path              controllers.authentication.Password.createAccount(path: String)
 GET     /auth/logout                                   controllers.authentication.Authentication.logout
 
-# Course pages
-GET     /course                                         controllers.Courses.list
-GET     /course/create                                  controllers.Courses.createPage
-POST    /course/create                                  controllers.Courses.create
-GET     /course/:id                                     controllers.Courses.view(id: Long)
-POST    /course/:id                                     controllers.Courses.edit(id: Long)
-POST    /course/:id/addContent                          controllers.Courses.addContent(id: Long)
-POST    /course/:id/removeContent                       controllers.Courses.removeContent(id: Long)
-GET     /course/:id/request                             controllers.Courses.courseRequestPage(id: Long)
-POST    /course/:id/request                             controllers.Courses.submitCourseRequest(id: Long)
-GET     /course/:id/request/manage                      controllers.Courses.approvePage(id: Long)
-POST    /course/:id/request/approve                     controllers.Courses.approveRequest(id: Long)
-POST    /course/:id/request/deny                        controllers.Courses.denyRequest(id: Long)
-POST    /course/:id/request/approveMultiple             controllers.Courses.approveRequests(id: Long)
-POST    /course/:id/quit                                controllers.Courses.quitCourse(id: Long)
-POST    /course/:id/request/denyMultiple                controllers.Courses.denyRequests(id: Long)
-POST    /course/:id/remove/:studentId                   controllers.Courses.removeStudent(id: Long, studentId: Long)
-POST    /course/:id/setPermission/:operation            controllers.Courses.setPermission(id: Long, operation: String)
-POST    /course/:id/addTA                               controllers.Courses.addTA(id: Long)
-GET     /course/:courseId/content/:id                   controllers.CourseContent.viewInCourse(id: Long, courseId: Long)
-POST    /course/:courseId/content/:id/remove            controllers.CourseContent.removeFromCourse(id: Long, courseId: Long)
+# Collection pages
+GET     /collection                                         controllers.Collections.list
+GET     /collection/create                                  controllers.Collections.createPage
+POST    /collection/create                                  controllers.Collections.create
+GET     /collection/:id                                     controllers.Collections.view(id: Long)
+POST    /collection/:id                                     controllers.Collections.edit(id: Long)
+POST    /collection/:id/addContent                          controllers.Collections.addContent(id: Long)
+POST    /collection/:id/removeContent                       controllers.Collections.removeContent(id: Long)
+POST    /collection/:id/quit                                controllers.Collections.quitCollection(id: Long)
+POST    /collection/:id/remove/:studentId                   controllers.Collections.removeStudent(id: Long, studentId: Long)
+POST    /collection/:id/setPermission/:operation            controllers.Collections.setPermission(id: Long, operation: String)
+POST    /collection/:id/addTA                               controllers.Collections.addTA(id: Long)
+GET     /collection/:collectionId/content/:id                   controllers.CollectionContent.viewInCollection(id: Long, collectionId: Long)
+POST    /collection/:collectionId/content/:id/remove            controllers.CollectionContent.removeFromCollection(id: Long, collectionId: Long)
 
 # Content pages
 GET     /content/mine                      controllers.ContentController.mine
 GET     /content/manage                    controllers.ContentController.manageContent
 POST    /content/manage                    controllers.ContentEditing.batchUpdateContent
-GET     /content/create/:page              controllers.ContentController.createPage(page: String, courseId: Long = 0)
-GET     /content/create/:page/:courseId    controllers.ContentController.createPage(page: String, courseId: Long)
-POST    /content/create/url                controllers.ContentController.createFromUrl(courseId: Long, annotations: Boolean)
-POST    /content/create/batch              controllers.ContentController.createFromBatch(courseId: Long)
-POST    /content/create/file               controllers.ContentController.createFromFile(courseId: Long)
-POST    /content/create/resource           controllers.ContentController.createFromResource(courseId: Long)
-POST    /content/create/playlist           controllers.ContentController.createPlaylist(courseId: Long)
-POST    /content/create/questions          controllers.ContentController.createQuestionSet(courseId: Long)
+GET     /content/create/:page              controllers.ContentController.createPage(page: String, collectionId: Long = 0)
+GET     /content/create/:page/:collectionId    controllers.ContentController.createPage(page: String, collectionId: Long)
+POST    /content/create/url                controllers.ContentController.createFromUrl(collectionId: Long, annotations: Boolean)
+POST    /content/create/batch              controllers.ContentController.createFromBatch(collectionId: Long)
+POST    /content/create/file               controllers.ContentController.createFromFile(collectionId: Long)
+POST    /content/create/resource           controllers.ContentController.createFromResource(collectionId: Long)
+POST    /content/create/playlist           controllers.ContentController.createPlaylist(collectionId: Long)
+POST    /content/create/questions          controllers.ContentController.createQuestionSet(collectionId: Long)
 GET     /content/:id                       controllers.ContentController.view(id: Long)
 GET     /content/:id/json                  controllers.ContentController.getAsJson(id: Long)
 POST    /content/:id/delete                controllers.ContentController.delete(id: Long)
 POST    /content/:id/clone                 controllers.ContentController.cloneContent(id: Long)
-POST    /content/:id/addToCourse           controllers.CourseContent.addToCourse(id: Long)
+POST    /content/:id/addToCollection           controllers.CollectionContent.addToCollection(id: Long)
 POST    /content/:id/settings              controllers.ContentEditing.setSettings(id: Long)
 POST    /content/:id/metadata              controllers.ContentEditing.setMetadata(id: Long)
 POST    /content/:id/thumbnail             controllers.ContentEditing.changeThumbnail(id: Long)
@@ -105,9 +98,9 @@ GET     /admin/users/:id/:limit                 controllers.Administration.paged
 POST    /admin/users/setPermission/:operation   controllers.Administration.setPermission(operation: String)
 POST    /admin/users/notify                     controllers.Administration.sendNotification(currentPage: Int)
 POST    /admin/users/:id/delete                 controllers.Administration.delete(id: Long)
-GET     /admin/courses                          controllers.Administration.manageCourses
-POST    /admin/courses/:id                      controllers.Administration.editCourse(id: Long)
-POST    /admin/courses/:id/delete               controllers.Administration.deleteCourse(id: Long)
+GET     /admin/collections                          controllers.Administration.manageCollections
+POST    /admin/collections/:id                      controllers.Administration.editCollection(id: Long)
+POST    /admin/collections/:id/delete               controllers.Administration.deleteCollection(id: Long)
 GET     /admin/content                          controllers.Administration.manageContent
 POST    /admin/content                          controllers.Administration.batchUpdateContent
 GET     /admin/homePageContent                  controllers.Administration.homePageContent
@@ -119,7 +112,7 @@ POST    /admin/settings                         controllers.Administration.saveS
 GET     /admin/proxy/:id                        controllers.Administration.proxy(id: Long)
 
 # CaptionAider pages
-GET     /captionaider/:id/:courseId         controllers.CaptionAider.view(id: Long, courseId: Long)
+GET     /captionaider/:id/:collectionId         controllers.CaptionAider.view(id: Long, collectionId: Long)
 POST    /captionaider/save                  controllers.CaptionAider.save
 
 # Annotation Editor pages
@@ -149,7 +142,7 @@ POST    /scola                              controllers.Scola.buildUrl
 POST    /byusecure                          controllers.BYUSecure.buildUrl
 POST    /ajax/permissionChecker             controllers.ajax.PermissionChecker.check
 GET     /ajax/content/mine                  controllers.ajax.ContentLister.mine
-GET     /ajax/content/course                controllers.ajax.ContentLister.course
+GET     /ajax/content/collection            controllers.ajax.ContentLister.collection
 GET     /ajax/content/:id                   controllers.ajax.ContentLister.get(id: Long)
 GET     /ajax/questions/:id/grade/:index    controllers.QuestionSets.gradeAjax(id: Long, index: Int)
 

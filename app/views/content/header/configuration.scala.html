@@ -1,4 +1,4 @@
-@(content: models.Content, resourceLibraryUrl: String, course: Option[Course], user: User)
+@(content: models.Content, resourceLibraryUrl: String, collection: Option[Collection], user: User)
 
 <div id="configurationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="configurationModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -24,7 +24,7 @@
     $(function() {
         var owner = @content.isEditableBy(user);
         var userId = @user.id.get;
-        var courseId = @course.map(_.id.get).getOrElse(0);
+        var collectionId = @collection.map(_.id.get).getOrElse(0);
         ResourceLibrary.load("@content.resourceId", function(resource) {
             new ContentSettings({
                 content: content,

@@ -30,13 +30,13 @@ object ContentLister extends Controller {
   }
 
   /**
-   * Lists the courses the user is in and the content under each course.
+   * Lists the collections the user is in and the content under each collection.
    */
-  def course = Authentication.authenticatedAction() {
+  def collection = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        val courses = user.getEnrollment
-        val content = courses.map(course => (course.name, JsArray(course.getContent.map(_.toJson))))
+        val collections = user.getEnrollment
+        val content = collections.map(collection => (collection.name, JsArray(collection.getContent.map(_.toJson))))
         val origin = request.headers.get("Origin").getOrElse("*")
         Future {
           Ok(JsObject(content)).withHeaders(

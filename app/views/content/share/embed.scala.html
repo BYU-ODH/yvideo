@@ -1,5 +1,5 @@
 @import play.api.Play.current
-@(content: models.Content, resourceLibraryUrl: String, user: Option[User] = None, course: Option[Course] = None)
+@(content: models.Content, resourceLibraryUrl: String, user: Option[User] = None, collection: Option[Collection] = None)
 
 @contentIcons = @{
     Map(
@@ -57,13 +57,13 @@
                 xApi.registerPage({
                     page:{
                         "category":"content",
-                        "action":"@{course.map(c => "course_" + c.id.get + ":").getOrElse("")}view",
+                        "action":"@{collection.map(c => "collection_" + c.id.get + ":").getOrElse("")}view",
                         "name":window.location.href
                     },
-                    @if(course.isDefined) {
-                        course: {
-                            "id":@course.get.id.get,
-                            "name":"@course.get.name"
+                    @if(collection.isDefined) {
+                        collection: {
+                            "id":@collection.get.id.get,
+                            "name":"@collection.get.name"
                         },
                     }
                     user: {
@@ -110,9 +110,9 @@
                     @if(user.isDefined) {
                     userId: "@user.get.id.get",
                     owner: @content.isEditableBy(user.get),
-                    teacher: @course.exists(c => user.get.hasCoursePermission(c, "teacher")),
+                    teacher: @collection.exists(c => user.get.hasCollectionPermission(c, "teacher")),
                     }
-                    courseId: @course.map(_.id.get).getOrElse(0),
+                    collectionId: @collection.map(_.id.get).getOrElse(0),
                     annotate: true,
                     callback: setupXapi
                 });

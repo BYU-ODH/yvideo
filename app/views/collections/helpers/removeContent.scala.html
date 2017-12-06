@@ -1,25 +1,25 @@
-@(user: User, course: Course)
+@(user: User, collection: Collection)
 
 @availableContent = @{
-    course.getContent
+    collection.getContent
 }
 
-@if(user.hasCoursePermission(course, "removeContent")) {
-    <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCourse.js")'></script>
+@if(user.hasCollectionPermission(collection, "removeContent")) {
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCollection.js")'></script>
     <div id="removeContentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="removeContentModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">        
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 id="removeContentModalLabel">Remove content from this course.</h3>
+                    <h3 id="removeContentModalLabel">Remove content from this collection.</h3>
                 </div>
 
                 <div class="modal-body">
 
                     @if(availableContent.isEmpty) {
-                        <strong><em>There is no content in this course.</em></strong>
+                        <strong><em>There is no content in this collection.</em></strong>
                     } else {
-                        <form class="form-horizontal" id="removeContentForm" method="post" action="@routes.Courses.removeContent(course.id.get)">
+                        <form class="form-horizontal" id="removeContentForm" method="post" action="@routes.Collections.removeContent(collection.id.get)">
                            <div class="container-fluid"> 
 			       <div class="form-group">
                                <label class="control-label" for="removeContent">Content to remove:</label>

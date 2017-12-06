@@ -13,6 +13,7 @@ import ExecutionContext.Implicits.global
 import models.SitePermissions
 import models.User
 import models.Course
+import models.Collection
 
 
 /**
@@ -77,14 +78,14 @@ object Cas extends Controller {
    *  @param courseName: Given an existing BYU course name, create a parallel YVideo Course
    *  @return : Returns a reference to the given YVideo Course
    */
-  def createYVideoCourse(courseName: String) = Course(None, courseName, "", "").save
+  def createYVideoCourse(courseName: String) = Course(None, "", "", "", "", "", "", "", "", courseName).save
 
   /**
    *  
    */
-  def addToCourse(user: User, course: Course, isInstructor: Boolean) = user.enroll(course, teacher = isInstructor)
+  def addToCollection(user: User, collection: Collection, isInstructor: Boolean) = user.enroll(collection, isInstructor)
 
-  def removeFromCourse(user: User, course: Course) = user.unenroll(course)
+  def removeFromCollection(user: User, collection: Collection) = user.unenroll(collection)
 
 
   /**

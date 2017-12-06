@@ -1,5 +1,5 @@
 @import play.api.Play.current
-@(content: models.Content, resourceLibraryUrl: String, user: Option[User] = None, course: Option[Course] = None)(implicit request: RequestHeader)
+@(content: models.Content, resourceLibraryUrl: String, user: Option[User] = None, collection: Option[Collection] = None)(implicit request: RequestHeader)
 
 @contentIcons = @{
     Map(
@@ -51,13 +51,13 @@
             xApi.registerPage({
                 page:{
                     "category":"content",
-                    "action":"@{course.map(c => "course_" + c.id.get + ":").getOrElse("")}view",
+                    "action":"@{collection.map(c => "collection_" + c.id.get + ":").getOrElse("")}view",
                     "name":window.location.href
                 },
-                @if(course.isDefined) {
-                    course: {
-                        "id":@course.get.id.get,
-                        "name":"@course.get.name"
+                @if(collection.isDefined) {
+                    collection: {
+                        "id":@collection.get.id.get,
+                        "name":"@collection.get.name"
                     },
                 }
                 user: {
@@ -75,9 +75,9 @@
         }
     </script>
     <div class="padded">
-        @if(course.isDefined) {
+        @if(collection.isDefined) {
             <ul class="breadcrumb">
-                <li><a href="@routes.Courses.view(course.get.id.get)">@course.get.name</a> <span class="divider"></span></li>
+                <li><a href="@routes.Collections.view(collection.get.id.get)">@collection.get.name</a> <span class="divider"></span></li>
                 <li class="active">@content.name</li>
             </ul>
         }
@@ -104,17 +104,17 @@
                                     <li><a href="#annotationsModal" data-toggle="modal"><i class="icon-comments"></i> Annotations</a></li>
                                 </ul>
                             </li>
-                            @if(course.isDefined) {
-                                @if(user.get.hasCoursePermission(course.get, "teacher") || user.get.hasCoursePermission(course.get, "removeContent")) {
+                            @if(collection.isDefined) {
+                                @if(user.get.hasCollectionPermission(collection.get, "teacher") || user.get.hasCollectionPermission(collection.get, "removeContent")) {
                                     <li class="dropdown">
                                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                            <i class="icon-book"></i> Course <b class="caret"></b>
+                                            <i class="icon-book"></i> Collection <b class="caret"></b>
                                         </a>
                                         <ul class="dropdown-menu">
-                                          @if(user.get.hasCoursePermission(course.get, "removeContent")) {
-                                            <li><a href="#" id="courseremovebtn"><i class="icon-remove"></i> Remove from course</a></li>
+                                          @if(user.get.hasCollectionPermission(collection.get, "removeContent")) {
+                                            <li><a href="#" id="collectionremovebtn"><i class="icon-remove"></i> Remove from collection</a></li>
                                             <script>
-                                                document.getElementById("courseremovebtn").addEventListener("click",function(){
+                                                document.getElementById("collectionremovebtn").addEventListener("click",function(){
                                                     var xhr = new XMLHttpRequest();
                                                     xhr.addEventListener('load',function(){
                                                         if(history.pushState){ history.pushState(null,"",xhr.responseURL); }
@@ -123,7 +123,7 @@
                                                         document.close();
                                                     },false);
                                                     xhr.addEventListener('error',function(){ alert("Error removing content"); },false);
-                                                    xhr.open("POST", "@routes.CourseContent.removeFromCourse(content.id.get, course.get.id.get)");
+                                                    xhr.open("POST", "@routes.CollectionContent.removeFromCollection(content.id.get, collection.get.id.get)");
                                                     xhr.send();
                                                 },false);
                                             </script>
@@ -155,7 +155,7 @@
                                     <ul class="dropdown-menu" id="downloadMenu"></ul>
                                 </li>
                                 <li><a href="#configurationModal" data-toggle="modal"><i class="icon-cogs"></i> Configuration</a></li>
-                                @views.html.content.header.configuration(content, resourceLibraryUrl, course, user.get)
+                                @views.html.content.header.configuration(content, resourceLibraryUrl, collection, user.get)
                             }
                             @if(user.get.hasSitePermission("createContent")) {
                                 <li><a href="#" id="clonebtn"><i class="icon-copy"></i> Clone</a></li>
@@ -178,7 +178,7 @@
                     </div>
                 </div>
             </nav>
-            @views.html.content.header.addRelatedDocs(content, course, resourceLibraryUrl, user.get)
+            @views.html.content.header.addRelatedDocs(content, collection, resourceLibraryUrl, user.get)
         }
         <div id="contentHolder" class="@content.contentType.name"></div>
         <div>
@@ -208,9 +208,9 @@
                     @if(user.isDefined) {
                     userId: "@user.get.id.get",
                     owner: @content.isEditableBy(user.get),
-                    teacher: @course.exists(c => user.get.hasCoursePermission(c, "teacher")),
+                    teacher: @collection.exists(c => user.get.hasCollectionPermission(c, "teacher")),
                     }
-                    courseId: @course.map(_.id.get).getOrElse(0),
+                    collectionId: @collection.map(_.id.get).getOrElse(0),
                     holder: document.getElementById('contentHolder'),
                     annotate: true,
                     open: true,

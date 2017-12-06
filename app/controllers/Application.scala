@@ -43,10 +43,10 @@ object Application extends Controller {
       implicit user =>
         Future {
           request.queryString.get("query").flatMap(_.headOption).map { query =>
-            (Content.search(query), Course.search(query))
+            (Content.search(query), Collection.search(query))
           }.getOrElse((Nil, Nil)) match {
-            case (content, courses) =>
-              Ok(views.html.application.search(content, courses))
+            case (content, collections) =>
+              Ok(views.html.application.search(content, collections))
           }
         }
   }

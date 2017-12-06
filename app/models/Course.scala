@@ -17,8 +17,8 @@ import play.api.Play.current
  * @param startDate When the course become functional
  * @param endDate When the course ceases to be functional
  */
-case class Course(id: Option[Long], name: String, startDate: String, endDate: String,
-  featured: Boolean = false) extends SQLSavable with SQLDeletable {
+case class Course(id: Option[Long], yearTerm: String, subjectArea: String, catalogNumber: String,
+  sectionNumber: String, curriculumId: String, titleCode: String, sectionType: String, blockCode: String, courseTitle: String) extends SQLSavable with SQLDeletable {
 
   /**
    * Saves the course to the DB
@@ -26,12 +26,14 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
    */
   def save =
     if (id.isDefined) {
-      update(Course.tableName, 'id -> id.get, 'name -> name, 'startDate -> startDate, 'endDate -> endDate,
-        'featured -> featured)
+      update(Course.tableName,'id -> id.get,'yearTerm -> yearTerm, 'subjectArea -> subjectArea,
+        'catalogNumber -> catalogNumber,'sectionNumber -> sectionNumber,'curriculumId -> curriculumId,
+        'titleCode -> titleCode,'sectionType -> sectionType,'blockCode -> blockCode,'courseTitle -> courseTitle)
       this
     } else {
-      val id = insert(Course.tableName, 'name -> name, 'startDate -> startDate, 'endDate -> endDate,
-        'featured -> featured)
+      val id = insert(Course.tableName, 'yearTerm -> yearTerm, 'subjectArea -> subjectArea,
+        'catalogNumber -> catalogNumber,'sectionNumber -> sectionNumber,'curriculumId -> curriculumId,
+        'titleCode -> titleCode,'sectionType -> sectionType,'blockCode -> blockCode,'courseTitle -> courseTitle)
       this.copy(id)
     }
 
@@ -56,128 +58,6 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
 
     delete(Course.tableName)
   }
-
-  //                  _   _
-  //        /\       | | (_)
-  //       /  \   ___| |_ _  ___  _ __  ___
-  //      / /\ \ / __| __| |/ _ \| '_ \/ __|
-  //     / ____ \ (__| |_| | (_) | | | \__ \
-  //    /_/    \_\___|\__|_|\___/|_| |_|___/
-  //
-  //   ______ ______ ______ ______ ______ ______ ______ ______ ______
-  // |______|______|______|______|______|______|______|______|______|
-  //
-
-  /**
-   * Post content to the course
-   * @param content The content to be posted
-   * @return The content listing
-   */
-  def addContent(content: Content): ContentListing = ContentListing(None, this.id.get, content.id.get).save
-
-  /**
-   * Remove content from the course
-   * @param content The content to be removed
-   * @return The course
-   */
-  def removeContent(content: Content): Course = {
-    val listing = ContentListing.listByCourse(this).filter(_.contentId == content.id.get)
-
-    // Check the number or results
-    if (listing.size == 1) {
-    // One membership. So delete it
-      listing(0).delete()
-    } else if (listing.size != 0) {
-    // We didn't get exactly one listing so delete one of them, but warn
-      Logger.warn("Multiple content listings for content #" + content.id.get + " in course #" + id.get)
-      listing(0).delete()
-    }
-    this
-  }
-
-  //       _____      _   _
-  //      / ____|    | | | |
-  //     | |  __  ___| |_| |_ ___ _ __ ___
-  //     | | |_ |/ _ \ __| __/ _ \ '__/ __|
-  //     | |__| |  __/ |_| ||  __/ |  \__ \
-  //      \_____|\___|\__|\__\___|_|  |___/
-  //
-  //   ______ ______ ______ ______ ______ ______ ______ ______ ______
-  // |______|______|______|______|______|______|______|______|______|
-  //
-
-  val cacheTarget = this
-  object cache {
-    var students: Option[List[User]] = None
-
-    def getStudents = {
-      if (students.isEmpty)
-        students = Some(CourseMembership.listClassMembers(cacheTarget, teacher = false))
-      students.get
-    }
-
-    var teachers: Option[List[User]] = None
-
-    def getTeachers = {
-      if (teachers.isEmpty)
-        teachers = Some(CourseMembership.listClassMembers(cacheTarget, teacher = true))
-      teachers.get
-    }
-
-    var content: Option[List[Content]] = None
-
-    def getContent = {
-      if (content.isEmpty)
-        content = Some(ContentListing.listClassContent(cacheTarget))
-      content.get
-    }
-  }
-
-  /**
-   * Get the enrolled students
-   * @return The list of users who are students
-   */
-  def getStudents: List[User] = cache.getStudents
-
-  /**
-   * Get the enrolled teachers
-   * @return The list of users who are teachers
-   */
-  def getTeachers: List[User] = cache.getTeachers
-
-  /**
-   * Get all the members (teachers and students)
-   * @return The list of all members
-   */
-  def getMembers: List[User] = getTeachers ++ getStudents
-
-  /**
-   * Get content posted to this course
-   * @return The list of content
-   */
-  def getContent: List[Content] = cache.getContent
-
-  /**
-   * Get content posted to this course that the current user is allowed to see
-   * @return The list of content
-   */
-  def getContentFor(user: User): List[Content] =
-    if (user.hasSitePermission("admin")) cache.getContent
-    else cache.getContent.filter { c =>
-      c.visibility != Content.visibility._private || user.getContent.contains(c)
-    }
-
-  /**
-   * Get the list of requests by other users to join this course
-   * @return The add course request list
-   */
-  def getRequests: List[AddCourseRequest] = AddCourseRequest.listByCourse(this)
-
-  def getUserPermissions(user: User): List[String] = CoursePermissions.listByUser(this, user)
-  def addUserPermission(user: User, permission: String) = CoursePermissions.addUserPermission(this, user, permission)
-  def removeUserPermission(user: User, permission: String) = CoursePermissions.removeUserPermission(this, user, permission)
-  def removeAllUserPermissions(user: User) = CoursePermissions.removeAllUserPermissions(this, user)
-  def userHasPermission(user: User, permission: String) = CoursePermissions.userHasPermission(this, user, permission)
 }
 
 object Course extends SQLSelectable[Course] {
@@ -185,12 +65,19 @@ object Course extends SQLSelectable[Course] {
 
   val simple = {
     get[Option[Long]](tableName + ".id") ~
-      get[String](tableName + ".name") ~
-      get[String](tableName + ".startDate") ~
-      get[String](tableName + ".endDate") ~
-      get[Boolean](tableName + ".featured") map {
-      case id~name~startDate~endDate~featured =>
-        Course(id, name, startDate, endDate, featured)
+      get[String](tableName + ".yearTerm") ~
+      get[String](tableName + ".subjectArea") ~
+      get[String](tableName + ".catalogNumber") ~
+      get[String](tableName + ".sectionNumber") ~
+      get[String](tableName + ".curriculumId") ~
+      get[String](tableName + ".titleCode") ~
+      get[String](tableName + ".sectionType") ~
+      get[String](tableName + ".blockCode") ~
+      get[String](tableName + ".courseTitle") map {
+      case id~yearTerm~subjectArea~catalogNumber~sectionNumber~
+        curriculumId~titleCode~sectionType~blockCode~courseTitle =>
+        Course(id, yearTerm, subjectArea, catalogNumber, sectionNumber, 
+        curriculumId, titleCode, sectionType, blockCode, courseTitle)
     }
   }
 
@@ -212,8 +99,8 @@ object Course extends SQLSelectable[Course] {
    * @param data Fixture data
    * @return The user
    */
-  def fromFixture(data: (String, String, String)): Course =
-    Course(None, data._1, data._2, data._3, false)
+  def fromFixture(data: (String, String, String, String, String, String, String, String, String)): Course =
+    Course(None, data._1, data._2, data._3, data._4, data._5, data._6, data._7, data._8, data._9)
 
   /**
    * Search the names of courses

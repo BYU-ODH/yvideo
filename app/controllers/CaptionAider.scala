@@ -3,7 +3,7 @@ package controllers
 import play.api.mvc._
 import play.api.Logger
 import controllers.authentication.Authentication
-import models.Course
+import models.Collection
 import service.{AdditionalDocumentAdder, FileUploader, ResourceHelper}
 import java.io.ByteArrayInputStream
 import dataAccess.ResourceController
@@ -17,16 +17,16 @@ import play.api.libs.json.{JsObject, Json}
 object CaptionAider extends Controller {
 
   /**
-   * View CaptionAider. You specify the ID of the content and the ID of the course under whose context we will operate.
-   * If there is no course, specify 0 as the ID.
+   * View CaptionAider. You specify the ID of the content and the ID of the collection under whose context we will operate.
+   * If there is no collection, specify 0 as the ID.
    */
-  def view(id: Long, courseId: Long) = Authentication.authenticatedAction() {
+  def view(id: Long, collectionId: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
-          val course = Course.findById(courseId)
+          val collection = Collection.findById(collectionId)
           Future {
-            Ok(views.html.captionAider.view(content, course, ResourceController.baseUrl))
+            Ok(views.html.captionAider.view(content, collection, ResourceController.baseUrl))
           }
         }
   }

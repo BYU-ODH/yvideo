@@ -157,7 +157,7 @@ object Administration extends Controller {
               Redirect(if(currentPage == 0) {
                 routes.Administration.manageUsers()
               } else if (currentPage == 1) {
-                routes.Administration.manageCourses()
+                routes.Administration.manageCollections()
               } else {
                 routes.Application.home
               }).flashing("info" -> "Notification sent to user")
@@ -185,57 +185,56 @@ object Administration extends Controller {
   }
 
   /**
-   * The course management view
+   * The collection management view
    */
-  def manageCourses = Authentication.authenticatedAction() {
+  def manageCollections = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Authentication.enforcePermission("admin") {
-          val courses = Course.list
-          Future(Ok(views.html.admin.courses(courses)))
+          val collections = Collection.list
+          Future(Ok(views.html.admin.collections(collections)))
         }
   }
 
   /**
-   * Updates the name of the course
-   * @param id The ID of the course
+   * Updates the name of the collection
+   * @param id The ID of the collection
    */
-  def editCourse(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def editCollection(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         Authentication.enforcePermission("admin") {
-          Courses.getCourse(id) { course =>
-            // Update the course
+          Collections.getCollection(id) { collection =>
+            // Update the collection
             val params = request.body.mapValues(_(0))
-            course.copy(
-			  name = params("name"),
-			  featured = (params("status") == "featured")
+            collection.copy(
+			  name = params("name")
 			).save
             Future {
-              Redirect(routes.Administration.manageCourses())
-                .flashing("info" -> "Course updated")
+              Redirect(routes.Administration.manageCollections())
+                .flashing("info" -> "Collection updated")
             }
           }
         }
   }
 
   /**
-   * Deletes a course
-   * @param id The ID of the course to delete
+   * Deletes a collection
+   * @param id The ID of the collection to delete
    */
-  def deleteCourse(id: Long) = Authentication.authenticatedAction() {
+  def deleteCollection(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Courses.getCourse(id) { course =>
+        Collections.getCollection(id) { collection =>
           Future {
-            if (user.hasCoursePermission(course, "deleteCourse")) {
-              course.delete()
+            if (user.hasCollectionPermission(collection, "deleteCollection")) {
+              collection.delete()
               Redirect(routes.Application.home)
-                .flashing("info" -> "Course deleted")
+                .flashing("info" -> "Collection deleted")
             } else if(user.hasSitePermission("admin")) {
-              course.delete()
-              Redirect(routes.Administration.manageCourses())
-                .flashing("info" -> "Course deleted")
+              collection.delete()
+              Redirect(routes.Administration.manageCollections())
+                .flashing("info" -> "Collection deleted")
             } else Errors.forbidden
           }
       }

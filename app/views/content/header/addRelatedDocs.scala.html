@@ -1,9 +1,9 @@
-@(content: models.Content, course: Option[Course], resourceLibraryUrl: String, user: User)
+@(content: models.Content, collection: Option[Collection], resourceLibraryUrl: String, user: User)
 
 <script type="text/javascript">
-	var courseId = @course.map(_.id.get).getOrElse(0);
+	var collectionId = @collection.map(_.id.get).getOrElse(0);
 	var owner = @content.isEditableBy(user);
-	var teacher = @course.exists(c => user.hasCoursePermission(c, "teacher"));
+	var teacher = @collection.exists(c => user.hasCollectionPermission(c, "teacher"));
 	var userId = @user.id.get;
 </script>
 

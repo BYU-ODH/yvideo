@@ -9,12 +9,12 @@ import play.api.db.DB
 import play.api.Play.current
 
 /**
- * This represents content posted to a course
+ * This represents content posted to a collection
  * @param id The id of this ownership
- * @param courseId The id of the course
+ * @param collectionId The id of the collection
  * @param contentId The id of the content
  */
-case class ContentListing(id: Option[Long], courseId: Long, contentId: Long) extends SQLSavable with SQLDeletable {
+case class ContentListing(id: Option[Long], collectionId: Long, contentId: Long) extends SQLSavable with SQLDeletable {
 
   /**
    * Saves the content listing to the DB
@@ -22,10 +22,10 @@ case class ContentListing(id: Option[Long], courseId: Long, contentId: Long) ext
    */
   def save =
     if (id.isDefined) {
-      update(ContentListing.tableName, 'id -> id.get, 'courseId -> courseId, 'contentId -> contentId)
+      update(ContentListing.tableName, 'id -> id.get, 'collectionId -> collectionId, 'contentId -> contentId)
       this
     } else {
-      val id = insert(ContentListing.tableName, 'courseId -> courseId, 'contentId -> contentId)
+      val id = insert(ContentListing.tableName, 'collectionId -> collectionId, 'contentId -> contentId)
       this.copy(id)
     }
 
@@ -43,9 +43,9 @@ object ContentListing extends SQLSelectable[ContentListing] {
 
   val simple = {
     get[Option[Long]](tableName + ".id") ~
-      get[Long](tableName + ".courseId") ~
+      get[Long](tableName + ".collectionId") ~
       get[Long](tableName + ".contentId") map {
-      case id ~ courseId ~ contentId => ContentListing(id, courseId, contentId)
+      case id ~ collectionId ~ contentId => ContentListing(id, collectionId, contentId)
     }
   }
 
@@ -63,12 +63,12 @@ object ContentListing extends SQLSelectable[ContentListing] {
   def list: List[ContentListing] = list(simple)
 
   /**
-   * Lists the content listing pertaining to a certain course
-   * @param course The course whose content we want
+   * Lists the content listing pertaining to a certain collection
+   * @param collection The collection whose content we want
    * @return The list of content listings
    */
-  def listByCourse(course: Course): List[ContentListing] =
-    listByCol("courseId", course.id, simple)
+  def listByCollection(collection: Collection): List[ContentListing] =
+    listByCol("collectionId", collection.id, simple)
 
   /**
    * Lists the content listing pertaining to a certain content object
@@ -79,21 +79,21 @@ object ContentListing extends SQLSelectable[ContentListing] {
     listByCol("contentId", content.id, simple)
 
   /**
-   * Gets all content belonging to a certain course
-   * @param course The course where the content is posted
+   * Gets all content belonging to a certain collection
+   * @param collection The collection where the content is posted
    * @return The list of content
    */
-  def listClassContent(course: Course): List[Content] =
+  def listClassContent(collection: Collection): List[Content] =
     DB.withConnection { implicit connection =>
       try {
         SQL(
           s"""
           select * from ${Content.tableName} join $tableName
           on ${Content.tableName}.id = ${tableName}.contentId
-          where ${tableName}.courseId = {id}
+          where ${tableName}.collectionId = {id}
           """
         )
-          .on('id -> course.id)
+          .on('id -> collection.id)
           .as(Content.simple *)
       } catch {
         case e: SQLException =>

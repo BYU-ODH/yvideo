@@ -1,4 +1,4 @@
-@(content: models.Content, resourceLibraryUrl: String, user: Option[User] = None, course: Option[Course] = None)(implicit request: RequestHeader)
+@(content: models.Content, resourceLibraryUrl: String, user: Option[User] = None, collection: Option[Collection] = None)(implicit request: RequestHeader)
 
 @import views.html.resources._
 
@@ -36,13 +36,13 @@
                 xApi.registerPage({
                     page:{
                         "category":"content",
-                        "action":"@{course.map(c => "course_" + c.id.get + ":").getOrElse("")}view",
+                        "action":"@{collection.map(c => "collection_" + c.id.get + ":").getOrElse("")}view",
                         "name":window.location.href
                     },
-                    @if(course.isDefined) {
-                        course: {
-                            "id":@course.get.id.get,
-                            "name":"@course.get.name"
+                    @if(collection.isDefined) {
+                        collection: {
+                            "id":@collection.get.id.get,
+                            "name":"@collection.get.name"
                         },
                     }
                     user: {
@@ -78,19 +78,19 @@
 
                     @if(!user.exists(_.getEnrollment.isEmpty)) {
                         <div class="link">
-                            <a class="headerDropdownLink" data-target="#coursesDropdown" href="#">
-                                <i class="icon-group"></i> My Courses
+                            <a class="headerDropdownLink" data-target="#collectionsDropdown" href="#">
+                                <i class="icon-group"></i> My Collections
                             </a>
-                            <div class="headerDropdown" id="coursesDropdown">
+                            <div class="headerDropdown" id="collectionsDropdown">
                                 <div class="dropdownPoint"></div>
-                                @for(course <- user.get.getEnrollment) {
+                                @for(collection <- user.get.getEnrollment) {
                                     <div class="dropdownItem">
-                                        <a href="@routes.Courses.view(course.id.get)"><i class="icon-book"></i> @course.name</a>
+                                        <a href="@routes.Collections.view(collection.id.get)"><i class="icon-book"></i> @collection.name</a>
                                     </div>
                                 }
-                                @if(user.exists(_.hasSitePermission("createCourse"))) {
+                                @if(user.exists(_.hasSitePermission("createCollection"))) {
                                     <div class="dropdownItem">
-                                        <a href="@routes.Courses.createPage()"><i class="icon-plus"></i> Create a new course</a>
+                                        <a href="@routes.Collections.createPage()"><i class="icon-plus"></i> Create a new collection</a>
                                     </div>
                                 }
                             </div>
@@ -129,9 +129,9 @@
                     @if(user.isDefined) {
                     userId: "@user.get.id.get",
                     owner: @content.isEditableBy(user.get),
-                    teacher: @course.exists(c => user.get.hasCoursePermission(c, "teacher")),
+                    teacher: @collection.exists(c => user.get.hasCollectionPermission(c, "teacher")),
                     }
-                    courseId: @course.map(_.id.get).getOrElse(0),
+                    collectionId: @collection.map(_.id.get).getOrElse(0),
                     holder: document.getElementById("contentHolder"),
                     annotate: true,
                     startTime: "@request.queryString.get("starttime").getOrElse("0")",

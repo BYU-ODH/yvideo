@@ -1,6 +1,6 @@
 package service
 
-import models.{Course, User, Content}
+import models.{Collection, User, Content}
 import play.api.mvc.{Result, RequestHeader}
 import dataAccess.ResourceController
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,16 +13,16 @@ import play.api.libs.json.{Json, JsObject, JsArray}
 object AdditionalDocumentAdder {
 
   def add(content: Content, resourceId: String, docType: Symbol, attributes: JsObject)
-    (action: Option[Course] => Result)
+    (action: Option[Collection] => Result)
     (implicit request: RequestHeader, user: User): Future[Result] = {
 
-    val course = getCourse
+    val collection = getCollection
 
     // Set the setting on the content
     content.addSetting(getSettingName(docType), List(resourceId))
 
     // Set the attributes on the resource
-    ResourceHelper.setClientUser(resourceId, getClientUser(course, content)).flatMap { _ =>
+    ResourceHelper.setClientUser(resourceId, getClientUser(collection, content)).flatMap { _ =>
 
       // Create the relation
       val relation = Json.obj(
@@ -33,11 +33,11 @@ object AdditionalDocumentAdder {
       )
 
       ResourceController.addRelation(relation)
-    }.map { _ => action(course) }
+    }.map { _ => action(collection) }
   }
 
   def edit(content: Content, resourceId: String, docType: Symbol, attributes: JsObject)
-    (action: Option[Course] => Result)
+    (action: Option[Collection] => Result)
     (implicit request: RequestHeader, user: User): Future[Result] = {
 
     // find & delete
@@ -59,9 +59,9 @@ object AdditionalDocumentAdder {
       case _ => "unknown"
     }
 
-  private def getClientUser(course: Option[Course], content: Content)(implicit user: User): Map[String, String] = {
-    if (course.isDefined)
-      Map("id" -> ("course:" + course.get.id.get))
+  private def getClientUser(collection: Option[Collection], content: Content)(implicit user: User): Map[String, String] = {
+    if (collection.isDefined)
+      Map("id" -> ("collection:" + collection.get.id.get))
     else if (content isEditableBy user)
       Map()
     else
@@ -82,7 +82,7 @@ object AdditionalDocumentAdder {
       case _ => "unknown"
     }
 
-  def getCourse()(implicit request: RequestHeader): Option[Course] =
-    request.queryString.get("course").flatMap(id => Course.findById(id(0).toLong))
+  def getCollection()(implicit request: RequestHeader): Option[Collection] =
+    request.queryString.get("collection").flatMap(id => Collection.findById(id(0).toLong))
 
 }

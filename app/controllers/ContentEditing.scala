@@ -4,7 +4,7 @@ import play.api.mvc._
 import controllers.authentication.Authentication
 import play.api.libs.json.{JsString, JsArray, Json}
 import dataAccess.ResourceController
-import models.{User, Course, Content}
+import models.{User, Collection, Content}
 import service._
 import java.net.URL
 import java.io.IOException
@@ -124,8 +124,8 @@ object ContentEditing extends Controller {
         ContentController.getContent(id) {  content =>
           Future {
             if (content.isEditableBy(user) && content.contentType == 'image) {
-              val course = AdditionalDocumentAdder.getCourse()
-              Ok(views.html.content.editImage(content, ResourceController.baseUrl, course))
+              val collection = AdditionalDocumentAdder.getCollection()
+              Ok(views.html.content.editImage(content, ResourceController.baseUrl, collection))
             } else
               Errors.forbidden
           }
@@ -148,8 +148,8 @@ object ContentEditing extends Controller {
             val cropLeft = request.body("cropLeft")(0).toDouble
             val cropBottom = request.body("cropBottom")(0).toDouble
             val cropRight = request.body("cropRight")(0).toDouble
-            val redirect = Redirect(AdditionalDocumentAdder.getCourse() match {
-              case Some(course) => routes.CourseContent.viewInCourse(content.id.get, course.id.get)
+            val redirect = Redirect(AdditionalDocumentAdder.getCollection() match {
+              case Some(collection) => routes.CollectionContent.viewInCollection(content.id.get, collection.id.get)
               case _ => routes.ContentController.view(content.id.get)
             })
 

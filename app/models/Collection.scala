@@ -11,11 +11,11 @@ import play.api.db.DB
 import play.api.Play.current
 
 /**
- * A course. Students and teachers are members. Content can be posted here.
- * @param id The id of the course
- * @param name The name of the course
- * @param startDate When the course become functional
- * @param endDate When the course ceases to be functional
+ * A collection. Students and teachers are members. Content can be posted here.
+ * @param id The id of the collection
+ * @param name The name of the collection
+ * @param startDate When the collection become functional
+ * @param endDate When the collection ceases to be functional
  */
 case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSavable with SQLDeletable {
   /**
@@ -23,39 +23,36 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * @return The possibly updated collection
    */
   def save =
-  	Logger.debug("DAVID: Collection.save was called!")
     if (id.isDefined) {
-    	// Update content graph???
-      // update(Course.tableName, 'id -> id.get, 'name -> name, 'startDate -> startDate, 'endDate -> endDate, 'featured -> featured)
+      update(Collection.tableName, 'owner -> owner, 'name -> name)
       this
     } 
     else {
-    	// Insert into content graph???
-      // val id = insert(Course.tableName, 'name -> name, 'startDate -> startDate, 'endDate -> endDate, 'featured -> featured)
+      val id = insert(Collection.tableName, 'owner -> owner, 'name -> name)
       this.copy(id)
     }
 
   /**
-   * Deletes the course from the DB
+   * Deletes the collection from the DB
    */
   def delete() {
     DB.withConnection { implicit connection =>
   //     try {
   //       BatchSql(
-		//   "delete from {table} where courseId = {id}",
-		//   List('table -> "coursePermissions", 'id -> id),
-		//   List('table -> "courseMembership", 'id -> id),
+		//   "delete from {table} where collectionId = {id}",
+		//   List('table -> "collectionPermissions", 'id -> id),
+		//   List('table -> "collectionMembership", 'id -> id),
 		//   List('table -> "contentListing", 'id -> id)
 		// ).execute()
   //     } catch {
   //       case e: SQLException =>
-  //         Logger.debug("Failed in Course.scala / delete")
+  //         Logger.debug("Failed in Collection.scala / delete")
   //         Logger.debug(e.getMessage())
   //     }
   		Logger.debug("DAVID: Collection.delete was called!")
     }
 
-    delete(Course.tableName)
+    delete(Collection.tableName)
   }
 
   //                  _   _
@@ -77,16 +74,16 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
 
 
   /**
-   * Post content to the course
+   * Post content to the collection
    * @param content The content to be posted
    * @return The content listing
    */
   def addContent(content: Content): ContentListing = ContentListing(None, this.id.get, content.id.get).save
 
   /**
-   * Remove content from the course
+   * Remove content from the collection
    * @param content The content to be removed
-   * @return The course
+   * @return The collection
    */
   def removeContent(content: Content): Collection = {
     //val listing = ContentListing.listByCollection(this).filter(_.contentId == content.id.get)
@@ -97,7 +94,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
       //listing(0).delete()
     //} else if (listing.size != 0) {
     // We didn't get exactly one listing so delete one of them, but warn
-      //Logger.warn("Multiple content listings for content #" + content.id.get + " in course #" + id.get)
+      //Logger.warn("Multiple content listings for content #" + content.id.get + " in collection #" + id.get)
       //listing(0).delete()
     //}
     this
@@ -120,7 +117,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
 
     def getStudents = {
       //if (students.isEmpty)
-        //students = Some(CourseMembership.listClassMembers(cacheTarget, teacher = false))
+        //students = Some(CollectionMembership.listClassMembers(cacheTarget, teacher = false))
       //students.get
       Nil
     }
@@ -129,7 +126,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
 
     def getTeachers = {
       //if (teachers.isEmpty)
-        //teachers = Some(CourseMembership.listClassMembers(cacheTarget, teacher = true))
+        //teachers = Some(CollectionMembership.listClassMembers(cacheTarget, teacher = true))
       //teachers.get
       Nil
     }
@@ -137,10 +134,9 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
     var content: Option[List[Content]] = None
 
     def getContent = {
-      //if (content.isEmpty)
-        //content = Some(ContentListing.listClassContent(cacheTarget))
-      //content.get
-      Nil
+      if (content.isEmpty)
+        content = Some(ContentListing.listClassContent(cacheTarget))
+      content.get
     }
   }
 
@@ -163,30 +159,30 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
   def getMembers: List[User] = getTeachers ++ getStudents
 
   /**
-   * Get content posted to this course
+   * Get content posted to this collection
    * @return The list of content
    */
   def getContent: List[Content] = cache.getContent
 
   /**
-   * Get content posted to this course that the current user is allowed to see
+   * Get content posted to this collection that the current user is allowed to see
    * @return The list of content
    */
-  //def getContentFor(user: User): List[Content] =
-   // if (user.hasSitePermission("admin")) cache.getContent
-    //else cache.getContent.filter { c =>
-      //c.visibility != Content.visibility._private || user.getContent.contains(c)
-    //}
+  def getContentFor(user: User): List[Content] =
+    if (user.hasSitePermission("admin")) cache.getContent
+    else cache.getContent.filter { c =>
+      c.visibility != Content.visibility._private || user.getContent.contains(c)
+    }
 
-  //def getUserPermissions(user: User): List[String] = CoursePermissions.listByUser(this, user)
-  //def addUserPermission(user: User, permission: String) = CoursePermissions.addUserPermission(this, user, permission)
-  //def removeUserPermission(user: User, permission: String) = CoursePermissions.removeUserPermission(this, user, permission)
-  //def removeAllUserPermissions(user: User) = CoursePermissions.removeAllUserPermissions(this, user)
-  //def userHasPermission(user: User, permission: String) = CoursePermissions.userHasPermission(this, user, permission)
+  def getUserPermissions(user: User): List[String] = CollectionPermissions.listByUser(this, user)
+  def addUserPermission(user: User, permission: String) = CollectionPermissions.addUserPermission(this, user, permission)
+  def removeUserPermission(user: User, permission: String) = CollectionPermissions.removeUserPermission(this, user, permission)
+  def removeAllUserPermissions(user: User) = CollectionPermissions.removeAllUserPermissions(this, user)
+  def userHasPermission(user: User, permission: String) = CollectionPermissions.userHasPermission(this, user, permission)
 }
 
 object Collection extends SQLSelectable[Collection] {
-  val tableName = "course"
+  val tableName = "collection"
 
   val simple = {
     get[Option[Long]](tableName + ".id") ~
@@ -198,20 +194,20 @@ object Collection extends SQLSelectable[Collection] {
   }
 
   /**
-   * Find a course with the given id
-   * @param id The id of the course
-   * @return If a course was found, then Some[Collection], otherwise None
+   * Find a collection with the given id
+   * @param id The id of the collection
+   * @return If a collection was found, then Some[Collection], otherwise None
    */
   def findById(id: Long): Option[Collection] = findById(id, simple)
 
   /**
-   * Gets all the courses in the DB
-   * @return The list of courses
+   * Gets all the collections in the DB
+   * @return The list of collections
    */
   def list: List[Collection] = list(simple)
 
   /**
-   * Create a course from fixture data
+   * Create a collection from fixture data
    * @param data Fixture data
    * @return The user
    */
@@ -219,9 +215,9 @@ object Collection extends SQLSelectable[Collection] {
     Collection(None, data._1, data._2)
 
   /**
-   * Search the names of courses
+   * Search the names of collections
    * @param query The string to look for
-   * @return The list of courses that match
+   * @return The list of collections that match
    */
   def search(query: String): List[Collection] = Nil
     

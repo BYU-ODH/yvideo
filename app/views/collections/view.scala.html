@@ -1,4 +1,4 @@
-@(course: Course)(implicit request: RequestHeader, user: User)
+@(collection: Collection)(implicit request: RequestHeader, user: User)
 @import scala.reflect.runtime.universe._
 
 @renderFace(user: User) = {
@@ -7,43 +7,40 @@
 
 @moreStyles =  @{}
 
-@main("Y-Video - " + course.name, Some(user),
+@main("Y-Video - " + collection.name, Some(user),
   Local(
-    Rel("stylesheets/", CSS("course.css"), CSS("content.css")),
+    Rel("stylesheets/", CSS("collection.css"), CSS("content.css")),
     Rel("javascripts/contentSelection/",
       JS("PopupBrowser.js")))
 ) {
 
-@if(user.hasCoursePermission(course, "addContent")){
-    <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCourse.js")'></script>
+@if(user.hasCollectionPermission(collection, "addContent")){
+    <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCollection.js")'></script>
 }
     <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/facesNav.js")'></script>
     <script type="text/javascript">
-        var courseId = @course.id.get;
+        var collectionId = @collection.id.get;
     </script>
 
-    <div class="courseBackground">
-        <div class="courseTitle">
-            <h1>@course.name</h1>
+    <div class="collectionBackground">
+        <div class="collectionTitle">
+            <h1>@collection.name</h1>
             <div class="btn-group">
-                @if(user.hasCoursePermission(course, "viewData")) {
-                    <a href="#studentInfoModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Course members</a>
+                @if(user.hasCollectionPermission(collection, "viewData")) {
+                    <a href="#studentInfoModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Collection members</a>
                 }
-                @if(user.hasCoursePermission(course, "teacher")) {
+                @if(user.hasCollectionPermission(collection, "teacher")) {
                     <a href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
                 }
             </div>
-            @if(user.hasCoursePermission(course, "editCourse")) {
-                <a href="#editCourseModal" role="button" class="btn btn-yellow" data-toggle="modal"><i class="icon-pencil"></i> Edit</a>
+            @if(user.hasCollectionPermission(collection, "editCollection")) {
+                <a href="#editCollectionModal" role="button" class="btn btn-yellow" data-toggle="modal"><i class="icon-pencil"></i> Edit</a>
             }
-            @if(user.hasCoursePermission(course, "deleteCourse")) {
-                <a href="#deleteCourseModal" role="button" class="btn btn-magenta deleteCourse" data-toggle="modal" data-id="@course.id.get"><i class="icon-trash"></i> Delete</a>
+            @if(user.hasCollectionPermission(collection, "deleteCollection")) {
+                <a href="#deleteCollectionModal" role="button" class="btn btn-magenta deleteCollection" data-toggle="modal" data-id="@collection.id.get"><i class="icon-trash"></i> Delete</a>
             }
-            @if(user.hasCoursePermission(course, "addStudent") && !course.getRequests.isEmpty) {
-                <a href="@routes.Courses.approvePage(course.id.get)" class="btn btn-blue"><i class="icon-check"></i> Student Requests</a>
-            }
-            @if(course.getMembers.contains(user)) {
-                <a href="#quitCourseModal" role="button" class="btn btn-magenta" data-toggle="modal"><i class="icon-reply"></i> Quit</a>
+            @if(collection.getMembers.contains(user)) {
+                <a href="#quitCollectionModal" role="button" class="btn btn-magenta" data-toggle="modal"><i class="icon-reply"></i> Quit</a>
             }
         </div>
 
@@ -51,7 +48,7 @@
             <div class="face-nav-btn face-nav-btn-left"></div>
             <div class="faces-window">
                 <div class="faces">
-                    @for(member <- course.getMembers) {
+                    @for(member <- collection.getMembers) {
                         @renderFace(member)
                     }
 
@@ -67,28 +64,28 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="pull-right">
-                    @if(user.hasCoursePermission(course, "addContent")){
+                    @if(user.hasCollectionPermission(collection, "addContent")){
                        <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add content</a>
                     }
-                    @if(user.hasCoursePermission(course, "removeContent")){
+                    @if(user.hasCollectionPermission(collection, "removeContent")){
                         <a href="#removeContentModal" role="button" class="btn btn-black" data-toggle="modal"><i class="icon-minus"></i> Remove Content</a>
                     }
                 </div>
                 <div class="container-fluid">
-                    <div id="courseContent"></div>
+                    <div id="collectionContent"></div>
                 </div>
                 <script type="text/javascript">
-                    @defining(course.getContentFor(user)) { content =>
+                    @defining(collection.getContentFor(user)) { content =>
                     $(function() {
                         ContentItemRenderer.renderAll({
                             content: [@Html(content.map(_.toJson).mkString(","))],
-                            holder: document.getElementById("courseContent"),
+                            holder: document.getElementById("collectionContent"),
                             format: "table",
                             sizing: true,
                             sorting: true,
                             labels: [@Html(content.flatMap(_.labels).distinct.map(s => Literal(Constant(s)).toString).mkString(","))],
                             filters: ContentItemRenderer.standardFilters,
-                            courseId: courseId
+                            collectionId: collectionId
                         });
                     });
                     }
@@ -97,10 +94,10 @@
         </div>
     </div>
 
-    @views.html.courses.helpers.editCourse(user, course)
-    @views.html.courses.helpers.deleteCourse(user, course)
-    @views.html.courses.helpers.quitCourse(user, course)
-    @views.html.courses.helpers.studentInfo(user, course)
-    @views.html.courses.helpers.removeContent(user, course)
-    @views.html.courses.helpers.addTA(user, course)
+    @views.html.collections.helpers.editCollection(user, collection)
+    @views.html.collections.helpers.deleteCollection(user, collection)
+    @views.html.collections.helpers.quitCollection(user, collection)
+    @views.html.collections.helpers.studentInfo(user, collection)
+    @views.html.collections.helpers.removeContent(user, collection)
+    @views.html.collections.helpers.addTA(user, collection)
 }

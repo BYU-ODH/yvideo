@@ -1,4 +1,4 @@
-@(contentList: List[models.Content], courses: List[Course])(implicit request: RequestHeader, user: User)
+@(contentList: List[models.Content], collections: List[Collection])(implicit request: RequestHeader, user: User)
 
 @main("Y-Video - Search Results", Some(user),
   Local(CSS("stylesheets/content.css"))) {
@@ -8,13 +8,13 @@
 
         <div class="row">
             <div class="col-md-6">
-                <h2 class="searchHeader"><i class="icon-book"></i> Courses</h2>
-                @if(courses.isEmpty) {
-                    <em>There were no course results for your search.</em>
+                <h2 class="searchHeader"><i class="icon-book"></i> Collections</h2>
+                @if(collections.isEmpty) {
+                    <em>There were no collection results for your search.</em>
                 }
                 <ul>
-                    @for(course <- courses) {
-                        <li><a href="@routes.Courses.view(course.id.get)">@course.name</a></li>
+                    @for(collection <- collections) {
+                        <li><a href="@routes.Collections.view(collection.id.get)">@collection.name</a></li>
                     }
                 </ul>
             </div>

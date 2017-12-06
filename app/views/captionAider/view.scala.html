@@ -1,4 +1,4 @@
-@(content: models.Content, course: Option[Course], resourceLibraryUrl: String)(implicit request: RequestHeader, user: User)
+@(content: models.Content, collection: Option[Collection], resourceLibraryUrl: String)(implicit request: RequestHeader, user: User)
 
 @editor("Y-Video - CaptionAider",
   Extern("TimelineEditor", CSS("timeline.css")),
@@ -37,9 +37,9 @@
         <div class="mainContent">
             <div class="padded">
                 <ul class="breadcrumb">
-                    @if(course.isDefined) {
-                        <li><a href="@routes.Courses.view(course.get.id.get)">@course.get.name</a> <span class="divider"></span></li>
-                        <li><a href="@routes.CourseContent.viewInCourse(content.id.get, course.get.id.get)">@content.name</a> <span class="divider">/</span></li>
+                    @if(collection.isDefined) {
+                        <li><a href="@routes.Collections.view(collection.get.id.get)">@collection.get.name</a> <span class="divider"></span></li>
+                        <li><a href="@routes.CollectionContent.viewInCollection(content.id.get, collection.get.id.get)">@content.name</a> <span class="divider">/</span></li>
                     } else {
                         <li><a href="@routes.ContentController.view(content.id.get)">@content.name</a> <span class="divider"></span></li>
                     }
@@ -65,10 +65,10 @@
 
     <script>
         var content = @Html(content.toJson.toString());
-        var courseId = @course.map(_.id.get).getOrElse(0);
+        var collectionId = @collection.map(_.id.get).getOrElse(0);
         var userId = @user.id.get;
         var owner = @content.isEditableBy(user);
-        var teacher = @course.exists(c => user.hasCoursePermission(c, "teacher"));
+        var teacher = @collection.exists(c => user.hasCollectionPermission(c, "teacher"));
         ResourceLibrary.setBaseUrl("@resourceLibraryUrl");
     </script>
     <script id='createTrackTemplate' type='text/ractive'>

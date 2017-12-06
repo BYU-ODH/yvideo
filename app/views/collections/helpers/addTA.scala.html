@@ -1,7 +1,7 @@
-@import models.CoursePermissions.descriptionMap
-@(user: User, course: Course)(implicit request: RequestHeader)
+@import models.CollectionPermissions.descriptionMap
+@(user: User, collection: Collection)(implicit request: RequestHeader)
 
-@if(user.hasCoursePermission(course, "teacher") || user.hasCoursePermission(course, "viewData")) {
+@if(user.hasCollectionPermission(collection, "teacher") || user.hasCollectionPermission(collection, "viewData")) {
 <div id="addTAModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addTAModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -11,7 +11,7 @@
             </div>
             <div class="modal-body">
                 <p>
-                    TAs you add here will be able to add and remove content from your courses, and edit the subtitles and other metadata of content. They will essentially have the same rights that you have for this course.
+                    TAs you add here will be able to add and remove content from your collections, and edit the subtitles and other metadata of content. They will essentially have the same rights that you have for this collection.
                 </p>
                 <form method="POST">
                     <label>Input Teacher's Assistant netID:</label><input id="ta_netid" name="netid" type="text"><br><input id="addTA" class="btn btn-magenta" type="submit" value="Submit">
@@ -30,7 +30,7 @@
         } else {
             var formData = new FormData();
             formData.append("netid", netid);
-            $.ajax("/course/@{course.id.get}/addTA", {
+            $.ajax("/collection/@{collection.id.get}/addTA", {
                 type: "post",
                 cache: false,
                 contentType: false,

@@ -1,8 +1,8 @@
-@import models.CoursePermissions.descriptionMap
-@(user: User, course: Course)(implicit request: RequestHeader)
+@import models.CollectionPermissions.descriptionMap
+@(user: User, collection: Collection)(implicit request: RequestHeader)
 
-@if(user.hasCoursePermission(course, "teacher") || user.hasCoursePermission(course, "viewData")) {
-    @Dependencies(Local(JS("javascripts/pageScripts/coursePermissions.js")))
+@if(user.hasCollectionPermission(collection, "teacher") || user.hasCollectionPermission(collection, "viewData")) {
+    @Dependencies(Local(JS("javascripts/pageScripts/collectionPermissions.js")))
     <div id="studentInfoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="studentInfoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -20,7 +20,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @for(teacher <- course.getTeachers) {
+                            @for(teacher <- collection.getTeachers) {
                                 <tr>
                                     <td>@teacher.displayName</td>
                                     <td>@Html(teacher.email.getOrElse("<em>None</em>"))</td>
@@ -41,18 +41,18 @@
 
     <script>
         var viewer_id = @{user.id.get};
-        var permUrl = "@{routes.Courses.setPermission(course.id.get, "")}";
-        var isTeacher = @if(user.hasCoursePermission(course, "teacher")){ "true" } else { "false" };
+        var permUrl = "@{routes.Collections.setPermission(collection.id.get, "")}";
+        var isTeacher = @if(user.hasCollectionPermission(collection, "teacher")){ "true" } else { "false" };
         var memberPermissionList = [@for((k,v) <- descriptionMap) {
             {value: "@k", text: "@v"},
         }];
-        var memberList = [@for(student <- course.getStudents) {
+        var memberList = [@for(student <- collection.getStudents) {
             {
                 id: @{student.id.get},
                 username: "@{student.username}",
                 name: "@{student.name.getOrElse("")}",
                 email: "@{student.email.getOrElse("")}",
-                permissions: [@for(p <- student.getCoursePermissions(course)){ "@p", }]
+                permissions: [@for(p <- student.getCollectionPermissions(collection)){ "@p", }]
             },
         }];
         $(function() {

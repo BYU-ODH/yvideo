@@ -6,7 +6,7 @@ import service.{DocumentPermissionChecker, AdditionalDocumentAdder, ResourceHelp
 import java.io._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import models.{User, Content, Course}
+import models.{User, Content, Collection}
 import dataAccess.ResourceController
 import play.api.libs.json._
 
@@ -220,8 +220,8 @@ object DocumentManager extends Controller {
 
             // Delete this resource
             ResourceController.deleteResource(docId).map { _ =>
-              Redirect(request.queryString.get("course").map(_(0).toLong) match {
-                case Some(courseId) => routes.CourseContent.viewInCourse(id, courseId)
+              Redirect(request.queryString.get("collection").map(_(0).toLong) match {
+                case Some(collectionId) => routes.CollectionContent.viewInCollection(id, collectionId)
                 case None => routes.ContentController.view(id)
               }).flashing("info" -> "The document has been deleted.")
             }

@@ -3,7 +3,7 @@ package service
 import concurrent.{ExecutionContext, Future}
 import controllers.authentication.Authentication
 import controllers._
-import models.{User, Content, Course}
+import models.{User, Content, Collection}
 import javax.imageio.ImageIO
 import java.io.File
 import java.net.URL
@@ -23,38 +23,38 @@ case class ContentDescriptor(title: String, description: String, keywords: Strin
 object ContentManagement {
 
   /**
-   *  This function is used to get the course
+   *  This function is used to get the collection
    *  without an implicit request
    */
-  private def getCourse(id: Long)(f: Course => Result): Result = {
-    Course.findById(id).map(f).getOrElse(Errors.notFound)
+  private def getCollection(id: Long)(f: Collection => Result): Result = {
+    Collection.findById(id).map(f).getOrElse(Errors.notFound)
   }
 
   /**
-   * Add newly created content to course
-   * @param courseId
+   * Add newly created content to collection
+   * @param collectionId
    * @param content Content object
    */
-  def addToCourse(courseId: Long, content: Content): Unit = {
-    getCourse(courseId) { course =>
-      course.addContent(content)
-      // how to check if content was correctly added to the course?
+  def addToCollection(collectionId: Long, content: Content): Unit = {
+    getCollection(collectionId) { collection =>
+      collection.addContent(content)
+      // how to check if content was correctly added to the collection?
       Ok("")
     }
   }
 
   /**
-   * Creates content depending on the content type and adds it to the specified course
+   * Creates content depending on the content type and adds it to the specified collection
    * @param info A ContentDescriptor which contains information about the content
    * @param owner The user who is to own the content
    * @param contentType The type of content
-   * @param courseId Id of target course
+   * @param collectionId Id of target collection
    * @return The content object in a future
    */
-  def createAndAddToCourse(info: ContentDescriptor, owner: User, contentType: Symbol, courseId: Long): Future[Long] = {
+  def createAndAddToCollection(info: ContentDescriptor, owner: User, contentType: Symbol, collectionId: Long): Future[Long] = {
 
     createContentObject(info, owner, contentType).map { content =>
-      addToCourse(courseId, content)
+      addToCollection(collectionId, content)
 	  content.id.get
     }
   }

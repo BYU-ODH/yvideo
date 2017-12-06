@@ -27,7 +27,7 @@ $(function() {
             },false);
             xhr.addEventListener('error',function(){ alert("Error adding content"); },false);
 
-            xhr.open("POST", "/course/" + courseId + "/addContent");
+            xhr.open("POST", "/collection/" + collectionId + "/addContent");
             xhr.send(formData);
         });
     },false);
