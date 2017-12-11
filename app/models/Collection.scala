@@ -207,6 +207,21 @@ object Collection extends SQLSelectable[Collection] {
   def list: List[Collection] = list(simple)
 
   /**
+   * Gets the list of collections that the user should be enrolled in
+   * by searching for collections that are linked to the courses provided here
+   * @return The list of collections
+   */
+  def getEligibleCollections(courseNames: List[String]): List[Collection] = {
+    DB.withConnection { implicit connection =>
+      val courses = Course.getCoursesByName(courseNames)
+      // TODO: get the collections that list these courses 
+      val linkedCourses = CollectionCourseLink.getLinkedCollections(courses)
+      SQL(s"select * from $tableName where id in ({collectionIds})")
+        .on('collectionIds -> linkedCourses.map(_.collectionId)).as(simple *)
+    }
+  }
+
+  /**
    * Create a collection from fixture data
    * @param data Fixture data
    * @return The user

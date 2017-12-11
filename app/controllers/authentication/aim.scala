@@ -54,7 +54,6 @@ object aim {
     .get().map { scheduleResp =>
       scheduleResp.status match {
         case 200 => {
-          Logger.info("The schedule url returned with a 200 status code")
           val jsonLookup = (scheduleResp.json \ "EnrollmentService" \ "response").toOption
           if (jsonLookup.isDefined) {
             val json = jsonLookup.get
@@ -116,7 +115,15 @@ object aim {
     .withBody(Map("grant_type" -> Seq("client_credentials")))
     .post("grant_type=client_credentials")
     
-  def getEnrollment(netid: String, user: User)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
+  /**
+   * Gets the enrollment of the user based on the provided netid
+   * @param netid The user's BYU netid. This corresponds to the models.User username field
+   * @return Future[Option[UserEnrollment]] This is the Deserialized version of the response recieved from aim
+   *          which contains the user's personal information and the courses in which they are currently enrolled
+   *          at Brigham Young University Provo, Utah in the beloved United States of America.
+   *          See the case class UserEnrollment at the beginning of this (the aim) object for available information.
+   */
+  def getEnrollment(netid: String)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
     tokenRequest.flatMap { response =>
       if (response.status != 200) {
         Logger.error(s"Error getting aim api token: ${response.statusText}")

@@ -62,31 +62,25 @@ object Cas extends Controller {
     }
   }
 
-  def updateAccount(username: String, user: User)(implicit isInstructor: Boolean) = {
-    aim.getEnrollment(username, user).map { enrollmentOpt =>
+  /**
+   * Query aim to update the user's available collections
+   */
+  def updateAccount(user: User)(implicit isInstructor: Boolean) = {
+    aim.getEnrollment(user.username).map { enrollmentOpt =>
       enrollmentOpt.map { enrollment =>
-        Logger.warn(enrollment.toString)
-        enrollment.class_list.foreach { byuClass =>
-          //Logger.warn(byuClass.toString)
+
+        if (!isInstructor) {
+          // The BYU_Course names are stored in the database as subject_area+catalog_number
+          // example: MATH313
+          val eligibleCollections = user.getCollections(enrollment.class_list.map(
+            byuClass => byuClass.subject_area + byuClass.catalog_number
+          ))
+          user.getEnrollment.diff(eligibleCollections).foreach(user.unenroll _)
+          eligibleCollections.foreach(user.enroll (_, isInstructor))
         }
       }
     }
   }
-
-  /**
-   *  Used to create a YVideo Course which parallels a BYU course
-   *  @param courseName: Given an existing BYU course name, create a parallel YVideo Course
-   *  @return : Returns a reference to the given YVideo Course
-   */
-  def createYVideoCourse(courseName: String) = Course(None, "", "", "", "", "", "", "", "", courseName).save
-
-  /**
-   *  
-   */
-  def addToCollection(user: User, collection: Collection, isInstructor: Boolean) = user.enroll(collection, isInstructor)
-
-  def removeFromCollection(user: User, collection: Collection) = user.unenroll(collection)
-
 
   /**
    * When the CAS login is successful, it is redirected here, where the TGT and login are taken care of.
@@ -110,7 +104,7 @@ object Cas extends Controller {
         val parttime = getAttribute(xml, "activePartTimeInstructor").getOrElse("false").toBoolean
         implicit val isInstructor = fulltime || parttime
 
-        updateAccount(username, user)
+        updateAccount(user)
 
         if (action == "merge")
           Authentication.merge(user)

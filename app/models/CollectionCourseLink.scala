@@ -60,6 +60,18 @@ object CollectionCourseLink extends SQLSelectable[CollectionCourseLink] {
   def list: List[CollectionCourseLink] = list(simple)
 
   /**
+   * Gets list of collections that have linked the provided courses
+   * @param couses The list of course ids
+   * @return a list of collection ids
+   */
+  def getLinkedCollections(courses: List[Course]): List[CollectionCourseLink] = {
+    DB.withConnection { implicit connection =>
+      SQL(s"select * from $tableName where courseId in ({courseIds})")
+        .on('courseIds -> courses.map(_.id)).as(simple *)
+    }
+  }
+
+  /**
    * Lists the content listing pertaining to a certain course
    * @param course The course whose content we want
    * @return The list of content listings

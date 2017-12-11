@@ -43,6 +43,14 @@ object Fixtures {
       (5L, "Collection Test 5")
     )
 
+    val courses = List(
+      ("MATH 111"),
+      ("CS 142"),
+      ("HUM 101"),
+      ("CHIN 101"),
+      ("CS 404")
+    )
+
     val collectionListings = List(
       (0, 0),
       (1, 0),
@@ -153,6 +161,7 @@ object Fixtures {
     // Create the objects
     val users = new ListBuffer[User]()
     val content = new ListBuffer[Content]()
+    val courses = new ListBuffer[Course]()
     val collections = new ListBuffer[Collection]()
 
     Logger.info("Creating user fixtures")
@@ -163,6 +172,11 @@ object Fixtures {
     Logger.info("Creating content fixtures")
     data.content foreach {
       contentData => content.append(Content.fromFixture(contentData).save)
+    }
+
+    Logger.info("Creating course fixtures")
+    data.courses foreach {
+      courseData => courses.append(Course.fromFixture(courseData).save)
     }
 
     Logger.info("Creating collection fixtures")

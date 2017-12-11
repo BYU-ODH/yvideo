@@ -17,8 +17,7 @@ import play.api.Play.current
  * @param startDate When the course become functional
  * @param endDate When the course ceases to be functional
  */
-case class Course(id: Option[Long], yearTerm: String, subjectArea: String, catalogNumber: String,
-  sectionNumber: String, curriculumId: String, titleCode: String, sectionType: String, blockCode: String, courseTitle: String) extends SQLSavable with SQLDeletable {
+case class Course(id: Option[Long], courseTitle: String) extends SQLSavable with SQLDeletable {
 
   /**
    * Saves the course to the DB
@@ -26,14 +25,10 @@ case class Course(id: Option[Long], yearTerm: String, subjectArea: String, catal
    */
   def save =
     if (id.isDefined) {
-      update(Course.tableName,'id -> id.get,'yearTerm -> yearTerm, 'subjectArea -> subjectArea,
-        'catalogNumber -> catalogNumber,'sectionNumber -> sectionNumber,'curriculumId -> curriculumId,
-        'titleCode -> titleCode,'sectionType -> sectionType,'blockCode -> blockCode,'courseTitle -> courseTitle)
+      update(Course.tableName,'id -> id.get, 'courseTitle -> courseTitle)
       this
     } else {
-      val id = insert(Course.tableName, 'yearTerm -> yearTerm, 'subjectArea -> subjectArea,
-        'catalogNumber -> catalogNumber,'sectionNumber -> sectionNumber,'curriculumId -> curriculumId,
-        'titleCode -> titleCode,'sectionType -> sectionType,'blockCode -> blockCode,'courseTitle -> courseTitle)
+      val id = insert(Course.tableName, 'courseTitle -> courseTitle)
       this.copy(id)
     }
 
@@ -65,19 +60,9 @@ object Course extends SQLSelectable[Course] {
 
   val simple = {
     get[Option[Long]](tableName + ".id") ~
-      get[String](tableName + ".yearTerm") ~
-      get[String](tableName + ".subjectArea") ~
-      get[String](tableName + ".catalogNumber") ~
-      get[String](tableName + ".sectionNumber") ~
-      get[String](tableName + ".curriculumId") ~
-      get[String](tableName + ".titleCode") ~
-      get[String](tableName + ".sectionType") ~
-      get[String](tableName + ".blockCode") ~
       get[String](tableName + ".courseTitle") map {
-      case id~yearTerm~subjectArea~catalogNumber~sectionNumber~
-        curriculumId~titleCode~sectionType~blockCode~courseTitle =>
-        Course(id, yearTerm, subjectArea, catalogNumber, sectionNumber, 
-        curriculumId, titleCode, sectionType, blockCode, courseTitle)
+      case id~courseTitle =>
+        Course(id, courseTitle)
     }
   }
 
@@ -87,6 +72,18 @@ object Course extends SQLSelectable[Course] {
    * @return If a course was found, then Some[Course], otherwise None
    */
   def findById(id: Long): Option[Course] = findById(id, simple)
+
+  /**
+   * Find a course with the given name
+   * @param courses The list of course names
+   * @return A list of cours id's
+   */
+  def getCoursesByName(courses: List[String]): List[Course] = {
+    DB.withConnection { implicit connection =>
+      SQL(s"select * from $tableName where name in ({courses})")
+        .on('courses -> courses).as(simple *)
+    }
+  }
 
   /**
    * Gets all the courses in the DB
@@ -99,8 +96,8 @@ object Course extends SQLSelectable[Course] {
    * @param data Fixture data
    * @return The user
    */
-  def fromFixture(data: (String, String, String, String, String, String, String, String, String)): Course =
-    Course(None, data._1, data._2, data._3, data._4, data._5, data._6, data._7, data._8, data._9)
+  def fromFixture(data: String): Course =
+    Course(None, data)
 
   /**
    * Search the names of courses
