@@ -63,21 +63,35 @@ object Cas extends Controller {
   }
 
   /**
-   * Query aim to update the user's available collections
+   * Enroll the user in their collections
+   */
+  private def updateCollections(user: User)(implicit isInstructor: Boolean, enrollment: aim.UserEnrollment) = {
+    // The BYU_Course names are stored in the database as subject_area+catalog_number
+    // example: MATH313
+    val eligibleCollections = user.getCollections(enrollment.class_list.map(
+      byuClass => byuClass.subject_area + byuClass.catalog_number
+    ))
+    user.getEnrollment.diff(eligibleCollections).foreach(user.unenroll _)
+    eligibleCollections.foreach(user.enroll (_, isInstructor))
+  }
+
+  /**
+   * Query aim to update the user's account
    */
   def updateAccount(user: User)(implicit isInstructor: Boolean) = {
     aim.getEnrollment(user.username).map { enrollmentOpt =>
-      enrollmentOpt.map { enrollment =>
+      enrollmentOpt.map { implicit enrollment =>
+        val aimName = (enrollment.preferred_first_name + " " + enrollment.surname).trim
+        val aimNameOpt = if (aimName.length != 0) Some(aimName) else None
+        val emailOpt = if (enrollment.email_address.length != 0) Some(enrollment.email_address) else None
+        val updatedUser = user.copy(name=aimNameOpt, email=emailOpt)
+        if (user != updatedUser)
+          updatedUser.save
 
-        if (!isInstructor) {
-          // The BYU_Course names are stored in the database as subject_area+catalog_number
-          // example: MATH313
-          val eligibleCollections = user.getCollections(enrollment.class_list.map(
-            byuClass => byuClass.subject_area + byuClass.catalog_number
-          ))
-          user.getEnrollment.diff(eligibleCollections).foreach(user.unenroll _)
-          eligibleCollections.foreach(user.enroll (_, isInstructor))
-        }
+        SitePermissions.removeAllUserPermissions(updatedUser)
+        SitePermissions.assignRole(updatedUser, if (isInstructor) 'teacher else 'student)
+        if (!isInstructor)
+          updateCollections(updatedUser)
       }
     }
   }

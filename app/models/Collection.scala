@@ -37,19 +37,18 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    */
   def delete() {
     DB.withConnection { implicit connection =>
-  //     try {
-  //       BatchSql(
-		//   "delete from {table} where collectionId = {id}",
-		//   List('table -> "collectionPermissions", 'id -> id),
-		//   List('table -> "collectionMembership", 'id -> id),
-		//   List('table -> "contentListing", 'id -> id)
-		// ).execute()
-  //     } catch {
-  //       case e: SQLException =>
-  //         Logger.debug("Failed in Collection.scala / delete")
-  //         Logger.debug(e.getMessage())
-  //     }
-  		Logger.debug("DAVID: Collection.delete was called!")
+      try {
+        BatchSql(
+          "delete from {table} where collectionId = {id}",
+          List('table -> "collectionPermissions", 'id -> id),
+          List('table -> "collectionMembership", 'id -> id),
+          List('table -> "contentListing", 'id -> id)
+        ).execute()
+      } catch {
+        case e: SQLException =>
+          Logger.debug("Failed in Collection.scala / delete")
+          Logger.debug(e.getMessage())
+      }
     }
 
     delete(Collection.tableName)
@@ -86,17 +85,17 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * @return The collection
    */
   def removeContent(content: Content): Collection = {
-    //val listing = ContentListing.listByCollection(this).filter(_.contentId == content.id.get)
+    val listing = ContentListing.listByCollection(this).filter(_.contentId == content.id.get)
 
     // Check the number or results
-    //if (listing.size == 1) {
-    // One membership. So delete it
-      //listing(0).delete()
-    //} else if (listing.size != 0) {
-    // We didn't get exactly one listing so delete one of them, but warn
-      //Logger.warn("Multiple content listings for content #" + content.id.get + " in collection #" + id.get)
-      //listing(0).delete()
-    //}
+    if (listing.size == 1) {
+      // One membership. So delete it
+      listing(0).delete()
+    } else if (listing.size != 0) {
+      // We didn't get exactly one listing so delete one of them, but warn
+      Logger.warn("Multiple content listings for content #" + content.id.get + " in collection #" + id.get)
+      listing(0).delete()
+    }
     this
   }
 
@@ -116,19 +115,17 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
     var students: Option[List[User]] = None
 
     def getStudents = {
-      //if (students.isEmpty)
-        //students = Some(CollectionMembership.listClassMembers(cacheTarget, teacher = false))
-      //students.get
-      Nil
+      if (students.isEmpty)
+        students = Some(CollectionMembership.listClassMembers(cacheTarget, teacher = false))
+      students.get
     }
 
     var teachers: Option[List[User]] = None
 
     def getTeachers = {
-      //if (teachers.isEmpty)
-        //teachers = Some(CollectionMembership.listClassMembers(cacheTarget, teacher = true))
-      //teachers.get
-      Nil
+      if (teachers.isEmpty)
+        teachers = Some(CollectionMembership.listClassMembers(cacheTarget, teacher = true))
+      teachers.get
     }
 
     var content: Option[List[Content]] = None
