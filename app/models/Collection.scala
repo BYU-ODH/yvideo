@@ -42,6 +42,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
           "delete from {table} where collectionId = {id}",
           List('table -> "collectionPermissions", 'id -> id),
           List('table -> "collectionMembership", 'id -> id),
+          List('table -> "collectionCourseLink", 'id -> id),
           List('table -> "contentListing", 'id -> id)
         ).execute()
       } catch {
@@ -202,6 +203,11 @@ object Collection extends SQLSelectable[Collection] {
    * @return The list of collections
    */
   def list: List[Collection] = list(simple)
+
+  def addCourse(collectionId: Long, courseName: String) = {
+    val newCourse = Course(None, courseName).save
+    CollectionCourseLink(None, courseId, )
+  }
 
   /**
    * Gets the list of collections that the user should be enrolled in
