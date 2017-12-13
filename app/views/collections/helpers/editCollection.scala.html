@@ -1,34 +1,68 @@
 @(user: User, collection: Collection)(implicit request: RequestHeader)
 
 @if(user.hasCollectionPermission(collection, "editCollection")) {
-    <div id="editCollectionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editCollectionModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3 id="editCollectionModalLabel">Edit collection</h3>
-            </div>
-            <div class="modal-body">
-                <form class="form-horizontal" method="post" action="@routes.Collections.edit(collection.id.get)">
-                  <div class="container-fluid">
-                    <div class="form-group">
-                      <label class="control-label" for="collectionName">Name</label>
-                      <div class="controls">
-                        <input type="text" id="collectionName" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <div class="controls">
-                        <button type="submit" class="btn btn-gray">Save changes</button>
-                      </div>
-                    </div>
-                  </div>  
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-blue" data-dismiss="modal" aria-hidden="true">Close</button>
-            </div>
+  <div id="editCollectionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editCollectionModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+              <h3 id="editCollectionModalLabel">Edit collection</h3>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="form-group">
+                <label class="control-label" for="collectionName">Name</label>
+                <div class="controls">
+                  <input type="text" id="collectionName" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
+
+                </div>
+                <label class="control-label">Manage Content</label>
+                <div class="controls">
+                  @if(user.hasCollectionPermission(collection, "addContent")){
+                    <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add</a>
+                  }
+                  @if(user.hasCollectionPermission(collection, "removeContent")){
+                    <a href="#removeContentModal" role="button" class="btn btn-black" data-toggle="modal"><i class="icon-minus"></i> Remove</a>
+                  }
+                </div>
+                <label class="control-label">Manage Admins</label>
+                <div class="controls">
+                  @if(user.hasCollectionPermission(collection, "teacher")) {
+                    <a href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
+                  }
+                </div>
+                <div class="controls">
+                <label class="control-label">Classes using this collection</label>
+                  <div class="controls">
+                      <input type="labels" id="keywords" name="keywords" value="">
+                  </div>
+                </div>
+              </div>
+            </div>  
+          </div>
+          <div class="modal-footer">
+            @if(user.hasCollectionPermission(collection, "deleteCollection")) {
+              <a href="#deleteCollectionModal" role="button" class="btn btn-magenta deleteCollection" data-toggle="modal" data-id="@collection.id.get">Delete Collection</a>
+            }
+            <button id="saveButton" type="submit" class="btn btn-gray">Save changes</button>
+            <button class="btn btn-blue" data-dismiss="modal" aria-hidden="true">Close</button>
           </div>
         </div>
-    </div>
+      </div>
+  </div>
+  <script type="text/javascript">
+    document.getElementById("saveButton").addEventListener("click", function() {
+      var newName = document.getElementById("collectionName").value
+      
+      if (newName !== "@collection.name") {
+        $.ajax("@routes.Collections.edit(collection.id.get)", {
+          type: "post",
+          data: {
+            name: newName
+          }
+        });
+        window.location.reload();
+      }
+    });
+  </script>
 }
