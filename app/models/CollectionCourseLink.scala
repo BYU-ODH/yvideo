@@ -36,7 +36,7 @@ case class CollectionCourseLink(id: Option[Long], collectionId: Long, courseId: 
 }
 
 object CollectionCourseLink extends SQLSelectable[CollectionCourseLink] {
-  val tableName = "CollectionCourseLink"
+  val tableName = "collectionCourseLink"
 
   val simple = {
     get[Option[Long]](tableName + ".id") ~

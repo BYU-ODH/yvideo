@@ -17,7 +17,7 @@ import play.api.Play.current
  * @param startDate When the course become functional
  * @param endDate When the course ceases to be functional
  */
-case class Course(id: Option[Long], courseTitle: String) extends SQLSavable with SQLDeletable {
+case class Course(id: Option[Long], name: String) extends SQLSavable with SQLDeletable {
 
   /**
    * Saves the course to the DB
@@ -25,10 +25,10 @@ case class Course(id: Option[Long], courseTitle: String) extends SQLSavable with
    */
   def save =
     if (id.isDefined) {
-      update(Course.tableName,'id -> id.get, 'courseTitle -> courseTitle)
+      update(Course.tableName,'id -> id.get, 'name -> name)
       this
     } else {
-      val id = insert(Course.tableName, 'courseTitle -> courseTitle)
+      val id = insert(Course.tableName, 'name -> name)
       this.copy(id)
     }
 
@@ -60,9 +60,9 @@ object Course extends SQLSelectable[Course] {
 
   val simple = {
     get[Option[Long]](tableName + ".id") ~
-      get[String](tableName + ".courseTitle") map {
-      case id~courseTitle =>
-        Course(id, courseTitle)
+      get[String](tableName + ".name") map {
+      case id~name =>
+        Course(id, name)
     }
   }
 
