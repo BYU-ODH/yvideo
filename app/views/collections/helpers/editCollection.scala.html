@@ -8,8 +8,6 @@
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
               <h3 id="editCollectionModalLabel">Edit collection</h3>
           </div>
-
-
           <div class="modal-body">
             <div class="container-fluid">
               <div class="form-group">
@@ -30,29 +28,18 @@
                 <label class="control-label">Manage Admins</label>
                 <div class="controls">
                   @if(user.hasCollectionPermission(collection, "teacher")) {
-                    <a href="#addTAModal" role="button" class="btn btn-blue" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
+                    <a href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
                   }
                 </div>
                 <div class="controls">
                 <label class="control-label">Classes using this collection</label>
                   <div class="controls">
-
-                    <label class="control-label" for="subject_area">Department</label>
-                    <select class="form-control" id="subject_area" name="subject_area">
-                      <option value="MATH">MATH</option>
-                      <option value="PHIL">PHIL</option>
-                    </select>
-
-                    <label class="control-label" for="catalog_number">Class No.</label>
-                    <input id="catalog_number" name="subject_area" type="number" min="0" max="999" />
-
+                      <input type="labels" id="keywords" name="keywords" value="">
                   </div>
                 </div>
               </div>
             </div>  
           </div>
-
-
           <div class="modal-footer">
             @if(user.hasCollectionPermission(collection, "deleteCollection")) {
               <a href="#deleteCollectionModal" role="button" class="btn btn-magenta deleteCollection" data-toggle="modal" data-id="@collection.id.get">Delete Collection</a>
@@ -65,17 +52,13 @@
   </div>
   <script type="text/javascript">
     document.getElementById("saveButton").addEventListener("click", function() {
-      var newName = document.getElementById("collectionName").value;
-      var departmentSelect = document.getElementById("subject_area");
-      var department = departmentSelect.options[departmentSelect.selectedIndex].value;
-      var catalogNumber = document.getElementById("catalog_number").value;
+      var newName = document.getElementById("collectionName").value
       
       if (newName !== "@collection.name") {
         $.ajax("@routes.Collections.edit(collection.id.get)", {
           type: "post",
           data: {
-            name: newName,
-            course: department+catalogNumber
+            name: newName
           }
         });
         window.location.reload();

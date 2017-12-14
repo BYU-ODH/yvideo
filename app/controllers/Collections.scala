@@ -55,8 +55,6 @@ object Collections extends Controller {
           Future {
             if (user.hasCollectionPermission(collection, "editCollection")) {
               val name = request.body("name")(0)
-              val course = request.body("course")(0)
-              Collection.addCourse(collection.id.get, course)
               collection.copy(name = name).save
               Redirect(routes.Collections.view(id)).flashing("info" -> "Collection updated")
             } else
