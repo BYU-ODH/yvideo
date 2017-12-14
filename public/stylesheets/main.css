@@ -9,13 +9,21 @@
 }
 
 body {
-    background-color: #373737;
+    background-color: #000;
 }
 
 body.embed {
     overflow: hidden;
     background-color: #fff;
     padding: 0;
+}
+
+.collectionBackground {
+    margin-bottom: 20px;
+}
+
+.collectionTitle {
+    color: white;
 }
 
 .embedHeader {
@@ -97,7 +105,7 @@ h1, h2, h3, h4, h5, h6 {
     min-height: 40px;
 
 
-    background-color: #575757;
+    background-color: #000;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#646464', endColorstr='#494949', GradientType=0);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 }
@@ -255,9 +263,6 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Main content */
 .mainContent {
-    background-color: #fff;
-    box-shadow: 0 0 25px rgba(0,0,0,0.1);
-    border-radius: 0 0 5px 5px;
     overflow: hidden;
     position: relative;
     min-height: 200px;
@@ -270,7 +275,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .padded {
-    padding: 10px;
+    background-color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
 }
 
 /* Messages */
@@ -296,8 +303,6 @@ h1, h2, h3, h4, h5, h6 {
 .btn-black { 
   color: #ffffff; 
   background-color: #525252; 
-  border-color: #525252; 
-  margin: 1px;
 } 
  
 .btn-black:hover, 
@@ -307,7 +312,6 @@ h1, h2, h3, h4, h5, h6 {
 .open .dropdown-toggle.btn-black { 
   color: #ffffff; 
   background-color: #000; 
-  border-color: #525252; 
 } 
  
 .btn-black:active, 
@@ -332,7 +336,6 @@ fieldset[disabled] .btn-black:active,
 .btn-black[disabled].active, 
 fieldset[disabled] .btn-black.active { 
   background-color: #525252; 
-  border-color: #525252; 
 } 
  
 .btn-black .badge { 
@@ -343,8 +346,6 @@ fieldset[disabled] .btn-black.active {
 .btn-yellow { 
   color: #000; 
   background-color: #EBE561; 
-  border-color: #EBE561; 
-  margin: 1px;
 } 
  
 .btn-yellow:hover, 
@@ -354,7 +355,6 @@ fieldset[disabled] .btn-black.active {
 .open .dropdown-toggle.btn-yellow { 
   color: #000; 
   background-color: #D1CC56; 
-  border-color: #EBE561; 
 } 
  
 .btn-yellow:active, 
@@ -379,7 +379,6 @@ fieldset[disabled] .btn-yellow:active,
 .btn-yellow[disabled].active, 
 fieldset[disabled] .btn-yellow.active { 
   background-color: #EBE561; 
-  border-color: #EBE561; 
 } 
  
 .btn-yellow .badge { 
@@ -388,10 +387,8 @@ fieldset[disabled] .btn-yellow.active {
 }
 
  .btn-magenta { 
-  color: #FFFFFF; 
-  background-color: #E7495F; 
-  border-color: #E7495F; 
-  margin: 1px;
+  color: #FFFFFF;
+  background-color: #E7495F;  
 } 
  
 .btn-magenta:hover, 
@@ -401,7 +398,6 @@ fieldset[disabled] .btn-yellow.active {
 .open .dropdown-toggle.btn-magenta { 
   color: #FFFFFF; 
   background-color: #CD4155; 
-  border-color: #E7495F; 
 } 
  
 .btn-magenta:active, 
@@ -426,7 +422,6 @@ fieldset[disabled] .btn-magenta:active,
 .btn-magenta[disabled].active, 
 fieldset[disabled] .btn-magenta.active { 
   background-color: #E7495F; 
-  border-color: #E7495F; 
 } 
  
 .btn-magenta .badge { 
@@ -437,8 +432,6 @@ fieldset[disabled] .btn-magenta.active {
 .btn-blue { 
   color: #FFFFFF; 
   background-color: #2788B6; 
-  border-color: #2788B6; 
-  margin: 1px;
 } 
  
 .btn-blue:hover, 
@@ -448,7 +441,6 @@ fieldset[disabled] .btn-magenta.active {
 .open .dropdown-toggle.btn-blue { 
   color: #FFFFFF; 
   background-color: #22759C; 
-  border-color: #2788B6; 
 } 
  
 .btn-blue:active, 
@@ -473,7 +465,6 @@ fieldset[disabled] .btn-blue:active,
 .btn-blue[disabled].active, 
 fieldset[disabled] .btn-blue.active { 
   background-color: #2788B6; 
-  border-color: #2788B6; 
 } 
  
 .btn-blue .badge { 
@@ -484,8 +475,6 @@ fieldset[disabled] .btn-blue.active {
 .btn-gray { 
   color: #000000; 
   background-color: #E0E0E0; 
-  border-color: #E0E0E0; 
-  margin: 1px;
 } 
  
 .btn-gray:hover, 
@@ -495,7 +484,6 @@ fieldset[disabled] .btn-blue.active {
 .open .dropdown-toggle.btn-gray { 
   color: #000000; 
   background-color: #A9A9A9; 
-  border-color: #E0E0E0; 
 } 
  
 .btn-gray:active, 
@@ -520,7 +508,6 @@ fieldset[disabled] .btn-gray:active,
 .btn-gray[disabled].active, 
 fieldset[disabled] .btn-gray.active { 
   background-color: #BBBBBB; 
-  border-color: #BBBBBB; 
 } 
  
 .btn-gray .badge { 
@@ -559,12 +546,10 @@ fieldset[disabled] .btn-gray.active {
 .pad-bottom-high { margin-bottom: 15px; }
 
 .footer {
-    background: #ddd;
-    border-top: 1px solid #aaa;
-    margin-top: 50px;
     min-height: 50px;
     font-size: 11px;
     padding: 20px 0;
+    text-align: center;
 }
 
 .label-blue, .badge-blue {
