@@ -78,9 +78,9 @@
 
 .homeContent {
     background: #f5f5f5;
-    border: #aaa solid 1px;
+    border-radius: 8px;
     height: 225px;
-    box-shadow: 3px 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
     overflow-y: auto;
 }
 
