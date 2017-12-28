@@ -633,8 +633,7 @@ fieldset[disabled] .btn-gray.active {
     padding: 14px 15px 15px;
 }
 
-/*@media screen and (max-height: 500px){
-    .modal-body {
-        height: 100px !important;
-    }
-}*/
+.control-label {
+    text-align: left !important;
+    max-width: 95%;
+}
