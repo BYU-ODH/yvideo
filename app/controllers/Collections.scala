@@ -5,6 +5,7 @@ import ExecutionContext.Implicits.global
 import authentication.Authentication
 import play.api.mvc._
 import play.api.Play.current
+import play.api.libs.json._
 import models._
 import service.{TimeTools}
 
@@ -38,7 +39,7 @@ object Collections extends Controller {
             // TODO: Once the users get the "viewCollection" permission, use
             // if (user.hasCollectionPermission(collection, "viewCollection")) instead
             if (collection.getMembers.contains(user) ||  SitePermissions.userHasPermission(user, "admin"))
-              Ok(views.html.collections.view(collection))
+              Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString))
             else
               Errors.forbidden
           }
@@ -197,6 +198,61 @@ object Collections extends Controller {
           Future {
             Redirect(routes.Application.home)
               .flashing("info" -> s"You just quit ${collection.name}")
+          }
+        }
+  }
+
+  def linkCourses(collectionId: Long) = Authentication.authenticatedAction(parse.json) {
+    implicit request =>
+      implicit user =>
+        Future {
+          val collection = Collection.findById(collectionId)
+          if (collection.isEmpty)
+            BadRequest(s""""Collection ${collectionId} does not exist."""").as("application/json")
+          else {
+            val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
+            request.body.validate[List[String]] match {
+              case success: JsSuccess[List[String]] => {
+                val courseNames = success.get
+                val courses = Course.findByName(courseNames)
+                val newCourses = courseNames.diff(courses.map(_.name)).map { courseName =>
+                  Course(None, courseName).save
+                }
+                val newLinks = courses ::: newCourses filterNot(course => linkedCourses.contains(course.id.get))
+                newLinks map { course =>
+                  // create the new collection course links
+                  CollectionCourseLink(None, collectionId, course.id.get).save.id.get
+                }
+                Ok(Json.toJson(newLinks.map(_.toJson))).as("application/json")
+              }
+              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
+            }
+          }
+        }
+  }
+
+  def unlinkCourses(collectionId: Long) = Authentication.authenticatedAction(parse.json) {
+    implicit request =>
+      implicit user =>
+        Future {
+          val collection = Collection.findById(collectionId)
+          if (collection.isEmpty)
+            BadRequest(s"""{"rowsRemoved": 0, "message": "Collection ${collectionId} does not exist."""").as("application/json")
+          else {
+            val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
+            request.body.validate[List[String]] match {
+              case success: JsSuccess[List[String]] => {
+                val courseNames = success.get
+                if (courseNames.isEmpty) {
+                  Ok(Json.toJson("""{"rowsRemoved": 0, "message": "No Courses Provided"}""")).as("application/json")
+                } else {
+                  val courses = Course.findByName(courseNames)
+                  val numRows = CollectionCourseLink.removeLinks(collectionId, courses)
+                  Ok(Json.toJson(s"""{"rowsRemoved": $numRows}""")).as("application/json")
+                }
+              }
+              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
+            }
           }
         }
   }

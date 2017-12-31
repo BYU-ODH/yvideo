@@ -1,42 +1,164 @@
-@(user: User, collection: Collection)(implicit request: RequestHeader)
+@(user: User, collection: Collection, linkedCourses: String)(implicit request: RequestHeader)
+@availableContent = @{
+    collection.getContent
+}
 
 @if(user.hasCollectionPermission(collection, "editCollection")) {
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.20/angular.min.js"></script>
   <div id="editCollectionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editCollectionModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+  <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCollection.js")'></script>
+  <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/collectionOptions.js")'></script>
+      <div ng-app="editModule" class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
               <h3 id="editCollectionModalLabel">Edit collection</h3>
           </div>
+
           <div class="modal-body">
             <div class="container-fluid">
-              <div class="form-group">
-                <label class="control-label" for="collectionName">Name</label>
-                <div class="controls">
-                  <input type="text" id="collectionName" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
-
-                </div>
-                <label class="control-label">Manage Content</label>
-                <div class="controls">
-                  @if(user.hasCollectionPermission(collection, "addContent")){
-                    <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add</a>
-                  }
-                  @if(user.hasCollectionPermission(collection, "removeContent")){
-                    <a href="#removeContentModal" role="button" class="btn btn-black" data-toggle="modal"><i class="icon-minus"></i> Remove</a>
-                  }
-                </div>
-                <label class="control-label">Manage Admins</label>
-                <div class="controls">
-                  @if(user.hasCollectionPermission(collection, "teacher")) {
-                    <a href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
-                  }
-                </div>
-                <div class="controls">
-                <label class="control-label">Classes using this collection</label>
+              <div ng-controller="editController" ng-init="collectionId = @{collection.id.get}" class="row">
+                <div class="col-sm-5">
+                  <label class="control-label" for="collectionName">Name</label>
                   <div class="controls">
-                      <input type="labels" id="keywords" name="keywords" value="">
+                    <input type="text" id="collectionName" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
+                  </div>
+                  <label class="control-label">Manage Content</label>
+                  <div class="controls">
+                    <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add</a>
+                    <a ng-click="selected = 'removeContent'" role="button" class="btn btn-black"><i class="icon-minus"></i> Remove</a>
+                  </div>
+                  <label class="control-label">Manage Admins</label>
+                  <div class="controls">
+                    <a ng-click="selected = 'addTA'" href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
+                  </div>
+
+                  <div class="controls">
+                    <label class="control-label">Courses using this collection</label>
+                    <div class="controls">
+                        <button ng-click="selected = 'addCourses'" class="btn btn-gray"><i class="icon-plus"></i> Add</button>
+                        <button ng-click="selected = 'removeCourses'" class="btn btn-gray"><i class="icon-minus"></i> Remove</button>
+                        <br><br>
+                        <button ng-click="selected = 'addException'" class="btn btn-yellow">Add Exception</button>
+                    </div>
                   </div>
                 </div>
+
+                <div class="col-sm-7">
+                  <div ng-show="selected === 'removeContent'" id="removeContent">
+                    <h3>Remove content from this collection.</h3>
+                    @if(availableContent.isEmpty) {
+                        <strong><em>There is no content in this collection.</em></strong>
+                    } else {
+                      <div class="container-fluid"> 
+                        <div class="form-group">
+                          <label class="control-label" for="removeContent">Content to remove:</label>
+                          <div class="controls">  
+                            <select id="removeContentList" name="removeContentList" multiple="multiple">
+                              @for(contentObj <- availableContent) {
+                                <option value="@contentObj.id.get">@contentObj.name (@contentObj.contentType.name)</option>
+                              }
+                            </select>
+                          </div>
+                          <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+                        </div>
+                      </div>
+                    }
+                    @if(!availableContent.isEmpty) {
+                      <button class="btn btn-blue" id="removeContentButton" disabled="true">Remove Content</button>
+                    }
+                  </div>
+                  <div ng-show="selected === 'addTA'" id="addTA">
+                    <h3 id="addTAModalLabel">Add a Teacher's Assistant</h3>
+                    <p>
+                        TAs you add here will be able to add and remove content from your collections, and edit the subtitles and other metadata of content. They will essentially have the same rights that you have for this collection.
+                    </p>
+                    <form method="POST">
+                        <label>Input Teacher's Assistant netID:</label><input id="ta_netid" name="netid" type="text"><br><input id="addTA" class="btn btn-magenta" type="submit" value="Submit">
+                    </form>
+
+                    <script>
+
+                    </script>
+                  </div>
+                  <div ng-show="selected === 'addCoOwner'" id="addCoOwner">
+                  </div>
+                  <div ng-show="selected === 'addCourses'" ng-controller="addCourseController"  id="addCourses">
+                    <table>
+                      <tr>
+                        <th></th>
+                        <th>Course No.</th>
+                        <th>Section No.</th>
+                        <th></th>
+                      </tr>
+                      <tr>
+                        <td><div id="departmentLocation"></div></td>
+                        <td><input ng-model="catalogNumber" type="number" min="1" max="999"></td>
+                        <td><input ng-model="sectionNumber" type="number" min="1" max="999"></td>
+                        <td><button ng-click="appendCourse()" class="btn btn-gray">OK</button></td>
+                      </tr>
+                    </table>
+                    <h6>* Leaving the course number blank will add all course within the given department. Leaving the section nunber blank will add all sections for the given course</h6>
+                    <h4 ng-if="courses.length > 0">The Following Courses will be added when changes are saved:</h4>
+                    <div>
+                      <div ng-repeat="course in courses">{{course}} <a ng-click="removeCourse(course)">×</a></div>
+                    </div>
+                    <button ng-click="submit()" class="btn btn-red">Submit</button>
+                  </div>
+                  <div ng-show="selected === 'removeCourses'" ng-init="courses = @{linkedCourses}" ng-controller="removeCourseController" id="removeCourses">
+                      <h3>Remove Courses</h3>
+                      <div class="list-group pre-scrollable">
+                          <a ng-repeat="course in courses" ng-click="toggleMarkCourse(course, $event)" class="list-group-item" href="#">{{course.name}}</a>
+                      </div>
+                      <button ng-click="submit()" class="btn btn-red">Submit</button>
+                  </div>
+                  <div ng-show="selected === 'addException'" id="addException">
+                  </div>
+                  <script type="text/javascript">
+                      document.getElementById("addTA").addEventListener('click', function(e) {
+                          // addTA form submission
+                          e.preventDefault();
+                          var netid = document.getElementById("ta_netid").value;
+                          if (netid === "") {
+                              console.log("netid empty");
+                          } else {
+                              var formData = new FormData();
+                              formData.append("netid", netid);
+                              $.ajax("/collection/@{collection.id.get}/addTA", {
+                                  type: "post",
+                                  cache: false,
+                                  contentType: false,
+                                  processData: false,
+                                  data: formData,
+                                  success: function(data) {
+                                      alert("success");
+                                  },
+                                  error: function(data) {
+                                      console.log(data);
+                                      alert(data.responseText);
+                                  }
+                              });
+                          }
+                      });
+                      $(function() {
+                        // remove content form submission
+                        @if(!availableContent.isEmpty) {
+                            var removeButton = document.getElementById("removeContentButton");
+                            removeButton.addEventListener('click', function(){
+                                $("#removeContentForm").submit();
+                            }, false);
+                            document.getElementById("removeContent").addEventListener('change', function(){
+                                if (this.value == '') {
+                                    removeButton.disabled = true;
+                                } else {
+                                    removeButton.disabled = false;
+                                }
+                            }, false);
+                        }
+                      });
+                  </script>
+              </div>
+
               </div>
             </div>  
           </div>

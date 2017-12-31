@@ -135,6 +135,14 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
         content = Some(ContentListing.listClassContent(cacheTarget))
       content.get
     }
+
+    var linkedCourses: Option[List[Course]] = None
+
+    def getLinkedCourses = {
+      if (linkedCourses.isEmpty)
+        linkedCourses = Some(CollectionCourseLink.listCollectionCourses(cacheTarget))
+      linkedCourses.get
+    }
   }
 
   /**
@@ -170,6 +178,8 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
     else cache.getContent.filter { c =>
       c.visibility != Content.visibility._private || user.getContent.contains(c)
     }
+
+  def getLinkedCourses: List[Course] = cache.getLinkedCourses
 
   def getUserPermissions(user: User): List[String] = CollectionPermissions.listByUser(this, user)
   def addUserPermission(user: User, permission: String) = CollectionPermissions.addUserPermission(this, user, permission)
@@ -210,7 +220,7 @@ object Collection extends SQLSelectable[Collection] {
    */
   def getEligibleCollections(courseNames: List[String]): List[Collection] = {
     DB.withConnection { implicit connection =>
-      val courses = Course.getCoursesByName(courseNames)
+      val courses = Course.findByName(courseNames)
       val linkedCourses = CollectionCourseLink.getLinkedCollections(courses)
       SQL(s"select * from $tableName where id in ({collectionIds})")
         .on('collectionIds -> linkedCourses.map(_.collectionId)).as(simple *)

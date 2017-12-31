@@ -5,13 +5,14 @@ import anorm.SqlParser._
 import java.sql.SQLException
 import dataAccess.sqlTraits._
 import play.api.Logger
+import play.api.libs.json.Json
 import service.{TimeTools, HashTools}
 import util.Random
 import play.api.db.DB
 import play.api.Play.current
 
 /**
- * A course. Students and teachers are members. Content can be posted here.
+ * A course.
  * @param id The id of the course
  * @param name The name of the course
  * @param startDate When the course become functional
@@ -53,6 +54,11 @@ case class Course(id: Option[Long], name: String) extends SQLSavable with SQLDel
 
     delete(Course.tableName)
   }
+
+  def toJson = Json.obj(
+    "id" -> id.get,
+    "name" -> name
+  )
 }
 
 object Course extends SQLSelectable[Course] {
@@ -74,11 +80,11 @@ object Course extends SQLSelectable[Course] {
   def findById(id: Long): Option[Course] = findById(id, simple)
 
   /**
-   * Find a course with the given name
+   * Find courses with the given names
    * @param courses The list of course names
-   * @return A list of cours id's
+   * @return A list of courses
    */
-  def getCoursesByName(courses: List[String]): List[Course] = {
+  def findByName(courses: List[String]): List[Course] = {
     DB.withConnection { implicit connection =>
       SQL(s"select * from $tableName where name in ({courses})")
         .on('courses -> courses).as(simple *)

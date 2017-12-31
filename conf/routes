@@ -39,6 +39,8 @@ POST    /collection/:id/quit                                controllers.Collecti
 POST    /collection/:id/remove/:studentId                   controllers.Collections.removeStudent(id: Long, studentId: Long)
 POST    /collection/:id/setPermission/:operation            controllers.Collections.setPermission(id: Long, operation: String)
 POST    /collection/:id/addTA                               controllers.Collections.addTA(id: Long)
+POST    /collection/:collectionId/linkCourses               controllers.Collections.linkCourses(collectionId: Long)
+POST    /collection/:collectionId/unlinkCourses             controllers.Collections.unlinkCourses(collectionId: Long)
 GET     /collection/:collectionId/content/:id                   controllers.CollectionContent.viewInCollection(id: Long, collectionId: Long)
 POST    /collection/:collectionId/content/:id/remove            controllers.CollectionContent.removeFromCollection(id: Long, collectionId: Long)
 

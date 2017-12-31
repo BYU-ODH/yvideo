@@ -91,13 +91,20 @@ object aim {
     WS.url(s"https://ws.byu.edu/rest/v1/academic/controls/controldatesws/asofdate/$date/semester.json").get().flatMap { yearTermResp =>
       yearTermResp.status match {
         case 200 => {
-          ((yearTermResp.json \ "ControldateswsService" \ "response" \ "date_list")(0) \ "year_term").as[String] match {
-            case yearTerm: String =>
-              if (yearTerm.length == 5) {
-                getSchedule(netid, yearTerm, token)
-              } else Future(None)
-            case _ => {
-              Logger.error(s"Invalid year term value: ${yearTermResp.json}")
+          try {
+            ((yearTermResp.json \ "ControldateswsService" \ "response" \ "date_list")(0) \ "year_term").as[String] match {
+              case yearTerm: String =>
+                if (yearTerm.length == 5) {
+                  getSchedule(netid, yearTerm, token)
+                } else Future(None)
+              case _ => {
+                Logger.error(s"Invalid year term value: ${yearTermResp.json}")
+                Future(None)
+              }
+            }
+          } catch {
+            case e: Exception => {
+              Logger.error(s"[aim.scala:getCurrentSemester] - Semester Code response not complete; unable to retrieve user's Enrollment information.")
               Future(None)
             }
           }
@@ -131,6 +138,7 @@ object aim {
         Future(None)
       } else {
         var token = (response.json \ "access_token").as[String]
+        Logger.info("getting user information from aim now")
         getCurrentSemester(netid, token)
       }
     }
