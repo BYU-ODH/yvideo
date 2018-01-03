@@ -21,7 +21,7 @@
                 <div class="col-sm-5">
                   <label class="control-label" for="collectionName">Name</label>
                   <div class="controls">
-                    <input type="text" id="collectionName" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
+                    <input type="text" id="collectionName" class="form-control" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
                   </div>
                   <label class="control-label">Manage Content</label>
                   <div class="controls">
@@ -54,7 +54,7 @@
                         <div class="form-group">
                           <label class="control-label" for="removeContent">Content to remove:</label>
                           <div class="controls">  
-                            <select id="removeContentList" name="removeContentList" multiple="multiple">
+                            <select id="removeContentList" class="form-control" name="removeContentList" multiple="multiple">
                               @for(contentObj <- availableContent) {
                                 <option value="@contentObj.id.get">@contentObj.name (@contentObj.contentType.name)</option>
                               }
@@ -74,7 +74,7 @@
                         TAs you add here will be able to add and remove content from your collections, and edit the subtitles and other metadata of content. They will essentially have the same rights that you have for this collection.
                     </p>
                     <form method="POST">
-                        <label>Input Teacher's Assistant netID:</label><input id="ta_netid" name="netid" type="text"><br><input id="addTA" class="btn btn-magenta" type="submit" value="Submit">
+                        <label>Input Teacher's Assistant netID:</label><input id="ta_netid" class="form-control"name="netid" type="text"><br><input id="addTA" class="btn btn-magenta" type="submit" value="Submit">
                     </form>
 
                     <script>
@@ -93,8 +93,8 @@
                       </tr>
                       <tr>
                         <td><div id="departmentLocation"></div></td>
-                        <td><input ng-model="catalogNumber" type="number" min="1" max="999"></td>
-                        <td><input ng-model="sectionNumber" type="number" min="1" max="999"></td>
+                        <td><input ng-model="catalogNumber" class="form-control" type="number" min="1" max="999"></td>
+                        <td><input ng-model="sectionNumber" class="form-control" type="number" min="1" max="999"></td>
                         <td><button ng-click="appendCourse()" class="btn btn-gray">OK</button></td>
                       </tr>
                     </table>
