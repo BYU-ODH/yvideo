@@ -9,7 +9,12 @@
 }
 
 body {
-    background-color: #000;
+    /*background-color: #000;*/
+    /*background-color: #002040;*/
+    background-image: url(../images/jfsb_background_blurred.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: 50% 70%;
 }
 
 body.embed {
