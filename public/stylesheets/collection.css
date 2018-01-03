@@ -120,3 +120,7 @@
 .faces-window .tooltip {
     position: fixed;
 }
+
+#collectionOptionsLeft {
+    border-right: 1px solid #e5e5e5;
+}

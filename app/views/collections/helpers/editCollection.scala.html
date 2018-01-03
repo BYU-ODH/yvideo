@@ -18,7 +18,7 @@
           <div class="modal-body">
             <div class="container-fluid">
               <div ng-controller="editController" ng-init="collectionId = @{collection.id.get}" class="row">
-                <div class="col-sm-5">
+                <div class="col-sm-5" id="collectionOptionsLeft">
                   <label class="control-label" for="collectionName">Name</label>
                   <div class="controls">
                     <input type="text" id="collectionName" class="form-control" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
@@ -74,15 +74,19 @@
                         TAs you add here will be able to add and remove content from your collections, and edit the subtitles and other metadata of content. They will essentially have the same rights that you have for this collection.
                     </p>
                     <form method="POST">
-                        <label>Input Teacher's Assistant netID:</label><input id="ta_netid" class="form-control"name="netid" type="text"><br><input id="addTA" class="btn btn-magenta" type="submit" value="Submit">
+                        <label>Input Teacher's Assistant netID:</label><input id="ta_netid" class="form-control"name="netid" type="text"><br><input id="addTA" class="btn btn-blue" type="submit" value="Submit">
                     </form>
 
                     <script>
 
                     </script>
                   </div>
+
+                  <!-- Add CoOwner section -->
                   <div ng-show="selected === 'addCoOwner'" id="addCoOwner">
                   </div>
+
+                  <!-- Add Courses section -->
                   <div ng-show="selected === 'addCourses'" ng-controller="addCourseController"  id="addCourses">
                     <table>
                       <tr>
@@ -103,17 +107,51 @@
                     <div>
                       <div ng-repeat="course in courses">{{course}} <a ng-click="removeCourse(course)">×</a></div>
                     </div>
-                    <button ng-click="submit()" class="btn btn-red">Submit</button>
+                    <button ng-click="submit()" class="btn btn-blue">Submit</button>
                   </div>
+
+                  <!-- Remove Courses section -->
                   <div ng-show="selected === 'removeCourses'" ng-init="courses = @{linkedCourses}" ng-controller="removeCourseController" id="removeCourses">
                       <h3>Remove Courses</h3>
                       <div class="list-group pre-scrollable">
                           <a ng-repeat="course in courses" ng-click="toggleMarkCourse(course, $event)" class="list-group-item" href="#">{{course.name}}</a>
                       </div>
-                      <button ng-click="submit()" class="btn btn-red">Submit</button>
+                      <button ng-click="submit()" class="btn btn-blue">Submit</button>
                   </div>
+
+                  <!-- Add Exception section -->
                   <div ng-show="selected === 'addException'" id="addException">
+                    <h3>Exceptions</h3>
+                    <table class="table table-striped table-bordered table-condensed">
+                      <thead>
+                        <tr>
+                          <td>NetID</td>
+                          <td>Name</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Hisdfsdfsdsf1</td>
+                          <td>Hisdfsdfsdsf2</td>
+                        </tr>
+                        <tr>
+                          <td>Hisdfsdfsdsf1</td>
+                          <td>Hisdfsdfsdsf2</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p>
+                      <small><strong>Note:</strong>
+                      <i>
+                        Students added through this method will gain access to this collection as if they were a student of one of your courses. Please only add students by this method if you have a very good reason.
+                      </i></small>
+                    </p>
+                    <label>Input Student's NetID:</label>
+                    <input type="text" class="form-control">
+                    <button ng-click="submit()" class="btn btn-blue">Submit</button>
                   </div>
+
+
                   <script type="text/javascript">
                       document.getElementById("addTA").addEventListener('click', function(e) {
                           // addTA form submission

@@ -158,4 +158,5 @@ angular.module("editModule", [])
 			}
 		});
 	};
-});
+})
+.controller();
