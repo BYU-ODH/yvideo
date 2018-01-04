@@ -642,3 +642,5 @@ fieldset[disabled] .btn-gray.active {
     text-align: left !important;
     max-width: 95%;
 }
+
+button:focus, a:focus {outline: none !important;}
