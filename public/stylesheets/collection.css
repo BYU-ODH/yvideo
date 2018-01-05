@@ -124,3 +124,7 @@
 #collectionOptionsLeft {
     border-right: 1px solid #e5e5e5;
 }
+
+#departmentLocation > div > .superselect{
+    margin-top: 20px;
+}
