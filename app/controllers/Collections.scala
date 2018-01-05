@@ -328,8 +328,12 @@ object Collections extends Controller {
                     val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == user.id.get)
 
                     // update membership record in database with exception = true
-                    if (!membershipRecord.isEmpty)
-                      Ok(membershipRecord.get.copy(exception = true).save.toJson)
+                    if (!membershipRecord.isEmpty){
+                      membershipRecord.get.copy(exception = true).save
+
+                      // TODO: Check if exception actually created for user
+                      Ok(user.toJson)
+                    }
                     else
                       BadRequest("""{"Message": "500: Internal Server Error."}""").as("application/json")
                   }
@@ -337,7 +341,9 @@ object Collections extends Controller {
                   // Case: User is not enrolled...
                   else{
                     // Enroll user and create exception to collection; then respond ok
-                    Ok(CollectionMembership(None, user.id.get, collection.id.get, false, true).save.toJson)
+                    CollectionMembership(None, user.id.get, collection.id.get, false, true).save
+                    // TODO: Check if exception actually created for user
+                    Ok(user.toJson)
                   }
                 }
               }
