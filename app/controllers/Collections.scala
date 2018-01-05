@@ -8,6 +8,7 @@ import play.api.Play.current
 import play.api.libs.json._
 import models._
 import service.{TimeTools}
+import play.api.Logger
 
 /**
  * This controller manages all the pages relating to collections, including authentication.
@@ -39,7 +40,8 @@ object Collections extends Controller {
             // TODO: Once the users get the "viewCollection" permission, use
             // if (user.hasCollectionPermission(collection, "viewCollection")) instead
             if (collection.getMembers.contains(user) ||  SitePermissions.userHasPermission(user, "admin"))
-              Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString))
+              Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString, 
+                Json.toJson(User.findUsersByUserIdList(CollectionMembership.getExceptionsByCollection(collection).map(_.userId)).map(_.toJson)).toString))
             else
               Errors.forbidden
           }
@@ -208,7 +210,7 @@ object Collections extends Controller {
         Future {
           val collection = Collection.findById(collectionId)
           if (collection.isEmpty)
-            BadRequest(s""""Collection ${collectionId} does not exist."""").as("application/json")
+            BadRequest(s"""Collection ${collectionId} does not exist.""").as("application/json")
           else {
             val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
             request.body.validate[List[String]] match {
@@ -285,6 +287,62 @@ object Collections extends Controller {
                 CollectionPermissions.addTA(collectionOpt.get, user)
                 Ok
               }
+            }
+          }
+        }
+  }
+
+  /**
+   * Add a TA to the collection based on a Cas username
+   * @param id The collection id
+   */
+  def addException(id: Long) = Authentication.authenticatedAction(parse.json) {
+    implicit request =>
+      implicit user =>
+        Future {
+          val collOption = Collection.findById(id)
+          
+          if (collOption.isEmpty)
+            BadRequest(s"""Collection %(id) does not exist.""").as("applcation/json")
+          
+          else {
+            val collection = collOption.get
+            request.body.validate[String] match {
+              case success: JsSuccess[String] => {
+                val username = success.get
+                val userOpt = User.findByUsername('cas, username)
+                
+                if (userOpt.isEmpty)
+                  BadRequest("""{"Message": "NetId does not exist. Make sure that user has logged in via CAS."}""").as("application/json")
+
+                else{  
+                  val user = userOpt.get
+
+                  // Case: User already has an exception in the given course...
+                  if (CollectionMembership.getExceptionsByCollection(collection).exists(_.id == user.id.get))
+                    BadRequest("""{"Message": "This exception has already been added."}""").as("application/json")
+
+                  // Case: User is enrolled but does not have an exception... 
+                  else if (CollectionMembership.userIsEnrolled(user, collection)){
+                    // update user to have an exception
+                    val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == user.id.get)
+
+                    // update membership record in database with exception = true
+                    if (!membershipRecord.isEmpty)
+                      Ok(membershipRecord.get.copy(exception = true).save.toJson)
+                    else
+                      BadRequest("""{"Message": "500: Internal Server Error."}""").as("application/json")
+                  }
+
+                  // Case: User is not enrolled...
+                  else{
+                    // Enroll user and create exception to collection; then respond ok
+                    Ok(CollectionMembership(None, user.id.get, collection.id.get, false, true).save.toJson)
+                  }
+                }
+              }
+
+              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
             }
           }
         }

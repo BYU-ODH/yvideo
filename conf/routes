@@ -43,6 +43,7 @@ POST    /collection/:collectionId/linkCourses               controllers.Collecti
 POST    /collection/:collectionId/unlinkCourses             controllers.Collections.unlinkCourses(collectionId: Long)
 GET     /collection/:collectionId/content/:id                   controllers.CollectionContent.viewInCollection(id: Long, collectionId: Long)
 POST    /collection/:collectionId/content/:id/remove            controllers.CollectionContent.removeFromCollection(id: Long, collectionId: Long)
+POST    /collection/:collectionId/addException              controllers.Collections.addException(collectionId: Long)
 
 # Content pages
 GET     /content/mine                      controllers.ContentController.mine

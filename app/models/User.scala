@@ -115,7 +115,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
    */
   def enroll(collection: Collection, teacher: Boolean): User = {
     if(!this.isEnrolled(collection))
-      CollectionMembership(None, id.get, collection.id.get, teacher).save
+      CollectionMembership(None, id.get, collection.id.get, teacher, false).save
     this
   }
 
@@ -312,7 +312,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
 
     def getEligibleCollections(courseList: List[Course]) = {
       if (collections.isEmpty)
-        collections = Some(Collection.getEligibleCollections(courseList))
+        collections = Some(Collection.getEligibleCollections(courseList, cacheTarget))
       collections.get
     }
 
@@ -518,6 +518,23 @@ object User extends SQLSelectable[User] {
    * @return If a user was found, then Some[User], otherwise None
    */
   def findById(id: Long): Option[User] = findById(id, simple)
+
+
+  def findUsersByUserIdList(idList: List[Long]): List[User] = {
+    DB.withConnection { implicit connection =>
+      try {
+        SQL("select * from userAccount where id in ({ids})")
+        .on('ids -> idList)
+        .as(simple *)
+      } catch {
+        case e: SQLException =>
+          Logger.debug("Failed in User.scala / findUsersByUserIdList")
+          Logger.debug(e.getMessage())
+          List[User]()
+      }
+    }
+  }
+
 
   /**
    * Search the DB for a user with the given authentication info

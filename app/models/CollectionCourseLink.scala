@@ -120,7 +120,7 @@ object CollectionCourseLink extends SQLSelectable[CollectionCourseLink] {
           .as(Course.simple *)
       } catch {
         case e: SQLException =>
-          Logger.debug("Failed in ContentListing.scala / listClassContent")
+          Logger.debug("Failed in CollectionCourseLink.scala / listCollectionCourses")
           Logger.debug(e.getMessage())
           List[Course]()
       }

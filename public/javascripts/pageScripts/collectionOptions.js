@@ -179,7 +179,24 @@ angular.module("editModule", [])
 })
 .controller("addExceptionController", function($scope) {
 	$scope.submit = function() {
-		alert("Hi!")
+		let studentId = document.getElementById("addStudentException").value
+		$.ajax("/collection/" + $scope.$parent.collectionId + "/addException", {
+			type: "post",
+			dataType: "json",
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify(studentId),
+			success: function(value) {
+                value = JSON.parse(value);
+                $scope.exceptions.push(value)
+                console.log("Success in AJAX")
+			},
+			error: function(xhr){
+				console.log("Error: " + JSON.parse(xhr.responseText)["Message"])
+			}
+		});
 	}
 
+	$scope.$watch("exceptions", function(){
+		console.log(JSON.stringify($scope.exceptions))
+	})
 });

@@ -151,7 +151,7 @@
                   </div>
 
                   <!-- Add Exception section -->
-                  <div ng-controller="addExceptionController" ng-show="selected === 'addException'" id="addException">
+                  <div ng-controller="addExceptionController" ng-show="selected === 'addException'" id="addException" ng-init="exceptions = @{exceptions}">
                     <h3>Exceptions</h3>
                     <table class="table table-striped table-bordered table-condensed">
                       <thead>
@@ -161,9 +161,9 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr ng-repeat="student in students">
-                          <td>{{student.netID}}</td>
-                          <td>{{student.name}}</td>
+                        <tr ng-repeat="exception in exceptions">
+                          <td>{{exception.username}}</td>
+                          <td>{{exception.name}}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -174,7 +174,7 @@
                       </i></small>
                     </p>
                     <label>Input Student's NetID:</label>
-                    <input type="text" class="form-control">
+                    <input type="text" id="addStudentException" class="form-control">
                     <button ng-click="submit()" class="btn btn-blue">Submit</button>
                   </div>
 

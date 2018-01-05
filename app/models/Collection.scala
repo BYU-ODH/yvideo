@@ -143,6 +143,14 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
         linkedCourses = Some(CollectionCourseLink.listCollectionCourses(cacheTarget))
       linkedCourses.get
     }
+
+    var exceptions: Option[List[CollectionMembership]] = None
+
+    def getExceptions = {
+      if (exceptions.isEmpty)
+        exceptions = Some(CollectionMembership.getExceptionsByCollection(cacheTarget))
+      exceptions.get
+    }
   }
 
   /**
@@ -218,12 +226,13 @@ object Collection extends SQLSelectable[Collection] {
    * by searching for collections that are linked to the courses provided here
    * @return The list of collections
    */
-  def getEligibleCollections(courseNames: List[Course]): List[Collection] = {
+  def getEligibleCollections(courseNames: List[Course], user: User): List[Collection] = {
     DB.withConnection { implicit connection =>
       val courses = Course.findCourses(courseNames)
+      val exceptions = CollectionMembership.getExceptionsByUser(user)
       val linkedCourses = CollectionCourseLink.getLinkedCollections(courses)
       SQL(s"select * from $tableName where id in ({collectionIds})")
-        .on('collectionIds -> linkedCourses.map(_.collectionId)).as(simple *)
+        .on('collectionIds -> (linkedCourses.map(_.collectionId) ::: exceptions.map(_.collectionId))).as(simple *)
     }
   }
 
