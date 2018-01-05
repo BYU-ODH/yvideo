@@ -1,4 +1,4 @@
-@(user: User, collection: Collection, linkedCourses: String)(implicit request: RequestHeader)
+@(user: User, collection: Collection, linkedCourses: String, exceptions: String)(implicit request: RequestHeader)
 @availableContent = @{
     collection.getContent
 }
@@ -161,13 +161,9 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>stdnt1</td>
-                          <td>Student 1</td>
-                        </tr>
-                        <tr>
-                          <td>stdnt2</td>
-                          <td>Student 2</td>
+                        <tr ng-repeat="student in students">
+                          <td>{{student.netID}}</td>
+                          <td>{{student.name}}</td>
                         </tr>
                       </tbody>
                     </table>
