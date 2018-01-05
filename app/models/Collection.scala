@@ -218,9 +218,9 @@ object Collection extends SQLSelectable[Collection] {
    * by searching for collections that are linked to the courses provided here
    * @return The list of collections
    */
-  def getEligibleCollections(courseNames: List[String]): List[Collection] = {
+  def getEligibleCollections(courseNames: List[Course]): List[Collection] = {
     DB.withConnection { implicit connection =>
-      val courses = Course.findByName(courseNames)
+      val courses = Course.findCourses(courseNames)
       val linkedCourses = CollectionCourseLink.getLinkedCollections(courses)
       SQL(s"select * from $tableName where id in ({collectionIds})")
         .on('collectionIds -> linkedCourses.map(_.collectionId)).as(simple *)

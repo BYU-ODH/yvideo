@@ -44,11 +44,11 @@ object Fixtures {
     )
 
     val courses = List(
-      ("MATH 111"),
-      ("CS 142"),
-      ("HUM 101"),
-      ("CHIN 101"),
-      ("CS 404")
+      ("MATH"),
+      ("CS"),
+      ("HUM"),
+      ("CHIN"),
+      ("CS")
     )
 
     val collectionListings = List(

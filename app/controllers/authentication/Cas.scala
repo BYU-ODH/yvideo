@@ -23,20 +23,6 @@ object Cas extends Controller {
 
   def logPrefix(submodule: String): String = s"[CAS]$submodule"
 
-  val desc_map = Map(
-    "DC" -> "Day Continuing",
-    "DO" -> "Day Semester Only",
-    "SO" -> "Semester Only",
-    "CH" -> "Concurrent Student",
-    "CE" -> "Continuing Ed or Evening Classes Only",
-    "BG" -> "Bachelor of General Studies",
-    "A"  -> "Audit Only"
-  )
-
-  val eligibleList = desc_map.keys.toList
-  val descriptionList = desc_map.values.toList
-  val descriptionMap = desc_map
-
   // For parsing schedule service
   case class BYU_Course(course: String, course_title: String, instructor: String)
   implicit val BYU_CourseReads = Json.reads[BYU_Course]
@@ -69,7 +55,7 @@ object Cas extends Controller {
     // The BYU_Course names are stored in the database as subject_area+catalog_number
     // example: MATH313
     val eligibleCollections = user.getEligibleCollections(enrollment.class_list.map(
-      byuClass => byuClass.subject_area + byuClass.catalog_number
+      byuClass => Course(None, byuClass.subject_area, Some(byuClass.catalog_number), Some(byuClass.section_number))
     ))
     user.getEnrollment.diff(eligibleCollections).foreach(user.unenroll _)
     eligibleCollections.foreach(user.enroll (_, isInstructor))
@@ -82,8 +68,8 @@ object Cas extends Controller {
     aim.getEnrollment(user.username).map { enrollmentOpt =>
       Logger.info(enrollmentOpt.toString)
       enrollmentOpt.map { implicit enrollment =>
-        Logger.error(enrollment.toString)
-        Logger.error("Should have printed out the enrollment")
+        Logger.info(enrollment.toString)
+        Logger.info("Should have printed out the enrollment")
         val aimName = (enrollment.preferred_first_name + " " + enrollment.surname).trim
         val aimNameOpt = if (aimName.length != 0) Some(aimName) else None
         val emailOpt = if (enrollment.email_address.length != 0) Some(enrollment.email_address) else None
@@ -121,7 +107,7 @@ object Cas extends Controller {
         val parttime = getAttribute(xml, "activePartTimeInstructor").getOrElse("false").toBoolean
         implicit val isInstructor = fulltime || parttime
 
-        Logger.error(user.toString)
+        Logger.info(user.toString)
         updateAccount(user)
 
         if (action == "merge")

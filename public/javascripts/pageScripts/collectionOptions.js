@@ -66,14 +66,32 @@ angular.module("editModule", [])
 		defaultValue: {value:"",text:"No Department Selected"}
 	});
 
+    var createCourseObj = function(d,c,s) {
+        return {
+            "department":d,
+            "catalogNumber":c,
+            "sectionNumber":s
+        };
+    };
+
+    var pad = function(n) {
+        if (typeof n === "number")
+            n = "" + n;
+        if (typeof n === "string") {
+            n = n.replace("-","");
+            return ("000" + n).slice(-3);
+        } else
+            return n;
+    };
+
 	$scope.appendCourse = function() {
 		if (departmentSelect.value.length !== 1 || departmentSelect.value[0].trim().length === 0) {
 			alert("Invalid department.");
 			return;
 		}
-		$scope.catalogNumber = !!$scope.catalogNumber ? $scope.catalogNumber : "";
-		$scope.sectionNumber = !!$scope.sectionNumber ? $scope.sectionNumber : "";
-		var newCourse = departmentSelect.value[0].trim() + $scope.catalogNumber + $scope.sectionNumber;
+        console.log(typeof $scope.catalogNumber);
+        var num = pad($scope.catalogNumber), sec = pad($scope.sectionNumber);
+		var newCourse = createCourseObj(departmentSelect.value[0].trim(), num, sec)
 		if (!~$scope.courses.indexOf(newCourse) && !linkedCourses.contains(newCourse)) {
 			$scope.courses.push(newCourse);
 		} else {

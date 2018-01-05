@@ -216,7 +216,7 @@ object Collections extends Controller {
                 val courseNames = success.get
                 val courses = Course.findByName(courseNames)
                 val newCourses = courseNames.diff(courses.map(_.name)).map { courseName =>
-                  Course(None, courseName).save
+                  Course(None, courseName, None, None).save
                 }
                 val newLinks = courses ::: newCourses filterNot(course => linkedCourses.contains(course.id.get))
                 newLinks map { course =>

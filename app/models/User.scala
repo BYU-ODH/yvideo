@@ -310,7 +310,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
 
     var collections: Option[List[Collection]] = None
 
-    def getEligibleCollections(courseList: List[String]) = {
+    def getEligibleCollections(courseList: List[Course]) = {
       if (collections.isEmpty)
         collections = Some(Collection.getEligibleCollections(courseList))
       collections.get
@@ -381,7 +381,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
    * Gets the collections that the user can be enrolled in
    * @return A list of collections
    */
-  def getEligibleCollections(courseList: List[String]): List[Collection] = cache.getEligibleCollections(courseList)
+  def getEligibleCollections(courseList: List[Course]): List[Collection] = cache.getEligibleCollections(courseList)
 
   /**
    * Gets the enrollment--collections the user is in--of the user
