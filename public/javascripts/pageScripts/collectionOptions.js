@@ -159,4 +159,9 @@ angular.module("editModule", [])
 		});
 	};
 })
-.controller();
+.controller("addExceptionController", function($scope) {
+	$scope.submit = function() {
+		alert("Hi!")
+	}
+
+});
