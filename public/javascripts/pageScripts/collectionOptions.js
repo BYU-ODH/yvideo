@@ -186,9 +186,9 @@ angular.module("editModule", [])
 			contentType: "application/json; charset=utf-8",
 			data: JSON.stringify(studentId),
 			success: function(value) {
-                value = JSON.parse(value);
+                console.log(value);
                 $scope.exceptions.push(value)
-                console.log("Success in AJAX")
+                $scope.$apply();
 			},
 			error: function(xhr){
 				console.log("Error: " + JSON.parse(xhr.responseText)["Message"])
