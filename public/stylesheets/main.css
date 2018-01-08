@@ -110,7 +110,6 @@ h1, h2, h3, h4, h5, h6 {
     min-height: 40px;
 
 
-    background-color: #000;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#646464', endColorstr='#494949', GradientType=0);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 }
