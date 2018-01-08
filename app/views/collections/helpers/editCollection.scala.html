@@ -19,30 +19,45 @@
             <div class="container-fluid">
               <div ng-controller="editController" ng-init="collectionId = @{collection.id.get}" class="row">
                 <div class="col-sm-5" id="collectionOptionsLeft">
-                  <label class="control-label" for="collectionName">Name</label>
-                  <div class="controls">
-                    <input type="text" id="collectionName" class="form-control" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
-                  </div>
-                  <label class="control-label">Manage Content</label>
-                  <div class="controls">
-                    <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add</a>
-                    <a ng-click="selected = 'removeContent'" role="button" class="btn btn-black"><i class="icon-minus"></i> Remove</a>
-                  </div>
-                  <label class="control-label">Manage Admins</label>
-                  <div class="controls">
-                    <a ng-click="selected = 'addTA'" href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
-                    <a ng-click="selected = 'addCoOwner'" href="#addCoOwnerModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add CoOwner</a>
+                  
+                  <div class="collectionGroup">
+                    <label class="control-label" for="collectionName">Name</label>
+                    <div class="controls">
+                      <input type="text" id="collectionName" class="form-control" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
+                    </div>
                   </div>
 
-                  <div class="controls">
+                  <div class="collectionGroup">
+                    <label class="control-label">Manage Content</label>
+                    <div class="controls">
+                      <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add</a>
+                      <a ng-click="selected = 'removeContent'" role="button" class="btn btn-black"><i class="icon-minus"></i> Remove</a>
+                    </div>
+                  </div>
+
+                  <div class="collectionGroup">
+                    <label class="control-label">Manage Admins</label>
+                    <div class="controls">
+                      <a ng-click="selected = 'addTA'" href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
+                      <a ng-click="selected = 'addCoOwner'" href="#addCoOwnerModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add CoOwner</a>
+                    </div>
+                  </div>
+
+                  <div class="collectionGroup">
                     <label class="control-label">Courses using this collection</label>
                     <div class="controls">
                         <button ng-click="selected = 'addCourses'" class="btn btn-gray"><i class="icon-plus"></i> Add</button>
                         <button ng-click="selected = 'removeCourses'" class="btn btn-gray"><i class="icon-minus"></i> Remove</button>
-                        <br><br>
-                        <button ng-click="selected = 'addException'" class="btn btn-yellow">Add Exception</button>
                     </div>
                   </div>
+
+                  <div class="collectionGroup">
+                    <label class="control-label">Add/Remove Exceptions</label>
+                    <div class="controls">
+                        <button ng-click="selected = 'addException'" class="btn btn-yellow">Exceptions</button>
+                    </div>
+                  </div>
+
                 </div>
 
                 <div class="col-sm-7">
@@ -158,12 +173,14 @@
                         <tr>
                           <td>NetID</td>
                           <td>Name</td>
+                          <td style="width: 5px"></td>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr ng-repeat="exception in exceptions">
-                          <td>{{exception.username}}</td>
+                        <tr ng-repeat="exception in exceptions | orderBy:'name'">
+                          <td class="exceptionUsername">{{exception.username}}</td>
                           <td>{{exception.name}}</td>
+                          <td><button class="btn btn-magenta removeExceptionButton" onclick="removeException(this)">X</button></td>
                         </tr>
                       </tbody>
                     </table>
@@ -221,6 +238,35 @@
                             }, false);
                         }
                       });
+
+
+                      function removeException(button){
+                        let table = button.parentNode.parentNode.parentNode
+                        let row = button.parentNode.parentNode
+
+                        // Add Bootstrap .danger class to current row
+                        row.className += " danger"
+
+                        let rowNum = -1
+
+                        for(let i = 0; i < table.children.length; i++){
+                            if (table.children[i] == row)
+                                rowNum = i
+                        }
+                        
+                        let removedUsername = document.getElementsByClassName("exceptionUsername")[rowNum].innerText
+
+                        setTimeout(() => {
+                          if (confirm(`Are you sure you want to remove \'${removedUsername}\' from the Exceptions list?`)){
+                            
+                            // TODO: add backend process
+                            table.removeChild(row)
+                          }
+                          else {
+                            row.className = (row.className.replace("danger", "")).trim()
+                          }
+                        }, 0)
+                      }
                   </script>
               </div>
 

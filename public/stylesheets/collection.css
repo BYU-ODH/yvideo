@@ -128,3 +128,16 @@
 #departmentLocation > div > .superselect{
     margin-top: 20px;
 }
+
+#addStudentException{
+    margin-bottom: 10px;
+}
+
+.removeExceptionButton {
+    padding: 0px 5px;
+    border-radius: 3px;
+}
+
+.collectionGroup{
+    margin-bottom: 25px;
+}
