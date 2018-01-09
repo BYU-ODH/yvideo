@@ -11,10 +11,11 @@
 body {
     /*background-color: #000;*/
     /*background-color: #002040;*/
-    background-image: url(../images/jfsb_background_blurred.jpg);
+    background-image: url(../images/tower.jpeg);
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: 50% 70%;
+    background-size: 100%;
 }
 
 body.embed {
