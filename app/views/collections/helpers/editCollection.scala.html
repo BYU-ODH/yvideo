@@ -149,11 +149,16 @@
                       </tr>
                     </table>
                     <h6>* Leaving the course number blank will add all course within the given department. Leaving the section nunber blank will add all sections for the given course</h6>
-                    <h4 ng-if="courses.length > 0">The Following Courses will be added when changes are saved:</h4>
-                    <div>
-                      <div ng-repeat="course in courses">{{course}} <a ng-click="removeCourse(course)">×</a></div>
+                    <div ng-if="courses.length > 0">
+                      <h4>The Following Courses will be added when changes are saved:</h4>
+                      <ul>
+                        <li ng-repeat="course in courses">
+                          <div>{{course.department}} {{course.catalogNumber}} Section: {{course.sectionNumber}} <a href="" ng-click="removeCourse(course)">×</a></div>
+                        </li>
+                      </ul>
+                      <button ng-click="submit()" class="btn btn-blue">Submit</button>
                     </div>
-                    <button ng-click="submit()" class="btn btn-blue">Submit</button>
+                    <span id="noSelectedCoursesBanner" ng-if="courses.length == 0">No courses selected</span>
                   </div>
 
                   <!-- Remove Courses section -->
