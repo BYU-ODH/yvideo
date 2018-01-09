@@ -196,7 +196,39 @@ angular.module("editModule", [])
 		});
 	}
 
+	$scope.removeException = function($event){
+		let button = $event.currentTarget;
+		let table = button.parentNode.parentNode.parentNode;
+		let row = button.parentNode.parentNode;
+
+		// Add Bootstrap .danger class to current row
+		row.className += " danger";
+
+		let rowNum = -1;
+
+		for(let i = 0; i < table.children.length; i++){
+		    if (table.children[i] == row)
+		        rowNum = i;
+		}
+
+		let removedUsername = document.getElementsByClassName("exceptionUsername")[rowNum].innerText;
+
+		setTimeout(function() {
+		  if (confirm(`Are you sure you want to remove \'${removedUsername}\' from the Exceptions list?`)){
+		    
+		    // TODO: add backend process
+		    table.removeChild(row);
+		  }
+		  else {
+		    row.className = (row.className.replace("danger", "")).trim();
+		  }
+		}, 100);
+	};
+
 	$scope.$watch("exceptions", function(){
 		console.log(JSON.stringify($scope.exceptions))
 	})
 });
+
+
+

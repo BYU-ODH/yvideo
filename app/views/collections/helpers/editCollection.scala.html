@@ -180,7 +180,7 @@
                         <tr ng-repeat="exception in exceptions | orderBy:'name'">
                           <td class="exceptionUsername">{{exception.username}}</td>
                           <td>{{exception.name}}</td>
-                          <td><button class="btn btn-magenta removeExceptionButton" onclick="removeException(this)">X</button></td>
+                          <td><button class="btn btn-magenta removeExceptionButton" ng-click="removeException($event)">X</button></td>
                         </tr>
                       </tbody>
                     </table>
@@ -238,35 +238,6 @@
                             }, false);
                         }
                       });
-
-
-                      function removeException(button){
-                        let table = button.parentNode.parentNode.parentNode
-                        let row = button.parentNode.parentNode
-
-                        // Add Bootstrap .danger class to current row
-                        row.className += " danger"
-
-                        let rowNum = -1
-
-                        for(let i = 0; i < table.children.length; i++){
-                            if (table.children[i] == row)
-                                rowNum = i
-                        }
-                        
-                        let removedUsername = document.getElementsByClassName("exceptionUsername")[rowNum].innerText
-
-                        setTimeout(() => {
-                          if (confirm(`Are you sure you want to remove \'${removedUsername}\' from the Exceptions list?`)){
-                            
-                            // TODO: add backend process
-                            table.removeChild(row)
-                          }
-                          else {
-                            row.className = (row.className.replace("danger", "")).trim()
-                          }
-                        }, 0)
-                      }
                   </script>
               </div>
 
