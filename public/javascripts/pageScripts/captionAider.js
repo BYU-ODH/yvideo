@@ -611,7 +611,6 @@ $(function() {
             return {
                 content: content,
                 resource: resource,
-                courseId: courseId,
                 contentId: content.id,
                 holder: contentHolder,
                 permission: "edit",
