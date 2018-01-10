@@ -153,7 +153,7 @@
                       <h4>The Following Courses will be added when changes are saved:</h4>
                       <ul>
                         <li ng-repeat="course in courses">
-                          <div>{{course.department}} {{course.catalogNumber}} Section: {{course.sectionNumber}} <a href="" ng-click="removeCourse(course)">×</a></div>
+                          <div>{{course.department}} {{course.catalogNumber ? course.catalogNumber : "All Classes"}} {{course.sectionNumber ? "Section: "+course.sectionNumber : "All Sections"}} <a href="" ng-click="removeCourse(course)">×</a></div>
                         </li>
                       </ul>
                       <button ng-click="submit()" class="btn btn-blue">Submit</button>
@@ -165,7 +165,7 @@
                   <div ng-show="selected === 'removeCourses'" ng-init="courses = @{linkedCourses}" ng-controller="removeCourseController" id="removeCourses">
                       <h3>Remove Courses</h3>
                       <div class="list-group pre-scrollable">
-                          <a ng-repeat="course in courses" ng-click="toggleMarkCourse(course, $event)" class="list-group-item" href="#">{{course.name}}</a>
+                          <a ng-repeat="course in courses" ng-click="toggleMarkCourse(course, $event)" class="list-group-item" href="#">{{course.department}} {{course.catalogNumber}} {{course.sectionNumber}}</a>
                       </div>
                       <button ng-click="submit()" class="btn btn-blue">Submit</button>
                   </div>
@@ -185,7 +185,7 @@
                         <tr ng-repeat="exception in exceptions | orderBy:'name'">
                           <td class="exceptionUsername">{{exception.username}}</td>
                           <td>{{exception.name}}</td>
-                          <td><button class="btn btn-magenta removeExceptionButton" ng-click="removeException($event)">X</button></td>
+                          <td><button class="btn btn-magenta removeExceptionButton" ng-click="removeException(exception, $event)">X</button></td>
                         </tr>
                       </tbody>
                     </table>

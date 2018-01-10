@@ -79,7 +79,8 @@ angular.module("editModule", [])
             n = "" + n;
         if (typeof n === "string") {
             n = n.replace("-","");
-            return ("000" + n).slice(-3);
+            var padded = ("000" + n).slice(-3);
+            return padded !== "000" ? padded : null;
         } else
             return n;
     };
@@ -89,10 +90,14 @@ angular.module("editModule", [])
 			alert("Invalid department.");
 			return;
 		}
-        console.log(typeof $scope.catalogNumber);
         var num = pad($scope.catalogNumber), sec = pad($scope.sectionNumber);
-		var newCourse = createCourseObj(departmentSelect.value[0].trim(), num, sec)
-		if (!~$scope.courses.indexOf(newCourse) && !linkedCourses.contains(newCourse)) {
+		var newCourse = createCourseObj(departmentSelect.value[0].trim(), num, sec);
+        var courseAlreadyAdded = $scope.courses.some(function(c) {
+            return c.department === newCourse.department &&
+                c.catalogNumber === newCourse.catalogNumber &&
+                c.sectionNumber === newCourse.sectionNumber;
+        })
+		if (!courseAlreadyAdded && !linkedCourses.contains(newCourse)) {
 			$scope.courses.push(newCourse);
 		} else {
 			// course has already been added
@@ -194,40 +199,30 @@ angular.module("editModule", [])
 				console.log("Error: " + JSON.parse(xhr.responseText)["Message"])
 			}
 		});
-	}
+	};
 
-	$scope.removeException = function($event){
+	$scope.removeException = function(exception, $event){
 		let button = $event.currentTarget;
 		let table = button.parentNode.parentNode.parentNode;
 		let row = button.parentNode.parentNode;
 
 		// Add Bootstrap .danger class to current row
-		row.className += " danger";
-
-		let rowNum = -1;
-
-		for(let i = 0; i < table.children.length; i++){
-		    if (table.children[i] == row)
-		        rowNum = i;
-		}
-
-		let removedUsername = document.getElementsByClassName("exceptionUsername")[rowNum].innerText;
+		row.classList.add("danger");
 
 		setTimeout(function() {
-		  if (confirm(`Are you sure you want to remove \'${removedUsername}\' from the Exceptions list?`)){
-		    
+		  if (confirm(`Are you sure you want to remove \'${exception.name}\' from the Exceptions list?`)) {
 		    // TODO: add backend process
-		    table.removeChild(row);
+            var index = $scope.exceptions.indexOf(exception);
+            console.log(index);
+            $scope.exceptions.splice(index, ~index?1:0);
+            console.log($scope.exceptions);
+            $scope.$apply();
 		  }
 		  else {
-		    row.className = (row.className.replace("danger", "")).trim();
+		    row.classList.remove("danger");
 		  }
 		}, 100);
 	};
-
-	$scope.$watch("exceptions", function(){
-		console.log(JSON.stringify($scope.exceptions))
-	})
 });
 
 
