@@ -191,7 +191,16 @@ angular.module("editModule", [])
 			contentType: "application/json; charset=utf-8",
 			data: JSON.stringify(studentId),
 			success: function(value) {
-                console.log(value);
+                // console.log(value);
+
+                let exceptionsTable = document.getElementById("exceptionsTable"),
+                	exceptionsList = exceptionsTable.children[1]
+
+                
+                console.log(exceptionsList)
+                debugger
+
+
                 $scope.exceptions.push(value)
                 $scope.$apply();
 			},
@@ -211,12 +220,30 @@ angular.module("editModule", [])
 
 		setTimeout(function() {
 		  if (confirm(`Are you sure you want to remove \'${exception.name}\' from the Exceptions list?`)) {
-		    // TODO: add backend process
+		    
+		    // Remove Exception on backend process
+			$.ajax("/collection/" + $scope.$parent.collectionId + "/removeException", {
+				type: "post",
+				dataType: "json",
+				contentType: "application/json; charset=utf-8",
+				data: JSON.stringify(exception.username),
+				success: function(value) {
+	                console.log("HI from removeException success!!");
+	                console.log(value);
+	                // $scope.exceptions.push(value)
+	                // $scope.$apply();
+				},
+				error: function(xhr){
+					console.log("Error: " + JSON.parse(xhr.responseText)["Message"])
+				}
+			});
+
             var index = $scope.exceptions.indexOf(exception);
             console.log(index);
             $scope.exceptions.splice(index, ~index?1:0);
             console.log($scope.exceptions);
             $scope.$apply();
+
 		  }
 		  else {
 		    row.classList.remove("danger");

@@ -293,7 +293,7 @@ object Collections extends Controller {
   }
 
   /**
-   * Add a TA to the collection based on a Cas username
+   * Add a student to the collection based on a Cas username
    * @param id The collection id
    */
   def addException(id: Long) = Authentication.authenticatedAction(parse.json) {
@@ -353,6 +353,78 @@ object Collections extends Controller {
           }
         }
   }
+
+  
+  /**
+   * Remove a student from the collection based on a Cas username
+   * @param id The collection id
+   */
+  def removeException(id: Long) = Authentication.authenticatedAction(parse.json) {
+    implicit request =>
+      implicit user =>
+        Future {
+          val collOption = Collection.findById(id)
+
+          println("Entered removeException()...")
+          
+          if (collOption.isEmpty)
+            BadRequest(s"""Collection %(id) does not exist.""").as("applcation/json")
+          
+          else {
+            val collection = collOption.get
+            request.body.validate[String] match {
+              case success: JsSuccess[String] => {
+                val username = success.get
+                val userOpt = User.findByUsername('cas, username)
+                
+                // Validate user
+                if (userOpt.isEmpty)
+                  BadRequest("""{"Message": "NetId does not exist. Make sure that user has logged in via CAS."}""").as("application/json")
+
+                else{  
+                  val user = userOpt.get
+
+                  // Case: User has an exception in the given course...
+                  if (!CollectionMembership.getExceptionsByCollection(collection).exists(_.id == user.id.get)){
+
+                    // update user to have an exception
+                    val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == user.id.get)
+
+
+
+                    println("Found membershipRecord")
+                    println(membershipRecord.toString)
+                    // update membership record in database with exception = false
+                    if (!membershipRecord.isEmpty){
+
+                      println("membershipRecord not empty...")
+                      membershipRecord.get.copy(exception = false).save
+
+                      Ok(user.toJson)
+                    }
+                    else
+                      BadRequest("""{"Message": "500: Internal Server Error."}""").as("application/json")
+                  }
+
+                  // Case: User is enrolled but does not have an exception... 
+                  else if (CollectionMembership.userIsEnrolled(user, collection))
+                    BadRequest("""{"Message": "This exception has already been added."}""").as("application/json")
+
+                  // Case: User is not enrolled...
+                  else
+                    BadRequest("""{"Message": "This user is not enrolled."}""").as("application/json")
+                }
+              }
+
+              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
+            }
+          }
+        }
+  }
+
+
+
+
 
   /**
    * Give permissions to a user
