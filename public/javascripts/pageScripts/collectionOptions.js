@@ -85,6 +85,16 @@ angular.module("editModule", [])
             return n;
     };
 
+    // Copy object without the given key
+    var omit = function(obj, omitKey) {
+        return Object.keys(obj).reduce(function(accumulator, currentKey) {
+            if (currentKey !== omitKey) {
+                accumulator[currentKey] = obj[currentKey];
+            }
+            return accumulator;
+        }, {});
+    };
+
 	$scope.appendCourse = function() {
 		if (departmentSelect.value.length !== 1 || departmentSelect.value[0].trim().length === 0) {
 			alert("Invalid department.");
@@ -115,7 +125,7 @@ angular.module("editModule", [])
 			type: "post",
 			dataType: "json",
 			contentType: "application/json; charset=utf-8",
-			data: JSON.stringify($scope.courses),
+			data: JSON.stringify($scope.courses.map(function(c){return omit(c, "$$hashKey")})),
 			success: function(value) {
                 // TODO: check for invalid json
                 if (typeof value === "string") {

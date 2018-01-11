@@ -4,10 +4,12 @@ import anorm._
 import anorm.SqlParser._
 import java.sql.SQLException
 import dataAccess.sqlTraits._
-import play.api.Logger
-import play.api.libs.json.Json
-import service.{TimeTools, HashTools}
 import util.Random
+import play.api.Logger
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
+import service.{TimeTools, HashTools}
 import play.api.db.DB
 import play.api.Play.current
 
@@ -82,6 +84,14 @@ object Course extends SQLSelectable[Course] {
         Course(id, department, catalogNumber, sectionNumber)
     }
   }
+
+  // Reads method for parsing json into course objects
+  implicit val courseReads: Reads[Course] = (
+    (JsPath \ "id").readNullable[Long] ~
+    (JsPath \ "department").read[String] ~
+    (JsPath \ "catalogNumber").readNullable[String] ~
+    (JsPath \ "sectionNumber").readNullable[String]
+  )(Location.apply _)
 
   /**
    * Find a course with the given id

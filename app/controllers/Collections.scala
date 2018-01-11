@@ -204,6 +204,12 @@ object Collections extends Controller {
         }
   }
 
+  implicit val courseReads: Reads[Course] = (
+    (JsPath \ "department").read[String] and
+    (JsPath \ "department").read[String] and
+    (JsPath \ "department").read[String]
+  )
+
   def linkCourses(collectionId: Long) = Authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
@@ -212,22 +218,26 @@ object Collections extends Controller {
           if (collection.isEmpty)
             BadRequest(s"""Collection ${collectionId} does not exist.""").as("application/json")
           else {
-            val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
-            request.body.validate[List[String]] match {
-              case success: JsSuccess[List[String]] => {
+            request.body.validate[List[Course]] match {
+              case success: JsSuccess[List[Course]] => {
+                val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
                 val courseNames = success.get
-                val courses = Course.findByName(courseNames)
-                val newCourses = courseNames.diff(courses.map(_.name)).map { courseName =>
-                  Course(None, courseName, None, None).save
-                }
-                val newLinks = courses ::: newCourses filterNot(course => linkedCourses.contains(course.id.get))
-                newLinks map { course =>
-                  // create the new collection course links
-                  CollectionCourseLink(None, collectionId, course.id.get).save.id.get
-                }
-                Ok(Json.toJson(newLinks.map(_.toJson))).as("application/json")
+                // val courses = Course.findByName(courseNames)
+                //val newCourses = courseNames.diff(courses.map(_.name)).map { courseName =>
+                  //Course(None, courseName, None, None).save
+                //}
+                //val newLinks = courses ::: newCourses filterNot(course => linkedCourses.contains(course.id.get))
+                //newLinks map { course =>
+                  //// create the new collection course links
+                  //CollectionCourseLink(None, collectionId, course.id.get).save.id.get
+                //}
+                //Ok(Json.toJson(newLinks.map(_.toJson))).as("application/json")
+                Ok(Json.toJson(courseNames.map(_.toJson))).as("application/json")
               }
-              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
+              case e: JsError => {
+                Logger.info(request.body.toString)
+                BadRequest(JsError.toJson(e).toString).as("application/json")
+              }
             }
           }
         }
