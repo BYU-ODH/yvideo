@@ -66,11 +66,12 @@
                     @if(availableContent.isEmpty) {
                         <strong><em>There is no content in this collection.</em></strong>
                     } else {
+                    <form class="form-horizontal" id="removeContentForm" method="post" action="@routes.Collections.removeContent(collection.id.get)">
                       <div class="container-fluid"> 
                         <div class="form-group">
                           <label class="control-label" for="removeContent">Content to remove:</label>
                           <div class="controls">  
-                            <select id="removeContentList" class="form-control" name="removeContentList" multiple="multiple">
+                            <select id="removeContent" class="form-control" name="removeContent" multiple="multiple">
                               @for(contentObj <- availableContent) {
                                 <option value="@contentObj.id.get">@contentObj.name (@contentObj.contentType.name)</option>
                               }
@@ -79,6 +80,7 @@
                           <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
                         </div>
                       </div>
+                    </form>
                     }
                     @if(!availableContent.isEmpty) {
                       <button class="btn btn-blue" id="removeContentButton" disabled="true">Remove Content</button>
