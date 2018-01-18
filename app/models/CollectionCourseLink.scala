@@ -90,13 +90,13 @@ object CollectionCourseLink extends SQLSelectable[CollectionCourseLink] {
   /**
    * Delete CollectionCourseLinks for the given courses in the given collection
    * @param collectionId The id of the collection
-   * @param courses the list of course objects to be "unlinked"
+   * @param courses the list of courseID's to be "unlinked"
    * @return the number of affected rows
    */
-  def removeLinks(collectionId: Long, courses: List[Course]): Int = {
+  def removeLinks(collectionId: Long, courseIds: List[Long]): Int = {
     DB.withConnection { implicit connection =>
       SQL(s"delete from ${tableName} where collectionId = {collectionId} and courseId in ({courseIds})")
-        .on('collectionId -> collectionId, 'courseIds -> courses.map(_.id.get))
+        .on('collectionId -> collectionId, 'courseIds -> courseIds)
         .executeUpdate()
     }
   }

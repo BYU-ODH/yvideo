@@ -65,7 +65,7 @@ case class Course(id: Option[Long], department: String, catalogNumber: Option[St
   def name = s"${this.department}${this.catalogNumber.getOrElse("")}${if (!this.catalogNumber.isEmpty && !this.sectionNumber.isEmpty) " - " + this.sectionNumber.get}"
 
   def toJson = Json.obj(
-    "id" -> id.get,
+    "id" -> this.id,
     "department" -> this.department,
     "catalogNumber" -> this.catalogNumber,
     "sectionNumber" -> this.sectionNumber
@@ -91,7 +91,7 @@ object Course extends SQLSelectable[Course] {
     (JsPath \ "department").read[String] ~
     (JsPath \ "catalogNumber").readNullable[String] ~
     (JsPath \ "sectionNumber").readNullable[String]
-  )(Location.apply _)
+  )(Course.apply _)
 
   /**
    * Find a course with the given id
@@ -122,19 +122,6 @@ object Course extends SQLSelectable[Course] {
   }
 
   /**
-   * Find courses with the given names
-   * @param courses The list of course names
-   * @return A list of courses
-   */
-  def findByName(courses: List[String]): List[Course] = {
-    Logger.info(courses.toString)
-    DB.withConnection { implicit connection =>
-      SQL(s"select * from $tableName where department in ({courses})")
-        .on('courses -> courses).as(simple *)
-    }
-  }
-
-  /**
    * This takes a list of Courses that have not been saved in the database
    * and returns courses that match at the highest level.
    * Ex: The course HUM101 - 002 will match HUM101 - 002 or HUM101 or HUM
@@ -143,15 +130,20 @@ object Course extends SQLSelectable[Course] {
    * @return The list of saved courses that corresponds to the courses that were provided
    **/
   def findCourses(courses: List[Course]): List[Course] = {
-    Logger.info(courses.toString)
     DB.withConnection { implicit connection =>
-      var matchedCourses: List[Course] = Nil
-      courses.foreach { c =>
-	      val found = SQL(s"select * from tableName where department in {dep} and (catalogNumber = {cn} or catalogNumber is null) and (sectionNumber = {sn} or sectionNumber is null)")
-		.on('dep -> c.department, 'cn -> c.catalogNumber, 'sn -> c.sectionNumber).as(simple *)
-	      matchedCourses = found ::: matchedCourses
+      courses.foldLeft(List[Course]()) { (accumulator, course) =>
+        // make sure the course record is null for the following fields if
+        // they are None in the course
+        val selectCatalogNumber = if (course.catalogNumber.isEmpty) "and catalogNumber is null" else "and catalogNumber = {cn}"
+        val selectSectionNumber = if (course.sectionNumber.isEmpty) "and sectionNumber is null" else "and sectionNumber = {sn}"
+        val found = SQL(s"select * from $tableName where department = {dep} $selectCatalogNumber $selectSectionNumber")
+          .on('dep -> course.department, 'cn -> course.catalogNumber, 'sn -> course.sectionNumber).as(simple.singleOpt)
+
+        if (!found.isEmpty)
+          found.get :: accumulator
+        else
+          accumulator
       }
-      matchedCourses
     }
   }
 

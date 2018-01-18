@@ -204,12 +204,6 @@ object Collections extends Controller {
         }
   }
 
-  implicit val courseReads: Reads[Course] = (
-    (JsPath \ "department").read[String] and
-    (JsPath \ "department").read[String] and
-    (JsPath \ "department").read[String]
-  )
-
   def linkCourses(collectionId: Long) = Authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
@@ -221,18 +215,17 @@ object Collections extends Controller {
             request.body.validate[List[Course]] match {
               case success: JsSuccess[List[Course]] => {
                 val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
-                val courseNames = success.get
-                // val courses = Course.findByName(courseNames)
-                //val newCourses = courseNames.diff(courses.map(_.name)).map { courseName =>
-                  //Course(None, courseName, None, None).save
-                //}
-                //val newLinks = courses ::: newCourses filterNot(course => linkedCourses.contains(course.id.get))
-                //newLinks map { course =>
-                  //// create the new collection course links
-                  //CollectionCourseLink(None, collectionId, course.id.get).save.id.get
-                //}
-                //Ok(Json.toJson(newLinks.map(_.toJson))).as("application/json")
-                Ok(Json.toJson(courseNames.map(_.toJson))).as("application/json")
+                val proposedCourses = success.get
+                val existingCourses = Course.findCourses(proposedCourses)
+                val newCourses = proposedCourses.filterNot((pcourse) => existingCourses.exists(_.name == pcourse.name)).map { course =>
+                  course.save
+                }
+                val newLinks = existingCourses ::: newCourses filterNot(course => linkedCourses.contains(course.id.get))
+                newLinks map { course =>
+                  // create the new collection course links
+                  CollectionCourseLink(None, collectionId, course.id.get).save
+                }
+                Ok(Json.toJson(newCourses.map(_.toJson))).as("application/json")
               }
               case e: JsError => {
                 Logger.info(request.body.toString)
@@ -252,14 +245,20 @@ object Collections extends Controller {
             BadRequest(s"""{"rowsRemoved": 0, "message": "Collection ${collectionId} does not exist."""").as("application/json")
           else {
             val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
-            request.body.validate[List[String]] match {
-              case success: JsSuccess[List[String]] => {
-                val courseNames = success.get
-                if (courseNames.isEmpty) {
+            request.body.validate[List[Course]] match {
+              case success: JsSuccess[List[Course]] => {
+                val courseList = success.get
+                if (courseList.isEmpty) {
                   Ok(Json.toJson("""{"rowsRemoved": 0, "message": "No Courses Provided"}""")).as("application/json")
                 } else {
-                  val courses = Course.findByName(courseNames)
-                  val numRows = CollectionCourseLink.removeLinks(collectionId, courses)
+                  val courseIds = courseList.foldLeft(List[Long]()) {(list,course) =>
+                    if (!course.id.isEmpty)
+                      course.id.get :: list
+                    else
+                      list
+                  }
+
+                  val numRows = CollectionCourseLink.removeLinks(collectionId, courseIds)
                   Ok(Json.toJson(s"""{"rowsRemoved": $numRows}""")).as("application/json")
                 }
               }
@@ -375,8 +374,6 @@ object Collections extends Controller {
         Future {
           val collOption = Collection.findById(id)
 
-          println("Entered removeException()...")
-          
           if (collOption.isEmpty)
             BadRequest(s"""Collection %(id) does not exist.""").as("applcation/json")
           
@@ -391,35 +388,26 @@ object Collections extends Controller {
                 if (userOpt.isEmpty)
                   BadRequest("""{"Message": "NetId does not exist. Make sure that user has logged in via CAS."}""").as("application/json")
 
-                else{  
-                  val user = userOpt.get
+                else {
+                  val exception = userOpt.get
 
                   // Case: User has an exception in the given course...
-                  if (!CollectionMembership.getExceptionsByCollection(collection).exists(_.id == user.id.get)){
+                  if (CollectionMembership.getExceptionsByCollection(collection).exists(_.userId == exception.id.get)){
 
                     // update user to have an exception
-                    val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == user.id.get)
+                    val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == exception.id.get)
 
-
-
-                    println("Found membershipRecord")
-                    println(membershipRecord.toString)
                     // update membership record in database with exception = false
                     if (!membershipRecord.isEmpty){
-
-                      println("membershipRecord not empty...")
                       membershipRecord.get.copy(exception = false).save
-
-                      Ok(user.toJson)
+                      Ok(exception.toJson)
                     }
                     else
                       BadRequest("""{"Message": "500: Internal Server Error."}""").as("application/json")
                   }
-
                   // Case: User is enrolled but does not have an exception... 
-                  else if (CollectionMembership.userIsEnrolled(user, collection))
-                    BadRequest("""{"Message": "This exception has already been added."}""").as("application/json")
-
+                  else if (CollectionMembership.userIsEnrolled(exception, collection))
+                    BadRequest("""{"Message": "Exception does not exist."}""").as("application/json")
                   // Case: User is not enrolled...
                   else
                     BadRequest("""{"Message": "This user is not enrolled."}""").as("application/json")

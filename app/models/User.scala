@@ -273,15 +273,20 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   /**
    * Gets all of the fields required for the Admin dashboard table
    */
-  def toJson = Json.obj(
-    "id" -> id.get,
-    "authScheme" -> authScheme.name,
-    "username" -> username,
-    "name" -> getStringFromOption(name),
-    "email" -> getStringFromOption(email),
-    "linked" -> accountLinkId,
-    "permissions" -> getPermissions
-  )
+  def toJson = {
+    if (id.isEmpty) {
+
+    }
+    Json.obj(
+      "id" -> id,
+      "authScheme" -> authScheme.name,
+      "username" -> username,
+      "name" -> getStringFromOption(name),
+      "email" -> getStringFromOption(email),
+      "linked" -> accountLinkId,
+      "permissions" -> getPermissions
+    )
+  }
 
   //       _____      _   _
   //      / ____|    | | | |
