@@ -96,7 +96,7 @@ angular.module("editModule", [])
             return c.department === newCourse.department &&
                 c.catalogNumber === newCourse.catalogNumber &&
                 c.sectionNumber === newCourse.sectionNumber;
-        })
+        });
 		if (!courseAlreadyAdded && !linkedCourses.contains(newCourse)) {
 			$scope.courses.push(newCourse);
 		} else {
@@ -133,6 +133,8 @@ angular.module("editModule", [])
 			}
 		});
 	};
+})
+.controller("addCoOwnerController", function($scope) {
 })
 .controller("removeCourseController", function($scope, linkedCourses) {
 	// $scope.courses defined with ng-init in the directive for this controller

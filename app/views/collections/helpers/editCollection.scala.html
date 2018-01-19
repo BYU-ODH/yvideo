@@ -1,4 +1,4 @@
-@(user: User, collection: Collection, linkedCourses: String, exceptions: String)(implicit request: RequestHeader)
+@(user: User, collection: Collection, linkedCourses: String, exceptions: String, coowners: String)(implicit request: RequestHeader)
 @availableContent = @{
     collection.getContent
 }
@@ -101,7 +101,7 @@
                   </div>
 
                   <!-- Add CoOwner section -->
-                  <div ng-show="selected === 'addCoOwner'" id="addCoOwner">
+                  <div ng-show="selected === 'addCoOwner'" ng-init="coowners = @{coowners}" ng-controller="addCoOwnerController" id="addCoOwner">
                     <h3>Add Co-Owner</h3>
                     <table class="table table-striped table-bordered table-condensed">
                       <thead>

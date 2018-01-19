@@ -253,6 +253,10 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
       }
     }
 
+  def getCoowners(collection: Collection): List[User] = {
+    Nil
+  }
+
   /**
    * 
    *
