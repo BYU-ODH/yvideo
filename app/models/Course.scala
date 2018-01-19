@@ -121,22 +121,47 @@ object Course extends SQLSelectable[Course] {
     //(deptName, catalogNumber, )
   }
 
+  private def findCourseQuery(exact: Boolean, catalogNumber: Option[String], sectionNumber: Option[String]) = {
+    // make sure the course record is null for the following fields if
+    // they are None in the course
+    val selectCatalogNumber = {
+      if (catalogNumber.isEmpty)
+        "and catalogNumber is null"
+      else
+        if (exact) "and catalogNumber = {cn}" else "and (catalogNumber = {cn} or catalogNumber is null)"
+    }
+
+    val selectSectionNumber = {
+      if (sectionNumber.isEmpty)
+        "and sectionNumber is null"
+      else
+        if (exact) "and sectionNumber = {sn}" else "and (sectionNumber = {sn} or sectionNumber is null)"
+    }
+    s"select * from $tableName where department = {dep} $selectCatalogNumber $selectSectionNumber"
+  }
+
+  // see findCourses
+  def findExact(courses: List[Course]) = findCourses(courses, true)
+
+  // see findCourses
+  def findInexact(courses: List[Course]) = findCourses(courses, false)
+
   /**
    * This takes a list of Courses that have not been saved in the database
-   * and returns courses that match at the highest level.
+   * and returns courses that match according to the mode.
+   * exact == true will match the exact course
+   * exact == false the course that matches at the highest level
    * Ex: The course HUM101 - 002 will match HUM101 - 002 or HUM101 or HUM
-   * depending on the course that matches the most
+   * depending on the course that matches the most when using inexact
    * @param courses The List of courses that we want to find in the database
+   * @param exact True for matching all fields, false for matching the highest amount of fields
    * @return The list of saved courses that corresponds to the courses that were provided
    **/
-  def findCourses(courses: List[Course]): List[Course] = {
+  private def findCourses(courses: List[Course], exact: Boolean): List[Course] = {
     DB.withConnection { implicit connection =>
       courses.foldLeft(List[Course]()) { (accumulator, course) =>
-        // make sure the course record is null for the following fields if
-        // they are None in the course
-        val selectCatalogNumber = if (course.catalogNumber.isEmpty) "and catalogNumber is null" else "and catalogNumber = {cn}"
-        val selectSectionNumber = if (course.sectionNumber.isEmpty) "and sectionNumber is null" else "and sectionNumber = {sn}"
-        val found = SQL(s"select * from $tableName where department = {dep} $selectCatalogNumber $selectSectionNumber")
+        val query = findCourseQuery(exact, course.catalogNumber, course.sectionNumber)
+        val found = SQL(query)
           .on('dep -> course.department, 'cn -> course.catalogNumber, 'sn -> course.sectionNumber).as(simple.singleOpt)
 
         if (!found.isEmpty)

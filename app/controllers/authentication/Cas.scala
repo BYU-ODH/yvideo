@@ -54,10 +54,11 @@ object Cas extends Controller {
   private def updateCollections(user: User)(implicit isInstructor: Boolean, enrollment: aim.UserEnrollment) = {
     // The BYU_Course names are stored in the database as subject_area+catalog_number
     // example: MATH313
-    val eligibleCollections = user.getEligibleCollections(enrollment.class_list.map(
-      byuClass => Course(None, byuClass.subject_area, Some(byuClass.catalog_number), Some(byuClass.section_number))
-    ))
-    user.getEnrollment.diff(eligibleCollections).foreach(user.unenroll _)
+    val eligibleCollections = user.getEligibleCollections(enrollment.class_list.map{
+      byuClass =>
+        Course(None, byuClass.subject_area, Some(byuClass.catalog_number), Some(byuClass.section_number))
+    })
+    user.getEnrollment.diff(eligibleCollections).foreach(c => {println(c);user.unenroll(c)})
     eligibleCollections.foreach(user.enroll (_, isInstructor))
   }
 
@@ -66,10 +67,7 @@ object Cas extends Controller {
    */
   def updateAccount(user: User)(implicit isInstructor: Boolean) = {
     aim.getEnrollment(user.username).map { enrollmentOpt =>
-      Logger.info(enrollmentOpt.toString)
       enrollmentOpt.map { implicit enrollment =>
-        Logger.info(enrollment.toString)
-        Logger.info("Should have printed out the enrollment")
         val aimName = (enrollment.preferred_first_name + " " + enrollment.surname).trim
         val aimNameOpt = if (aimName.length != 0) Some(aimName) else None
         val emailOpt = if (enrollment.email_address.length != 0) Some(enrollment.email_address) else None
@@ -107,7 +105,6 @@ object Cas extends Controller {
         val parttime = getAttribute(xml, "activePartTimeInstructor").getOrElse("false").toBoolean
         implicit val isInstructor = fulltime || parttime
 
-        Logger.info(user.toString)
         updateAccount(user)
 
         if (action == "merge")

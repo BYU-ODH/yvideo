@@ -139,7 +139,6 @@ object aim {
         Future(None)
       } else {
         var token = (response.json \ "access_token").as[String]
-        Logger.info("getting user information from aim now")
         getCurrentSemester(netid, token)
       }
     }

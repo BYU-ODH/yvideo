@@ -216,7 +216,7 @@ object Collections extends Controller {
               case success: JsSuccess[List[Course]] => {
                 val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
                 val proposedCourses = success.get
-                val existingCourses = Course.findCourses(proposedCourses)
+                val existingCourses = Course.findExact(proposedCourses)
                 val newCourses = proposedCourses.filterNot((pcourse) => existingCourses.exists(_.name == pcourse.name)).map { course =>
                   course.save
                 }

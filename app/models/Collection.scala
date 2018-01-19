@@ -221,7 +221,7 @@ object Collection extends SQLSelectable[Collection] {
    */
   def getEligibleCollections(courseNames: List[Course], user: User): List[Collection] = {
     DB.withConnection { implicit connection =>
-      val courses = Course.findCourses(courseNames)
+      val courses = Course.findInexact(courseNames)
       val exceptions = CollectionMembership.getExceptionsByUser(user)
       val linkedCourses = CollectionCourseLink.getLinkedCollections(courses)
       SQL(s"select * from $tableName where id in ({collectionIds})")
