@@ -1,4 +1,4 @@
-@(user: User, collection: Collection, linkedCourses: String, exceptions: String, coowners: String)(implicit request: RequestHeader)
+@(user: User, collection: Collection, linkedCourses: String, exceptions: String)(implicit request: RequestHeader)
 @availableContent = @{
     collection.getContent
 }
@@ -39,7 +39,6 @@
                     <label class="control-label">Manage Admins</label>
                     <div class="controls">
                       <a ng-click="selected = 'addTA'" href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
-                      <a ng-click="selected = 'addCoOwner'" href="#addCoOwnerModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add CoOwner</a>
                     </div>
                   </div>
 
@@ -98,40 +97,6 @@
                     <script>
 
                     </script>
-                  </div>
-
-                  <!-- Add CoOwner section -->
-                  <div ng-show="selected === 'addCoOwner'" ng-init="coowners = @{coowners}" ng-controller="addCoOwnerController" id="addCoOwner">
-                    <h3>Add Co-Owner</h3>
-                    <table class="table table-striped table-bordered table-condensed">
-                      <thead>
-                        <tr>
-                          <td>NetID</td>
-                          <td>Name</td>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Tchr1</td>
-                          <td>Teacher 1</td>
-                        </tr>
-                        <tr>
-                          <td>Tchr2</td>
-                          <td>Teacher 2</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <p>
-                      <small>
-                        <strong>Note: </strong> Teachers added here will gain co-ownership of your collection. 
-                        They will be able to <u>add</u> and <u>remove</u> content from your collection, and <u>edit</u>
-                        the subtitles and other metadata of cotent. They will take over the collection should you leave 
-                        the university.
-                      </small>
-                    </p>
-                    <label>Input Teacher's NetID:</label>
-                    <input type="text" class="form-control">
-                    <button ng-click="submit()" class="btn btn-blue">Submit</button>
                   </div>
 
                   <!-- Add Courses section -->

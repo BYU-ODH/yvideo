@@ -65,13 +65,6 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
   // |______|______|______|______|______|______|______|______|______|
   //
 
-
-  def addCoowner(id:Option[Long]){
-  	// TODO:
-  	// [ ] : Check if is professor
-  }
-
-
   /**
    * Post content to the collection
    * @param content The content to be posted
@@ -133,19 +126,12 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
     // TODO: make this a list of users
     var exceptions = CacheListHolder[CollectionMembership]()
 
-    var coowners = CacheListHolder[User]()
-
     // template function
     def getForCollection[A](setter: CacheListHolder[A] => Unit, getter: () => CacheListHolder[A], function: Collection => List[A]) = {
       if (getter().cachedObject.isEmpty)
         setter(CacheListHolder(Some(function(cacheTarget))))
       getter()
     }
-  }
-
-  def getCoowners: List[User] = cache.getForCollection[User](cache.coowners_=, cache.coowners _, CollectionMembership.getCoowners) match {
-    case users: cache.CacheListHolder[User] => users.getList
-    case _ => List[User]()
   }
 
   /**

@@ -134,8 +134,6 @@ angular.module("editModule", [])
 		});
 	};
 })
-.controller("addCoOwnerController", function($scope) {
-})
 .controller("removeCourseController", function($scope, linkedCourses) {
 	// $scope.courses defined with ng-init in the directive for this controller
 	// in order to allow the back end to pass in the array of courses
