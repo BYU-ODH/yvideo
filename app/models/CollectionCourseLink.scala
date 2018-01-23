@@ -66,8 +66,16 @@ object CollectionCourseLink extends SQLSelectable[CollectionCourseLink] {
    */
   def getLinkedCollections(courses: List[Course]): List[CollectionCourseLink] = {
     DB.withConnection { implicit connection =>
-      SQL(s"select * from $tableName where courseId in ({courseIds})")
-        .on('courseIds -> courses.map(_.id)).as(simple *)
+      try {
+        SQL(s"select * from $tableName where courseId in ({courseIds})")
+          .on('courseIds -> courses.map(_.id)).as(simple *)
+      }
+      catch {
+        case e: SQLException =>
+          Logger.debug("Failed in CollectionCourseLink.scala / getLinkedCollections")
+          Logger.debug(e.getMessage())
+          List[CollectionCourseLink]()
+      }
     }
   }
 

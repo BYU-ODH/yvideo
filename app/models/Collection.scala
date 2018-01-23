@@ -224,8 +224,15 @@ object Collection extends SQLSelectable[Collection] {
       val courses = Course.findInexact(courseNames)
       val exceptions = CollectionMembership.getExceptionsByUser(user)
       val linkedCourses = CollectionCourseLink.getLinkedCollections(courses)
-      SQL(s"select * from $tableName where id in ({collectionIds})")
-        .on('collectionIds -> (linkedCourses.map(_.collectionId) ::: exceptions.map(_.collectionId))).as(simple *)
+      try {
+        SQL(s"select * from $tableName where id in ({collectionIds})")
+          .on('collectionIds -> (linkedCourses.map(_.collectionId) ::: exceptions.map(_.collectionId))).as(simple *)
+      } catch{
+        case e: SQLException =>
+          Logger.debug("Failed in Collection.scala / getEligibleCollections")
+          Logger.debug(e.getMessage())
+          List[Collection]()
+      }
     }
   }
 

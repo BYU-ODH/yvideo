@@ -315,9 +315,9 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
 
     var collections: Option[List[Collection]] = None
 
-    def getEligibleCollections(courseList: List[Course]) = {
+    def getEligibleCollections(courseNames: List[Course]) = {
       if (collections.isEmpty)
-        collections = Some(Collection.getEligibleCollections(courseList, cacheTarget))
+        collections = Some(Collection.getEligibleCollections(courseNames, cacheTarget))
       collections.get
     }
 

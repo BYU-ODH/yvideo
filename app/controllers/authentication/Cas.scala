@@ -58,7 +58,7 @@ object Cas extends Controller {
       byuClass =>
         Course(None, byuClass.subject_area, Some(byuClass.catalog_number), Some(byuClass.section_number))
     })
-    user.getEnrollment.diff(eligibleCollections).foreach(c => {println(c);user.unenroll(c)})
+    user.getEnrollment.diff(eligibleCollections).foreach(c => {user.unenroll(c)})
     eligibleCollections.foreach(user.enroll (_, isInstructor))
   }
 
