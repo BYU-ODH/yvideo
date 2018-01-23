@@ -24,9 +24,19 @@
                     <label class="control-label" for="collectionName">Name</label>
                     <div class="controls">
                       <input type="text" id="collectionName" class="form-control" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
+                      <button id="saveButton" type="submit" class="btn btn-gray">Save changes</button>
                     </div>
                   </div>
 
+                  <div class="collectionGroup">
+                    <label class="control-label" for="collectionName">Delete Collection</label>
+                    <div class="controls">
+                      @if(user.hasCollectionPermission(collection, "deleteCollection")) {
+                      <a href="#deleteCollectionModal" role="button" class="btn btn-magenta deleteCollection" data-toggle="modal" data-id="@collection.id.get">Delete Collection</a>
+                      }
+                    </div>
+                  </div>
+                  
                   <div class="collectionGroup">
                     <label class="control-label">Manage Content</label>
                     <div class="controls">
@@ -217,10 +227,6 @@
             </div>  
           </div>
           <div class="modal-footer">
-            @if(user.hasCollectionPermission(collection, "deleteCollection")) {
-              <a href="#deleteCollectionModal" role="button" class="btn btn-magenta deleteCollection" data-toggle="modal" data-id="@collection.id.get">Delete Collection</a>
-            }
-            <button id="saveButton" type="submit" class="btn btn-gray">Save changes</button>
             <button class="btn btn-blue" data-dismiss="modal" aria-hidden="true">Close</button>
           </div>
         </div>

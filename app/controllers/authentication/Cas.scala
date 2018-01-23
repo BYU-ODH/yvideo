@@ -118,8 +118,8 @@ object Cas extends Controller {
       } catch  {
         case _: Throwable =>
           val advice = Play.configuration.getString("smtp.address") match {
-            case Some(address) => "Either log in with a different method or <a href=\"" + address + "\">notify an administrator</a>."
-            case None => "Try an alternate log in method."
+            case Some(address) => "Please contact us at " + address + " so that we can figure out what went wrong."
+            case None => "Please contact us at arlitelab@gmail.com so that we can figure out what went wrong."
           }
           Redirect(controllers.routes.Application.index()).flashing("error" -> ("An error occurred with CAS. " + advice))
       }
