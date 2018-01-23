@@ -120,3 +120,36 @@
 .faces-window .tooltip {
     position: fixed;
 }
+
+#collectionOptionsLeft {
+    border-right: 1px solid #e5e5e5;
+}
+
+#departmentLocation > div > .superselect{
+    margin-top: 20px;
+}
+
+#addStudentException{
+    margin-bottom: 10px;
+}
+
+.removeExceptionButton {
+    padding: 0px 5px;
+    border-radius: 3px;
+}
+
+.collectionGroup{
+    margin-bottom: 25px;
+}
+
+#noSelectedCoursesBanner {
+    background-color: lightgrey;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+    display: block;
+    text-align: center;
+    color: grey;
+    font-size: 17px;
+    user-select: none;
+}

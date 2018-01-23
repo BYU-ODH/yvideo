@@ -65,13 +65,6 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
   // |______|______|______|______|______|______|______|______|______|
   //
 
-
-  def addCoowner(id:Option[Long]){
-  	// TODO:
-  	// [ ] : Check if is professor
-  }
-
-
   /**
    * Post content to the collection
    * @param content The content to be posted
@@ -112,28 +105,32 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
 
   val cacheTarget = this
   object cache {
-    var students: Option[List[User]] = None
 
-    def getStudents = {
-      if (students.isEmpty)
-        students = Some(CollectionMembership.listClassMembers(cacheTarget, teacher = false))
-      students.get
+    case class CacheListHolder[A](cachedObject: Option[List[A]] = None) {
+      def getList: List[A] = {
+        if (cachedObject.isEmpty)
+          List[A]()
+        else
+          cachedObject.get
+      }
     }
 
-    var teachers: Option[List[User]] = None
+    var students = CacheListHolder[User]()
 
-    def getTeachers = {
-      if (teachers.isEmpty)
-        teachers = Some(CollectionMembership.listClassMembers(cacheTarget, teacher = true))
-      teachers.get
-    }
+    var teachers = CacheListHolder[User]()
 
-    var content: Option[List[Content]] = None
+    var content = CacheListHolder[Content]()
 
-    def getContent = {
-      if (content.isEmpty)
-        content = Some(ContentListing.listClassContent(cacheTarget))
-      content.get
+    var linkedCourses = CacheListHolder[Course]()
+
+    // TODO: make this a list of users
+    var exceptions = CacheListHolder[CollectionMembership]()
+
+    // template function
+    def getForCollection[A](setter: CacheListHolder[A] => Unit, getter: () => CacheListHolder[A], function: Collection => List[A]) = {
+      if (getter().cachedObject.isEmpty)
+        setter(CacheListHolder(Some(function(cacheTarget))))
+      getter()
     }
   }
 
@@ -141,13 +138,19 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * Get the enrolled students
    * @return The list of users who are students
    */
-  def getStudents: List[User] = cache.getStudents
+  def getStudents: List[User] = cache.getForCollection[User](cache.students_=, cache.students _, CollectionMembership.listClassMembers(_: Collection, false)) match {
+    case students: cache.CacheListHolder[User] => students.getList 
+    case _ => List[User]()
+  }
 
   /**
    * Get the enrolled teachers
    * @return The list of users who are teachers
    */
-  def getTeachers: List[User] = cache.getTeachers
+  def getTeachers: List[User] = cache.getForCollection[User](cache.teachers_=, cache.teachers _, CollectionMembership.listClassMembers(_: Collection, true)) match {
+    case teachers: cache.CacheListHolder[User] => teachers.getList
+    case _ => List[User]()
+  }
 
   /**
    * Get all the members (teachers and students)
@@ -159,17 +162,25 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * Get content posted to this collection
    * @return The list of content
    */
-  def getContent: List[Content] = cache.getContent
+  def getContent: List[Content] = cache.getForCollection[Content](cache.content_=, cache.content _, ContentListing.listClassContent) match {
+    case content: cache.CacheListHolder[Content] => content.getList
+    case _ => List[Content]()
+  }
 
   /**
    * Get content posted to this collection that the current user is allowed to see
    * @return The list of content
    */
   def getContentFor(user: User): List[Content] =
-    if (user.hasSitePermission("admin")) cache.getContent
-    else cache.getContent.filter { c =>
+    if (user.hasSitePermission("admin")) this.getContent
+    else this.getContent.filter { c =>
       c.visibility != Content.visibility._private || user.getContent.contains(c)
     }
+
+  def getLinkedCourses: List[Course] = cache.getForCollection[Course](cache.linkedCourses_=, cache.linkedCourses _, CollectionCourseLink.listCollectionCourses) match {
+    case courses: cache.CacheListHolder[Course] => courses.getList
+    case _ => List[Course]()
+  }
 
   def getUserPermissions(user: User): List[String] = CollectionPermissions.listByUser(this, user)
   def addUserPermission(user: User, permission: String) = CollectionPermissions.addUserPermission(this, user, permission)
@@ -208,13 +219,20 @@ object Collection extends SQLSelectable[Collection] {
    * by searching for collections that are linked to the courses provided here
    * @return The list of collections
    */
-  def getEligibleCollections(courseNames: List[String]): List[Collection] = {
+  def getEligibleCollections(courseNames: List[Course], user: User): List[Collection] = {
     DB.withConnection { implicit connection =>
-      val courses = Course.getCoursesByName(courseNames)
-      // TODO: get the collections that list these courses 
+      val courses = Course.findInexact(courseNames)
+      val exceptions = CollectionMembership.getExceptionsByUser(user)
       val linkedCourses = CollectionCourseLink.getLinkedCollections(courses)
-      SQL(s"select * from $tableName where id in ({collectionIds})")
-        .on('collectionIds -> linkedCourses.map(_.collectionId)).as(simple *)
+      try {
+        SQL(s"select * from $tableName where id in ({collectionIds})")
+          .on('collectionIds -> (linkedCourses.map(_.collectionId) ::: exceptions.map(_.collectionId))).as(simple *)
+      } catch{
+        case e: SQLException =>
+          Logger.debug("Failed in Collection.scala / getEligibleCollections")
+          Logger.debug(e.getMessage())
+          List[Collection]()
+      }
     }
   }
 

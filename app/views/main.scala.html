@@ -85,7 +85,8 @@
                         </div>
                         <div class="link">
                             <a href="#" class="headerDropdownLink" data-target="#profileDropdown">
-                                <span class="profileIcon" style="background-image: url('@user.get.getPicture')"></span>
+                                <!-- <span class="profileIcon" style="background-image: url('@user.get.getPicture')"></span> -->
+                                <i class="icon-cog"></i>
                                 @*<i class="icon-user"></i> Profile*@
                                 @if(!notifications.isEmpty) {
                                     <span class="badge badge-yellow pad-left-low">@notifications.size</span>
@@ -149,7 +150,7 @@
                 <div class="footer">
                     <div class="padded">
                         <div class="row">
-                            <div class="col-md-10 offset1">
+                            <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-3">
                                         @if(user.exists(_.hasSitePermission("joinCollection"))) {
@@ -161,6 +162,7 @@
                                     <div class="col-md-3">
                                         <div><a href="@routes.Application.terms()">Terms of Use</a></div>
                                         <div><a href="@routes.Application.policy()">Privacy Policy</a></div>
+                                        <div><a href="#" id="feedbackBtn">Feedback</a></div>
                                     </div>
                                     <div class="col-md-3">
                                         <div>Copyright © 2013 <a href="http://byu.edu">Brigham Young University</a></div>

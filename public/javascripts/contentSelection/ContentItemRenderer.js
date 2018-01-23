@@ -85,12 +85,12 @@ var ContentItemRenderer = (function(){
             if(typeof args.click === 'function'){
                 args.click(args.content, args.courseId, $(this));
             }else{
-                window.open(
+                window.location.href = 
                     args.courseId?"/course/" + args.courseId + "/content/" + args.content.id:
                     args.content.courseId?"/course/" + args.content.courseId + "/content/" + args.content.id:
                     "/content/" + args.content.id,
                     '_blank'
-                );
+                ;
             }
         },false);
 

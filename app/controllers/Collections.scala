@@ -5,8 +5,10 @@ import ExecutionContext.Implicits.global
 import authentication.Authentication
 import play.api.mvc._
 import play.api.Play.current
+import play.api.libs.json._
 import models._
 import service.{TimeTools}
+import play.api.Logger
 
 /**
  * This controller manages all the pages relating to collections, including authentication.
@@ -38,7 +40,8 @@ object Collections extends Controller {
             // TODO: Once the users get the "viewCollection" permission, use
             // if (user.hasCollectionPermission(collection, "viewCollection")) instead
             if (collection.getMembers.contains(user) ||  SitePermissions.userHasPermission(user, "admin"))
-              Ok(views.html.collections.view(collection))
+              Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString, 
+                Json.toJson(User.findUsersByUserIdList(CollectionMembership.getExceptionsByCollection(collection).map(_.userId)).map(_.toJson)).toString))
             else
               Errors.forbidden
           }
@@ -201,6 +204,70 @@ object Collections extends Controller {
         }
   }
 
+  def linkCourses(collectionId: Long) = Authentication.authenticatedAction(parse.json) {
+    implicit request =>
+      implicit user =>
+        Future {
+          val collection = Collection.findById(collectionId)
+          if (collection.isEmpty)
+            BadRequest(s"""Collection ${collectionId} does not exist.""").as("application/json")
+          else {
+            request.body.validate[List[Course]] match {
+              case success: JsSuccess[List[Course]] => {
+                val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
+                val proposedCourses = success.get
+                val existingCourses = Course.findExact(proposedCourses)
+                val newCourses = proposedCourses.filterNot((pcourse) => existingCourses.exists(_.name == pcourse.name)).map { course =>
+                  course.save
+                }
+                val newLinks = existingCourses ::: newCourses filterNot(course => linkedCourses.contains(course.id.get))
+                newLinks map { course =>
+                  // create the new collection course links
+                  CollectionCourseLink(None, collectionId, course.id.get).save
+                }
+                Ok(Json.toJson(newCourses.map(_.toJson))).as("application/json")
+              }
+              case e: JsError => {
+                Logger.info(request.body.toString)
+                BadRequest(JsError.toJson(e).toString).as("application/json")
+              }
+            }
+          }
+        }
+  }
+
+  def unlinkCourses(collectionId: Long) = Authentication.authenticatedAction(parse.json) {
+    implicit request =>
+      implicit user =>
+        Future {
+          val collection = Collection.findById(collectionId)
+          if (collection.isEmpty)
+            BadRequest(s"""{"rowsRemoved": 0, "message": "Collection ${collectionId} does not exist."""").as("application/json")
+          else {
+            val linkedCourses = CollectionCourseLink.listByCollection(collection.get).map(_.courseId)
+            request.body.validate[List[Course]] match {
+              case success: JsSuccess[List[Course]] => {
+                val courseList = success.get
+                if (courseList.isEmpty) {
+                  Ok(Json.toJson("""{"rowsRemoved": 0, "message": "No Courses Provided"}""")).as("application/json")
+                } else {
+                  val courseIds = courseList.foldLeft(List[Long]()) {(list,course) =>
+                    if (!course.id.isEmpty)
+                      course.id.get :: list
+                    else
+                      list
+                  }
+
+                  val numRows = CollectionCourseLink.removeLinks(collectionId, courseIds)
+                  Ok(Json.toJson(s"""{"rowsRemoved": $numRows}""")).as("application/json")
+                }
+              }
+              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
+            }
+          }
+        }
+  }
+
   /**
    * Add a TA to the collection based on a Cas username
    * @param id The collection id
@@ -233,6 +300,129 @@ object Collections extends Controller {
           }
         }
   }
+
+  /**
+   * Add a student to the collection based on a Cas username
+   * @param id The collection id
+   */
+  def addException(id: Long) = Authentication.authenticatedAction(parse.json) {
+    implicit request =>
+      implicit user =>
+        Future {
+          val collOption = Collection.findById(id)
+          
+          if (collOption.isEmpty)
+            BadRequest(s"""Collection %(id) does not exist.""").as("applcation/json")
+          
+          else {
+            val collection = collOption.get
+            request.body.validate[String] match {
+              case success: JsSuccess[String] => {
+                val username = success.get
+                val userOpt = User.findByUsername('cas, username)
+                
+                if (userOpt.isEmpty)
+                  BadRequest("""{"Message": "NetId does not exist. Make sure that user has logged in via CAS."}""").as("application/json")
+
+                else{  
+                  val user = userOpt.get
+
+                  // Case: User already has an exception in the given course...
+                  if (CollectionMembership.getExceptionsByCollection(collection).exists(_.id == user.id.get))
+                    BadRequest("""{"Message": "This exception has already been added."}""").as("application/json")
+
+                  // Case: User is enrolled but does not have an exception... 
+                  else if (CollectionMembership.userIsEnrolled(user, collection)){
+                    // update user to have an exception
+                    val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == user.id.get)
+
+                    // update membership record in database with exception = true
+                    if (!membershipRecord.isEmpty){
+                      membershipRecord.get.copy(exception = true).save
+
+                      // TODO: Check if exception actually created for user
+                      Ok(user.toJson)
+                    }
+                    else
+                      BadRequest("""{"Message": "500: Internal Server Error."}""").as("application/json")
+                  }
+
+                  // Case: User is not enrolled...
+                  else{
+                    // Enroll user and create exception to collection; then respond ok
+                    CollectionMembership(None, user.id.get, collection.id.get, false, true).save
+                    // TODO: Check if exception actually created for user
+                    Ok(user.toJson)
+                  }
+                }
+              }
+
+              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
+            }
+          }
+        }
+  }
+
+  
+  /**
+   * Remove a student from the collection based on a Cas username
+   * @param id The collection id
+   */
+  def removeException(id: Long) = Authentication.authenticatedAction(parse.json) {
+    implicit request =>
+      implicit user =>
+        Future {
+          val collOption = Collection.findById(id)
+
+          if (collOption.isEmpty)
+            BadRequest(s"""Collection %(id) does not exist.""").as("applcation/json")
+          
+          else {
+            val collection = collOption.get
+            request.body.validate[String] match {
+              case success: JsSuccess[String] => {
+                val username = success.get
+                val userOpt = User.findByUsername('cas, username)
+                
+                // Validate user
+                if (userOpt.isEmpty)
+                  BadRequest("""{"Message": "NetId does not exist. Make sure that user has logged in via CAS."}""").as("application/json")
+
+                else {
+                  val exception = userOpt.get
+
+                  // Case: User has an exception in the given course...
+                  if (CollectionMembership.getExceptionsByCollection(collection).exists(_.userId == exception.id.get)){
+
+                    // update user to have an exception
+                    val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == exception.id.get)
+
+                    // update membership record in database with exception = false
+                    if (!membershipRecord.isEmpty){
+                      membershipRecord.get.copy(exception = false).save
+                      Ok(exception.toJson)
+                    }
+                    else
+                      BadRequest("""{"Message": "500: Internal Server Error."}""").as("application/json")
+                  }
+                  // Case: User is enrolled but does not have an exception... 
+                  else if (CollectionMembership.userIsEnrolled(exception, collection))
+                    BadRequest("""{"Message": "Exception does not exist."}""").as("application/json")
+                  // Case: User is not enrolled...
+                  else
+                    BadRequest("""{"Message": "This user is not enrolled."}""").as("application/json")
+                }
+              }
+
+              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
+            }
+          }
+        }
+  }
+
+
+
+
 
   /**
    * Give permissions to a user

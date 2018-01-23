@@ -69,22 +69,14 @@
                 </div>
             }
 
-            <p class="text-center">
-                Sign in with one of the following services to get started.
-            </p>
-
             <div class="text-center">
-                <a class="btn btn-magenta" href="@controllers.authentication.routes.Google.login("login", path)"><i class="icon-google-plus"></i> Sign in with Google</a>
-                <a class="btn btn-blue" href="@controllers.authentication.routes.Cas.login("login", path)"><img src="@routes.Assets.at("images/auth/byu.png")" /> Sign in with BYU</a>
+                <a class="btn btn-blue btn-lg" href="@controllers.authentication.routes.Cas.login("login", path)"><img src="@routes.Assets.at("images/auth/byu.png")" /> Sign in with BYU</a>
             </div>
 
             <hr>
 
-            <p class="text-center">
-                You can, alternatively, sign in with a Y-Video account.
-            </p>
             <div class="text-center">
-                <a href="#loginModal" class="btn btn-yellow" data-toggle="modal">Use existing account</a>
+                <a href="#loginModal" class="btn btn-yellow btn-lg" data-toggle="modal">Admin Login</a>
             </div>
         </div>
 
@@ -212,6 +204,21 @@
     </div>
   </div>
 
+    <div id="konamiContainer">
+        <style>
+            #konamiContainer {margin:0px;padding:0px;border:0px;color:#0c0;font-family: "Lucida Console", monaco, monospace;overflow: wrap;word-break:break-all;
+                position: absolute;top: 0;height: 100%;width: 100%;background-color: black;display:none;}
+            body {background-color: black;}
+            #past div div {display: inline;}
+            #present div {display: inline;}
+            #cursor {height:100%;background-color:#0c0;}
+            .blink {animation: blinker 1s linear infinite;}
+            @@keyframes blinker {  
+              50% { opacity: 0.0; }
+            }
+        </style>
+    </div>
+
     <script type="text/javascript">
         $(function() {
             document.getElementById("login").addEventListener('click', function(){
@@ -229,5 +236,112 @@
         });
     </script>
 
+    <script>
+        // Show the admin page
+
+        let konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65],
+            index = 0
+        window.addEventListener('keydown', (event) => {
+            console.log(event.keyCode)
+            if(event.keyCode == konami[index]){
+                
+                // increment or reset index
+                index++
+
+                if(index >= konami.length){
+                    // do the egg
+                    var cnct  = new Cnct()
+                    cnct.create(document.getElementById("konamiContainer"))
+                    console.log("You did it!")
+                    index = 0
+                }
+            }
+            else{
+                index = 0
+                console.log("failed.... you suck!")
+            }
+        })
+    </script>
+    class Cnct {
+        constructor() {
+            this.cnctString = '<div id="past"></div> <div id="present"> <div id="PS1">test></div> <div id="cmd"></div><div id="cursor" class="blink">*</div> </div>';
+            this.parseElement = document.createElement("div");
+            // making the fragment element
+            this.cnct = this.parse(this.cnctString);
+            this.cmdEl = this.cnct.getElementById("cmd");
+            this.cur = this.cnct.getElementById("cursor");
+            this.ps1 = this.cnct.getElementById("PS1");
+
+        }
+
+        parse(text) {
+            var frag;
+            this.parseElement.innerHTML = text;
+            if(this.parseElement.childNodes.length > 1){
+                frag = document.createDocumentFragment();
+                [].slice.call(this.parseElement.childNodes).forEach(frag.appendChild.bind(frag));
+                return frag;
+            }else{
+                return this.parseElement.firstChild;
+            }
+        }
+
+        keypressListener(e) {
+            var cmdEl = document.getElementById("cmd");
+            var ps1 = document.getElementById("PS1");
+            var past = document.getElementById("past");
+            if (e.keyCode == 32) {
+                cmdEl.innerHTML += "&nbsp;";
+            } else if (e.keyCode == 13) {
+                // enter key
+            } else {
+                cmdEl.innerHTML += String.fromCharCode(e.keyCode);
+            }
+        }
+
+        keydownListener(e) {
+            var cmdEl = document.getElementById("cmd");
+            var ps1 = document.getElementById("PS1");
+            var past = document.getElementById("past");
+            if (e.keyCode === 8) {
+                if (cmdEL.innerHTML.endsWith("&nbsp;")) {
+                    cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-6);
+                } else if (that.cmdEl.innerHTML.endsWith("&amp;")) {
+                    that.cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-5);
+                } else {
+                    cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-1);
+                }
+            } else if (e.keyCode === 13) {
+                
+                var p = document.createElement("div"),
+                    c = document.createElement("div"),
+                    f = document.createElement("div");
+                p.innerHTML = ps1.innerHTML+" ";
+                c.innerHTML = cmdEl.innerHTML;
+                f.appendChild(p);
+                f.appendChild(c);
+
+                cmdEl.innerHTML = "";
+
+                past.appendChild(f);
+            }
+        }
+
+        create(element) {
+            element.appendChild(this.cnct);
+            window.addEventListener('keypress', this.keypressListener.bind(this));
+            window.addEventListener('keydown', this.keydownListener.bind(this));
+            document.getElementById('konamiContainer').style.display = "block";
+        }
+
+        destroy() {
+            this.cnctFragment.remove();
+            window.removeEventListener('keypress', this.keypressListener);
+            window.removeEventListener('keydown', this.keydownListener);
+            document.getElementById('konamiContainer').style.display = "none";
+        }
+    }
+    <script>
+    </script>
 </body>
 </html>

@@ -44,11 +44,11 @@ object Fixtures {
     )
 
     val courses = List(
-      ("MATH 111"),
-      ("CS 142"),
-      ("HUM 101"),
-      ("CHIN 101"),
-      ("CS 404")
+      ("MATH"),
+      ("CS"),
+      ("HUM"),
+      ("CHIN"),
+      ("CS")
     )
 
     val collectionListings = List(
@@ -60,22 +60,22 @@ object Fixtures {
     )
 
     val collectionMembership = List(
-      (0, 0, false),
-      (1, 0, false),
-      (1, 1, false),
-      (2, 1, false),
-      (2, 2, false),
-      (3, 2, false),
-      (3, 3, false),
-      (4, 3, false),
-      (0, 4, false),
-      (0, 5, false),
-      (0, 6, true),
-      (1, 7, true),
-      (2, 8, true),
-      (3, 9, true),
-      (4, 10, true),
-      (0, 11, true)
+      (0, 0, false, false),
+      (1, 0, false, false),
+      (1, 1, false, false),
+      (2, 1, false, false),
+      (2, 2, false, false),
+      (3, 2, false, false),
+      (3, 3, false, false),
+      (4, 3, false, false),
+      (0, 4, false, false),
+      (0, 5, false, false),
+      (0, 6, true, false),
+      (1, 7, true, false),
+      (2, 8, true, false),
+      (3, 9, true, false),
+      (4, 10, true, false),
+      (0, 11, true, false)
     )
 
     val contentListing = List(
@@ -186,7 +186,7 @@ object Fixtures {
 
     Logger.info("Creating collection membership fixtures")
     data.collectionMembership.foreach {
-      data => CollectionMembership(None, users(data._2).id.get, collections(data._1).id.get, data._3).save
+      data => CollectionMembership(None, users(data._2).id.get, collections(data._1).id.get, data._3, data._4).save
     }
 
     Logger.info("Creating content listing fixtures")

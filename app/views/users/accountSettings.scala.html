@@ -5,7 +5,6 @@
     CSS("stylesheets/course.css"),
     JS("javascripts/formFixes/fileFix.js"))
 ){
-<div class="container-fluid">
     <div class="padded">
         <h1>Account Settings</h1>
 
@@ -137,7 +136,6 @@
                         <div class="row">
                             <div class="col-md-6 offset3">
                                 <div class="well">
-                                    <a class="btn btn-danger btn-block" href="@controllers.authentication.routes.Google.login("merge", "")"><i class="icon-google-plus"></i> Google</a>
                                     <a class="btn btn-primary btn-block" href="@controllers.authentication.routes.Cas.login("merge", "")"><img src="@routes.Assets.at("images/auth/byu.png")" style="height: 14px; margin-top: -2px;" /> BYU</a>
                                     <a href="#passwordModal" role="button" class="btn btn-magenta btn-block" data-toggle="modal"><i class="icon-key"></i> Username/Password</a>
                                 </div>
@@ -148,7 +146,7 @@
             </div>
         </div>
     </div>
-</div>
+
     <div id="passwordModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

@@ -1,103 +1,60 @@
-@(collection: Collection)(implicit request: RequestHeader, user: User)
+@(collection: Collection, linkedCourses: String, exceptions: String)(implicit request: RequestHeader, user: User)
 @import scala.reflect.runtime.universe._
-
-@renderFace(user: User) = {
-    <div class="face" data-toggle="tooltip" title="@user.displayName" style="background: url('@user.getPicture'); background-size: cover;"></div>
-}
-
-@moreStyles =  @{}
 
 @main("Y-Video - " + collection.name, Some(user),
   Local(
     Rel("stylesheets/", CSS("collection.css"), CSS("content.css")),
-    Rel("javascripts/contentSelection/",
-      JS("PopupBrowser.js")))
+    Rel("javascripts/",
+      JS("formFixes/labelsInput.js"),
+      JS("contentSelection/PopupBrowser.js")))
 ) {
 
 @if(user.hasCollectionPermission(collection, "addContent")){
     <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCollection.js")'></script>
 }
-    <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/facesNav.js")'></script>
     <script type="text/javascript">
         var collectionId = @collection.id.get;
     </script>
 
     <div class="collectionBackground">
-        <div class="collectionTitle">
-            <h1>@collection.name</h1>
-            <div class="btn-group">
+        <div class=container-fluid>
+            <div class="collectionTitle">
+                <h1>@collection.name</h1>
                 @if(user.hasCollectionPermission(collection, "viewData")) {
-                    <a href="#studentInfoModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Collection members</a>
+                    <a href="#studentInfoModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Members</a>
                 }
-                @if(user.hasCollectionPermission(collection, "teacher")) {
-                    <a href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
+                @if(user.hasCollectionPermission(collection, "editCollection")) {
+                    <a href="#editCollectionModal" role="button" class="btn btn-yellow" data-toggle="modal"><i class="icon-pencil"></i> Collection Options</a>
                 }
             </div>
-            @if(user.hasCollectionPermission(collection, "editCollection")) {
-                <a href="#editCollectionModal" role="button" class="btn btn-yellow" data-toggle="modal"><i class="icon-pencil"></i> Edit</a>
-            }
-            @if(user.hasCollectionPermission(collection, "deleteCollection")) {
-                <a href="#deleteCollectionModal" role="button" class="btn btn-magenta deleteCollection" data-toggle="modal" data-id="@collection.id.get"><i class="icon-trash"></i> Delete</a>
-            }
-            @if(collection.getMembers.contains(user)) {
-                <a href="#quitCollectionModal" role="button" class="btn btn-magenta" data-toggle="modal"><i class="icon-reply"></i> Quit</a>
-            }
-        </div>
-
-        <div class="face-nav">
-            <div class="face-nav-btn face-nav-btn-left"></div>
-            <div class="faces-window">
-                <div class="faces">
-                    @for(member <- collection.getMembers) {
-                        @renderFace(member)
-                    }
-
-                    @*<a href="#" class="btn btn-yellow addStudent"><i class="icon-user"></i> Add student</a>*@
-                    <div class="faces-filler"></div>
-                </div>
-            </div>
-            <div class="face-nav-btn face-nav-btn-right"></div>
         </div>
     </div>
 
     <div class="padded">
         <div class="row">
-            <div class="col-md-8">
-                <div class="pull-right">
-                    @if(user.hasCollectionPermission(collection, "addContent")){
-                       <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add content</a>
-                    }
-                    @if(user.hasCollectionPermission(collection, "removeContent")){
-                        <a href="#removeContentModal" role="button" class="btn btn-black" data-toggle="modal"><i class="icon-minus"></i> Remove Content</a>
-                    }
-                </div>
-                <div class="container-fluid">
-                    <div id="collectionContent"></div>
-                </div>
-                <script type="text/javascript">
-                    @defining(collection.getContentFor(user)) { content =>
-                    $(function() {
-                        ContentItemRenderer.renderAll({
-                            content: [@Html(content.map(_.toJson).mkString(","))],
-                            holder: document.getElementById("collectionContent"),
-                            format: "table",
-                            sizing: true,
-                            sorting: true,
-                            labels: [@Html(content.flatMap(_.labels).distinct.map(s => Literal(Constant(s)).toString).mkString(","))],
-                            filters: ContentItemRenderer.standardFilters,
-                            collectionId: collectionId
-                        });
-                    });
-                    }
-                </script>
+            <div class="container-fluid">
+                <div id="collectionContent"></div>
             </div>
+            <script type="text/javascript">
+                @defining(collection.getContentFor(user)) { content =>
+                $(function() {
+                    ContentItemRenderer.renderAll({
+                        content: [@Html(content.map(_.toJson).mkString(","))],
+                        holder: document.getElementById("collectionContent"),
+                        format: "table",
+                        sizing: true,
+                        sorting: true,
+                        labels: [@Html(content.flatMap(_.labels).distinct.map(s => Literal(Constant(s)).toString).mkString(","))],
+                        filters: ContentItemRenderer.standardFilters,
+                        collectionId: collectionId
+                    });
+                });
+                }
+            </script>
         </div>
     </div>
 
-    @views.html.collections.helpers.editCollection(user, collection)
+    @views.html.collections.helpers.editCollection(user, collection, linkedCourses, exceptions)
     @views.html.collections.helpers.deleteCollection(user, collection)
-    @views.html.collections.helpers.quitCollection(user, collection)
     @views.html.collections.helpers.studentInfo(user, collection)
-    @views.html.collections.helpers.removeContent(user, collection)
-    @views.html.collections.helpers.addTA(user, collection)
 }

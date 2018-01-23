@@ -23,20 +23,6 @@ object Cas extends Controller {
 
   def logPrefix(submodule: String): String = s"[CAS]$submodule"
 
-  val desc_map = Map(
-    "DC" -> "Day Continuing",
-    "DO" -> "Day Semester Only",
-    "SO" -> "Semester Only",
-    "CH" -> "Concurrent Student",
-    "CE" -> "Continuing Ed or Evening Classes Only",
-    "BG" -> "Bachelor of General Studies",
-    "A"  -> "Audit Only"
-  )
-
-  val eligibleList = desc_map.keys.toList
-  val descriptionList = desc_map.values.toList
-  val descriptionMap = desc_map
-
   // For parsing schedule service
   case class BYU_Course(course: String, course_title: String, instructor: String)
   implicit val BYU_CourseReads = Json.reads[BYU_Course]
@@ -68,10 +54,11 @@ object Cas extends Controller {
   private def updateCollections(user: User)(implicit isInstructor: Boolean, enrollment: aim.UserEnrollment) = {
     // The BYU_Course names are stored in the database as subject_area+catalog_number
     // example: MATH313
-    val eligibleCollections = user.getCollections(enrollment.class_list.map(
-      byuClass => byuClass.subject_area + byuClass.catalog_number
-    ))
-    user.getEnrollment.diff(eligibleCollections).foreach(user.unenroll _)
+    val eligibleCollections = user.getEligibleCollections(enrollment.class_list.map{
+      byuClass =>
+        Course(None, byuClass.subject_area, Some(byuClass.catalog_number), Some(byuClass.section_number))
+    })
+    user.getEnrollment.diff(eligibleCollections).foreach(c => {user.unenroll(c)})
     eligibleCollections.foreach(user.enroll (_, isInstructor))
   }
 

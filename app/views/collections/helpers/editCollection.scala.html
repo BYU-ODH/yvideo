@@ -1,34 +1,244 @@
-@(user: User, collection: Collection)(implicit request: RequestHeader)
+@(user: User, collection: Collection, linkedCourses: String, exceptions: String)(implicit request: RequestHeader)
+@availableContent = @{
+    collection.getContent
+}
 
 @if(user.hasCollectionPermission(collection, "editCollection")) {
-    <div id="editCollectionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editCollectionModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3 id="editCollectionModalLabel">Edit collection</h3>
-            </div>
-            <div class="modal-body">
-                <form class="form-horizontal" method="post" action="@routes.Collections.edit(collection.id.get)">
-                  <div class="container-fluid">
-                    <div class="form-group">
-                      <label class="control-label" for="collectionName">Name</label>
-                      <div class="controls">
-                        <input type="text" id="collectionName" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
-                      </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.20/angular.min.js"></script>
+  <div id="editCollectionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editCollectionModalLabel" aria-hidden="true">
+  <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCollection.js")'></script>
+  <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/collectionOptions.js")'></script>
+      <div ng-app="editModule" class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+              <h3 id="editCollectionModalLabel">Edit collection</h3>
+          </div>
+
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div ng-controller="editController" ng-init="collectionId = @{collection.id.get}" class="row">
+                <div class="col-sm-5" id="collectionOptionsLeft">
+                  
+                  <div class="collectionGroup">
+                    <label class="control-label" for="collectionName">Name</label>
+                    <div class="controls">
+                      <input type="text" id="collectionName" class="form-control" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
                     </div>
-                    <div class="form-group">
-                      <div class="controls">
-                        <button type="submit" class="btn btn-gray">Save changes</button>
-                      </div>
+                  </div>
+
+                  <div class="collectionGroup">
+                    <label class="control-label">Manage Content</label>
+                    <div class="controls">
+                      <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add</a>
+                      <a ng-click="selected = 'removeContent'" role="button" class="btn btn-black"><i class="icon-minus"></i> Remove</a>
                     </div>
-                  </div>  
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-blue" data-dismiss="modal" aria-hidden="true">Close</button>
-            </div>
+                  </div>
+
+                  <div class="collectionGroup">
+                    <label class="control-label">Manage Admins</label>
+                    <div class="controls">
+                      <a ng-click="selected = 'addTA'" href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
+                    </div>
+                  </div>
+
+                  <div class="collectionGroup">
+                    <label class="control-label">Courses using this collection</label>
+                    <div class="controls">
+                        <button ng-click="selected = 'addCourses'" class="btn btn-gray"><i class="icon-plus"></i> Add</button>
+                        <button ng-click="selected = 'removeCourses'" class="btn btn-gray"><i class="icon-minus"></i> Remove</button>
+                    </div>
+                  </div>
+
+                  <div class="collectionGroup">
+                    <label class="control-label">Add/Remove Exceptions</label>
+                    <div class="controls">
+                        <button ng-click="selected = 'addException'" class="btn btn-yellow">Exceptions</button>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="col-sm-7">
+                  <div ng-show="selected === 'removeContent'" id="removeContent">
+                    <h3>Remove content from this collection.</h3>
+                    @if(availableContent.isEmpty) {
+                        <strong><em>There is no content in this collection.</em></strong>
+                    } else {
+                    <form class="form-horizontal" id="removeContentForm" method="post" action="@routes.Collections.removeContent(collection.id.get)">
+                      <div class="container-fluid"> 
+                        <div class="form-group">
+                          <label class="control-label" for="removeContent">Content to remove:</label>
+                          <div class="controls">  
+                            <select id="removeContent" class="form-control" name="removeContent" multiple="multiple">
+                              @for(contentObj <- availableContent) {
+                                <option value="@contentObj.id.get">@contentObj.name (@contentObj.contentType.name)</option>
+                              }
+                            </select>
+                          </div>
+                          <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+                        </div>
+                      </div>
+                    </form>
+                    }
+                    @if(!availableContent.isEmpty) {
+                      <button class="btn btn-blue" id="removeContentButton" disabled="true">Remove Content</button>
+                    }
+                  </div>
+                  <div ng-show="selected === 'addTA'" id="addTA">
+                    <h3 id="addTAModalLabel">Add a Teacher's Assistant</h3>
+                    <p>
+                        TAs you add here will be able to add and remove content from your collections, and edit the subtitles and other metadata of content. They will essentially have the same rights that you have for this collection.
+                    </p>
+                    <form method="POST">
+                        <label>Input Teacher's Assistant netID:</label><input id="ta_netid" class="form-control"name="netid" type="text"><br><input id="addTA" class="btn btn-blue" type="submit" value="Submit">
+                    </form>
+
+                    <script>
+
+                    </script>
+                  </div>
+
+                  <!-- Add Courses section -->
+                  <div ng-show="selected === 'addCourses'" ng-controller="addCourseController"  id="addCourses">
+                    <table>
+                      <tr>
+                        <th></th>
+                        <th>Course No.</th>
+                        <th>Section No.</th>
+                        <th></th>
+                      </tr>
+                      <tr>
+                        <td><div id="departmentLocation"></div></td>
+                        <td><input ng-model="catalogNumber" class="form-control" type="number" min="1" max="999"></td>
+                        <td><input ng-model="sectionNumber" class="form-control" type="number" min="1" max="999"></td>
+                        <td><button ng-click="appendCourse()" class="btn btn-gray">OK</button></td>
+                      </tr>
+                    </table>
+                    <h6>* Leaving the course number blank will add all course within the given department. Leaving the section nunber blank will add all sections for the given course</h6>
+                    <div ng-if="courses.length > 0">
+                      <h4>The Following Courses will be added when changes are saved:</h4>
+                      <ul>
+                        <li ng-repeat="course in courses">
+                          <div>{{course.department}} {{course.catalogNumber ? course.catalogNumber : "All Classes"}} {{course.sectionNumber ? "Section: "+course.sectionNumber : "All Sections"}} <a href="" ng-click="removeCourse(course)">×</a></div>
+                        </li>
+                      </ul>
+                      <button ng-click="submit()" class="btn btn-blue">Submit</button>
+                    </div>
+                    <span id="noSelectedCoursesBanner" ng-if="courses.length == 0">No courses selected</span>
+                  </div>
+
+                  <!-- Remove Courses section -->
+                  <div ng-show="selected === 'removeCourses'" ng-init="courses = @{linkedCourses}" ng-controller="removeCourseController" id="removeCourses">
+                      <h3>Remove Courses</h3>
+                      <div class="list-group pre-scrollable">
+                          <a ng-repeat="course in courses" ng-click="toggleMarkCourse(course, $event)" class="list-group-item" href="#">{{course.department}} {{course.catalogNumber}} {{course.sectionNumber}}</a>
+                      </div>
+                      <button ng-click="submit()" class="btn btn-blue">Submit</button>
+                  </div>
+
+                  <!-- Add Exception section -->
+                  <div ng-controller="addExceptionController" ng-show="selected === 'addException'" id="addException" ng-init="exceptions = @{exceptions}">
+                    <h3>Exceptions</h3>
+                    <table class="table table-striped table-bordered table-condensed" id="exceptionsTable">
+                      <thead>
+                        <tr>
+                          <td>NetID</td>
+                          <td>Name</td>
+                          <td style="width: 5px"></td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="exception in exceptions | orderBy:'name'">
+                          <td class="exceptionUsername">{{exception.username}}</td>
+                          <td>{{exception.name}}</td>
+                          <td><button class="btn btn-magenta removeExceptionButton" ng-click="removeException(exception, $event)">X</button></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <p>
+                      <small><strong>Note:</strong>
+                      <i>
+                        Students added through this method will gain access to this collection as if they were a student of one of your courses. Please only add students by this method if you have a very good reason.
+                      </i></small>
+                    </p>
+                    <label>Input Student's NetID:</label>
+                    <input type="text" id="addStudentException" class="form-control">
+                    <button ng-click="submit()" class="btn btn-blue">Submit</button>
+                  </div>
+
+
+                  <script type="text/javascript">
+                      document.getElementById("addTA").addEventListener('click', function(e) {
+                          // addTA form submission
+                          e.preventDefault();
+                          var netid = document.getElementById("ta_netid").value;
+                          if (netid === "") {
+                              console.log("netid empty");
+                          } else {
+                              var formData = new FormData();
+                              formData.append("netid", netid);
+                              $.ajax("/collection/@{collection.id.get}/addTA", {
+                                  type: "post",
+                                  cache: false,
+                                  contentType: false,
+                                  processData: false,
+                                  data: formData,
+                                  success: function(data) {
+                                      alert("success");
+                                  },
+                                  error: function(data) {
+                                      console.log(data);
+                                      alert(data.responseText);
+                                  }
+                              });
+                          }
+                      });
+                      $(function() {
+                        // remove content form submission
+                        @if(!availableContent.isEmpty) {
+                            var removeButton = document.getElementById("removeContentButton");
+                            removeButton.addEventListener('click', function(){
+                                $("#removeContentForm").submit();
+                            }, false);
+                            document.getElementById("removeContent").addEventListener('change', function(){
+                                if (this.value == '') {
+                                    removeButton.disabled = true;
+                                } else {
+                                    removeButton.disabled = false;
+                                }
+                            }, false);
+                        }
+                      });
+                  </script>
+              </div>
+
+              </div>
+            </div>  
+          </div>
+          <div class="modal-footer">
+            @if(user.hasCollectionPermission(collection, "deleteCollection")) {
+              <a href="#deleteCollectionModal" role="button" class="btn btn-magenta deleteCollection" data-toggle="modal" data-id="@collection.id.get">Delete Collection</a>
+            }
+            <button id="saveButton" type="submit" class="btn btn-gray">Save changes</button>
+            <button class="btn btn-blue" data-dismiss="modal" aria-hidden="true">Close</button>
           </div>
         </div>
-    </div>
+      </div>
+  </div>
+  <script type="text/javascript">
+    document.getElementById("saveButton").addEventListener("click", function() {
+      var newName = document.getElementById("collectionName").value
+      
+      if (newName !== "@collection.name") {
+        $.ajax("@routes.Collections.edit(collection.id.get)", {
+          type: "post",
+          data: {
+            name: newName
+          }
+        });
+        window.location.reload();
+      }
+    });
+  </script>
 }

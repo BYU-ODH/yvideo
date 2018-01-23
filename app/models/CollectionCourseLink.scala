@@ -9,13 +9,13 @@ import play.api.db.DB
 import play.api.Play.current
 
 /**
- * This represents all the courses found within a collection
+ * This represents all the courses linked to a collection
  */
 case class CollectionCourseLink(id: Option[Long], collectionId: Long, courseId: Long) extends SQLSavable with SQLDeletable {
 
   /**
-   * Saves the content listing to the DB
-   * @return The possibly updated content listing
+   * Saves the CollectionCourseLink to the DB
+   * @return The possibly updated CollectionCourseLink
    */
   def save =
     if (id.isDefined) {
@@ -27,7 +27,7 @@ case class CollectionCourseLink(id: Option[Long], collectionId: Long, courseId: 
     }
 
   /**
-   * Deletes the content listing from the DB
+   * Deletes the CollectionCourselink record from the DB
    */
   def delete() {
     delete(CollectionCourseLink.tableName)
@@ -36,7 +36,7 @@ case class CollectionCourseLink(id: Option[Long], collectionId: Long, courseId: 
 }
 
 object CollectionCourseLink extends SQLSelectable[CollectionCourseLink] {
-  val tableName = "CollectionCourseLink"
+  val tableName = "collectionCourseLink"
 
   val simple = {
     get[Option[Long]](tableName + ".id") ~
@@ -47,15 +47,15 @@ object CollectionCourseLink extends SQLSelectable[CollectionCourseLink] {
   }
 
   /**
-   * Search the DB for content listing with the given id.
-   * @param id The id of the content listing.
-   * @return If a content listing was found, then Some[CollectionCourseLink], otherwise None
+   * Get a CollectionCourseLink by id
+   * @param id The id of the CollectionCourseLink
+   * @return If the entry was found, then Some[CollectionCourseLink], otherwise None
    */
   def findById(id: Long): Option[CollectionCourseLink] = findById(id, simple)
 
   /**
-   * Gets all content listing in the DB
-   * @return The list of content listing
+   * Gets every CollectionCourseLink in the db
+   * @return The list of CollectionCourseLink
    */
   def list: List[CollectionCourseLink] = list(simple)
 
@@ -66,31 +66,53 @@ object CollectionCourseLink extends SQLSelectable[CollectionCourseLink] {
    */
   def getLinkedCollections(courses: List[Course]): List[CollectionCourseLink] = {
     DB.withConnection { implicit connection =>
-      SQL(s"select * from $tableName where courseId in ({courseIds})")
-        .on('courseIds -> courses.map(_.id)).as(simple *)
+      try {
+        SQL(s"select * from $tableName where courseId in ({courseIds})")
+          .on('courseIds -> courses.map(_.id)).as(simple *)
+      }
+      catch {
+        case e: SQLException =>
+          Logger.debug("Failed in CollectionCourseLink.scala / getLinkedCollections")
+          Logger.debug(e.getMessage())
+          List[CollectionCourseLink]()
+      }
     }
   }
 
   /**
-   * Lists the content listing pertaining to a certain course
-   * @param course The course whose content we want
-   * @return The list of content listings
+   * Get all CollectionCourseLinks that contain the given collection
+   * @param collection The Collection whose courses we want
+   * @return The list of collection course links
    */
   def listByCollection(collection: Collection): List[CollectionCourseLink] =
     listByCol("collectionId", collection.id, simple)
 
   /**
-   * Lists the content listing pertaining to a certain content object
-   * @param content The content object the listings will be for
-   * @return The list of content listings
+   * Get CollectionCourseLinks by course
+   * @param course The course to search for
+   * @return The list of CollectionCourseLinks
    */
   def listByCourse(course: Course): List[CollectionCourseLink] =
     listByCol("courseId", course.id, simple)
 
   /**
-   * Gets all content belonging to a certain course
-   * @param course The course where the content is posted
-   * @return The list of content
+   * Delete CollectionCourseLinks for the given courses in the given collection
+   * @param collectionId The id of the collection
+   * @param courses the list of courseID's to be "unlinked"
+   * @return the number of affected rows
+   */
+  def removeLinks(collectionId: Long, courseIds: List[Long]): Int = {
+    DB.withConnection { implicit connection =>
+      SQL(s"delete from ${tableName} where collectionId = {collectionId} and courseId in ({courseIds})")
+        .on('collectionId -> collectionId, 'courseIds -> courseIds)
+        .executeUpdate()
+    }
+  }
+
+  /**
+   * Gets all courses linked to a collection
+   * @param collection The collection where the courses have been linked
+   * @return The list of courses
    */
   def listCollectionCourses(collection: Collection): List[Course] =
     DB.withConnection { implicit connection =>
@@ -98,15 +120,15 @@ object CollectionCourseLink extends SQLSelectable[CollectionCourseLink] {
         SQL(
           s"""
           select * from ${Course.tableName} join $tableName
-          on ${Course.tableName}.id = ${tableName}.contentId
-          where ${tableName}.courseId = {id}
+          on ${Course.tableName}.id = ${tableName}.courseId
+          where ${tableName}.collectionId = {id}
           """
         )
-          .on('id -> collection.id)
+          .on('id -> collection.id.getOrElse(0L))
           .as(Course.simple *)
       } catch {
         case e: SQLException =>
-          Logger.debug("Failed in ContentListing.scala / listClassContent")
+          Logger.debug("Failed in CollectionCourseLink.scala / listCollectionCourses")
           Logger.debug(e.getMessage())
           List[Course]()
       }

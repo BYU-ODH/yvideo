@@ -11,10 +11,6 @@ GET     /terms                          controllers.Application.terms
 GET     /policy                         controllers.Application.policy
 
 # Authentication
-GET     /auth/google                                   controllers.authentication.Google.login(action: String = "login", path: String = "")
-GET     /auth/google/redirect*path                     controllers.authentication.Google.login(action: String = "login", path: String)
-GET     /auth/google/merge                             controllers.authentication.Google.login(action: String = "merge", path: String = "")
-GET     /auth/google/callback                          controllers.authentication.Google.callback()
 GET     /auth/cas                                      controllers.authentication.Cas.login(action: String = "login", path: String = "")
 GET     /auth/cas/redirect*path                        controllers.authentication.Cas.login(action: String = "login", path: String)
 GET     /auth/cas/merge                                controllers.authentication.Cas.login(action: String = "merge", path: String = "")
@@ -39,8 +35,12 @@ POST    /collection/:id/quit                                controllers.Collecti
 POST    /collection/:id/remove/:studentId                   controllers.Collections.removeStudent(id: Long, studentId: Long)
 POST    /collection/:id/setPermission/:operation            controllers.Collections.setPermission(id: Long, operation: String)
 POST    /collection/:id/addTA                               controllers.Collections.addTA(id: Long)
-GET     /collection/:collectionId/content/:id                   controllers.CollectionContent.viewInCollection(id: Long, collectionId: Long)
-POST    /collection/:collectionId/content/:id/remove            controllers.CollectionContent.removeFromCollection(id: Long, collectionId: Long)
+POST    /collection/:collectionId/linkCourses               controllers.Collections.linkCourses(collectionId: Long)
+POST    /collection/:collectionId/unlinkCourses             controllers.Collections.unlinkCourses(collectionId: Long)
+GET     /collection/:collectionId/content/:id               controllers.CollectionContent.viewInCollection(id: Long, collectionId: Long)
+POST    /collection/:collectionId/content/:id/remove        controllers.CollectionContent.removeFromCollection(id: Long, collectionId: Long)
+POST    /collection/:collectionId/addException              controllers.Collections.addException(collectionId: Long)
+POST    /collection/:collectionId/removeException           controllers.Collections.removeException(collectionId: Long)
 
 # Content pages
 GET     /content/mine                      controllers.ContentController.mine

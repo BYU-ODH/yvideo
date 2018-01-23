@@ -43,12 +43,16 @@ object aim {
   val CONSUMER_KEY = Play.application.configuration.getString("aim.consumerkey").get
   val CONSUMER_SECRET = Play.application.configuration.getString("aim.consumersecret").get
 
+  val depts = "https://api.byu.edu:443/domains/legacy/academic/advisement/departmentlistpage/v1"
+
   def getScheduleUrl(idValue: String, yearTerm: String, idType: String = "netid")(implicit isInstructor: Boolean = false) = {
     val service = if (isInstructor) "instructorschedule" else "studentschedule"
     s"https://api.byu.edu:443/domains/legacy/academic/registration/enrollment/v1/$service/$idType/$idValue/$yearTerm"
   }
 
   def getSchedule(netid: String, yearTerm: String, token: String)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
+    WS.url(depts).withHeaders("Accept" -> "application/json", "Authorization" -> s"Bearer $token")
+    .get().map { dep => Logger.info(dep.body.toString) }
     WS.url(getScheduleUrl(netid, yearTerm))
     .withHeaders("Accept" -> "application/json", "Authorization" -> s"Bearer $token")
     .get().map { scheduleResp =>
@@ -105,8 +109,7 @@ object aim {
           } catch {
             case e: Exception => {
               Logger.error(s"[aim.scala:getCurrentSemester] - Semester Code response not complete; unable to retrieve user's Enrollment information.")
-              getSchedule(netid, "20175", token)
-              //Future(None)
+              Future(None)
             }
           }
         }
@@ -139,6 +142,7 @@ object aim {
         Future(None)
       } else {
         var token = (response.json \ "access_token").as[String]
+        Logger.info("getting user information from aim now")
         getCurrentSemester(netid, token)
       }
     }
