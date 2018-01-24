@@ -272,30 +272,54 @@ object Collections extends Controller {
    * Add a TA to the collection based on a Cas username
    * @param id The collection id
    */
-  def addTA(id: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def addTA(id: Long) = Authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
-        val netid: Option[String] = for {
-          parts <- request.body.dataParts.get("netid")
-          netid <- parts.headOption
-        } yield netid
         Future {
-          if (netid.isEmpty) {
+          val collOption = Collection.findById(id)
+          if (collOption.isEmpty) {
             Results.BadRequest
           } else {
-            val userOpt = User.findByUsername('cas, netid.get)
-            if (userOpt.isEmpty) {
-              Results.BadRequest("User not found. Make sure the user has logged in via cas.")
-            } else {
-              var user = userOpt.get
-              val collectionOpt = Collection.findById(id)
-              if (collectionOpt.isEmpty) {
-                Results.BadRequest("Collection does not exist")
-              } else {
-                user = user.enroll(collectionOpt.get, false)
-                CollectionPermissions.addTA(collectionOpt.get, user)
-                Ok
+            request.body.validate[String] match {
+              case success: JsSuccess[String] => {
+                val userOpt = User.findByUsername('cas, success.get)
+                if (userOpt.isEmpty) {
+                  Results.BadRequest("User not found. Make sure the user has logged in via CAS")
+                } else {
+                  userOpt.get.enroll(collOption.get, false)
+                  CollectionPermissions.addTA(collOption.get, userOpt.get)
+                  Ok(userOpt.get.toJson).as("application/json")
+                }
               }
+              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
+            }
+          }
+        }
+  }
+
+  /**
+   * Remove a TA from the collection based on a Cas username
+   * @param id the Collection id
+   */
+  def removeTA(id: Long) = Authentication.authenticatedAction(parse.json) {
+    implicit request =>
+      implicit user =>
+        Future {
+          val collOption = Collection.findById(id)
+          if (collOption.isEmpty) {
+            Results.BadRequest
+          } else {
+            request.body.validate[String] match {
+              case success: JsSuccess[String] => {
+                val userOpt = User.findByUsername('cas, success.get)
+                if (userOpt.isEmpty) {
+                  Results.BadRequest("User not found.")
+                } else {
+                  userOpt.get.unenroll(collOption.get)
+                  Ok(userOpt.get.toJson).as("application/json")
+                }
+              }
+              case e: JsError => BadRequest(JsError.toJson(e).toString).as("application/json")
             }
           }
         }
