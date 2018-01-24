@@ -231,7 +231,16 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
   def getTAs(collection: Collection): List[User] = {
     DB.withConnection { implicit connection =>
       try {
-        List[User]()
+        SQL(
+          s"""
+          select * from ${User.tableName} join ${tableName}
+          on ${User.tableName}.id = ${tableName}.userId
+          where ${tableName}.collectionId = {id} and ${tableName}. = true
+          order by name asc
+          """
+        )
+          .on('id -> collection.id.get)
+          .as(User.simple *)
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in CollectionMembership.scala / getExceptions")
