@@ -133,7 +133,7 @@
     margin-bottom: 10px;
 }
 
-.removeExceptionButton {
+.removeExceptionButton .removeTAButton {
     padding: 0px 5px;
     border-radius: 3px;
 }

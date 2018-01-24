@@ -208,6 +208,69 @@ angular.module("editModule", [])
         });
     };
 })
+
+.controller("taController", function($scope) {
+    $scope.taList = [];
+    $scope.addTA = function(e) {
+        var netid = document.getElementById("ta_netid").value;
+        if (netid === ""){
+            console.log("netid empty");
+        }
+        else {
+            $.ajax("/collection/" + $scope.$parent.collectionId + "/addTA", {
+                type: "post",
+                cache: false,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(netid),
+                success: function(data) {
+                    $scope.taList.push(data);
+                    $scope.$apply();
+                },
+                error: function(data) {
+                    console.log(data);
+                    alert(data.responseText);
+                }
+            });
+        }
+    }
+        
+    $scope.removeTA = function(ta, $event){
+        let button = $event.currentTarget;
+        let table = button.parentNode.parentNode.parentNode;
+        let row = button.parentNode.parentNode;
+
+        // Add Bootstrap .danger class to current row
+        row.classList.add("danger");
+
+        setTimeout(function() {
+          if (confirm(`Are you sure you want to remove \'${ta.name}\' from the Exceptions list?`)) {
+            
+            // Remove Exception on backend process
+            $.ajax("/collection/" + $scope.$parent.collectionId + "/removeTA", {
+                type: "post",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(ta.username),
+                success: function(value) {
+                    console.log(value);
+                    var index = $scope.taList.indexOf(ta);
+                    console.log(index);
+                    $scope.taList.splice(index, ~index?1:0);
+                    console.log($scope.taList);
+                    $scope.$apply();
+                },
+                error: function(xhr){
+                    console.log("Error: " + JSON.parse(xhr.responseText)["Message"])
+                }
+            });
+          }
+          else {
+            row.classList.remove("danger");
+          }
+        }, 100);
+    };
+})
 .controller("addExceptionController", function($scope) {
     $scope.submit = function() {
         let studentId = document.getElementById("addStudentException").value

@@ -1,4 +1,4 @@
-@(user: User, collection: Collection, linkedCourses: String, exceptions: String)(implicit request: RequestHeader)
+@(user: User, collection: Collection, linkedCourses: String, exceptions: String, tas: String)(implicit request: RequestHeader)
 @availableContent = @{
     collection.getContent
 }
@@ -95,18 +95,34 @@
                       <button class="btn btn-blue" id="removeContentButton" disabled="true">Remove Content</button>
                     }
                   </div>
-                  <div ng-show="selected === 'addTA'" id="addTA">
+
+                  <!-- Add TA's section -->
+                  <div ng-show="selected === 'addTA'" ng-controller="taController" ng-init="taList = @{tas}" id="addTA">
                     <h3 id="addTAModalLabel">Add a Teacher's Assistant</h3>
+                    <table class="table table-striped table-bordered table-condensed" id="exceptionsTable">
+                      <thead>
+                        <tr>
+                          <td>NetID</td>
+                          <td>Name</td>
+                          <td style="width: 5px"></td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="ta in taList | orderBy:'name'">
+                          <td class="exceptionUsername">{{ta.username}}</td>
+                          <td>{{ta.name}}</td>
+                          <td><button class="btn btn-magenta removeTAButton" ng-click="removeTA(ta, $event)">X</button></td>
+                        </tr>
+                      </tbody>
+                    </table>
+
                     <p>
                         TAs you add here will be able to add and remove content from your collections, and edit the subtitles and other metadata of content. They will essentially have the same rights that you have for this collection.
                     </p>
-                    <form method="POST">
-                        <label>Input Teacher's Assistant netID:</label><input id="ta_netid" class="form-control"name="netid" type="text"><br><input id="addTA" class="btn btn-blue" type="submit" value="Submit">
-                    </form>
-
-                    <script>
-
-                    </script>
+                    <label>Input Teacher's Assistant netID:</label>
+                    <input id="ta_netid" class="form-control" type="text"><br>
+                    <button id="submitTA" ng-click="addTA()" class="btn btn-blue">Add TA
+                    </button>
                   </div>
 
                   <!-- Add Courses section -->
@@ -179,31 +195,6 @@
 
 
                   <script type="text/javascript">
-                      document.getElementById("addTA").addEventListener('click', function(e) {
-                          // addTA form submission
-                          e.preventDefault();
-                          var netid = document.getElementById("ta_netid").value;
-                          if (netid === "") {
-                              console.log("netid empty");
-                          } else {
-                              var formData = new FormData();
-                              formData.append("netid", netid);
-                              $.ajax("/collection/@{collection.id.get}/addTA", {
-                                  type: "post",
-                                  cache: false,
-                                  contentType: false,
-                                  processData: false,
-                                  data: formData,
-                                  success: function(data) {
-                                      alert("success");
-                                  },
-                                  error: function(data) {
-                                      console.log(data);
-                                      alert(data.responseText);
-                                  }
-                              });
-                          }
-                      });
                       $(function() {
                         // remove content form submission
                         @if(!availableContent.isEmpty) {

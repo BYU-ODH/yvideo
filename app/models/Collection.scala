@@ -126,12 +126,23 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
     // TODO: make this a list of users
     var exceptions = CacheListHolder[CollectionMembership]()
 
+    var tas = CacheListHolder[User]()
+
     // template function
     def getForCollection[A](setter: CacheListHolder[A] => Unit, getter: () => CacheListHolder[A], function: Collection => List[A]) = {
       if (getter().cachedObject.isEmpty)
         setter(CacheListHolder(Some(function(cacheTarget))))
       getter()
     }
+  }
+
+  /**
+   * Get the collection TAs
+   * @return The list of users who are TAs
+   */
+  def getTAs: List[User] = cache.getForCollection[User](cache.tas_=, cache.tas _, CollectionMembership.getTAs) match {
+    case tas: cache.CacheListHolder[User] => tas.getList
+    case _ => List[User]()
   }
 
   /**

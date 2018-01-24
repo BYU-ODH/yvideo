@@ -41,7 +41,8 @@ object Collections extends Controller {
             // if (user.hasCollectionPermission(collection, "viewCollection")) instead
             if (collection.getMembers.contains(user) ||  SitePermissions.userHasPermission(user, "admin"))
               Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString, 
-                Json.toJson(User.findUsersByUserIdList(CollectionMembership.getExceptionsByCollection(collection).map(_.userId)).map(_.toJson)).toString))
+                Json.toJson(User.findUsersByUserIdList(CollectionMembership.getExceptionsByCollection(collection).map(_.userId)).map(_.toJson)).toString,
+                Json.toJson(collection.getTAs.map(_.toJson)).toString))
             else
               Errors.forbidden
           }

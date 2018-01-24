@@ -1,4 +1,4 @@
-@(collection: Collection, linkedCourses: String, exceptions: String)(implicit request: RequestHeader, user: User)
+@(collection: Collection, linkedCourses: String, exceptions: String, tas: String)(implicit request: RequestHeader, user: User)
 @import scala.reflect.runtime.universe._
 
 @main("Y-Video - " + collection.name, Some(user),
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    @views.html.collections.helpers.editCollection(user, collection, linkedCourses, exceptions)
+    @views.html.collections.helpers.editCollection(user, collection, linkedCourses, exceptions, tas)
     @views.html.collections.helpers.deleteCollection(user, collection)
     @views.html.collections.helpers.studentInfo(user, collection)
 }
