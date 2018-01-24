@@ -13,15 +13,7 @@ object CollectionPermissions {
 
   val desc_map = Map(
     "teacher" -> "Collection Admin",
-    "viewData" -> "View Student Data and Analytics",
-    "editCollection" -> "Edit Collection Information",
-    "addContent" -> "Add Content to Collection",
-    "makeAnnouncement" -> "Make Collection Announcements",
-    "removeContent" -> "Remove Content from Collection",
-    "addStudent" -> "Add Students to Collection",
-    "removeStudent" -> "Remove Students from Collection",
-    "addTeacher" -> "Add Teachers to Collection",
-    "removeTeacher" -> "Remove Teachers from Collection"
+    "ta" -> "TA"
   )
 
   def permissionList = desc_map.keys.toList
@@ -115,7 +107,7 @@ object CollectionPermissions {
    * adds the TA permission set to the specified user in the specified collection
    */
   def addTA(collection: Collection, user: User) = {
-    val taPermissions = List("viewData", "editCollection", "addContent", "makeAnnouncement", "removeContent", "addStudent", "removeStudent")
+    val taPermissions = List("ta")
     removeAllUserPermissions(collection, user)
     taPermissions.foreach { role =>
       addUserPermission(collection, user, role)
