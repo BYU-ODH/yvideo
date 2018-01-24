@@ -233,10 +233,9 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
       try {
         SQL(
           s"""
-          select * from ${User.tableName} join ${tableName}
-          on ${User.tableName}.id = ${tableName}.userId
-          where ${tableName}.collectionId = {id} and ${tableName}. = true
-          order by name asc
+          select * from (select cp.userId from collectionMembership cm join
+          collectionPermissions cp on cm.userId = cp.userId where permission = "viewData" and collectionId = {id})
+          a join userAccount u on a.userId = u.id;
           """
         )
           .on('id -> collection.id.get)
