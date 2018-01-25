@@ -23,7 +23,7 @@
                   <div class="collectionGroup">
                     <label class="control-label" for="collectionName">Name</label>
                     <div class="controls">
-                      <input type="text" id="collectionName" class="form-control" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
+                      <input type="text" id="collectionName" class="form-control paddedInput" name="name" value="@collection.name" maxlength="60" pattern=".{1,60}" required />
                       <button id="saveButton" type="submit" class="btn btn-gray">Save changes</button>
                     </div>
                   </div>
@@ -125,7 +125,7 @@
                     <br>
                     <br>
                     <label>Input Teacher's Assistant netID:</label>
-                    <input id="ta_netid" class="form-control" type="text"><br>
+                    <input id="ta_netid" class="form-control paddedInput" type="text">
                     <button id="submitTA" ng-click="addTA()" class="btn btn-blue">Add TA
                     </button>
                   </div>
@@ -162,7 +162,7 @@
                   <!-- Remove Courses section -->
                   <div ng-show="selected === 'removeCourses'" ng-init="courses = @{linkedCourses}" ng-controller="removeCourseController" id="removeCourses">
                       <h3>Remove Courses</h3>
-                      <div class="list-group pre-scrollable">
+                      <div class="list-group pre-scrollable paddedInput">
                           <a ng-repeat="course in courses" ng-click="toggleMarkCourse(course, $event)" class="list-group-item" href="#">{{course.department}} {{course.catalogNumber}} {{course.sectionNumber}}</a>
                       </div>
                       <button ng-click="submit()" class="btn btn-blue">Submit</button>
@@ -194,7 +194,7 @@
                       </i></small>
                     </p>
                     <label>Input Student's NetID:</label>
-                    <input type="text" id="addStudentException" class="form-control">
+                    <input type="text" id="addStudentException" class="form-control paddedInput">
                     <button ng-click="submit()" class="btn btn-blue">Submit</button>
                   </div>
 

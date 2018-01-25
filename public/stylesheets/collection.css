@@ -129,11 +129,11 @@
     margin-top: 20px;
 }
 
-#addStudentException{
+.paddedInput {
     margin-bottom: 10px;
 }
 
-.removeExceptionButton .removeTAButton {
+.removeExceptionButton, .removeTAButton {
     padding: 0px 5px;
     border-radius: 3px;
 }
