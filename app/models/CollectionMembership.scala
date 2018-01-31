@@ -228,21 +228,24 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
    */
   def list: List[CollectionMembership] = list(simple)
 
+  /**
+   * Lists all of the users that have the TA collection permission in the given collections
+   * @return List[User] list of Tas
+   */
   def getTAs(collection: Collection): List[User] = {
     DB.withConnection { implicit connection =>
       try {
         SQL(
           s"""
-          select * from (select cp.userId from collectionMembership cm join
-          collectionPermissions cp on cm.userId = cp.userId where permission = "viewData" and collectionId = {id})
-          a join userAccount u on a.userId = u.id;
+          select * from (select userId from collectionPermissions where permission = "ta" and collectionId = {id})
+          a join userAccount on a.userId = userAccount.id
           """
         )
           .on('id -> collection.id.get)
           .as(User.simple *)
       } catch {
         case e: SQLException =>
-          Logger.debug("Failed in CollectionMembership.scala / getExceptions")
+          Logger.debug("Failed in CollectionMembership.scala / getTAs")
           Logger.debug(e.getMessage())
           List[User]()
       }
@@ -265,7 +268,7 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
           .as(simple *)
       } catch {
         case e: SQLException =>
-          Logger.debug("Failed in CollectionMembership.scala / getExceptions")
+          Logger.debug("Failed in CollectionMembership.scala / getExceptionsByCollection")
           Logger.debug(e.getMessage())
           List[CollectionMembership]()
       }
@@ -287,7 +290,7 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
           .as(simple *)
       } catch {
         case e: SQLException =>
-          Logger.debug("Failed in CollectionMembership.scala / getExceptions")
+          Logger.debug("Failed in CollectionMembership.scala / getExceptionsByUser")
           Logger.debug(e.getMessage())
           List[CollectionMembership]()
       }

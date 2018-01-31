@@ -229,7 +229,7 @@ object Collections extends Controller {
                 Ok(Json.toJson(newCourses.map(_.toJson))).as("application/json")
               }
               case e: JsError => {
-                Logger.info(request.body.toString)
+                Logger.debug(request.body.toString)
                 BadRequest(JsError.toJson(e).toString).as("application/json")
               }
             }
@@ -287,7 +287,9 @@ object Collections extends Controller {
                 if (userOpt.isEmpty) {
                   Results.BadRequest("User not found. Make sure the user has logged in via CAS")
                 } else {
-                  userOpt.get.enroll(collOption.get, false)
+                  if (!userOpt.get.isEnrolled(collOption.get))
+                    userOpt.get.enroll(collOption.get, false, true)
+
                   CollectionPermissions.addTA(collOption.get, userOpt.get)
                   Ok(userOpt.get.toJson).as("application/json")
                 }
@@ -375,9 +377,8 @@ object Collections extends Controller {
                   // Case: User is not enrolled...
                   else{
                     // Enroll user and create exception to collection; then respond ok
-                    CollectionMembership(None, user.id.get, collection.id.get, false, true).save
                     // TODO: Check if exception actually created for user
-                    Ok(user.toJson)
+                    Ok(user.enroll(collection, false, true).toJson)
                   }
                 }
               }
@@ -423,7 +424,7 @@ object Collections extends Controller {
                     val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == exception.id.get)
 
                     // update membership record in database with exception = false
-                    if (!membershipRecord.isEmpty){
+                    if (!membershipRecord.isEmpty) {
                       membershipRecord.get.copy(exception = false).save
                       Ok(exception.toJson)
                     }

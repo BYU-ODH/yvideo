@@ -105,7 +105,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
    * Checks if a user is already enrolled in a collection
    * @param collection The collection in which the user will be enrolled
    */
-  def isEnrolled(collection: Collection) = CollectionMembership.userIsEnrolled(this, collection)
+  def isEnrolled(collection: Collection): Boolean = CollectionMembership.userIsEnrolled(this, collection)
 
   /**
    * Enrolls the user in a collection
@@ -113,9 +113,9 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
    * @param teacher Is this user a teacher of the collection?
    * @return The user (for chaining)
    */
-  def enroll(collection: Collection, teacher: Boolean): User = {
+  def enroll(collection: Collection, teacher: Boolean = false, exception: Boolean = false): User = {
     if(!this.isEnrolled(collection))
-      CollectionMembership(None, id.get, collection.id.get, teacher, false).save
+      CollectionMembership(None, id.get, collection.id.get, teacher, exception).save
     this
   }
 
@@ -274,9 +274,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
    * Gets all of the fields required for the Admin dashboard table
    */
   def toJson = {
-    if (id.isEmpty) {
-
-    }
     Json.obj(
       "id" -> id,
       "authScheme" -> authScheme.name,
@@ -528,9 +525,10 @@ object User extends SQLSelectable[User] {
   def findUsersByUserIdList(idList: List[Long]): List[User] = {
     DB.withConnection { implicit connection =>
       try {
-        SQL("select * from userAccount where id in ({ids})")
-        .on('ids -> idList)
-        .as(simple *)
+        if (idList.isEmpty)
+          List[User]()
+        else
+          SQL("select * from userAccount where id in ({ids})") .on('ids -> idList) .as(simple *)
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in User.scala / findUsersByUserIdList")
