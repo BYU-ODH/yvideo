@@ -72,6 +72,8 @@ object Cas extends Controller {
         val aimNameOpt = if (aimName.length != 0) Some(aimName) else None
         val emailOpt = if (enrollment.email_address.length != 0) Some(enrollment.email_address) else None
         val updatedUser = user.copy(name=aimNameOpt, email=emailOpt)
+        Logger.debug(s"The following is the enrollment for $aimName")
+        Logger.debug(enrollment.toString)
         if (user != updatedUser)
           updatedUser.save
 
@@ -98,6 +100,8 @@ object Cas extends Controller {
       // Don't use Action.async, but rather wait for a period of time because CAS sometimes times out.
       val r: Future[Result] = WS.url(url).get().map { response =>
         val xml = response.xml
+        Logger.debug("Cas user information:")
+        Logger.debug(xml.toString)
         val username = ((xml \ "authenticationSuccess") \ "user").text
         val user = Authentication.getAuthenticatedUser(username, 'cas, getAttribute(xml, "name"), getAttribute(xml, "emailAddress"))
         val personId = getAttribute(xml, "personId").getOrElse("")

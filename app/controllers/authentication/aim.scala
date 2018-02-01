@@ -21,7 +21,6 @@ object aim {
     surname: String,
     preferred_first_name: String,
     email_address: String,
-    student_class_count: Int,
     class_list: List[BYU_Class]
   )
 
@@ -45,7 +44,9 @@ object aim {
 
   def getScheduleUrl(idValue: String, yearTerm: String, idType: String = "netid")(implicit isInstructor: Boolean = false) = {
     val service = if (isInstructor) "instructorschedule" else "studentschedule"
-    s"https://api.byu.edu:443/domains/legacy/academic/registration/enrollment/v1/$service/$idType/$idValue/$yearTerm"
+    val url = s"https://api.byu.edu:443/domains/legacy/academic/registration/enrollment/v1/$service/$idType/$idValue/$yearTerm"
+    Logger.debug(s"using $url")
+    url
   }
 
   def getSchedule(netid: String, yearTerm: String, token: String)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
@@ -57,6 +58,8 @@ object aim {
           val jsonLookup = (scheduleResp.json \ "EnrollmentService" \ "response").toOption
           if (jsonLookup.isDefined) {
             val json = jsonLookup.get
+            Logger.debug("The following is the schedule:")
+            Logger.debug(json.toString)
             val userEnrollmentFromJson = Json.fromJson[UserEnrollment](json)
 
              userEnrollmentFromJson match {
@@ -78,7 +81,7 @@ object aim {
           }
         }
         case _ => {
-          Logger.error(s"Error Getting student schedule: [${scheduleResp.status}] ${scheduleResp.statusText}")
+          Logger.error(s"Error Getting schedule: [${scheduleResp.status}] ${scheduleResp.statusText}")
           None
         }
       }
