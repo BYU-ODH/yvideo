@@ -51,9 +51,7 @@ object Cas extends Controller {
   /**
    * Enroll the user in their collections
    */
-  private def updateCollections(user: User)(implicit isInstructor: Boolean, enrollment: aim.UserEnrollment) = {
-    // The BYU_Course names are stored in the database as subject_area+catalog_number
-    // example: MATH313
+  private def updateCollections(user: User, isInstructor: Boolean)(implicit enrollment: aim.UserEnrollment) = {
     val eligibleCollections = user.getEligibleCollections(enrollment.class_list.map{
       byuClass =>
         Course(None, byuClass.subject_area, Some(byuClass.catalog_number), Some(byuClass.section_number))
@@ -65,8 +63,8 @@ object Cas extends Controller {
   /**
    * Query aim to update the user's account
    */
-  def updateAccount(user: User)(implicit isInstructor: Boolean) = {
-    aim.getEnrollment(user.username).map { enrollmentOpt =>
+  def updateAccount(user: User, isInstructor: Boolean) = {
+    aim.getEnrollment(user.username, isInstructor).map { enrollmentOpt =>
       enrollmentOpt.map { implicit enrollment =>
         val aimName = (enrollment.preferred_first_name + " " + enrollment.surname).trim
         val aimNameOpt = if (aimName.length != 0) Some(aimName) else None
@@ -79,8 +77,17 @@ object Cas extends Controller {
 
         SitePermissions.removeAllUserPermissions(updatedUser)
         SitePermissions.assignRole(updatedUser, if (isInstructor) 'teacher else 'student)
-        if (!isInstructor)
-          updateCollections(updatedUser)
+
+        updateCollections(updatedUser, isInstructor)
+      }
+    }
+
+    if (isInstructor) {
+      // Enroll the instructor in classes they are enrolled in as students
+      aim.getEnrollment(user.username, false).map {
+        enrollmentOpt => enrollmentOpt.map {
+          implicit teacherEnrollment => updateCollections(user, false)
+        }
       }
     }
   }
@@ -105,11 +112,12 @@ object Cas extends Controller {
         val username = ((xml \ "authenticationSuccess") \ "user").text
         val user = Authentication.getAuthenticatedUser(username, 'cas, getAttribute(xml, "name"), getAttribute(xml, "emailAddress"))
         val personId = getAttribute(xml, "personId").getOrElse("")
-        val fulltime = getAttribute(xml, "activeFullTimeInstructor").getOrElse("false").toBoolean
-        val parttime = getAttribute(xml, "activePartTimeInstructor").getOrElse("false").toBoolean
+        val fulltime = getAttribute(xml, "activeFulltimeInstructor").getOrElse("false").toBoolean
+        val parttime = getAttribute(xml, "activeParttimeInstructor").getOrElse("false").toBoolean
         implicit val isInstructor = fulltime || parttime
+        Logger.debug(s"The person is an instructor $isInstructor")
 
-        updateAccount(user)
+        updateAccount(user, isInstructor)
 
         if (action == "merge")
           Authentication.merge(user)

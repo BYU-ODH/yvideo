@@ -42,15 +42,15 @@ object aim {
   val CONSUMER_KEY = Play.application.configuration.getString("aim.consumerkey").get
   val CONSUMER_SECRET = Play.application.configuration.getString("aim.consumersecret").get
 
-  def getScheduleUrl(idValue: String, yearTerm: String, idType: String = "netid")(implicit isInstructor: Boolean = false) = {
+  def getScheduleUrl(idValue: String, yearTerm: String, isInstructor: Boolean, idType: String = "netid") = {
     val service = if (isInstructor) "instructorschedule" else "studentschedule"
     val url = s"https://api.byu.edu:443/domains/legacy/academic/registration/enrollment/v1/$service/$idType/$idValue/$yearTerm"
     Logger.debug(s"using $url")
     url
   }
 
-  def getSchedule(netid: String, yearTerm: String, token: String)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
-    WS.url(getScheduleUrl(netid, yearTerm))
+  def getSchedule(netid: String, yearTerm: String, token: String, isInstructor: Boolean): Future[Option[UserEnrollment]] = {
+    WS.url(getScheduleUrl(netid, yearTerm, isInstructor))
     .withHeaders("Accept" -> "application/json", "Authorization" -> s"Bearer $token")
     .get().map { scheduleResp =>
       scheduleResp.status match {
@@ -88,7 +88,7 @@ object aim {
     }
   }
 
-  def getCurrentSemester(netid: String, token: String)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
+  def getCurrentSemester(netid: String, token: String, isInstructor: Boolean): Future[Option[UserEnrollment]] = {
     val format = new java.text.SimpleDateFormat("yyyyMMdd")
     val date = format.format(new java.util.Date())
     WS.url(s"https://ws.byu.edu/rest/v1/academic/controls/controldatesws/asofdate/$date/semester.json").get().flatMap { yearTermResp =>
@@ -98,7 +98,7 @@ object aim {
             ((yearTermResp.json \ "ControldateswsService" \ "response" \ "date_list")(0) \ "year_term").as[String] match {
               case yearTerm: String =>
                 if (yearTerm.length == 5) {
-                  getSchedule(netid, yearTerm, token)
+                  getSchedule(netid, yearTerm, token, isInstructor)
                 } else Future(None)
               case _ => {
                 Logger.error(s"Invalid year term value: ${yearTermResp.json}")
@@ -108,8 +108,7 @@ object aim {
           } catch {
             case e: Exception => {
               Logger.error(s"[aim.scala:getCurrentSemester] - Semester Code response not complete; unable to retrieve user's Enrollment information.")
-              getSchedule(netid, "20175", token)
-              //Future(None)
+              Future(None)
             }
           }
         }
@@ -134,7 +133,7 @@ object aim {
    *          at Brigham Young University Provo, Utah in the beloved United States of America.
    *          See the case class UserEnrollment at the beginning of this (the aim) object for available information.
    */
-  def getEnrollment(netid: String)(implicit isInstructor: Boolean): Future[Option[UserEnrollment]] = {
+  def getEnrollment(netid: String, isInstructor: Boolean): Future[Option[UserEnrollment]] = {
     tokenRequest.flatMap { response =>
       if (response.status != 200) {
         Logger.error(s"Error getting aim api token: ${response.statusText}")
@@ -142,7 +141,7 @@ object aim {
         Future(None)
       } else {
         var token = (response.json \ "access_token").as[String]
-        getCurrentSemester(netid, token)
+        getCurrentSemester(netid, token, isInstructor)
       }
     }
   }
