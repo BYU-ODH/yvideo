@@ -3,7 +3,7 @@
     collection.getContent
 }
 
-@if(user.hasCollectionPermission(collection, "editCollection")) {
+@if(user.isCollectionTA(collection)) {
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.20/angular.min.js"></script>
   <div id="editCollectionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editCollectionModalLabel" aria-hidden="true">
   <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCollection.js")'></script>
@@ -31,7 +31,7 @@
                   <div class="collectionGroup">
                     <label class="control-label" for="collectionName">Delete Collection</label>
                     <div class="controls">
-                      @if(user.hasCollectionPermission(collection, "deleteCollection")) {
+                      @if(user.isCollectionTeacher(collection)) {
                       <a href="#deleteCollectionModal" role="button" class="btn btn-magenta deleteCollection" data-toggle="modal" data-id="@collection.id.get">Delete Collection</a>
                       }
                     </div>

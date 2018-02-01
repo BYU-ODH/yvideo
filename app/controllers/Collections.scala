@@ -57,7 +57,7 @@ object Collections extends Controller {
       implicit user =>
         getCollection(id) { collection =>
           Future {
-            if (user.hasCollectionPermission(collection, "editCollection")) {
+            if (user.isCollectionTA(collection)) {
               val name = request.body("name")(0)
               collection.copy(name = name).save
               Redirect(routes.Collections.view(id)).flashing("info" -> "Collection updated")
@@ -77,7 +77,7 @@ object Collections extends Controller {
         getCollection(id) { collection =>
           Future {
             // Only non-guest members and admins can add content
-            if (user.hasCollectionPermission(collection, "addContent")) {
+            if (user.isCollectionTA(collection)) {
               for ( // Add the content to the collection
                 id <- request.body.dataParts("addContent");
                 content <- Content.findById(id.toLong)
@@ -100,7 +100,7 @@ object Collections extends Controller {
         getCollection(id) { collection =>
           Future {
             // Only non-guest members and admins can remove content
-            if (user.hasCollectionPermission(collection, "removeContent")) {
+            if (user.isCollectionTA(collection)) {
               for ( // Remove the content to the collection
                 id <- request.body("removeContent");
                 content <- Content.findById(id.toLong)
@@ -161,31 +161,6 @@ object Collections extends Controller {
       implicit user =>
         Authentication.enforcePermission("joinCollection") {
           Future(Ok(views.html.collections.list(Collection.list)))
-        }
-  }
-
-  /**
-   * Remove a student from a collection
-   * @param id The ID of the collection
-   * @param studentId The user ID of the student
-   */
-  def removeStudent(id: Long, studentId: Long) = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        getCollection(id) { collection =>
-          Future {
-            if (user.hasCollectionPermission(collection, "removeStudent")) {
-              User.findById(studentId) match {
-              case Some(student) =>
-                student.unenroll(collection)
-                Redirect(routes.Collections.view(collection.id.get))
-                  .flashing("info" -> "Student removed")
-              case _ =>
-                Errors.notFound
-              }
-            } else
-              Errors.forbidden
-          }
         }
   }
 
@@ -460,7 +435,7 @@ object Collections extends Controller {
         val data = request.body.dataParts
         getCollection(id) { collection =>
           Future {
-            if(user.hasCollectionPermission(collection, "teacher")) {
+            if(user.isCollectionTeacher(collection)) {
               User.findById(data("userId")(0).toLong) foreach { member =>
                 operation match {
                   case "remove" =>

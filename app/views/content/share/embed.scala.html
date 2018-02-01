@@ -110,7 +110,7 @@
                     @if(user.isDefined) {
                     userId: "@user.get.id.get",
                     owner: @content.isEditableBy(user.get),
-                    teacher: @collection.exists(c => user.get.hasCollectionPermission(c, "teacher")),
+                    teacher: @collection.exists(c => user.get.isCollectionTA(c)),
                     }
                     collectionId: @collection.map(_.id.get).getOrElse(0),
                     annotate: true,

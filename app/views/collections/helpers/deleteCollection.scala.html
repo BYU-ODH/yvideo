@@ -1,6 +1,6 @@
 @(user: User, collection: Collection)(implicit request: RequestHeader)
 
-@if(user.hasCollectionPermission(collection, "deleteCollection")) {
+@if(user.isCollectionTeacher(collection)) {
    <div id="deleteCollectionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">        

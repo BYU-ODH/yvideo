@@ -32,7 +32,6 @@ POST    /collection/:id                                     controllers.Collecti
 POST    /collection/:id/addContent                          controllers.Collections.addContent(id: Long)
 POST    /collection/:id/removeContent                       controllers.Collections.removeContent(id: Long)
 POST    /collection/:id/quit                                controllers.Collections.quitCollection(id: Long)
-POST    /collection/:id/remove/:studentId                   controllers.Collections.removeStudent(id: Long, studentId: Long)
 POST    /collection/:id/setPermission/:operation            controllers.Collections.setPermission(id: Long, operation: String)
 POST    /collection/:id/addTA                               controllers.Collections.addTA(id: Long)
 POST    /collection/:collectionId/removeTA                  controllers.Collections.removeTA(collectionId: Long)

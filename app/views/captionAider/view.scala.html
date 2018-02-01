@@ -68,7 +68,7 @@
         var collectionId = @collection.map(_.id.get).getOrElse(0);
         var userId = @user.id.get;
         var owner = @content.isEditableBy(user);
-        var teacher = @collection.exists(c => user.hasCollectionPermission(c, "teacher"));
+        var teacher = @collection.exists(c => user.isCollectionTeacher(c));
         ResourceLibrary.setBaseUrl("@resourceLibraryUrl");
     </script>
     <script id='createTrackTemplate' type='text/ractive'>

@@ -9,7 +9,7 @@
       JS("contentSelection/PopupBrowser.js")))
 ) {
 
-@if(user.hasCollectionPermission(collection, "addContent")){
+@if(user.isCollectionTA(collection)){
     <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCollection.js")'></script>
 }
     <script type="text/javascript">
@@ -20,10 +20,10 @@
         <div class=container-fluid>
             <div class="collectionTitle">
                 <h1>@collection.name</h1>
-                @if(user.hasCollectionPermission(collection, "viewData")) {
+                @if(user.isCollectionTA(collection)) {
                     <a href="#studentInfoModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Members</a>
                 }
-                @if(user.hasCollectionPermission(collection, "editCollection")) {
+                @if(user.isCollectionTA(collection)) {
                     <a href="#editCollectionModal" role="button" class="btn btn-yellow" data-toggle="modal"><i class="icon-pencil"></i> Collection Options</a>
                 }
             </div>

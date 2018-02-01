@@ -459,9 +459,11 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   def hasSitePermission(permission: String): Boolean =
     SitePermissions.userHasPermission(this, permission) || SitePermissions.userHasPermission(this, "admin")
 
-  def hasCollectionPermission(collection: Collection, permission: String): Boolean =
-    collection.userHasPermission(this, permission) || collection.getTeachers.contains(this) || SitePermissions.userHasPermission(this, "admin")
+  def isCollectionTeacher(collection: Collection): Boolean =
+    collection.userIsTeacher(this) || SitePermissions.userHasPermission(this, "admin")
 
+  def isCollectionTA(collection: Collection): Boolean =
+    collection.userIsTA(this) || isCollectionTeacher(collection)
 
   //       _____      _   _
   //      / ____|    | | | |

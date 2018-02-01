@@ -197,7 +197,9 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
   def addUserPermission(user: User, permission: String) = CollectionPermissions.addUserPermission(this, user, permission)
   def removeUserPermission(user: User, permission: String) = CollectionPermissions.removeUserPermission(this, user, permission)
   def removeAllUserPermissions(user: User) = CollectionPermissions.removeAllUserPermissions(this, user)
-  def userHasPermission(user: User, permission: String) = CollectionPermissions.userHasPermission(this, user, permission)
+
+  def userIsTA(user: User) = getTAs.contains(user)
+  def userIsTeacher(user: User) = getTeachers.contains(user)
 }
 
 object Collection extends SQLSelectable[Collection] {

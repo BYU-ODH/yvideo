@@ -1,7 +1,7 @@
 @import models.CollectionPermissions.descriptionMap
 @(user: User, collection: Collection)(implicit request: RequestHeader)
 
-@if(user.hasCollectionPermission(collection, "teacher") || user.hasCollectionPermission(collection, "viewData")) {
+@if(user.isCollectionTA(collection)) {
     @Dependencies(Local(JS("javascripts/pageScripts/collectionPermissions.js")))
     <div id="studentInfoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="studentInfoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -42,7 +42,7 @@
     <script>
         var viewer_id = @{user.id.get};
         var permUrl = "@{routes.Collections.setPermission(collection.id.get, "")}";
-        var isTeacher = @if(user.hasCollectionPermission(collection, "teacher")){ "true" } else { "false" };
+        var isTeacher = @if(user.isCollectionTeacher(collection)){ "true" } else { "false" };
         var memberPermissionList = [@for((k,v) <- descriptionMap) {
             {value: "@k", text: "@v"},
         }];

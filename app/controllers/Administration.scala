@@ -227,7 +227,7 @@ object Administration extends Controller {
       implicit user =>
         Collections.getCollection(id) { collection =>
           Future {
-            if (user.hasCollectionPermission(collection, "deleteCollection")) {
+            if (user.isCollectionTeacher(collection)) {
               collection.delete()
               Redirect(routes.Application.home)
                 .flashing("info" -> "Collection deleted")

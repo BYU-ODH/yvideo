@@ -49,7 +49,7 @@ object CollectionContent extends Controller {
       implicit user =>
         val collectionId = request.body("collection")(0).toLong
         Collections.getCollection(collectionId) { collection =>
-          if (user.hasCollectionPermission(collection, "addContent")) {
+          if (user.isCollectionTA(collection)) {
             ContentController.getContent(id) { content =>
               collection.addContent(content)
               val collectionLink = "<a href=\"" + routes.Collections.view(collection.id.get).toString() + "\">" + collection.name + "</a>"
@@ -72,7 +72,7 @@ object CollectionContent extends Controller {
     implicit request =>
       implicit user =>
         Collections.getCollection(collectionId) { collection =>
-          if (user.hasCollectionPermission(collection, "removeContent")) {
+          if (user.isCollectionTA(collection)) {
             ContentController.getContent(id) { content =>
               ContentListing.listByContent(content).find(_.collectionId == collectionId).map(_.delete())
               Future {
