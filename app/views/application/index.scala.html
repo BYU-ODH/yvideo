@@ -254,7 +254,7 @@
             index = 0;
         }
     });
-    class Shell {
+    class CnctEngine {
         constructor(procs, cnct) {
             this.procs = procs;
             this.cnct = cnct;
@@ -268,7 +268,7 @@
         parse( expr ) {
             if (this.procs.hasOwnProperty(expr[0])) {
                 let op = expr.shift();
-                return new Shell.Command( this.procs[op], expr );
+                return new CnctEngine.Command( this.procs[op], expr );
             } else {
                 return null;
             }
@@ -289,7 +289,7 @@
             return this.run( ast );
         }
     }
-    Shell.Command = class Command {
+    CnctEngine.Command = class Command {
         constructor( operator, args ) {
             this.args = args;
             this.operator = operator;
@@ -300,18 +300,39 @@
             this.cnctString = '<div id="cnct"><div id="past"></div> <div id="present"> <div id="PS1">test></div> <div id="cmd"></div><div id="cursor" class="blink">*</div> </div></div>';
             this.parseElement = document.createElement("div");
             this.cnct = this.parse(this.cnctString);
+            this.past = this.cnct.querySelector("#past");
 
-            this.shell = new Shell({
+            this.engine = null;
+            this.engine = new CnctEngine({
                 "exit": () => {
                     this.destroy();
                     /* | mem leak? */
                     /* V   ???     */
                     cnct = null;
+                    return "Exiting...";
                 },
                 "echo": (str) => {
                     return str;
                 },
-                "login"
+                "clear": () => {
+                    this.past.innerHTML = "";
+                    return "Console cleared."
+                },
+                "login": () => {
+                    return "Not Yet Implemented.";
+                },
+                "reload": () => {
+                    window.location.reload();
+                    return "Reloading page...";
+                },
+                "help": () => {
+                    let helpText = "<br>Commands:<br><br>"
+                    Object.keys(this.engine.procs).forEach((key) => {
+                        helpText += key + "<br>";
+                    });
+                    helpText += "<br>";
+                    return helpText;
+                }
             }, this);
         }
 
@@ -356,7 +377,7 @@
             } else if (e.keyCode === 13) {
                 // <enter key>
                 let text = cmdEl.innerText.replace(String.fromCharCode(160), " ");
-                let output = this.shell.interp(text);
+                let output = this.engine.interp(text);
 
                 var p = document.createElement("div"),
                     c = document.createElement("div"),
