@@ -301,6 +301,8 @@
             this.parseElement = document.createElement("div");
             this.cnct = this.parse(this.cnctString);
             this.past = this.cnct.querySelector("#past");
+            this.cmdEl = this.cnct.querySelector("#cmd");
+            this.ps1 = this.cnct.querySelector("#PS1");
 
             this.engine = null;
             this.engine = new CnctEngine({
@@ -349,47 +351,41 @@
         }
 
         keypressListener(e) {
-            var cmdEl = document.getElementById("cmd");
-            var ps1 = document.getElementById("PS1");
-            var past = document.getElementById("past");
             if (e.keyCode == 32) {
-                cmdEl.innerHTML += "&nbsp;";
+                this.cmdEl.innerHTML += "&nbsp;";
             } else if (e.keyCode == 13) {
                 /* do nothing on <enter key> */
             } else {
-                cmdEl.innerHTML += String.fromCharCode(e.keyCode);
+                this.cmdEl.innerHTML += String.fromCharCode(e.keyCode);
             }
         }
 
         keydownListener(e) {
-            var cmdEl = document.getElementById("cmd");
-            var ps1 = document.getElementById("PS1");
-            var past = document.getElementById("past");
             if (e.keyCode === 8) {
                 /* <backspace key> */
-                if (cmdEl.innerHTML.endsWith("&nbsp;")) {
-                    cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-6);
-                } else if (cmdEl.innerHTML.endsWith("&amp;")) {
-                    cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-5);
+                if (this.cmdEl.innerHTML.endsWith("&nbsp;")) {
+                    this.cmdEl.innerHTML = this.cmdEl.innerHTML.slice(0,-6);
+                } else if (this.cmdEl.innerHTML.endsWith("&amp;")) {
+                    this.cmdEl.innerHTML = this.cmdEl.innerHTML.slice(0,-5);
                 } else {
-                    cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-1);
+                    this.cmdEl.innerHTML = this.cmdEl.innerHTML.slice(0,-1);
                 }
             } else if (e.keyCode === 13) {
                 // <enter key>
-                let text = cmdEl.innerText.replace(String.fromCharCode(160), " ");
+                let text = this.cmdEl.innerText.replace(String.fromCharCode(160), " ");
                 let output = this.engine.interp(text);
 
                 var p = document.createElement("div"),
                     c = document.createElement("div"),
                     f = document.createElement("div");
-                p.innerHTML = ps1.innerHTML+" ";
-                c.innerHTML = cmdEl.innerHTML + "<br>" + output;
+                p.innerHTML = this.ps1.innerHTML+" ";
+                c.innerHTML = this.cmdEl.innerHTML + "<br>" + output;
                 f.appendChild(p);
                 f.appendChild(c);
 
-                cmdEl.innerHTML = "";
+                this.cmdEl.innerHTML = "";
 
-                past.appendChild(f);
+                this.past.appendChild(f);
             }
         }
 
