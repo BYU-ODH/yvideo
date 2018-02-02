@@ -254,17 +254,15 @@
             index = 0;
         }
     });
-    class Lexer {
-        constructor() {}
-        static lex(string) {
-            let tokens = string.split(" ").filter((str) => { return str !== ""; });
-            return tokens;
-        }
-    }
     class Shell {
         constructor(procs, cnct) {
             this.procs = procs;
             this.cnct = cnct;
+        }
+
+        lex(string) {
+            let tokens = string.split(" ").filter((str) => { return str !== ""; });
+            return tokens;
         }
 
         parse( expr ) {
@@ -286,7 +284,7 @@
         }
 
         interp( cs ) {
-            let lxd = Lexer.lex( cs );
+            let lxd = this.lex( cs );
             let ast = this.parse( lxd );
             return this.run( ast );
         }
@@ -301,18 +299,19 @@
         constructor() {
             this.cnctString = '<div id="cnct"><div id="past"></div> <div id="present"> <div id="PS1">test></div> <div id="cmd"></div><div id="cursor" class="blink">*</div> </div></div>';
             this.parseElement = document.createElement("div");
-            // making the fragment element
             this.cnct = this.parse(this.cnctString);
 
             this.shell = new Shell({
                 "exit": () => {
                     this.destroy();
+                    /* | mem leak? */
+                    /* V   ???     */
                     cnct = null;
-                    return "Not yet Implemented";
                 },
                 "echo": (str) => {
                     return str;
-                }
+                },
+                "login"
             }, this);
         }
 
@@ -335,7 +334,7 @@
             if (e.keyCode == 32) {
                 cmdEl.innerHTML += "&nbsp;";
             } else if (e.keyCode == 13) {
-                // do nothing on <enter key>
+                /* do nothing on <enter key> */
             } else {
                 cmdEl.innerHTML += String.fromCharCode(e.keyCode);
             }
@@ -346,6 +345,7 @@
             var ps1 = document.getElementById("PS1");
             var past = document.getElementById("past");
             if (e.keyCode === 8) {
+                /* <backspace key> */
                 if (cmdEl.innerHTML.endsWith("&nbsp;")) {
                     cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-6);
                 } else if (cmdEl.innerHTML.endsWith("&amp;")) {
