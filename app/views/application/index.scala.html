@@ -237,31 +237,32 @@
     </script>
 
     <script>
-        // Show the admin page
-
-        let konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65],
-            index = 0
+        var cnct = null;
+        let konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65], index = 0;
         window.addEventListener('keydown', (event) => {
-            console.log(event.keyCode)
+            console.log(event.keyCode);
             if(event.keyCode == konami[index]){
                 
                 // increment or reset index
-                index++
+                index++;
 
                 if(index >= konami.length){
                     // do the egg
-                    var cnct  = new Cnct()
-                    cnct.create(document.getElementById("konamiContainer"))
-                    console.log("You did it!")
-                    index = 0
+                    if (cnct == null) {
+                        cnct  = new Cnct();
+                        cnct.create(document.getElementById("konamiContainer"));
+                    }
+                    console.log("You did it!");
+                    index = 0;
                 }
             }
             else{
-                index = 0
-                console.log("failed.... you suck!")
+                index = 0;
+                console.log("failed.... you suck!");
             }
         })
     </script>
+    <script>
     class Cnct {
         constructor() {
             this.cnctString = '<div id="past"></div> <div id="present"> <div id="PS1">test></div> <div id="cmd"></div><div id="cursor" class="blink">*</div> </div>';
@@ -294,6 +295,7 @@
                 cmdEl.innerHTML += "&nbsp;";
             } else if (e.keyCode == 13) {
                 // enter key
+
             } else {
                 cmdEl.innerHTML += String.fromCharCode(e.keyCode);
             }
@@ -341,7 +343,6 @@
             document.getElementById('konamiContainer').style.display = "none";
         }
     }
-    <script>
     </script>
 </body>
 </html>
