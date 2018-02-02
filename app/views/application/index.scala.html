@@ -4,21 +4,21 @@
 <html>
 <head>
     <title>Y-Video</title>
-	@Dependencies(
+    @Dependencies(
       Local(
-		Icon("images/favicon.png", "image/png"),
-		Rel("stylesheets/",
+        Icon("images/favicon.png", "image/png"),
+        Rel("stylesheets/",
           CSS("bootstrap.min.css"),
           CSS("bootstrap-responsive.min.css"),
           CSS("font-awesome.min.css"),
           CSS("main.css"),
-		  CSS("index.css")),
-		Rel("javascripts/",
-		  Rel("libraries/",
-			JS("jquery.min.js"),
-			JS("bootstrap.min.js")),
-		  JS("pageScripts/index.js")))
-	)
+          CSS("index.css")),
+        Rel("javascripts/",
+          Rel("libraries/",
+            JS("jquery.min.js"),
+            JS("bootstrap.min.js")),
+          JS("pageScripts/index.js")))
+    )
 </head>
 <body>
 
@@ -236,43 +236,83 @@
         });
     </script>
 
-    <script>
-        var cnct = null;
-        let konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65], index = 0;
-        window.addEventListener('keydown', (event) => {
-            console.log(event.keyCode);
-            if(event.keyCode == konami[index]){
-                
-                // increment or reset index
-                index++;
-
-                if(index >= konami.length){
-                    // do the egg
-                    if (cnct == null) {
-                        cnct  = new Cnct();
-                        cnct.create(document.getElementById("konamiContainer"));
-                    }
-                    console.log("You did it!");
-                    index = 0;
+    <script type="text/javascript">
+    var cnct = null;
+    let konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65], index = 0;
+    window.addEventListener('keydown', (event) => {
+        if(event.keyCode == konami[index]){
+            index++;
+            if(index >= konami.length){
+                if (cnct == null) {
+                    cnct  = new Cnct();
+                    cnct.create(document.getElementById("konamiContainer"));
                 }
-            }
-            else{
                 index = 0;
-                console.log("failed.... you suck!");
             }
-        })
-    </script>
-    <script>
+        }
+        else{
+            index = 0;
+        }
+    });
+    class Lexer {
+        constructor() {}
+        static lex(string) {
+            let tokens = string.split(" ").filter((str) => { return str !== ""; });
+            return tokens;
+        }
+    }
+    class Shell {
+        constructor(procs, cnct) {
+            this.procs = procs;
+            this.cnct = cnct;
+        }
+
+        parse( expr ) {
+            if (this.procs.hasOwnProperty(expr[0])) {
+                let op = expr.shift();
+                return new Shell.Command( this.procs[op], expr );
+            } else {
+                return null;
+            }
+        }
+
+        run( ast ) {
+            if (ast != null){
+                console.log(ast.operator.apply( ast, ast.args ));
+                return ast.operator.apply( ast, ast.args );
+            } else {
+                return "Function Does not exist.";
+            }
+        }
+
+        interp( cs ) {
+            let lxd = Lexer.lex( cs );
+            let ast = this.parse( lxd );
+            return this.run( ast );
+        }
+    }
+    Shell.Command = class Command {
+        constructor( operator, args ) {
+            this.args = args;
+            this.operator = operator;
+        }
+    };
     class Cnct {
         constructor() {
-            this.cnctString = '<div id="past"></div> <div id="present"> <div id="PS1">test></div> <div id="cmd"></div><div id="cursor" class="blink">*</div> </div>';
+            this.cnctString = '<div id="cnct"><div id="past"></div> <div id="present"> <div id="PS1">test></div> <div id="cmd"></div><div id="cursor" class="blink">*</div> </div></div>';
             this.parseElement = document.createElement("div");
             // making the fragment element
             this.cnct = this.parse(this.cnctString);
-            this.cmdEl = this.cnct.getElementById("cmd");
-            this.cur = this.cnct.getElementById("cursor");
-            this.ps1 = this.cnct.getElementById("PS1");
 
+            this.shell = new Shell({
+                "exit": () => {
+                    this.destroy();
+                    return "Not yet Implemented";
+                },
+                "echo": (str) => {
+                    return str;
+                }
+            }, this);
         }
 
         parse(text) {
@@ -294,8 +334,7 @@
             if (e.keyCode == 32) {
                 cmdEl.innerHTML += "&nbsp;";
             } else if (e.keyCode == 13) {
-                // enter key
-
+                // do nothing on <enter key>
             } else {
                 cmdEl.innerHTML += String.fromCharCode(e.keyCode);
             }
@@ -306,20 +345,23 @@
             var ps1 = document.getElementById("PS1");
             var past = document.getElementById("past");
             if (e.keyCode === 8) {
-                if (cmdEL.innerHTML.endsWith("&nbsp;")) {
+                if (cmdEl.innerHTML.endsWith("&nbsp;")) {
                     cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-6);
-                } else if (that.cmdEl.innerHTML.endsWith("&amp;")) {
-                    that.cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-5);
+                } else if (cmdEl.innerHTML.endsWith("&amp;")) {
+                    cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-5);
                 } else {
                     cmdEl.innerHTML = cmdEl.innerHTML.slice(0,-1);
                 }
             } else if (e.keyCode === 13) {
-                
+                // <enter key>
+                let text = cmdEl.innerText.replace(String.fromCharCode(160), " ");
+                let output = this.shell.interp(text);
+
                 var p = document.createElement("div"),
                     c = document.createElement("div"),
                     f = document.createElement("div");
                 p.innerHTML = ps1.innerHTML+" ";
-                c.innerHTML = cmdEl.innerHTML;
+                c.innerHTML = cmdEl.innerHTML + "<br>" + output;
                 f.appendChild(p);
                 f.appendChild(c);
 
@@ -337,7 +379,7 @@
         }
 
         destroy() {
-            this.cnctFragment.remove();
+            this.cnct.remove();
             window.removeEventListener('keypress', this.keypressListener);
             window.removeEventListener('keydown', this.keydownListener);
             document.getElementById('konamiContainer').style.display = "none";
