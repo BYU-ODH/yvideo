@@ -307,6 +307,7 @@
             this.shell = new Shell({
                 "exit": () => {
                     this.destroy();
+                    cnct = null;
                     return "Not yet Implemented";
                 },
                 "echo": (str) => {
@@ -372,16 +373,18 @@
         }
 
         create(element) {
+            this.kpl = this.keypressListener.bind(this);
+            this.kdl = this.keydownListener.bind(this);
+            window.addEventListener('keypress', this.kpl, false);
+            window.addEventListener('keydown', this.kdl, false);
             element.appendChild(this.cnct);
-            window.addEventListener('keypress', this.keypressListener.bind(this));
-            window.addEventListener('keydown', this.keydownListener.bind(this));
             document.getElementById('konamiContainer').style.display = "block";
         }
 
         destroy() {
+            window.removeEventListener('keypress', this.kpl, false);
+            window.removeEventListener('keydown', this.kdl, false);
             this.cnct.remove();
-            window.removeEventListener('keypress', this.keypressListener);
-            window.removeEventListener('keydown', this.keydownListener);
             document.getElementById('konamiContainer').style.display = "none";
         }
     }
