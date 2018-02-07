@@ -14,10 +14,11 @@ object Password extends Controller {
    * @param action Login or merge
    * @param path When logging in, the path where the user will be redirected
    */
-  def login(action: String, path: String = "") = Action(parse.urlFormEncoded) {
+  def login(action: String, path: String = "") = Action(parse.multipartFormData) {
     implicit request =>
-      val username = request.body("username")(0)
-      val password = request.body("password")(0)
+      val data = request.body.dataParts
+      val username = data("username")(0)
+      val password = data("password")(0)
 
       // Get the user based on the username and password
       val user = User.findByUsername('password, username)

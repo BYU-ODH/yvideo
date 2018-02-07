@@ -114,61 +114,10 @@
     </div>
 
     <div class="closing">
-        <div>Brought about by the <a href="http://arclite.byu.edu">ARCLITE Lab</a></div>
+            <div>Brought about by the <a href="http://arclite.byu.edu">ARCLITE Lab</a></div>
         <div>Copyright © 2013 <a href="http://byu.edu">Brigham Young University</a></div>
         <div>Funding from <a href="http://www.thelanguageflagship.org/">The Language Flagship</a></div>
     </div>
-
-    <div id="signupModal" class="modal fade" role="dialog" aria-labelledby="signupModalLabel">
-        <div class="modal-dialog">
-            <div class="modal-content">    
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">×</button>
-                    <h3 id="signupModalLabel">Create an account</h3>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal" id="signupForm" method="post" action="@controllers.authentication.routes.Password.createAccount(path)">
-                    <div class="form-group">
-                        <label class="control-label col-sm-4" for="username">Username</label>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" autofocus>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-4" for="password1">Password</label>
-                        <div class="col-sm-6">
-                            <input type="password" class="form-control" id="password1" name="password1" placeholder="Password">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-4" for="password2">Password again</label>
-                        <div class="col-sm-6">
-                            <input type="password" class="form-control" id="password2" name="password2" placeholder="Password again">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-4" for="name">Your name</label>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Your name">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-4" for="email">Email address</label>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" id="email" name="email" placeholder="Email address">
-                            <input type="submit" style="position: absolute; left: -9999px"/>
-                        </div>
-                    </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-gray" data-dismiss="modal">Close</button>
-                    <button id="signup" class="btn btn-blue">Sign up</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
   <div id="loginModal" class="modal fade" role="dialog" aria-labelledby="loginModalLabel" >
     <div class="modal-dialog">
@@ -224,9 +173,6 @@
             document.getElementById("login").addEventListener('click', function(){
                 $("#loginForm").submit();
             }, false);
-            document.getElementById("signup").addEventListener('click', function(){
-                $("#signupForm").submit();
-            }, false);
         });
         $('#loginModal').on('shown.bs.modal', function() {
             $(this).find('[autofocus]').focus();
@@ -255,9 +201,8 @@
         }
     });
     class CnctEngine {
-        constructor(procs, cnct) {
+        constructor(procs) {
             this.procs = procs;
-            this.cnct = cnct;
         }
 
         lex(string) {
@@ -276,7 +221,6 @@
 
         run( ast ) {
             if (ast != null){
-                console.log(ast.operator.apply( ast, ast.args ));
                 return ast.operator.apply( ast, ast.args );
             } else {
                 return "Function Does not exist.";
@@ -297,14 +241,18 @@
     };
     class Cnct {
         constructor() {
-            this.cnctString = '<div id="cnct"><div id="past"></div> <div id="present"> <div id="PS1">test></div> <div id="cmd"></div><div id="cursor" class="blink">*</div> </div></div>';
+            this.cnctString = '<div id="cnct"><div id="past"></div> <div id="present"> <div id="PS1">anon@@yvideo></div> <div id="cmd"></div><div id="cursor" class="blink">*</div> </div></div>';
             this.parseElement = document.createElement("div");
             this.cnct = this.parse(this.cnctString);
             this.past = this.cnct.querySelector("#past");
             this.cmdEl = this.cnct.querySelector("#cmd");
             this.ps1 = this.cnct.querySelector("#PS1");
-
+            this.defaultps1 = this.ps1.innerText;
+            this.kpl = this.keypressListener.bind(this, this.cmdEl, null);
+            this.kdl = this.keydownListener.bind(this, this.cmdEl, null);
+            this.userInput = "";
             this.engine = null;
+
             this.engine = new CnctEngine({
                 "exit": () => {
                     this.destroy();
@@ -320,8 +268,59 @@
                     this.past.innerHTML = "";
                     return "Console cleared."
                 },
-                "login": () => {
-                    return "Not Yet Implemented.";
+                "login": (username, password) => {
+                    username = username || "";
+                    password = password || "";
+                    if (username.length === 0 || password.length === 0) {
+                        this.changePrompt("Enter Username: ", true);
+                        this.username = this.keydownListener.bind(this, this.cmdEl, (function(text) {
+                                            this.changePrompt("Enter Password: ", true);
+                                            this.clearInput();
+                                            this.submitPassword = this.keydownListener.bind(this, this.cmdEl, login.bind(this, text));
+                                            this.getPassword = getPasswordOnKeypress.bind(this, this.cmdEl);
+                                            this.returnControl(this.kpl, this.username);
+                                            this.takeControl(this.getPassword, this.submitPassword);
+                                        }).bind(this));
+                        this.takeControl(this.kpl, this.username);
+                    }
+
+                    function getPasswordOnKeypress(element, e) {
+                        if (e.keyCode == 13) {
+                            /* do nothing on <enter key> */
+                        } else {
+                            this.userInput += String.fromCharCode(e.keyCode);
+                            element.innerHTML += "*";
+                        }
+                    }
+
+                    function login(username, password) {
+                        console.log(password);
+                        var data = new FormData();
+                        data.append("username", username);
+                        data.append("password", password);
+                        var that = this;
+                        $.ajax("@controllers.authentication.routes.Password.login("login", path)", {
+                            type: "post",
+                            data: data,
+                            processData: false,
+                            contentType: false,
+                            success: function(value) {
+                                that.pastMessage("Authenticated with the server; reload to complete login.");
+                            },
+                            failure: function(err) {
+                                console.log(err);
+                                that.pastMessage("Authentication failed.");
+                            },
+                            complete: function(event) {
+                                that.clearInput();
+                                that.changePrompt(null, null, true);
+                                that.returnControl(that.getPassword, that.submitPassword);
+                                if (event.status === 200)
+                                    that.type("reload");
+                            }
+                        });
+                    }
+                    return "Attempting to login...";
                 },
                 "reload": () => {
                     window.location.reload();
@@ -335,7 +334,38 @@
                     helpText += "<br>";
                     return helpText;
                 }
-            }, this);
+            });
+        }
+
+        pastMessage(text) {
+            this.past.innerHTML += text + "<br>";
+        }
+
+        changePrompt(str, custom, reset) {
+            var standard = "anon@@yvideo";
+            if (reset === true) {
+                this.ps1.innerHTML = standard + ">";
+                return standard + ">";
+            }            
+            if (this.ps1Text !== standard)
+                standard = this.ps1Text;
+            this.ps1Text = (str || standard) + (custom===true?"":">");
+            this.ps1.innerHTML = this.ps1Text;
+            return this.ps1Text;
+        }
+
+        type(text, enter) {
+            var letters = text;
+            if (typeof letters === "string")
+                letters = text.split("");
+            if (letters instanceof Array) {
+                letters.forEach((str) => {
+                    if (typeof str === "string" && str.length > 0)
+                        this.keypressListener(this.cmdEl, null, {keyCode: str.charCodeAt(0)});
+                });
+               if (enter === true)
+                   this.pressEnter();
+            }
         }
 
         parse(text) {
@@ -350,59 +380,95 @@
             }
         }
 
-        keypressListener(e) {
+        pressEnter(callback) {
+            this.keydownListener(this.cmdEl, callback, {keyCode: 13});
+        }
+
+        takeControl(kpl, kdl) {
+            this.removeEventListeners(this.kpl, this.kdl);
+            this.addEventListeners(kpl, kdl);
+        }
+
+        returnControl(kpl, kdl) {
+            this.removeEventListeners(kpl, kdl);
+            this.addEventListeners(this.kpl, this.kdl);
+        }
+
+        // both element and callback should be bound so e is the first parameter
+        // when being used as an event listener
+        keypressListener(element, callback, e) {
             if (e.keyCode == 32) {
-                this.cmdEl.innerHTML += "&nbsp;";
+                element.innerHTML += "&nbsp;";
+                this.userInput += String.fromCharCode(e.keyCode);
             } else if (e.keyCode == 13) {
                 /* do nothing on <enter key> */
             } else {
-                this.cmdEl.innerHTML += String.fromCharCode(e.keyCode);
+                element.innerHTML += String.fromCharCode(e.keyCode);
+                this.userInput += String.fromCharCode(e.keyCode);
             }
         }
 
-        keydownListener(e) {
+        keydownListener(element, callback,  e) {
             if (e.keyCode === 8) {
                 /* <backspace key> */
-                if (this.cmdEl.innerHTML.endsWith("&nbsp;")) {
-                    this.cmdEl.innerHTML = this.cmdEl.innerHTML.slice(0,-6);
-                } else if (this.cmdEl.innerHTML.endsWith("&amp;")) {
-                    this.cmdEl.innerHTML = this.cmdEl.innerHTML.slice(0,-5);
+                if (element.innerHTML.endsWith("&nbsp;")) {
+                    element.innerHTML = element.innerHTML.slice(0,-6);
+                } else if (element.innerHTML.endsWith("&amp;")) {
+                    element.innerHTML = element.innerHTML.slice(0,-5);
                 } else {
-                    this.cmdEl.innerHTML = this.cmdEl.innerHTML.slice(0,-1);
+                    element.innerHTML = element.innerHTML.slice(0,-1);
                 }
+                this.userInput = this.userInput.slice(0,-1);
             } else if (e.keyCode === 13) {
                 // <enter key>
-                let text = this.cmdEl.innerText.replace(String.fromCharCode(160), " ");
-                let output = this.engine.interp(text);
-
-                var p = document.createElement("div"),
-                    c = document.createElement("div"),
-                    f = document.createElement("div");
-                p.innerHTML = this.ps1.innerHTML+" ";
-                c.innerHTML = this.cmdEl.innerHTML + "<br>" + output;
-                f.appendChild(p);
-                f.appendChild(c);
-
-                this.cmdEl.innerHTML = "";
-
-                this.past.appendChild(f);
+                if (typeof callback === "function")
+                    callback(this.userInput);
+                else
+                   this.updateConsole(element, this.userInput);
+                this.userInput = "";
             }
+        }
+
+        clearInput() {
+            this.cmdEl.innerHTML = "";
+            this.userInput = "";
+        }
+
+        updateConsole(element, text) {
+            let output = this.engine.interp(text);
+            var p = document.createElement("div"),
+                c = document.createElement("div"),
+                f = document.createElement("div");
+            p.innerHTML = this.defaultps1 + " ";
+            c.innerHTML = element.innerHTML + "<br>" + output;
+            f.appendChild(p);
+            f.appendChild(c);
+
+            element.innerHTML = "";
+
+            this.past.appendChild(f);
         }
 
         create(element) {
-            this.kpl = this.keypressListener.bind(this);
-            this.kdl = this.keydownListener.bind(this);
-            window.addEventListener('keypress', this.kpl, false);
-            window.addEventListener('keydown', this.kdl, false);
+            this.addEventListeners(this.kpl, this.kdl);
             element.appendChild(this.cnct);
             document.getElementById('konamiContainer').style.display = "block";
         }
 
+        addEventListeners(kpl, kdl) {
+            window.addEventListener('keypress', kpl, false);
+            window.addEventListener('keydown', kdl, false);
+        }
+
         destroy() {
-            window.removeEventListener('keypress', this.kpl, false);
-            window.removeEventListener('keydown', this.kdl, false);
+            this.removeEventListeners(this.kpl, this.kdl);
             this.cnct.remove();
             document.getElementById('konamiContainer').style.display = "none";
+        }
+
+        removeEventListeners(kpl, kdl) {
+            window.removeEventListener('keypress', kpl, false);
+            window.removeEventListener('keydown', kdl, false);
         }
     }
     </script>
