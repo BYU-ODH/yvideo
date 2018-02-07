@@ -13,7 +13,9 @@ import play.api.Logger
 /**
  * This controller manages all the pages relating to collections, including authentication.
  */
-object Collections extends Controller {
+trait Collections {
+  // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
+  this: Controller =>
 
   val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
 
@@ -458,3 +460,5 @@ object Collections extends Controller {
         }
   }
 }
+
+object Collections extends Controller with Collections

@@ -16,15 +16,15 @@ object UserControllerSpec extends Specification {
 
   "The User Controller" should {
 
-    "return account settings" in { implicit ee: ExecutionEnv =>
-      running(FakeApplication()) {
+    "return account settings" in { 
+        implicit ee: ExecutionEnv => running(FakeApplication()) {
 
-        implicit val user = User(None, "", 'password, "fakeuser", None)
-        val controller = new UsersTestController()
-        val result = controller.accountSettings(FakeRequest())
+            implicit val user = User(None, "", 'password, "fakeuser", None)
+            val controller = new UsersTestController()
+            val result = controller.accountSettings(FakeRequest())
 
-        result map ( res => res.header.status shouldEqual 200) await
-      }
+            result map ( res => res.header.status shouldEqual 303) await
+        }
     }
 
   }
