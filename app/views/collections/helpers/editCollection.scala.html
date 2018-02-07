@@ -28,14 +28,14 @@
                     </div>
                   </div>
 
+                  @if(user.isCollectionTeacher(collection)) {
                   <div class="collectionGroup">
                     <label class="control-label" for="collectionName">Delete Collection</label>
                     <div class="controls">
-                      @if(user.isCollectionTeacher(collection)) {
                       <a href="#deleteCollectionModal" role="button" class="btn btn-magenta deleteCollection" data-toggle="modal" data-id="@collection.id.get">Delete Collection</a>
-                      }
                     </div>
                   </div>
+                  }
                   
                   <div class="collectionGroup">
                     <label class="control-label">Manage Content</label>
