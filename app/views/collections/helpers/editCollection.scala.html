@@ -45,12 +45,14 @@
                     </div>
                   </div>
 
+                  @if(user.isCollectionTeacher(collection)) {
                   <div class="collectionGroup">
                     <label class="control-label">Manage Admins</label>
                     <div class="controls">
                       <a ng-click="selected = 'addTA'" href="#addTAModal" role="button" class="btn btn-gray" data-toggle="modal"><i class="icon-user"></i> Add TA</a>
                     </div>
                   </div>
+                  }
 
                   <div class="collectionGroup">
                     <label class="control-label">Courses using this collection</label>
