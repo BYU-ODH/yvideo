@@ -77,6 +77,7 @@
                                 <i class="icon-folder-open"></i> My Content
                             </a>
                         </div>
+                    }
 
                         <div class="link">
                             <a href="@routes.HelpPages.tableOfContents()">
@@ -123,22 +124,6 @@
                             <i class="icon-search"></i>
                             <input type="text" class="searchBox" id="searchBox" />
                         </div>-->
-                    } else {
-                        <div class="link">
-                            <a href="@routes.HelpPages.tableOfContents()">
-                                <i class="icon-question-sign"></i> Help
-                            </a>
-                        </div>
-                        @if(user.isDefined) {
-                            <!--<div class="link">
-                                <i class="icon-search"></i>
-                                <input type="text" class="searchBox" id="searchBox" />
-                            </div>-->
-                            <div class="link">
-                                <a href="@controllers.authentication.routes.Authentication.logout()"><i class="icon-off"></i> Log out</a>
-                            </div>
-                        }
-                    }
                 </div>
             </div>
         </div>
