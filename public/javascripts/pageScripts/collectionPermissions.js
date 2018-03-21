@@ -10,8 +10,12 @@ $(function(){
     />{{/teacher}}\
     <table class="table table-bordered table-condensed" id="studentTable" >\
         <tr>\
-            <th>Username</th><th>Name</th><th>Email</th>\
-            {{#teacher}}<th>Permissions</th><th>Actions</th>{{/teacher}}\
+            <th>Username</th>\
+            <th>Name</th>\
+            <th>Email</th>\
+            {{#teacher}}\
+                <th>Permissions</th>\
+            {{/teacher}}\
         </tr>\
         {{#users:index}}\
             <tr style="background: {{calc_color(.permissions, activePermissions)}};" id="uid{{.id}}">\
@@ -25,10 +29,6 @@ $(function(){
                     {{#(is_missing(.permissions, activePermissions) && has_extra(.permissions, activePermissions))}}\
                         <a on-tap="match:{{index}}" class="btn btn-small btn-yellow">Match Filter</a>\
                     {{/match}}\
-                </td><td>\
-                    {{#(.id !== viewer_id)}}\
-                        <a on-tap="removeUser:{{.id}}" class="btn btn-small btn-magenta deleteUser"><i class="icon-trash"></i> Remove</a>\
-                    {{/is_viewer}}\
                 </td>\
                 {{/teacher}}\
             </tr>\
