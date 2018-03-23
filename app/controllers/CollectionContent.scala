@@ -28,11 +28,11 @@ object CollectionContent extends Controller {
             Future {
               // Check that the user can view the content
               if (content isVisibleBy user) Ok(
-                if (MobileDetection.isMobile()) {
+                /*if (MobileDetection.isMobile()) {
                   views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user), Some(collection))
-                } else {
-                  views.html.content.view(content, ResourceController.baseUrl, Some(user), Some(collection))
-                }
+                } else {*/
+              views.html.content.view(content, ResourceController.baseUrl, Some(user), Some(collection))
+                /*}*/
               ) else
                 Errors.forbidden
             }
