@@ -71,7 +71,7 @@
                 </div>
             }
             @if(request.flash.get("error").isDefined) {
-                <div class="alert alert-error">
+                <div class="alert alert-danger">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Oh snap!</strong> @Html(request.flash("error"))
                 </div>

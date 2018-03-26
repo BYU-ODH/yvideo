@@ -305,6 +305,7 @@ h1, h2, h3, h4, h5, h6 {
     -webkit-box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.7);
     -moz-box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.7);
     box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.7);
+    background-color: #fff;
 }
 
 /*
