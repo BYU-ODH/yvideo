@@ -88,11 +88,14 @@
 <script type="text/javascript">
     $(function() {
         var $content = $(".feedbackContent").hide();
+        document.getElementById("feedback").addEventListener('click', function(){
+            $('#feedbackModal').modal('show');
+        }, false);
+
         $(".feedbackCategory").click(function() {
             $content.hide();
             $(this.dataset["target"]).show();
         });
-
         $(".starTool").click(function(event) {
             var target = this.dataset["target"];
             var level = +this.dataset["level"];
