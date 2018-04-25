@@ -9,6 +9,7 @@ GET     /search                         controllers.Application.search
 GET     /about                          controllers.Application.about
 GET     /terms                          controllers.Application.terms
 GET     /policy                         controllers.Application.policy
+GET 	/login							controllers.Application.login
 
 # Authentication
 GET     /auth/cas                                      controllers.authentication.Cas.login(action: String = "login", path: String = "")

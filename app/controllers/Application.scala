@@ -26,6 +26,20 @@ object Application extends Controller {
   }
 
   /**
+   * A special login page for admins
+   */
+  def login = Action {
+    implicit request =>
+      val user = Authentication.getUserFromRequest()
+      if (user.isDefined)
+        Redirect(controllers.routes.Application.home())
+      else {
+        val path = request.queryString.get("path").map(path => path(0)).getOrElse("")
+        Ok(views.html.application.login(path))
+      }
+  }
+
+  /**
    * The home page
    */
   def home = Authentication.authenticatedAction() {
