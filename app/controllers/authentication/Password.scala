@@ -19,7 +19,7 @@ object Password extends Controller {
       val data = request.body.dataParts
       val username = data("username")(0)
       val password = data("password")(0)
-
+      
       // Get the user based on the username and password
       val user = User.findByUsername('password, username)
       val passwordHash = HashTools.sha256Base64(password)

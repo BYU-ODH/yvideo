@@ -71,7 +71,7 @@
                 <h3 id="loginModalLabel">Sign in</h3>
             </div>
             <div class="modal-body">
-              <form class="form-horizontal" id="loginForm" method="post" action="@controllers.authentication.routes.Password.login("login", path)">
+              <form class="form-horizontal" id="loginForm">
                 <div class="form-group">
                     <label class="control-label col-sm-4" for="username">Username:</label>
                     <div class="col-sm-6">
@@ -82,7 +82,7 @@
                     <label class="control-label col-sm-4" for="password">Password:</label>
                     <div class="col-sm-6">          
                         <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
-                        <input type="submit" style="position: absolute; left: -9999px"/>
+                        <input style="position: absolute; left: -9999px"/>
                     </div>
                 </div>
                 </form>
@@ -97,11 +97,34 @@
     </div>
 
     <script type="text/javascript">
+        
         $(function() {
-            document.getElementById("login").addEventListener('click', function(){
-                $("#loginForm").submit();
-            }, false);
+            document.getElementById('login').addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                var data = new FormData();
+                var username = document.getElementById('username').value;
+                var password = document.getElementById('password').value;
+                data.append("username", username);
+                data.append("password", password);
+
+                var that = this;
+                $.ajax("@controllers.authentication.routes.Password.login("login", path)", {
+                    type: "post",
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                    success: function(value) {
+                        window.location.reload();
+                    },
+                    failure: function(err) {
+                        alert("Login failed. Please try again.")
+                    }
+                });
+
+            })
         });
+
         $('#loginModal').on('shown.bs.modal', function() {
             $(this).find('[autofocus]').focus();
         });
