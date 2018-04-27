@@ -13,7 +13,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
     jdbc,
     cache,
 	ws,
-    "mysql" % "mysql-connector-java" % "5.1.10",
+    "mysql" % "mysql-connector-java" % "5.1.45",
     "commons-io" % "commons-io" % "2.4",
     "com.google.gdata" % "core" % "1.47.1",
     "com.amazonaws" % "aws-java-sdk" % "1.4.1",
