@@ -19,39 +19,7 @@
             <li><a href="@routes.ContentController.createPage("resource", courseId)">Load from Resource</a></li>
         </ul>
 
-        <h2>Y-Video Batch Upload Utility 2.0</h2>
-
-        <style>
-          .dropZone{
-            background: lightgrey;
-            border: 3px solid white;
-            border-radius: 3px;
-            padding: 45px;
-            margin-bottom: 15px;
-            min-height: 125px;
-            min-width: 300px;
-            max-width: 45%;
-            resize: both;
-            transition: border .75s,
-                        background .75s,
-                        color .35s,
-                        border-radius .75s;
-          }
-          .dropZone:hover{
-            border: 3px dashed grey;
-            border-radius: 5px;
-            background: darkgrey;
-            color: white;
-          }
-
-          #dropLeft{
-            float: left;
-          }
-
-          #dropRight{
-            float: right;
-          }
-        </style>
+        <h2>Batch Add</h2>
 
         <div class="grid-container">
             <div class="grid-75">
@@ -95,12 +63,19 @@
 					<button class="addRemoveLineButton" on-tap="addRow:{{index}}" {{~/disabled?"disabled=true":""}}>+</button>&nbsp;
 					<button class="addRemoveLineButton" on-tap="removeRow:{{index}}" {{~/disabled?"disabled=true":""}}>-</button>
 				</td>
-				<td><input type="text" value="{{.contentType}}" name="contentType" class="short"></td>
-				<td><input type="text" value="{{.title}}"       name="title"       class="med"></td>
-				<td><input type="text" value="{{.url}}"         name="url"         class="long"></td>
-				<td><input type="text" value="{{.description}}" name="description" class="long"></td>
-				<td><input type="text" value="{{.labels}}"      name="labels"      class="short"></td>
-				<td><input type="text" value="{{.languages}}"   name="languages"   class="short"></td>
+				<td>
+          <select value="{{.contentType}}" name="contentType" class="form-control short">
+            <option value="audio">audio</option>
+            <option value="image">image</option>
+            <option value="video">video</option>
+            <option value="text">text</option>
+          </select>
+        </td>
+				<td><input type="text" value="{{.title}}"       name="title"       class="form-control med"></td>
+				<td><input type="text" value="{{.url}}"         name="url"         class="form-control long"></td>
+				<td><input type="text" value="{{.description}}" name="description" class="form-control long"></td>
+				<td><input type="text" value="{{.labels}}"      name="labels"      class="form-control short"></td>
+				<td><input type="text" value="{{.languages}}"   name="languages"   class="form-control short"></td>
 				<td>{{#(.contentId)}}
 					<a href="/content/{{contentId}}" target="_blank" class="btn btn-small"><i class="icon-eye-open"></i></a>
 				{{/id}}</td>
@@ -108,7 +83,7 @@
 			{{/content}}
 		</table>
 		<div>
-			<button class="btn btn-blue" on-tap="start" {{disabled?'disabled="true"':''}}>Start Batch</button>
+			<button class="btn btn-blue" on-tap="start" {{disabled?'disabled="true"':''}}>Upload</button>
 			<button class="btn btn-yellow" on-tap="clear" {{disabled?'disabled="true"':''}}>Clear Table</button>
 		</div>
 	</script>
