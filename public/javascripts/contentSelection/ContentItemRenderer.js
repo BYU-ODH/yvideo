@@ -94,6 +94,22 @@ var ContentItemRenderer = (function(){
             }
         },false);
 
+        // This is a potential fix for issue #48. It allows another tab to be opened when right-clicking content. 
+        // However, this prevents the regular context menu and is seen as a pop-up by most browsers
+        // Potential solutions are:
+        // 1. Make a custom context menu with a "open in new tab" option OR
+        // 2. Convert the content objects into clickable divs, allowing us to treat them like regular buttons
+        /*el.addEventListener('contextmenu', function(ev) {
+            ev.preventDefault();
+            window.open( 
+                    args.courseId?"/course/" + args.courseId + "/content/" + args.content.id:
+                    args.content.courseId?"/course/" + args.content.courseId + "/content/" + args.content.id:
+                    "/content/" + args.content.id,
+                    '_blank'
+                );
+            return false;
+        }, false);*/
+
         return el;
     }
 
