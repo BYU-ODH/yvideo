@@ -9,7 +9,7 @@ $(function() {
                     <select multiple="multiple" name="' + node.name + '" id="' + node.id + '" style="display:none"></select>\
                     <div data-name="display"></div>\
                     <div class="pad-top-med">\
-                        <input type="text" class="pad-right-med">\
+                        <input type="text" class="pad-right-med form-control short">\
                     </div>\
                 </div>'
             );

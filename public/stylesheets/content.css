@@ -395,3 +395,7 @@
 .form-horizontal .controls {
     padding-top: 5px;
 }
+
+.short {
+  width: 300px;
+}

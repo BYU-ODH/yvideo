@@ -101,6 +101,9 @@ function initBatchTable(target){
 
 	myTable.on("clear", clearTable);
 
+	////////////////////////
+	// 		CSV Parsing			//
+	////////////////////////
 	document.getElementById('csvList').addEventListener("change", function(){
 		myTable.set('content', []);
 
