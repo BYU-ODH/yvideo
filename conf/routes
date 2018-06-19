@@ -86,14 +86,9 @@ POST    /user/uploadPicture             controllers.Users.uploadProfilePicture
 GET     /user/notifications             controllers.Users.notifications
 POST    /user/notifications/mark/       controllers.Users.markNotification()
 POST    /user/notifications/delete/     controllers.Users.deleteNotification()
-GET     /user/permission/request        controllers.Users.permissionRequestPage
-POST    /user/permission/request        controllers.Users.submitPermissionRequest
 
 # Admin pages
 GET     /admin                                  controllers.Administration.admin
-GET     /admin/permission                       controllers.Administration.approvalPage
-POST    /admin/permission/approve               controllers.Administration.approveRequest()
-POST    /admin/permission/deny                  controllers.Administration.denyRequest()
 GET     /admin/users                            controllers.Administration.manageUsers
 GET     /admin/users/:id/:limit                 controllers.Administration.pagedUsers(id: Long, limit: Long)
 POST    /admin/users/setPermission/:operation   controllers.Administration.setPermission(operation: String)

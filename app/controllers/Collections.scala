@@ -42,7 +42,7 @@ trait Collections {
             // TODO: Once the users get the "viewCollection" permission, use
             // if (user.hasCollectionPermission(collection, "viewCollection")) instead
             if (collection.getMembers.contains(user) ||  SitePermissions.userHasPermission(user, "admin"))
-              Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString, 
+              Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString,
                 Json.toJson(User.findUsersByUserIdList(CollectionMembership.getExceptionsByCollection(collection).map(_.userId)).map(_.toJson)).toString,
                 Json.toJson(collection.getTAs.map(_.toJson)).toString))
             else
@@ -314,28 +314,28 @@ trait Collections {
       implicit user =>
         Future {
           val collOption = Collection.findById(id)
-          
+
           if (collOption.isEmpty)
             BadRequest(s"""Collection %(id) does not exist.""").as("applcation/json")
-          
+
           else {
             val collection = collOption.get
             request.body.validate[String] match {
               case success: JsSuccess[String] => {
                 val username = success.get
                 val userOpt = User.findByUsername('cas, username)
-                
+
                 if (userOpt.isEmpty)
                   BadRequest("""{"Message": "NetId does not exist. Make sure that user has logged in via CAS."}""").as("application/json")
 
-                else{  
+                else{
                   val user = userOpt.get
 
                   // Case: User already has an exception in the given course...
                   if (CollectionMembership.getExceptionsByCollection(collection).exists(_.id == user.id.get))
                     BadRequest("""{"Message": "This exception has already been added."}""").as("application/json")
 
-                  // Case: User is enrolled but does not have an exception... 
+                  // Case: User is enrolled but does not have an exception...
                   else if (CollectionMembership.userIsEnrolled(user, collection)){
                     // update user to have an exception
                     val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == user.id.get)
@@ -366,7 +366,7 @@ trait Collections {
         }
   }
 
-  
+
   /**
    * Remove a student from the collection based on a Cas username
    * @param id The collection id
@@ -379,14 +379,14 @@ trait Collections {
 
           if (collOption.isEmpty)
             BadRequest(s"""Collection %(id) does not exist.""").as("applcation/json")
-          
+
           else {
             val collection = collOption.get
             request.body.validate[String] match {
               case success: JsSuccess[String] => {
                 val username = success.get
                 val userOpt = User.findByUsername('cas, username)
-                
+
                 // Validate user
                 if (userOpt.isEmpty)
                   BadRequest("""{"Message": "NetId does not exist. Make sure that user has logged in via CAS."}""").as("application/json")
@@ -408,7 +408,7 @@ trait Collections {
                     else
                       BadRequest("""{"Message": "500: Internal Server Error."}""").as("application/json")
                   }
-                  // Case: User is enrolled but does not have an exception... 
+                  // Case: User is enrolled but does not have an exception...
                   else if (CollectionMembership.userIsEnrolled(exception, collection))
                     BadRequest("""{"Message": "Exception does not exist."}""").as("application/json")
                   // Case: User is not enrolled...

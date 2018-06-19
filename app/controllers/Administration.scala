@@ -27,53 +27,53 @@ object Administration extends Controller {
         }
   }
 
-  /**
-   * Request approval view
-   */
-  def approvalPage = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("admin") {
-          val requests = SitePermissionRequest.list
-          Future(Ok(views.html.admin.permissionRequests(requests)))
-        }
-  }
+  // /**
+  //  * Request approval view
+  //  */
+  // def approvalPage = Authentication.authenticatedAction() {
+  //   implicit request =>
+  //     implicit user =>
+  //       Authentication.enforcePermission("admin") {
+  //         val requests = SitePermissionRequest.list
+  //         Future(Ok(views.html.admin.permissionRequests(requests)))
+  //       }
+  // }
 
-  /**
-   * Approves a request
-   * @param id The ID of the request
-   */
-  def approveRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("admin") {
-          for( id <- request.body.dataParts("reqid");
-               req <- SitePermissionRequest.findById(id.toLong)
-          ) { req.approve() }
-          Future(Ok)
-        }
-  }
+  // /**
+  //  * Approves a request
+  //  * @param id The ID of the request
+  //  */
+  // def approveRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
+  //   implicit request =>
+  //     implicit user =>
+  //       Authentication.enforcePermission("admin") {
+  //         for( id <- request.body.dataParts("reqid");
+  //              req <- SitePermissionRequest.findById(id.toLong)
+  //         ) { req.approve() }
+  //         Future(Ok)
+  //       }
+  // }
 
-  /**
-   * Denies a request
-   * @param id The ID of the request
-   */
-  def denyRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("admin") {
-          for( id <- request.body.dataParts("reqid");
-               req <- SitePermissionRequest.findById(id.toLong)
-          ) { req.deny(); }
-          Future(Ok)
-        }
-  }
+  // /**
+  //  * Denies a request
+  //  * @param id The ID of the request
+  //  */
+  // def denyRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
+  //   implicit request =>
+  //     implicit user =>
+  //       Authentication.enforcePermission("admin") {
+  //         for( id <- request.body.dataParts("reqid");
+  //              req <- SitePermissionRequest.findById(id.toLong)
+  //         ) { req.deny(); }
+  //         Future(Ok)
+  //       }
+  // }
 
   /**
    * User management view
    */
   def manageUsers = Authentication.authenticatedAction() {
-    implicit request => 
+    implicit request =>
       implicit user =>
         Authentication.enforcePermission("admin") {
           Future(Ok(views.html.admin.users()))
@@ -82,7 +82,7 @@ object Administration extends Controller {
 
   /**
    * Get Users {limit} at a time
-   * @param id The id for the last user currently loaded on the page 
+   * @param id The id for the last user currently loaded on the page
    * @param limit The size of the list of users queried from the db
    * @return list of user JSON objects
    */
@@ -386,7 +386,7 @@ object Administration extends Controller {
     implicit request =>
       implicit user =>
         Authentication.enforcePermission("admin") {
-          request.body.mapValues(_(0)).foreach { data => 
+          request.body.mapValues(_(0)).foreach { data =>
             Setting.findByName(data._1).get.copy(value = data._2).save
             Logger.debug(data._1 + ": " + data._2)
           }

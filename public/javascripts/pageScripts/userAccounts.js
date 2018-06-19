@@ -1,7 +1,7 @@
 $(function(){
     "use strict";
 
-    var userList = getUsers(0, 50), 
+    var userList = getUsers(0, 50),
     userTemplate = '<SuperSelect\
         icon="" text="Select Permissions"\
         button="left"\
@@ -53,7 +53,7 @@ $(function(){
                         <a on-tap="select:{{index}}" class="btn btn-small btn-yellow">Select Permissions</a>\
                     {{/match}}\
     */
-    
+
     var utable = new Ractive({
         el: document.getElementById('usertable'),
         template: userTemplate,
@@ -114,7 +114,7 @@ $(function(){
             alert("Error updating permissions");
         });
     });
-    
+
     /*utable.on('select', function(e,index){
         utable.set('activePermissions', utable.get("users")[index].permissions);
     });*/

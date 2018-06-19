@@ -56,6 +56,10 @@
                         </div>
                     </form>
 
+
+                  </div>
+                  <div class="col-md-6">
+
                     @if(user.authScheme == 'password) {
                         <h2>Change Password</h2>
                         <p>Use the folowing form to reset your password.</p>
@@ -80,16 +84,6 @@
                         </form>
                     }
 
-                </div>
-                <div class="col-md-6">
-
-                    <h2>Permissions</h2>
-                    <p>
-                        <!-- Build Permissions Display -->
-                    </p>
-    				@if(user.hasSitePermission("requestPermission")) {
-                      <a href="@routes.Users.permissionRequestPage()" class="btn btn-blue">Request Additional Permissions</a>
-                    }
                     <h2>Merge accounts</h2>
                     <p>
                         There are many ways to log on to Y-Video, all provided for your convenience. You can combine these accounts
