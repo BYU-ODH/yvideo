@@ -1,0 +1,173 @@
+@(collections: List[Collection])(implicit request: RequestHeader, user: User)
+
+@optStr(str: Option[String]) = {
+    @if(str.isDefined) {
+        @str.get
+    } else {
+        <em>Not set</em>
+    }
+}
+
+@main("Y-Video - Manage Collections", Some(user), Local(CSS("stylesheets/admin.css"))) {
+    <div class="adminBackground">
+    </div>
+
+    <div class="padded">
+
+        @views.html.admin.navbar("collections")
+
+        <h1>Manage Collections</h1>
+
+        <table class="table table-bordered table-striped table-condensed">
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Owner</th>
+                <th>Email</th>
+                <th># Students</th>
+                <th># Content</th>
+                <th>Actions</th>
+            </tr>
+            @for(collection <- collections) {
+                <tr>
+                    <td>@collection.id.get</td>
+                    <td>@collection.name</td>
+                    <td>@if(collection.getTeachers.size > 0){
+                        @optStr(collection.getTeachers(0).name)}</td>
+                    <td>@if(collection.getTeachers.size > 0){
+                        @optStr(collection.getTeachers(0).email)}</td>
+                    <td>@collection.getMembers.size</td>
+                    <td>@collection.getContent.size</td>
+                    <td>
+                        <a href="@routes.Collections.view(collection.id.get)" target="_blank" class="btn btn-small btn-gray"><i class="icon-eye-open"></i></a>
+                        <a href="#editModal" role="button" data-toggle="modal" class="btn btn-small btn-yellow editCollection" data-id="@collection.id.get" data-name="@collection.name"><i class="icon-pencil"></i></a>
+                        <a href="#deleteModal" role="button" data-toggle="modal" class="btn btn-small btn-magenta deleteCollection" data-id="@collection.id.get"><i class="icon-trash"></i></a>
+                        @if(collection.getTeachers.size > 0 && collection.getTeachers(0) != user) {
+                            <a href="@routes.Administration.proxy(collection.getTeachers(0).id.get)" class="btn btn-small btn-yellow">Proxy</a>
+                            <a href="#notificationModal" role="button" data-toggle="modal" class="btn btn-small btn-blue sendNote" data-id="@collection.getTeachers(0).id.get">Notify</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </table>
+
+    </div>
+
+    <div id="editModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="editModalLabel">Edit collection</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">    
+                        <form class="form-horizontal" id="editForm" method="post" action="">
+                            <div class="form-group">
+                                <label class="control-label" for="name">Name</label>
+                                <div class="controls">
+                                    <input type="text" id="name" name="name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label" for="status">Status</label>
+                                <div class="controls">
+                                    <select name="status" id="status">
+                                        <option value="featured">Featured</option>
+                                        <option value="normal">Normal</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="controls">
+                                    <button type="submit" class="btn btn-blue">Save Changes</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="deleteModalLabel">Delete collection</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <p>Are you sure you want to delete collection #<span id="deleteCollectionId"></span>?</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">No</button>
+                    <form style="display:inline;" id="deleteForm" method="POST">
+                        <button class="btn btn-magenta">Yes, Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="notificationModalLabel">Send a notification</h3>
+                </div>
+                <div class="modal-body">
+                    <label for="role">Send a notification to user #<span id="noteUserIdDisplay"></span>:</label>
+
+                    <form id="notificationForm" class="form-horizontal" method="post" action="@routes.Administration.sendNotification(1)">
+                        <div class="form-group">
+                            <label class="control-label" for="message">Message</label>
+                            <div class="controls">
+                                <textarea id="message" name="message"></textarea>
+                            </div>
+                        </div>
+                        <input type="hidden" name="userId" id="noteUserId" value="">
+                        <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <button class="btn btn-blue formSubmitter" data-target="#notificationForm">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function(){
+            $(".editCollection").click(function(){
+                $("#editForm").attr("action", "/admin/collections/" + this.dataset["id"]);
+                $("#name").val(this.dataset["name"]);
+                $("#status").val(this.dataset["status"]);
+            });
+
+            $(".deleteCollection").click(function(){
+                var id = this.dataset['id'];
+                $("#deleteCollectionId").text(id);
+                $("#deleteForm").attr("action", "/admin/collections/" + id + "/delete");
+            });
+
+            $(".sendNote").click(function(){
+                var id = this.dataset['id'];
+                $("#noteUserId").val(id);
+                $("#noteUserIdDisplay").text(id);
+            });
+
+            $(".formSubmitter").click(function(){
+                $(this.dataset["target"]).submit();
+            });
+        });
+    </script>
+
+}

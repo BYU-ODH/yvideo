@@ -49,10 +49,10 @@ object ContentController extends Controller {
       implicit user =>
         getContent(id) { content =>
 
-          // A user can get the JSON if he can see the content or has provided the auth key (sharing)
+          // A user can get the JSON if he can see the content
           Future {
             val authKey = request.queryString.get("authKey").getOrElse("")
-            if (content.isVisibleBy(user) || content.shareability != Content.shareability.notShareable && content.authKey == authKey)
+            if (content.isVisibleBy(user))
               Ok(content.toJson)
             else
               Forbidden
@@ -63,18 +63,18 @@ object ContentController extends Controller {
   /**
    * Content creation page
    */
-  def createPage(page: String = "file", courseId: Long = 0) = Authentication.authenticatedAction() {
+  def createPage(page: String = "file", collectionId: Long = 0) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Authentication.enforcePermission("createContent") {
           Future {
             page match {
-            case "url" => Ok(views.html.content.create.url(courseId))
-            case "batch" => Ok(views.html.content.create.batchUrl(courseId))
-            case "resource" => Ok(views.html.content.create.resource(courseId))
-            case "playlist" => Ok(views.html.content.create.playlist(courseId))
-            case "questions" => Ok(views.html.content.create.questionSet(courseId))
-            case _ => Ok(views.html.content.create.file(courseId))
+            case "url" => Ok(views.html.content.create.url(collectionId))
+            case "batch" => Ok(views.html.content.create.batchUrl(collectionId))
+            case "resource" => Ok(views.html.content.create.resource(collectionId))
+            case "playlist" => Ok(views.html.content.create.playlist(collectionId))
+            case "questions" => Ok(views.html.content.create.questionSet(collectionId))
+            case _ => Ok(views.html.content.create.file(collectionId))
             }
           }
         }
@@ -99,7 +99,7 @@ object ContentController extends Controller {
   /**
    * Creates content based on the posted data (URL)
    */
-  def createFromBatch(courseId: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def createFromBatch(collectionId: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
 
@@ -126,20 +126,20 @@ object ContentController extends Controller {
                                                file.ref.file.length(), file.contentType.get,
                                                labels = labels, categories = categories,
                                                languages = languages)
-                  if (courseId > 0) {
-                    ContentManagement.createAndAddToCourse(info, user, contentType, courseId)
+                  if (collectionId > 0) {
+                    ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
                       .map { cid => Ok(Json.obj("contentId" -> cid)) }
                       .recover { case e: Exception =>
                         val message = e.getMessage()
-                        Logger.debug(s"Error creating content in course $courseId: $message")
-                        InternalServerError(Json.obj("message" -> s"Could not add content to course: $message"))
+                        Logger.debug(s"Error creating content in collection $collectionId: $message")
+                        InternalServerError(Json.obj("message" -> s"Could not add content to collection: $message"))
                       }
                   } else {
                     ContentManagement.createContent(info, user, contentType)
                     .map { cid => Ok(Json.obj("contentId" -> cid)) }
                     .recover { case e: Exception =>
                       val message = e.getMessage()
-                      Logger.debug(s"Error creating content $courseId: $message")
+                      Logger.debug(s"Error creating content $collectionId: $message")
                       InternalServerError(Json.obj("message" -> s"Could not add content: $message"))
                     }
                   }
@@ -173,13 +173,13 @@ object ContentController extends Controller {
                                              languages = languages)
 
                 // find alternate create content ↓ through annotations method
-                if (courseId > 0 && courseId != 40747105) {
-                  ContentManagement.createAndAddToCourse(info, user, contentType, courseId)
+                if (collectionId > 0 && collectionId != 40747105) {
+                  ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
                     .map { cid => Ok(Json.obj("contentId" -> cid)) }
                     .recover { case e: Exception =>
                       val message = e.getMessage()
-                      Logger.debug(s"Error creating content in course $courseId: $message")
-                      InternalServerError(Json.obj("message" -> s"Could not add content to course: $message"))
+                      Logger.debug(s"Error creating content in collection $collectionId: $message")
+                      InternalServerError(Json.obj("message" -> s"Could not add content to collection: $message"))
                     }
                 } else {
                   ContentManagement.createContent(info, user, contentType)
@@ -203,7 +203,7 @@ object ContentController extends Controller {
   /**
    * Creates content based on the posted data (URL)
    */
-  def createFromUrl(courseId: Long, annotations: Boolean = false) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def createFromUrl(collectionId: Long, annotations: Boolean = false) = Authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
 
@@ -237,20 +237,20 @@ object ContentController extends Controller {
                                            labels = labels, categories = categories,
                                            languages = languages)
 
-              if (courseId > 0) {
+              if (collectionId > 0) {
                 val redirect = if (!createAndAdd.isEmpty) {
-                  Redirect(routes.ContentController.createPage("url", courseId))
+                  Redirect(routes.ContentController.createPage("url", collectionId))
                 } else {
-                  Redirect(routes.Courses.view(courseId))
+                  Redirect(routes.Collections.view(collectionId))
                 }
-                ContentManagement.createAndAddToCourse(info, user, contentType, courseId)
+                ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
                   .map { _ =>
-                    redirect.flashing("success" -> "Content created and added to course")
+                    redirect.flashing("success" -> "Content created and added to collection")
                   }
                   .recover { case e: Exception =>
                     val message = e.getMessage()
-                    Logger.debug(s"Error creating content in course $courseId: $message")
-                    redirect.flashing("error" -> s"Could not add content to course: $message")
+                    Logger.debug(s"Error creating content in collection $collectionId: $message")
+                    redirect.flashing("error" -> s"Could not add content to collection: $message")
                   }
               } else {
                 //check if we came from the annotation editor
@@ -260,10 +260,10 @@ object ContentController extends Controller {
                 .map{ content =>
                   if (!createAndAdd.isEmpty) {
                     if (createFromAnnotations) {
-                      Ok(views.html.content.create.url(courseId))
+                      Ok(views.html.content.create.url(collectionId))
                         .flashing("success" -> "Content Created")
                     } else {
-                      Redirect(routes.ContentController.createPage("url", courseId))
+                      Redirect(routes.ContentController.createPage("url", collectionId))
                         .flashing("success" -> "Content Created")
                     }
                   } else {
@@ -278,14 +278,14 @@ object ContentController extends Controller {
                 .recover { case e: Exception =>
                   val message = e.getMessage()
                   Logger.debug("Error creating content: " + message)
-                  Redirect(routes.ContentController.createPage("url", courseId))
+                  Redirect(routes.ContentController.createPage("url", collectionId))
                     .flashing("error" -> s"Failed to create content: $message")
                 }
               }
             }
           } else
             Future{
-              Redirect(routes.ContentController.createPage("url", courseId))
+              Redirect(routes.ContentController.createPage("url", collectionId))
                 .flashing("error" -> "The given URL is invalid.")
             }
         }
@@ -294,7 +294,7 @@ object ContentController extends Controller {
   /**
    * Creates content based on the posted data (File)
    */
-  def createFromFile(courseId: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def createFromFile(collectionId: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
 
@@ -310,7 +310,7 @@ object ContentController extends Controller {
           val labels = data.get("labels").map(_.toList).getOrElse(Nil)
           val keywords = data.get("keywords").map(_.toList).getOrElse(Nil).mkString(",")
           val languages = data.get("languages").map(_.toList).getOrElse(List("eng"))
-          lazy val redirect = Redirect(routes.ContentController.createPage("file", courseId))
+          lazy val redirect = Redirect(routes.ContentController.createPage("file", collectionId))
 
           // Upload the file
           request.body.file("file").map { file =>
@@ -320,20 +320,20 @@ object ContentController extends Controller {
                                            file.ref.file.length(), file.contentType.get,
                                            labels = labels, categories = categories,
                                            languages = languages)
-              if (courseId > 0) {
+              if (collectionId > 0) {
                 val redirect = if (!createAndAdd.isEmpty) {
-                  Redirect(routes.ContentController.createPage("url", courseId))
+                  Redirect(routes.ContentController.createPage("url", collectionId))
                 } else {
-                  Redirect(routes.Courses.view(courseId))
+                  Redirect(routes.Collections.view(collectionId))
                 }
-                ContentManagement.createAndAddToCourse(info, user, contentType, courseId)
+                ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
                   .map { _ =>
-                    redirect.flashing("success" -> "Content created and added to course")
+                    redirect.flashing("success" -> "Content created and added to collection")
                   }
                   .recover { case e: Exception =>
                     val message = e.getMessage()
-                    Logger.debug(s"Error creating content in course $courseId: $message")
-                    redirect.flashing("error" -> s"Could not add content to course: $message")
+                    Logger.debug(s"Error creating content in collection $collectionId: $message")
+                    redirect.flashing("error" -> s"Could not add content to collection: $message")
                   }
               } else {
                 ContentManagement.createContent(info, user, contentType)
@@ -358,7 +358,7 @@ object ContentController extends Controller {
   /**
    * Creates content based on the posted data (File)
    */
-  def createFromResource(courseId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def createFromResource(collectionId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
 
@@ -375,7 +375,7 @@ object ContentController extends Controller {
               val resourceType = (json \ "resource" \ "type").as[String]
 
               if (resourceType == "data" || resourceType == "archive") {
-                Redirect(routes.ContentController.createPage("resource", courseId))
+                Redirect(routes.ContentController.createPage("resource", collectionId))
                 .flashing("error" -> "Can't create content from a data or archive resources.")
               } else {
                 //TODO: properly handle collections
@@ -383,23 +383,23 @@ object ContentController extends Controller {
                 val contentType = if(resourceType == "document") "text" else resourceType
                 val content = Content(None, title, Symbol(contentType), "", resourceId).save
                 user.addContent(content)
-                if (courseId > 0) {
-                  ContentManagement.addToCourse(courseId, content)
+                if (collectionId > 0) {
+                  ContentManagement.addToCollection(collectionId, content)
                 }
                 if (createAndAdd.isEmpty) {
                   Redirect(routes.ContentController.view(content.id.get))
                     .flashing("success" -> "Content Added.")
                 } else {
-                  Redirect(routes.ContentController.createPage("resource", courseId))
+                  Redirect(routes.ContentController.createPage("resource", collectionId))
                     .flashing("success" -> "Content Created")
                 }
               }
             } else
-              Redirect(routes.ContentController.createPage("resource", courseId))
+              Redirect(routes.ContentController.createPage("resource", collectionId))
                 .flashing("error" -> "That resource doesn't exist")
           }.recover { case e =>
             Logger.debug("Couldn't access resource: " + e.getMessage())
-            Redirect(routes.ContentController.createPage("resource", courseId))
+            Redirect(routes.ContentController.createPage("resource", collectionId))
               .flashing("error" -> "Couldn't access resource")
           }
         }
@@ -408,7 +408,7 @@ object ContentController extends Controller {
   /**
    * Creates content based on the posted data (File)
    */
-  def createPlaylist(courseId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def createPlaylist(collectionId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
 
@@ -444,7 +444,7 @@ object ContentController extends Controller {
   /**
    * Creates content based on the posted data (File)
    */
-  def createQuestionSet(courseId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def createQuestionSet(collectionId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
 
@@ -503,13 +503,11 @@ object ContentController extends Controller {
               //TODO: make this a whitelist instead of blacklist
               // Check that the user can view the content
               if (content isVisibleBy user) Ok(
-                if(request.queryString.get("embed").flatMap(_.lift(0)).exists(_.toBoolean)){
-                  views.html.content.share.embed(content, ResourceController.baseUrl, Some(user))
-                } else if (MobileDetection.isMobile()) {
+                /*if (MobileDetection.isMobile()) {
                   views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user))
-                } else {
-                  views.html.content.view(content, ResourceController.baseUrl, Some(user))
-                }
+                } else {*/
+              views.html.content.view(content, ResourceController.baseUrl, Some(user))
+                /*}*/
               ) else
                 Redirect(routes.Application.home)
                   .flashing("error" -> "You do not have permission to view the requested content.")
@@ -519,66 +517,6 @@ object ContentController extends Controller {
             }
           }
         }
-  }
-
-  /**
-   * When content is shared, this is the endpoint that viewers come to.
-   * No authentication is necessary to view the content if its share
-   * settings are set appropriately.
-   *
-   * @param id The ID of the content
-   * @param authKey The content's access key
-   */
-  def shareAccess(id: Long, authKey: String) = Action.async {
-    implicit request =>
-      getContent(id) { content =>
-        Future {
-          // Check that everything is in place to view the content
-          if (content.authKey == authKey && content.shareability != Content.shareability.notShareable) {
-            Ok(
-              if(request.queryString.get("embed").flatMap(_.lift(0)).exists(_.toBoolean)){
-                views.html.content.share.embed(content, ResourceController.baseUrl)
-              } else if (MobileDetection.isMobile()) {
-                views.html.content.viewMobile(content, ResourceController.baseUrl)
-              } else {
-                views.html.content.view(content, ResourceController.baseUrl)
-              }
-            )
-          } else //TODO: Create error page for embedding
-            Redirect(routes.Application.home)
-              .flashing("error" -> "You do not have permission to view the requested content.")
-        }
-      }
-  }
-
-  /**
-   * @param id The ID of the content
-   */
-  def ltiAccess(id: Long) = Action.async(parse.tolerantText) {
-    implicit request =>
-      getContent(id) { content =>
-        Future {
-          if(content.getOwner.map(_.hasSitePermission("ltiConnect")).getOrElse(false)) {
-            LMSAuth.ltiContentAuth(content) match {
-            case Some(user) => Ok(
-              if(request.queryString.get("embed").flatMap(_.lift(0)).exists(_.toBoolean)){
-                views.html.content.share.embed(content, ResourceController.baseUrl, Some(user))
-              } else if (MobileDetection.isMobile()) {
-                views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user))
-              } else {
-                views.html.content.view(content, ResourceController.baseUrl, Some(user))
-              }
-            )
-            case _ => //TODO: Create error page for embedding
-              Redirect(routes.Application.home)
-                .flashing("error" -> "You do not have permission to view the requested content.")
-            }
-          } else {
-            Redirect(routes.Application.home)
-              .flashing("error" -> "The requested content is not available via LTI.")
-          }
-        }
-      }
   }
 
   /**
@@ -616,13 +554,4 @@ object ContentController extends Controller {
       implicit user =>
         Future(Ok(views.html.content.mine()))
   }
-
-  /**
-   * LTI Embedding Script
-   */
-  def ltiEmbedScript = Action {
-    implicit request =>
-      Ok(views.html.content.share.ltiembed()).as("text/javascript utf-8")
-  }
-
 }

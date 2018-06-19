@@ -4,22 +4,23 @@ import anorm._
 import anorm.SqlParser._
 import java.sql.SQLException
 import dataAccess.sqlTraits._
-import play.api.Logger
-import service.{TimeTools, HashTools}
 import util.Random
+import play.api.Logger
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
+import service.{TimeTools, HashTools}
 import play.api.db.DB
 import play.api.Play.current
 
 /**
- * A course. Students and teachers are members. Content and announcements can be posted here.
+ * A course.
  * @param id The id of the course
- * @param name The name of the course
- * @param startDate When the course become functional
- * @param endDate When the course ceases to be functional
- * @param lmsKey A key for connecting with LMSs
+ * @param department The department of the course
+ * @param catalogNumber The catalogNumber of the course
+ * @param sectionNumber The sectionNumber of the course
  */
-case class Course(id: Option[Long], name: String, startDate: String, endDate: String, enrollment: Symbol = 'closed,
-                  featured: Boolean = false, lmsKey: String = HashTools.md5Hex(Random.nextString(32))) extends SQLSavable with SQLDeletable {
+case class Course(id: Option[Long], department: String, catalogNumber: Option[String], sectionNumber: Option[String]) extends SQLSavable with SQLDeletable {
 
   /**
    * Saves the course to the DB
@@ -27,12 +28,19 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
    */
   def save =
     if (id.isDefined) {
-      update(Course.tableName, 'id -> id.get, 'name -> name, 'startDate -> startDate, 'endDate -> endDate,
-        'enrollment -> enrollment.name, 'featured -> featured, 'lmsKey -> lmsKey)
-      this
+      if (this.catalogNumber.isEmpty && !this.sectionNumber.isEmpty) {
+        Logger.warn("The following course with section number but with no catalog Number called save:")
+        Logger.warn(this.toString)
+        // TODO: throw an exception
+        this
+      } else {
+        update(Course.tableName,'id -> id.get, 'department -> department,
+          'catalogNumber -> catalogNumber, 'sectionNumber -> sectionNumber)
+        this
+      }
     } else {
-      val id = insert(Course.tableName, 'name -> name, 'startDate -> startDate, 'endDate -> endDate,
-        'enrollment -> enrollment.name, 'featured -> featured, 'lmsKey -> lmsKey)
+      val id = insert(Course.tableName, 'department -> department,
+        'catalogNumber -> catalogNumber, 'sectionNumber -> sectionNumber)
       this.copy(id)
     }
 
@@ -42,12 +50,8 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
   def delete() {
     DB.withConnection { implicit connection =>
       try {
-        BatchSql(
-		  "delete from {table} where courseId = {id}",
-		  List('table -> "coursePermissions", 'id -> id),
-		  List('table -> "courseMembership", 'id -> id),
-		  List('table -> "contentListing", 'id -> id)
-		).execute()
+        SQL(s"delete from ${CollectionCourseLink.tableName} where courseId = {id}")
+          .on('id -> id)
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in Course.scala / delete")
@@ -58,157 +62,14 @@ case class Course(id: Option[Long], name: String, startDate: String, endDate: St
     delete(Course.tableName)
   }
 
-  //                  _   _
-  //        /\       | | (_)
-  //       /  \   ___| |_ _  ___  _ __  ___
-  //      / /\ \ / __| __| |/ _ \| '_ \/ __|
-  //     / ____ \ (__| |_| | (_) | | | \__ \
-  //    /_/    \_\___|\__|_|\___/|_| |_|___/
-  //
-  //   ______ ______ ______ ______ ______ ______ ______ ______ ______
-  // |______|______|______|______|______|______|______|______|______|
-  //
+  def name = s"${this.department}${this.catalogNumber.getOrElse("")}${if (!this.catalogNumber.isEmpty && !this.sectionNumber.isEmpty) " - " + this.sectionNumber.get}"
 
-  /**
-   * Post content to the course
-   * @param content The content to be posted
-   * @return The content listing
-   */
-  def addContent(content: Content): ContentListing = ContentListing(None, this.id.get, content.id.get).save
-
-  /**
-   * Remove content from the course
-   * @param content The content to be removed
-   * @return The course
-   */
-  def removeContent(content: Content): Course = {
-    val listing = ContentListing.listByCourse(this).filter(_.contentId == content.id.get)
-
-    // Check the number or results
-    if (listing.size == 1) {
-    // One membership. So delete it
-      listing(0).delete()
-    } else if (listing.size != 0) {
-    // We didn't get exactly one listing so delete one of them, but warn
-      Logger.warn("Multiple content listings for content #" + content.id.get + " in course #" + id.get)
-      listing(0).delete()
-    }
-    this
-  }
-
-  /**
-   * Makes an announcement to this course
-   * @param user The user making the announcement
-   * @param message The content of the announcement
-   * @return The saved announcement
-   */
-  def makeAnnouncement(user: User, message: String): Announcement =
-    Announcement(None, this.id.get, user.id.get, TimeTools.now(), message).save
-
-  //       _____      _   _
-  //      / ____|    | | | |
-  //     | |  __  ___| |_| |_ ___ _ __ ___
-  //     | | |_ |/ _ \ __| __/ _ \ '__/ __|
-  //     | |__| |  __/ |_| ||  __/ |  \__ \
-  //      \_____|\___|\__|\__\___|_|  |___/
-  //
-  //   ______ ______ ______ ______ ______ ______ ______ ______ ______
-  // |______|______|______|______|______|______|______|______|______|
-  //
-
-  val cacheTarget = this
-  object cache {
-    var students: Option[List[User]] = None
-
-    def getStudents = {
-      if (students.isEmpty)
-        students = Some(CourseMembership.listClassMembers(cacheTarget, teacher = false))
-      students.get
-    }
-
-    var teachers: Option[List[User]] = None
-
-    def getTeachers = {
-      if (teachers.isEmpty)
-        teachers = Some(CourseMembership.listClassMembers(cacheTarget, teacher = true))
-      teachers.get
-    }
-
-    var content: Option[List[Content]] = None
-
-    def getContent = {
-      if (content.isEmpty)
-        content = Some(ContentListing.listClassContent(cacheTarget))
-      content.get
-    }
-
-    var announcements: Option[List[Announcement]] = None
-
-    def getAnnouncements = {
-      if (announcements.isEmpty)
-        announcements = Some(Announcement.listByCourse(cacheTarget))
-      announcements.get
-    }
-  }
-
-  /**
-   * Get the enrolled students
-   * @return The list of users who are students
-   */
-  def getStudents: List[User] = cache.getStudents
-
-  /**
-   * Get the enrolled teachers
-   * @return The list of users who are teachers
-   */
-  def getTeachers: List[User] = cache.getTeachers
-
-  /**
-   * Get all the members (teachers and students)
-   * @return The list of all members
-   */
-  def getMembers: List[User] = getTeachers ++ getStudents
-
-  /**
-   * Get content posted to this course
-   * @return The list of content
-   */
-  def getContent: List[Content] = cache.getContent
-
-  /**
-   * Get content posted to this course that the current user is allowed to see
-   * @return The list of content
-   */
-  def getContentFor(user: User): List[Content] =
-    if (user.hasSitePermission("admin")) cache.getContent
-    else cache.getContent.filter { c =>
-      c.visibility != Content.visibility._private || user.getContent.contains(c)
-    }
-
-  /**
-   * Get the list of announcement for this course
-   * @return The list of announcements
-   */
-  def getAnnouncements: List[Announcement] = cache.getAnnouncements
-
-  /**
-   * Get the list of announcement for this course, ordered by date
-   * @return The list of announcements
-   */
-  def getSortedAnnouncements: List[Announcement] = cache.getAnnouncements
-    .sortWith((a1, a2) => TimeTools.dateToTimestamp(a1.timeMade) > TimeTools.dateToTimestamp(a2.timeMade))
-
-  /**
-   * Get the list of requests by other users to join this course
-   * @return The add course request list
-   */
-  def getRequests: List[AddCourseRequest] = AddCourseRequest.listByCourse(this)
-
-  def getUserPermissions(user: User): List[String] = CoursePermissions.listByUser(this, user)
-  def addUserPermission(user: User, permission: String) = CoursePermissions.addUserPermission(this, user, permission)
-  def removeUserPermission(user: User, permission: String) = CoursePermissions.removeUserPermission(this, user, permission)
-  def removeAllUserPermissions(user: User) = CoursePermissions.removeAllUserPermissions(this, user)
-  def userHasPermission(user: User, permission: String) = CoursePermissions.userHasPermission(this, user, permission)
+  def toJson = Json.obj(
+    "id" -> this.id,
+    "department" -> this.department,
+    "catalogNumber" -> this.catalogNumber,
+    "sectionNumber" -> this.sectionNumber
+  )
 }
 
 object Course extends SQLSelectable[Course] {
@@ -216,16 +77,21 @@ object Course extends SQLSelectable[Course] {
 
   val simple = {
     get[Option[Long]](tableName + ".id") ~
-      get[String](tableName + ".name") ~
-      get[String](tableName + ".startDate") ~
-      get[String](tableName + ".endDate") ~
-      get[String](tableName + ".enrollment") ~
-      get[Boolean](tableName + ".featured") ~
-      get[String](tableName + ".lmsKey") map {
-      case id~name~startDate~endDate~enrollment~featured~lmsKey =>
-        Course(id, name, startDate, endDate, Symbol(enrollment), featured, lmsKey)
+    get[String](tableName + ".department") ~
+    get[Option[String]](tableName + ".catalogNumber") ~
+    get[Option[String]](tableName + ".sectionNumber") map {
+      case id~department~catalogNumber~sectionNumber =>
+        Course(id, department, catalogNumber, sectionNumber)
     }
   }
+
+  // Reads method for parsing json into course objects
+  implicit val courseReads: Reads[Course] = (
+    (JsPath \ "id").readNullable[Long] ~
+    (JsPath \ "department").read[String] ~
+    (JsPath \ "catalogNumber").readNullable[String] ~
+    (JsPath \ "sectionNumber").readNullable[String]
+  )(Course.apply _)
 
   /**
    * Find a course with the given id
@@ -233,6 +99,78 @@ object Course extends SQLSelectable[Course] {
    * @return If a course was found, then Some[Course], otherwise None
    */
   def findById(id: Long): Option[Course] = findById(id, simple)
+
+  /**
+   * parse the name of the course into three parts: (department, catalogNumber and sectionNumber)
+   */
+  def parseName(name: String) = {
+    val course = name.trim
+    val department = "[a-zA-Z/s]+"
+    val catalog = s"${department}\\d\\d\\d"
+    val section = s"${catalog} - \\d\\d\\d"
+    if (course.matches(section)) {
+      val sectionNumber = course.takeRight(3)
+      val catalogNumber = course.dropRight(6).takeRight(3)
+      val deptName = course.dropRight(9)
+    } else if (course.matches(catalog)) {
+      val catalogNumber = course.takeRight(3)
+      val deptName = course.dropRight(3)
+    } else if (course.matches(department)) {
+      val deptName = course
+    }
+    //(deptName, catalogNumber, )
+  }
+
+  private def findCourseQuery(exact: Boolean, catalogNumber: Option[String], sectionNumber: Option[String]) = {
+    // make sure the course record is null for the following fields if
+    // they are None in the course
+    val selectCatalogNumber = {
+      if (catalogNumber.isEmpty)
+        "and catalogNumber is null"
+      else
+        if (exact) "and catalogNumber = {cn}" else "and (catalogNumber = {cn} or catalogNumber is null)"
+    }
+
+    val selectSectionNumber = {
+      if (sectionNumber.isEmpty)
+        "and sectionNumber is null"
+      else
+        if (exact) "and sectionNumber = {sn}" else "and (sectionNumber = {sn} or sectionNumber is null)"
+    }
+    s"select * from $tableName where department = {dep} $selectCatalogNumber $selectSectionNumber"
+  }
+
+  // see findCourses
+  def findExact(courses: List[Course]) = findCourses(courses, true)
+
+  // see findCourses
+  def findInexact(courses: List[Course]) = findCourses(courses, false)
+
+  /**
+   * This takes a list of Courses that have not been saved in the database
+   * and returns courses that match according to the mode.
+   * exact == true will match the exact course
+   * exact == false the course that matches at the highest level
+   * Ex: The course HUM101 - 002 will match HUM101 - 002 or HUM101 or HUM
+   * depending on the course that matches the most when using inexact
+   * @param courses The List of courses that we want to find in the database
+   * @param exact True for matching all fields, false for matching the highest amount of fields
+   * @return The list of saved courses that corresponds to the courses that were provided
+   **/
+  private def findCourses(courses: List[Course], exact: Boolean): List[Course] = {
+    DB.withConnection { implicit connection =>
+      courses.foldLeft(List[Course]()) { (accumulator, course) =>
+        val query = findCourseQuery(exact, course.catalogNumber, course.sectionNumber)
+        val found = SQL(query)
+          .on('dep -> course.department, 'cn -> course.catalogNumber, 'sn -> course.sectionNumber).as(simple.singleOpt)
+
+        if (!found.isEmpty)
+          found.get :: accumulator
+        else
+          accumulator
+      }
+    }
+  }
 
   /**
    * Gets all the courses in the DB
@@ -245,8 +183,8 @@ object Course extends SQLSelectable[Course] {
    * @param data Fixture data
    * @return The user
    */
-  def fromFixture(data: (String, String, String, Symbol, String)): Course =
-    Course(None, data._1, data._2, data._3, data._4, false, data._5)
+  def fromFixture(data: String): Course =
+    Course(None, data, None, None)
 
   /**
    * Search the names of courses
@@ -257,7 +195,7 @@ object Course extends SQLSelectable[Course] {
     DB.withConnection { implicit connection =>
       val sqlQuery = "%" + query + "%"
       try {
-        SQL(s"select * from $tableName where name like {query} order by name asc")
+        SQL(s"select * from $tableName where department like {query} order by name asc")
           .on('query -> sqlQuery).as(simple *)
       } catch {
         case e: SQLException =>

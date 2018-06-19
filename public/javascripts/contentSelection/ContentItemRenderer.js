@@ -85,14 +85,30 @@ var ContentItemRenderer = (function(){
             if(typeof args.click === 'function'){
                 args.click(args.content, args.courseId, $(this));
             }else{
-                window.open(
+                window.location.href = 
+                    args.courseId?"/course/" + args.courseId + "/content/" + args.content.id:
+                    args.content.courseId?"/course/" + args.content.courseId + "/content/" + args.content.id:
+                    "/content/" + args.content.id,
+                    '_blank'
+                ;
+            }
+        },false);
+
+        // This is a potential fix for issue #48. It allows another tab to be opened when right-clicking content. 
+        // However, this prevents the regular context menu and is seen as a pop-up by most browsers
+        // Potential solutions are:
+        // 1. Make a custom context menu with a "open in new tab" option OR
+        // 2. Convert the content objects into clickable divs, allowing us to treat them like regular buttons
+        /*el.addEventListener('contextmenu', function(ev) {
+            ev.preventDefault();
+            window.open( 
                     args.courseId?"/course/" + args.courseId + "/content/" + args.content.id:
                     args.content.courseId?"/course/" + args.content.courseId + "/content/" + args.content.id:
                     "/content/" + args.content.id,
                     '_blank'
                 );
-            }
-        },false);
+            return false;
+        }, false);*/
 
         return el;
     }
@@ -129,9 +145,9 @@ var ContentItemRenderer = (function(){
     function createSizer(args){
         var element = Ayamel.utils.parseHTML(
             '<div class="btn-group" data-toggle="buttons-radio">\
-                <button class="btn" data-format="block"><i class="icon-th-large"></i></button>\
-                <button class="btn" data-format="table"><i class="icon-th-list"></i></button>\
-                <button class="btn" data-format="icon"><i class="icon-th"></i></button>\
+                <button class="btn btn-gray" data-format="block"><i class="icon-th-large"></i></button>\
+                <button class="btn btn-gray" data-format="table"><i class="icon-th-list"></i></button>\
+                <button class="btn btn-gray" data-format="icon"><i class="icon-th"></i></button>\
             </div>'
         );
 
@@ -166,11 +182,11 @@ var ContentItemRenderer = (function(){
     function createOrganizer(args){
         var element = Ayamel.utils.parseHTML(
             '<div class="btn-group" data-toggle="buttons-radio">\
-                <button class="btn" data-organization="contentType"><i class="icon-play-circle"></i> Content Type</button>\
-                <button class="btn" data-organization="labels"><i class="icon-tags"></i> Labels</button>\
-                <button class="btn" data-organization="title"><i class="icon-sort-by-alphabet"></i> Title</button>\
+                <button class="btn btn-gray" data-organization="contentType"><i class="icon-play-circle"></i> Content Type</button>\
+                <button class="btn btn-gray" data-organization="labels"><i class="icon-tags"></i> Labels</button>\
+                <button class="btn btn-gray" data-organization="title"><i class="icon-sort-by-alphabet"></i> Title</button>\
             </div>'
-            // <button class="btn" data-organization="language"><i class="icon-globe"></i> Language</button>\
+            // <button class="btn btn-gray" data-organization="language"><i class="icon-globe"></i> Language</button>\
         );
 
         $(element).button();

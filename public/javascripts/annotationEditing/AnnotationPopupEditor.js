@@ -66,7 +66,7 @@ var AnnotationPopupEditor = (function(){
                             <button class="btn btn-magenta" on-tap="delete" tmpl-attach="delete"><i class="icon-trash"></i></button>\
                         </div>\
                         <div class="pull-right">\
-                            <button class="btn" on-tap="cancel"><i class="icon-ban-circle"></i></button>\
+                            <button class="btn btn-gray" on-tap="cancel"><i class="icon-ban-circle"></i></button>\
                             <button class="btn btn-blue" on-tap="save"><i class="icon-save"></i></button>\
                         </div>\
                     </div>\

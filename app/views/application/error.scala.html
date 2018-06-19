@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Ayamel - Whoops...</title>
+        <title>Y-Video - Whoops...</title>
 
         @Dependencies(
           Local(
@@ -15,7 +15,7 @@
               CSS("main.css")),
             Rel("javascripts/",
               Rel("libraries/",
-                JS("jquery-1.9.0.min.js"),
+                JS("jquery.min.js"),
                 JS("bootstrap.min.js")))))
     </head>
     <body>
@@ -28,26 +28,28 @@
                         We've taken note that something went wrong, but we can't read your mind. To help us fix this,
                         please describe what you were doing. Thanks!
                     </p>
+                    <div class="container">
                     <span class="form-horizontal" id="feedbackForm">
-                        <div class="control-group">
-                            <label class="control-label" for="description">Describe what you were doing:</label>
+                        <div class="form-group">
+                            <label class="control-label" for="description">Describe what you were doing and include as many details as you can such as the course name and/or the video name. Please also include your email and/or netID so that we can contact you in case more information is needed. There is no guarantee that we will be able to help you without this information.</label>
                             <div class="controls">
                                 <textarea id="description"></textarea>
                             </div>
                         </div>
                         <input type="hidden" id="errorCode" value="@ex.toString.substring(1,10)"/>
-                        <div class="control-group">
+                        <div class="form-group">
                             <div class="controls">
-                                <button type="submit" id="saveButton" class="btn">Save</button>
+                                <button type="submit" id="saveButton" class="btn btn-gray">Save</button>
                             </div>
                         </div>
                     </span>
+                    </div>
                     <div id="feedbackSaved">
                         Thank you for providing feedback!
                     </div>
 
                     <hr>
-                    <a class="btn btn-blue" href="@routes.Application.home()">Back to my Ayamel home page.</a>
+                    <a class="btn btn-blue" href="@routes.Application.home()">Back to my Y-Video home page.</a>
                     <div>
                         <pre>@ex.getMessage()</pre>
                         <pre>@ex.getStackTrace().map(_.toString()).fold("")((a: String, b: String) => a + "\n" + b)</pre>

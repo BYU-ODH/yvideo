@@ -240,7 +240,7 @@
             '<div>\
                 <h2>Enabled Triggers</h2>\
                 <form class="form-horizontal">\
-                    <div class="control-group">\
+                    <div class="form-group">\
                         <div class="controls">\
                             <label class="checkbox">\
                                 <input type="checkbox" id="clickCheckbox">\
@@ -248,7 +248,7 @@
                             </label>\
                         </div>\
                     </div>\
-                    <div class="control-group">\
+                    <div class="form-group">\
                         <div class="controls">\
                             <label class="checkbox">\
                                 <input type="checkbox" id="buttonCheckbox">\
@@ -256,7 +256,7 @@
                             </label>\
                         </div>\
                     </div>\
-                    <div class="control-group">\
+                    <div class="form-group">\
                         <div class="controls">\
                             <label class="checkbox">\
                                 <input type="checkbox" id="mediaCheckbox">\
@@ -264,7 +264,7 @@
                             </label>\
                         </div>\
                     </div>\
-                    <div class="control-group">\
+                    <div class="form-group">\
                         <div class="controls">\
                             <label class="checkbox">\
                                 <input type="checkbox" id="timerCheckbox">\
@@ -272,14 +272,14 @@
                             </label>\
                         </div>\
                     </div>\
-                    <div class="control-group">\
+                    <div class="form-group">\
                         <label class="control-label" for="inputPassword">Timer value (seconds):</label>\
                         <div class="controls">\
                             <input type="text" id="timerValue" placeholder="Timer value">\
                             <span class="input-long uneditable-input" id="timerValueDisabled"></span>\
                         </div>\
                     </div>\
-                    <div class="control-group">\
+                    <div class="form-group">\
                         <label class="control-label" for="inputPassword">Passing value (0-1):</label>\
                         <div class="controls">\
                             <input type="text" id="passingValue" placeholder="Passing value">\

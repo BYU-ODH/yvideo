@@ -4,7 +4,7 @@ import play.api.mvc._
 import controllers.authentication.Authentication
 import play.api.libs.json.{JsString, JsArray, Json}
 import dataAccess.ResourceController
-import models.{User, Course, Content}
+import models.{User, Collection, Content}
 import service._
 import java.net.URL
 import java.io.IOException
@@ -103,11 +103,9 @@ object ContentEditing extends Controller {
           Future {
             // Make sure the user is able to edit
             if (content isEditableBy user) {
-              val shareability = data("shareability").lift(0)
-                .map(_.toInt).getOrElse(content.shareability)
               val visibility = data("visibility").lift(0)
                 .map(_.toInt).getOrElse(content.visibility)
-              val newcontent = content.copy(shareability = shareability, visibility = visibility).save
+              val newcontent = content.copy(visibility = visibility).save
               recordSettings(newcontent, data)
               Ok
             } else
@@ -126,8 +124,8 @@ object ContentEditing extends Controller {
         ContentController.getContent(id) {  content =>
           Future {
             if (content.isEditableBy(user) && content.contentType == 'image) {
-              val course = AdditionalDocumentAdder.getCourse()
-              Ok(views.html.content.editImage(content, ResourceController.baseUrl, course))
+              val collection = AdditionalDocumentAdder.getCollection()
+              Ok(views.html.content.editImage(content, ResourceController.baseUrl, collection))
             } else
               Errors.forbidden
           }
@@ -150,8 +148,8 @@ object ContentEditing extends Controller {
             val cropLeft = request.body("cropLeft")(0).toDouble
             val cropBottom = request.body("cropBottom")(0).toDouble
             val cropRight = request.body("cropRight")(0).toDouble
-            val redirect = Redirect(AdditionalDocumentAdder.getCourse() match {
-              case Some(course) => routes.CourseContent.viewInCourse(content.id.get, course.id.get)
+            val redirect = Redirect(AdditionalDocumentAdder.getCollection() match {
+              case Some(collection) => routes.CollectionContent.viewInCollection(content.id.get, collection.id.get)
               case _ => routes.ContentController.view(content.id.get)
             })
 
@@ -315,7 +313,6 @@ object ContentEditing extends Controller {
         Future {
           try {
             val params = request.body.mapValues(_(0))
-            val shareability = params("shareability").toInt
             val visibility = params("visibility").toInt
             val contentList = params("ids").split(",").collect {
               case id:String if !id.isEmpty => Content.findById(id.toLong)
@@ -323,7 +320,7 @@ object ContentEditing extends Controller {
 
             if(contentList.forall(_.isEditableBy(user))) {
               for(content <- contentList) {
-                content.copy(shareability = shareability, visibility = visibility).save
+                content.copy(visibility = visibility).save
               }
               redirect.flashing("info" -> "Content updated")
             } else {

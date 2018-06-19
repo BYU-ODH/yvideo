@@ -1,6 +1,6 @@
 @(courseId: Long)(implicit request: RequestHeader, user: User)
 
-@main("Ayamel - Add Content", Some(user),
+@main("Y-Video - Add Content", Some(user),
   Local(
     CSS("stylesheets/content.css"),
     JS("javascripts/formFixes/labelsInput.js"))
@@ -26,25 +26,25 @@
 
             <form class="form-horizontal" method="post" action="@routes.ContentController.createQuestionSet(courseId)">
                 <input type="hidden" name="contentType" value="playlist">
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="title">Title</label>
                     <div class="controls">
                         <input type="text" id="title" name="title" placeholder="Title">
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="description">Description</label>
                     <div class="controls">
                         <textarea class="form-control" rows="3" id="description" name="description" placeholder="Description" maxlength="5000"></textarea>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <label class="control-label" for="labels">Labels</label>
                     <div class="controls">
                         <input type="labels" id="labels" name="labels" value="">
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="form-group">
                     <div class="controls">
                         <button type="submit" class="btn btn-blue">Create</button>
                     </div>

@@ -26,12 +26,27 @@ object Application extends Controller {
   }
 
   /**
+   * A special login page for admins
+   */
+  def login = Action {
+    implicit request =>
+      val user = Authentication.getUserFromRequest()
+      if (user.isDefined)
+        Redirect(controllers.routes.Application.home())
+      else {
+        val path = request.queryString.get("path").map(path => path(0)).getOrElse("")
+        Ok(views.html.application.login(path))
+      }
+  }
+
+  /**
    * The home page
    */
   def home = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Future(Ok(views.html.application.home(Course.list)))
+        Future(Ok(views.html.application.home()))
+
   }
 
   /**
@@ -42,10 +57,10 @@ object Application extends Controller {
       implicit user =>
         Future {
           request.queryString.get("query").flatMap(_.headOption).map { query =>
-            (Content.search(query), Course.search(query))
+            (Content.search(query), Collection.search(query))
           }.getOrElse((Nil, Nil)) match {
-            case (content, courses) =>
-              Ok(views.html.application.search(content, courses))
+            case (content, collections) =>
+              Ok(views.html.application.search(content, collections))
           }
         }
   }

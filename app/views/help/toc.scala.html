@@ -7,7 +7,7 @@
         simple(title)(content)(r, u)
 }
 
-@template("Ayamel - Help Pages") {
+@template("Y-Video - Help Pages") {
 
     @views.html.content.header.includes()
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/help.css")"/>
@@ -17,16 +17,15 @@
         <h1>Help and Tutorial Pages</h1>
 
         <p>
-            Understanding how Ayamel works can be difficult. We know. For that reason we created a series of tutorials
+            Understanding how Y-Video works can be difficult. We know. For that reason we created a series of tutorials
             in order to help you do what you need to do.
         </p>
 
-        <div class="row-fluid">
-            <div class="span8 offset2">
+        <div class="row">
+            <div class="col-md-8 offset2">
                 <div id="gettingStarted"></div>
             </div>
         </div>
-        <hr>
 
         @if(user.isDefined && user.get.hasSitePermission("admin")) {
             <a href="@routes.HelpPages.edit(0)" class="btn btn-yellow pad-bottom-med"><i class="icon-plus"></i> Create a new help page</a>

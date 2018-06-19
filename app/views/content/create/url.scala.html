@@ -1,6 +1,6 @@
 @(courseId: Long)(implicit request: RequestHeader, user: User)
 
-@main("Ayamel - Add Content", Some(user),
+@main("Y-Video - Add Content", Some(user),
   Local(
     CSS("stylesheets/content.css"),
     JS("javascripts/formFixes/labelsInput.js")),
@@ -10,97 +10,99 @@
     JS("js/MimeExts.js"))
 ){
     <div class="padded">
-        <h1>Add Content</h1>
+        <div class="container-fluid">
+            <h1>Add Content</h1>
 
-        <ul class="nav nav-tabs">
-            <li class="active"><a href="#">Link to URL</a></li>
-            <li><a href="@routes.ContentController.createPage("batch", courseId)">Batch Add</a></li>
-            <li><a href="@routes.ContentController.createPage("file", courseId)">Upload File</a></li>
-            <li><a href="@routes.ContentController.createPage("resource", courseId)">Load from Resource</a></li>
-        </ul>
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#">Link to URL</a></li>
+                <li><a href="@routes.ContentController.createPage("batch", courseId)">Batch Add</a></li>
+                <li><a href="@routes.ContentController.createPage("file", courseId)">Upload File</a></li>
+                <li><a href="@routes.ContentController.createPage("resource", courseId)">Load from Resource</a></li>
+            </ul>
 
-        <h2>Content information</h2>
+            <h2>Content information</h2>
 
-        @defining(request.queryString.getOrElse("annotations", List("false"))(0).toBoolean) { annotations =>
-            <form class="form-horizontal" method="post" enctype="multipart/form-data" action="@{routes.ContentController.createFromUrl(courseId, annotations)}">
-                <div class="control-group">
-                    <label class="control-label" for="url">URL</label>
-                    <div class="controls">
-                        <input type="text" id="url" name="url" placeholder="URL" autofocus>
+            @defining(request.queryString.getOrElse("annotations", List("false"))(0).toBoolean) { annotations =>
+                <form class="form-horizontal" method="post" enctype="multipart/form-data" action="@{routes.ContentController.createFromUrl(courseId, annotations)}">
+                    <div class="form-group">
+                        <label class="control-label" for="url">URL</label>
+                        <div class="controls">
+                            <input type="text" class="form-control short" id="url" name="url" placeholder="URL" autofocus>
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="contentType">Content Type</label>
-                    <div class="controls">
-                        <select id="contentType" name="contentType">
-                            <option value="audio">Audio</option>
-                            <option value="image">Image</option>
-                            <option value="video">Video</option>
-                            <option value="text">Text</option>
-                        </select>
+                    <div class="form-group">
+                        <label class="control-label" for="contentType">Content Type</label>
+                        <div class="controls">
+                            <select class="form-control short" id="contentType" name="contentType">
+                                <option value="audio">Audio</option>
+                                <option value="image">Image</option>
+                                <option value="video">Video</option>
+                                <option value="text">Text</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="title">Title</label>
-                    <div class="controls">
-                        <input type="text" required id="title" name="title" placeholder="Title">
+                    <div class="form-group">
+                        <label class="control-label" for="title">Title</label>
+                        <div class="controls">
+                            <input type="text" required class="form-control short" id="title" name="title" placeholder="Title">
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="description">Description</label>
-                    <div class="controls">
-                        <textarea class="form-control" rows="3" id="description" name="description" placeholder="Description" maxlength="5000"></textarea>
+                    <div class="form-group">
+                        <label class="control-label" for="description">Description</label>
+                        <div class="controls">
+                            <textarea class="form-control" rows="3" id="description" name="description" placeholder="Description" maxlength="5000"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="languages">Languages</label>
-                    <div class="controls" id="langLocation"></div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="categories">Categories</label>
-                    <div class="controls">
-                        <select multiple="multiple" id="categories" name="categories">
-                            <option value="Arts">Arts</option>
-                            <option value="Culture">Culture</option>
-                            <option value="Economy">Economy</option>
-                            <option value="Education">Education</option>
-                            <option value="Entertainment">Entertainment</option>
-                            <option value="Food">Food</option>
-                            <option value="Geography">Geography</option>
-                            <option value="Health/beauty">Health/beauty</option>
-                            <option value="Hobbies">Hobbies</option>
-                            <option value="Home/garden">Home/garden</option>
-                            <option value="News">News</option>
-                            <option value="Occupation">Occupation</option>
-                            <option value="Opinion">Opinion</option>
-                            <option value="Politics">Politics</option>
-                            <option value="Social">Social</option>
-                            <option value="Sports">Sports</option>
-                            <option value="Technology">Technology</option>
-                            <option value="Weather">Weather</option>
-                        </select>
+                    <div class="form-group">
+                        <label class="control-label" for="languages">Languages</label>
+                        <div class="controls" id="langLocation"></div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="labels">Keywords</label>
-                    <div class="controls">
-                        <input type="labels" id="keywords" name="keywords" value="">
+                    <div class="form-group">
+                        <label class="control-label" for="categories">Categories</label>
+                        <div class="controls">
+                            <select multiple="multiple" class="form-control short" id="categories" name="categories">
+                                <option value="Arts">Arts</option>
+                                <option value="Culture">Culture</option>
+                                <option value="Economy">Economy</option>
+                                <option value="Education">Education</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Food">Food</option>
+                                <option value="Geography">Geography</option>
+                                <option value="Health/beauty">Health/beauty</option>
+                                <option value="Hobbies">Hobbies</option>
+                                <option value="Home/garden">Home/garden</option>
+                                <option value="News">News</option>
+                                <option value="Occupation">Occupation</option>
+                                <option value="Opinion">Opinion</option>
+                                <option value="Politics">Politics</option>
+                                <option value="Social">Social</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Weather">Weather</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="labels">Labels</label>
-                    <div class="controls">
-                        <input type="labels" id="labels" name="labels" value="">
+                    <div class="form-group">
+                        <label class="control-label" for="labels">Keywords</label>
+                        <div class="controls">
+                            <input type="labels" id="keywords" name="keywords" value="">
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <input name="create" type="submit" class="btn btn-blue" value="Create">
-                        <input name="createAndAdd" type="submit" class="btn btn-yellow" value="Create, then Add More Content">
+                    <div class="form-group">
+                        <label class="control-label" for="labels">Labels</label>
+                        <div class="controls">
+                            <input type="labels" id="labels" name="labels" value="">
+                        </div>
                     </div>
-                </div>
-            </form>
-        }
+                    <div class="form-group">
+                        <div class="controls">
+                            <input name="create" type="submit" class="btn btn-blue" value="Create">
+                            <input name="createAndAdd" type="submit" class="btn btn-yellow" value="Create, then Add More Content">
+                        </div>
+                    </div>
+                </form>
+            }
+        </div>
     </div>
 
     <script type="text/javascript">

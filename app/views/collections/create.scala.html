@@ -1,0 +1,22 @@
+@()(implicit request: RequestHeader, user: User) @main("Y-Video - Create collection page", Some(user)) {
+
+<div class="padded">
+    <h1>Create Collection Page</h1>
+    <div class="container-fluid">
+	    <form class="form-horizontal" action="@routes.Collections.create()" method="post">
+	        <div class="form-group">
+	            <label class="control-label" for="collectionName">Collection Name</label>
+	            <div class="controls">
+	                <input type="text" name="collectionName" id="collectionName" placeholder="Collection Name" maxlength="60" pattern=".{1,60}" required
+	                    autofocus />
+	            </div>
+	        </div>
+	        <div class="form-group">
+	            <div class="controls">
+	                <input class="btn btn-blue" type="submit" value="Create Collection Page" />
+	            </div>
+	        </div>
+	    </form>
+	</div>
+</div>
+}

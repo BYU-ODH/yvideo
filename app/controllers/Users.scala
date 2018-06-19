@@ -12,7 +12,10 @@ import ExecutionContext.Implicits.global
 /**
  * Controller dealing with users
  */
-object Users extends Controller {
+trait Users {
+
+  // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
+  this: Controller =>
 
   /**
    * View notifications
@@ -125,7 +128,7 @@ object Users extends Controller {
             Future(redirect.flashing("error" -> "Could not read image"))
           case Success(imgOpt) =>
             imgOpt match {
-            case None => 
+            case None =>
               Future(redirect.flashing("error" -> "Error reading image."))
             case Some(image) =>
               ImageTools.makeThumbnail(image) match {
@@ -146,42 +149,6 @@ object Users extends Controller {
         }
   }
 
-  /**
-   * The permission request page.
-   */
-  def permissionRequestPage = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("requestPermission") {
-          Future(Ok(views.html.users.permissionRequest.requestForm()))
-        }
-  }
-
-  /**
-   * Creates and submits a permission request for the active user
-   */
-  def submitPermissionRequest = Authentication.authenticatedAction(parse.urlFormEncoded) {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("requestPermission") {
-          val permission = request.body("permission")(0)
-          val reason = request.body("reason")(0)
-          val desc = SitePermissions.getDescription(permission)
-
-          Future {
-            // Check to see if the user already has the requested permission
-            // or has already submitted a request
-            if (user.hasSitePermission(permission)) {
-              Redirect(routes.Users.permissionRequestPage())
-                .flashing("info" -> s"You already have $desc permission")
-            } else {
-              if (SitePermissionRequest.findByUser(user, permission).isEmpty) {
-                user.requestPermission(permission, reason)
-              }
-              Redirect(routes.Users.accountSettings())
-                .flashing("success" -> s"Your request for $desc permission has been submitted.")
-            }
-          }
-        }
-  }
 }
+
+object Users extends Controller with Users

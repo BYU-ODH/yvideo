@@ -3,7 +3,7 @@
  * See https://github.com/BYU-ARCLITE/Ayamel-Examples/wiki/Improving-forms
  */
 $(function() {
-    var template = '<button class="btn">Choose File</button><span>No file chosen</span>';
+    var template = '<button class="btn btn-gray">Choose File</button><span>No file chosen</span>';
     [].forEach.call(document.querySelectorAll("input[type='file']"), function(node){
         node.parentNode.insertBefore(Ayamel.utils.parseHTML(template), node.nextSibling);
         node.nextSibling.addEventListener('click', function(event){

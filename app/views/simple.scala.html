@@ -17,7 +17,7 @@
               CSS("main.css")),
             Rel("javascripts/",
               Rel("libraries/",
-                JS("jquery-1.9.0.min.js"),
+                JS("jquery.min.js"),
                 JS("bootstrap.min.js"),
                 JS("Ractive.min.js")),
               JS("contentSelection/ContentItemRenderer.js"),
@@ -42,15 +42,15 @@
 
                 <div class="footer">
                     <div class="padded">
-                        <div class="row-fluid">
-                            <div class="span10 offset1">
-                                <div class="row-fluid">
-                                    <div class="span3 offset3">
+                        <div class="row">
+                            <div class="col-md-10 offset1">
+                                <div class="row">
+                                    <div class="col-md-3 offset3">
                                         <div>Copyright © 2013 <a href="http://byu.edu">Brigham Young University</a></div>
                                         <div>By the <a href="http://arclite.byu.edu">ARCLITE Lab</a></div>
                                         <div>Funding from <a href="http://www.thelanguageflagship.org/">The Language Flagship</a></div>
                                     </div>
-                                    <div class="span3">
+                                    <div class="col-md-3">
                                         <div>All source code is <a href="https://github.com/BYU-ARCLITE">Open Source</a></div>
                                         <div>Uses the <a href="http://ayamel.americancouncils.org/">Ayamel Resource Library</a></div>
                                     </div>
@@ -65,13 +65,13 @@
         <div class="messageContainer">
                 <!-- Messages/alerts -->
             @if(request.flash.get("alert").isDefined) {
-                <div class="alert">
+                <div class="alert alert-warning">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Just a sec...</strong> @Html(request.flash("alert"))
                 </div>
             }
             @if(request.flash.get("error").isDefined) {
-                <div class="alert alert-error">
+                <div class="alert alert-danger">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Oh snap!</strong> @Html(request.flash("error"))
                 </div>

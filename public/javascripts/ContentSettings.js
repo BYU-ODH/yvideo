@@ -1,4 +1,4 @@
-/**
+/*
  * Created with IntelliJ IDEA.
  * User: josh
  * Date: 6/21/13
@@ -9,59 +9,64 @@ var ContentSettings = (function(){
 
     var settingsTemplate = '<form class="form-horizontal">\
         {{#controls:c}}\
-        <div class="control-group">\
-            {{#(controlsSettings[c].include(context, content))}}\
-                {{#(type == \'radio\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                <div class="controls">\
-                    {{#items}}\
-                    <label>\
-                        <input type="radio" name="{{setting}}" value="{{.value}}">{{.text}}\
-                    </label>\
-                    {{/items}}\
-                </div>\
-                {{/type}}\
-                {{#(type == \'checkbox\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                <div class="controls">\
-                    <input type="checkbox" checked="{{setting}}">\
-                </div>\
-                {{/type}}\
-                {{#(type == \'multicheck\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                <div class="controls">\
-                    {{#items}}\
-                    <label>\
-                        <input type="checkbox" name="{{setting}}" value="{{.value}}">{{.text}}\
-                    </label>\
-                    {{/items}}\
-                </div>\
-                {{/type}}\
-                {{#(type == \'button\')}}\
-                <div class="controls">\
-                    <button class="btn {{classes}}" on-click="click:{{name}}">{{label}}</button>\
-                </div>\
-                {{/type}}\
-                {{#(type == \'superselect\')}}\
-                    <div class="control-group">\
-                        {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                        <SuperSelect icon="icon-globe" text="Select Language" value="{{setting}}" btnpos="left" multiple="true" options="{{items}}" modal="configurationModal">\
-                    </div>\
-                {{/type}}\
-            {{/include}}\
-            {{^(controlsSettings[c].include(context, content))}}\
-                {{#(type == \'radio\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                {{#none}}<div class="controls">\{{none}}</div>{{/none}}\
-                {{/type}}\
-                {{#(type != \'radio\')}}\
-                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
-                {{#none}}<div class="controls">\<i>{{none}}</i></div>{{/none}}\
-                {{/type}}\
-            {{/include}}\
-        </div>\
+        <div class="container-fluid">\
+	        <div class="form-group">\
+	            {{#(controlsSettings[c].include(context, content))}}\
+	                {{#(type == \'radio\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                <div class="controls">\
+	                    {{#items}}\
+	                    <label style="display:block;">\
+	                        <input type="radio" name="{{setting}}" value="{{.value}}">{{.text}}\
+	                    </label>\
+	                    {{/items}}\
+	                </div>\
+	                {{/type}}\
+	                {{#(type == \'checkbox\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                <div class="controls">\
+	                    <input type="checkbox" checked="{{setting}}">\
+	                </div>\
+	                {{/type}}\
+	                {{#(type == \'multicheck\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                <div class="controls">\
+	                    {{#items}}\
+	                    <label style="display:block;">\
+	                        <input type="checkbox" name="{{setting}}" value="{{.value}}">{{.text}}\
+	                    </label>\
+	                    {{/items}}\
+	                </div>\
+	                {{/type}}\
+	                {{#(type == \'button\')}}\
+	                <div class="controls">\
+	                    <button class="btn {{classes}}" on-click="click:{{name}}">{{label}}</button>\
+	                </div>\
+	                {{/type}}\
+	                {{#(type == \'superselect\')}}\
+	                    <div>\
+	                        {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                        <SuperSelect icon="icon-globe" text="Select Language" value="{{setting}}" btnpos="left" multiple="true" options="{{items}}" modal="configurationModal">\
+	                    </div>\
+	                {{/type}}\
+	            {{/include}}\
+	            {{^(controlsSettings[c].include(context, content))}}\
+	                {{#(type == \'radio\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                {{#none}}<div class="controls">\{{none}}</div>{{/none}}\
+	                {{/type}}\
+	                {{#(type != \'radio\')}}\
+	                {{#label}}<span class="control-label">{{label}}</span>{{/label}}\
+	                {{#none}}<div class="controls">\<i>{{none}}</i></div>{{/none}}\
+	                {{/type}}\
+	            {{/include}}\
+	        </div>\
+	    </div>\
         {{/controls}}\
-    </form>';
+    </form>\
+    <style>\
+.controls { white-space: pre-line; }\
+</style>';
 
     var predefined = {
         saveButton: {
@@ -139,11 +144,16 @@ var ContentSettings = (function(){
                             .split(",").filter(function(s){ return !!s; });
 			},
             items: function(){
-				return Object.keys(Ayamel.utils.langCodes).map(function(code){
-                    var engname = Ayamel.utils.getLangName(code,"eng"),
-                        localname = Ayamel.utils.getLangName(code,code);
+                langList = Object.keys(Ayamel.utils.p1map).map(function (p1) {
+                    var code = Ayamel.utils.p1map[p1],
+                    engname = Ayamel.utils.getLangName(code,"eng"),
+                    localname = Ayamel.utils.getLangName(code,code);
                     return {value: code, text: engname, desc: localname!==engname?localname:void 0};
-                }).sort(function(a,b){ return a.text.localeCompare(b.text); })
+                });
+
+                langList.push({ value: "apc", text: "North Levantine Arabic"});
+                langList.push({ value: "arz", text: "Egyptian Arabic"});
+                return langList.sort(function(a,b){ return a.text.localeCompare(b.text); });
 			}
         },
         showTranscripts: {
@@ -222,27 +232,6 @@ var ContentSettings = (function(){
                 });
             }
         },
-        shareability: {
-            type: "radio",
-            label: "Shareability:",
-            name: "shareability",
-            include: function(context, content){ return true; },
-            setting: function(context, content){
-                return content.shareability || 1;
-            },
-            items: function(context, content){
-                return [{
-                    text: "Not Shareable",
-                    value: 1
-                },{
-                    text: "Shareable by owner only",
-                    value: 2
-                },{
-                    text: "Shareable by anybody",
-                    value: 3
-                }];
-            }
-        },
         visibility: {
             type: "radio",
             label: "Visibility:",
@@ -281,7 +270,6 @@ var ContentSettings = (function(){
             predefined.showAnnotations,
             predefined.enabledAnnotations,
             predefined.visibility,
-            predefined.shareability,
             predefined.saveButton
         ],
         audio: [
@@ -294,7 +282,6 @@ var ContentSettings = (function(){
             predefined.enabledCaptionTracks,
             predefined.enabledAnnotations,
             predefined.visibility,
-            predefined.shareability,
             predefined.saveButton
         ],
         image: [
@@ -307,7 +294,6 @@ var ContentSettings = (function(){
             predefined.enabledCaptionTracks,
             predefined.enabledAnnotations,
             predefined.visibility,
-            predefined.shareability,
             predefined.saveButton
         ],
         text: [
@@ -317,7 +303,6 @@ var ContentSettings = (function(){
             predefined.showAnnotations,
             predefined.enabledAnnotations,
             predefined.visibility,
-            predefined.shareability,
             predefined.saveButton
         ]
     };

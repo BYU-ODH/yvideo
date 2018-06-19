@@ -1,10 +1,12 @@
-@(content: models.Content, course: Option[Course], resourceLibraryUrl: String)(implicit request: RequestHeader, user: User)
+@(content: models.Content, collection: Option[Collection], resourceLibraryUrl: String)(implicit request: RequestHeader, user: User)
 
-@editor("Ayamel - CaptionAider",
+@editor("Y-Video - CaptionAider",
   Extern("TimelineEditor", CSS("timeline.css")),
   Local(
     CSS("stylesheets/timeline.css"),
-    JS("javascripts/pageScripts/captionAider.js"))
+    JS("javascripts/pageScripts/captionAider.js"),
+    JS("javascripts/pageScripts/EventTrackEditor.js"))
+
 ) {
 
     @views.html.content.header.includes()
@@ -35,11 +37,11 @@
         <div class="mainContent">
             <div class="padded">
                 <ul class="breadcrumb">
-                    @if(course.isDefined) {
-                        <li><a href="@routes.Courses.view(course.get.id.get)">@course.get.name</a> <span class="divider">/</span></li>
-                        <li><a href="@routes.CourseContent.viewInCourse(content.id.get, course.get.id.get)">@content.name</a> <span class="divider">/</span></li>
+                    @if(collection.isDefined) {
+                        <li><a href="@routes.Collections.view(collection.get.id.get)">@collection.get.name</a> <span class="divider"></span></li>
+                        <li><a href="@routes.CollectionContent.viewInCollection(content.id.get, collection.get.id.get)">@content.name</a> <span class="divider">/</span></li>
                     } else {
-                        <li><a href="@routes.ContentController.view(content.id.get)">@content.name</a> <span class="divider">/</span></li>
+                        <li><a href="@routes.ContentController.view(content.id.get)">@content.name</a> <span class="divider"></span></li>
                     }
                     <li class="active">CaptionAider</li>
                 </ul>
@@ -53,20 +55,20 @@
         <div id="timeline"></div>
     </div>
 
-    <div id="newTrackModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newTrackModalLabel" aria-hidden="true"></div>
-    <div id="cloneTrackModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="cloneTrackModalLabel" aria-hidden="true"></div>
-    <div id="editTrackModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="editTrackModalLabel" aria-hidden="true"></div>
-    <div id="setLocModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="setLocModalLabel" aria-hidden="true"></div>
-    <div id="saveTrackModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="saveTrackModalLabel" aria-hidden="true"></div>
-    <div id="loadTrackModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="loadTrackModalLabel" aria-hidden="true"></div>
-    <div id="showTrackModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="showTrackModalLabel" aria-hidden="true"></div>
+    <div id="newTrackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="newTrackModalLabel" aria-hidden="true"></div>
+    <div id="cloneTrackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="cloneTrackModalLabel" aria-hidden="true"></div>
+    <div id="editTrackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editTrackModalLabel" aria-hidden="true"></div>
+    <div id="setLocModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="setLocModalLabel" aria-hidden="true"></div>
+    <div id="saveTrackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="saveTrackModalLabel" aria-hidden="true"></div>
+    <div id="loadTrackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="loadTrackModalLabel" aria-hidden="true"></div>
+    <div id="showTrackModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="showTrackModalLabel" aria-hidden="true"></div>
 
     <script>
         var content = @Html(content.toJson.toString());
-        var courseId = @course.map(_.id.get).getOrElse(0);
+        var collectionId = @collection.map(_.id.get).getOrElse(0);
         var userId = @user.id.get;
         var owner = @content.isEditableBy(user);
-        var teacher = @course.exists(c => user.hasCoursePermission(c, "teacher"));
+        var teacher = @collection.exists(c => user.isCollectionTeacher(c));
         ResourceLibrary.setBaseUrl("@resourceLibraryUrl");
     </script>
     <script id='createTrackTemplate' type='text/ractive'>
@@ -120,18 +122,21 @@
     </script>
     <script id='setLocTemplate' type='text/ractive'>
         <span class="form-horizontal">
-            <div class="control-group">
-                <label class="control-label">Current Save Location</label>
-                <div class="controls">
-                    <div id="saveLocation">
-                        <label class="radio">
-                            <input type="radio" name="{{saveLocation}}" value="server">Server
-                        </label>
-                        {{#saveLocations}}
-                        <label class="radio">
-                            <input type="radio" name="{{saveLocation}}" value="{{.value}}">{{.name}}
-                        </label>
-                        {{/saveLocations}}
+            <div class="container">    
+                <div class="control-group">
+                    <label class="control-label">Current Save Location</label>
+                    <div class="controls">
+                        <div id="saveLocation">
+                            
+                            <label class="radio">
+                                <input type="radio" name="{{saveLocation}}" value="server">Server
+                            </label>
+                            {{#saveLocations}}
+                            <label class="radio">
+                                <input type="radio" name="{{saveLocation}}" value="{{.value}}">{{.name}}
+                            </label>
+                            {{/saveLocations}}
+                        </div>
                     </div>
                 </div>
             </div>

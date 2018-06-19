@@ -17,26 +17,26 @@ play.i18n.langs="en"
 # Default to Global in the root package.
 # application.global=Global
 
-# Router 
+# Router
 # ~~~~~
 # Define the Router object to use for this application.
 # This router will be looked up first when the application is starting up,
-# so make sure this is the entry point. 
-# Furthermore, it's assumed your route file is named properly. 
+# so make sure this is the entry point.
+# Furthermore, it's assumed your route file is named properly.
 # So for an application router like `my.application.Router`,
 # you may need to define a router file `conf/my.application.routes`.
 # Default to Routes in the root package (and conf/routes)
 # application.router=my.application.Routes
 
 # Database configuration
-# ~~~~~ 
+# ~~~~~
 # You can declare as many datasources as you want.
 # By convention, the default datasource is named `default`
 #
 db.default.driver=com.mysql.jdbc.Driver
-db.default.url="jdbc:mysql://localhost/ayamel?characterEncoding=UTF-8"
-db.default.username=root
-db.default.password=root
+db.default.url="jdbc:mysql://localhost/yvideodb?characterEncoding=UTF-8"
+db.default.username=TestGuy
+db.default.password=t3stm3
 
 # Evolutions
 # ~~~~~
@@ -119,10 +119,12 @@ byusecure.lifetime=28000
 byusecure.secret=""
 byusecure.prefix=""
 byusecure.algorithm="SHA-256"
-byusecure.hasip=false
+Byusecure.hasip=false
 
 #Extra MIME Types
 mimetype.m3u8="application/x-mpegurl"
 mimetype.m4v="video/mp4"
 mimetype.m4a="audio/mp4"
 mimetype.mpd="application/dash+xml"
+
+HTTPS=false

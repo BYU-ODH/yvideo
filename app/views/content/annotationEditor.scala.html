@@ -11,7 +11,7 @@
     )
 }
 
-@main("Ayamel - " + content.name, Some(user),
+@main("Y-Video - " + content.name, Some(user),
   Local(
     Rel("stylesheets/",
       CSS("content.css"),
@@ -46,131 +46,161 @@
 
         <h1><i class="@contentIcons(content.contentType)"></i> @content.name <small>Edit Annotations</small></h1>
 
-        <div class="navbar">
-            <div class="navbar-inner">
-                <ul class="nav">
-                    <li><a href="#metadataModal" data-toggle="modal"><i class="icon-pencil"></i> Edit metadata</a></li>
-                </ul>
-                <ul class="nav pull-right">
-                    <li><a href="#saveAnnotationsModal" data-toggle="modal"><i class="icon-save"></i> Save</a></li>
-                    <li><a href="#editAnnotationsModal" data-toggle="modal"><i class="icon-pencil"></i> Edit</a></li>
-                    <li><a href="#" id="emptyManifest"><i class="icon-trash"></i> Clear Annotations</a></li>
-                    <li><a href="#annotationsModal" data-toggle="modal"><i class="icon-trash"></i> Delete</a></li>
-                    <li><a href="#" id="quit"><i class="icon-signout"></i> Quit</a></li>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid"> 
+                <ul class="navbar-nav">
+                    <ul class="nav navbar-nav navbar-left">
+                        <li><a href="#metadataModal" data-toggle="modal"><i class="icon-pencil"></i> Edit metadata</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="#saveAnnotationsModal" data-toggle="modal"><i class="icon-save"></i> Save</a></li>
+                        <li><a href="#editAnnotationsModal" data-toggle="modal"><i class="icon-pencil"></i> Edit</a></li>
+                        <li><a href="#" id="emptyManifest"><i class="icon-trash"></i> Clear Annotations</a></li>
+                        <li><a href="#annotationsModal" data-toggle="modal"><i class="icon-trash"></i> Delete</a></li>
+                        <li><a href="#" id="quit"><i class="icon-signout"></i> Quit</a></li>
+                    </ul>
                 </ul>
             </div>
-        </div>
+        </nav>
         <div id="annotationEditor"></div>
 
     @if(true) {
 
-        <div id="annotationsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="annotationsModalLabel" aria-hidden="true">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 id="annotationsModalLabel">Annotations</h3>
-            </div>
-            <div class="modal-body">
-                <div class="row-fluid">
-                    <div>
-                        <h4>Delete Annotations</h4>
-                        <div class="clearfix"></div>
-                        <div id="annotationsTable"></div>
+        <div id="annotationsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="annotationsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h3 id="annotationsModalLabel">Annotations</h3>
                     </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div>
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="saveAnnotationsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="saveAnnotationsModalLabel" aria-hidden="true">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 id="saveAnnotationsModalLabel">Annotations</h3>
-            </div>
-            <div class="modal-body">
-                <div class="row-fluid">
-                    <div>
-                        <h4>Save Annotations</h4>
-                        <div class="clearfix"></div>
-                        <form>
-                            <fieldset>
-                                <div id="saveOptions" class="form-inline">
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div>
+                                    <div class="container-fluid">
+                                        <h4>Delete Annotations</h4>
+                                        <div class="clearfix"></div>
+                                        <div id="annotationsTable"></div>
+                                    </div>
                                 </div>
-                                <br>
-                                <input id="filename" type="text" placeholder="Filename">
-                            </fieldset>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div>
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                    <label id="spinner"><i class="icon-spin icon-spinner icon-large pad-top-high"></i></label>
-                    <button class="btn btn-magenta" id="saveAnnotations" disabled="true" type="button" value="Save">Save</button>
-                    <!--<input class="btn btn-magenta" id="saveAnnotations" disabled="true" type="button" value="Save">-->
-                </div>
-            </div>
-        </div>
-
-        <div id="editAnnotationsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="editAnnotationsModalLabel" aria-hidden="true">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 id="editAnnotationsModalLabel">Annotations</h3>
-            </div>
-            <div class="modal-body">
-                <div class="row-fluid">
-                    <div>
-                        <h4>Edit Annotations</h4>
-                        <div class="clearfix"></div>
-                        <form>
-                            <fieldset>
-                                <table class="table table-bordered pad-top-high">
-                                    <thead><tr>
-                                        <th>Track name</th><th>Language</th><th>Options</th>
-                                    </tr></thead>
-                                    <tbody id="editTable">
-                                    </tbody>
-                                </table>
-                            </fieldset>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div>
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="metadataModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="metadataModalLabel" aria-hidden="true">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3 id="metadataModalLabel">Edit Metadata</h3>
-            </div>
-            <div class="modal-body">
-                <div class="form-horizontal">
-                    <div class="control-group">
-                        <label class="control-label" for="title">Title</label>
-                        <div class="controls">
-                            <input type="text" id="title" placeholder="Title" autofocus>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label class="control-label" for="language">Language</label>
-                        <div class="controls" id="langLocation">
-                            <input type="text" id="language" placeholder="Language">
+                    <div class="modal-footer">
+                        <div>
+                            <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-                <button class="btn btn-blue" id="saveMetadataButton">Save changes</button>
+        </div>
+
+        <div id="saveAnnotationsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="saveAnnotationsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h3 id="saveAnnotationsModalLabel">Annotations</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div>
+                                    <div class="container-fluid">
+                                        <h4>Save Annotations</h4>
+                                        <div class="clearfix"></div>
+                                        <form>
+                                            <fieldset>
+                                                <div id="saveOptions" class="form-inline">
+                                                </div>
+                                                <br>
+                                                <input id="filename" type="text" placeholder="Filename">
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div>
+                            <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                            <label id="spinner"><i class="icon-spin icon-spinner icon-large pad-top-high"></i></label>
+                            <button class="btn btn-magenta" id="saveAnnotations" disabled="true" type="button" value="Save">Save</button>
+                            <!--<input class="btn btn-magenta" id="saveAnnotations" disabled="true" type="button" value="Save">-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="editAnnotationsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editAnnotationsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <h3 id="editAnnotationsModalLabel">Annotations</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div>
+                                    <div class="container-fluid">
+                                        <h4>Edit Annotations</h4>
+                                        <div class="clearfix"></div>
+                                        <form>
+                                            <fieldset>
+                                                <table class="table table-bordered pad-top-high">
+                                                    <thead><tr>
+                                                        <th>Track name</th><th>Language</th><th>Options</th>
+                                                    </tr></thead>
+                                                    <tbody id="editTable">
+                                                    </tbody>
+                                                </table>
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div>
+                            <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="metadataModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="metadataModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3 id="metadataModalLabel">Edit Metadata</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="control-label" for="title">Title</label>
+                                    <div class="controls">
+                                        <input type="text" id="title" placeholder="Title" autofocus>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label" for="language">Language</label>
+                                    <div class="controls" id="langLocation"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                        <button class="btn btn-blue" id="saveMetadataButton">Save changes</button>
+                    </div>
+                </div>
             </div>
         </div>
 

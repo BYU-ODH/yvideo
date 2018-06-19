@@ -46,13 +46,13 @@ case class SitePermissionRequest(id: Option[Long], userId: Long, permission: Str
   // |______|______|______|______|______|______|______|______|______|
   //
 
-  def approve() {
-    getUser.foreach { user =>
-        user.addSitePermission(this.permission)
-        user.sendNotification("Your request for " + getDescription + " permission has been approved.")
-    }
-    delete()
-  }
+  // def approve() {
+  //   getUser.foreach { user =>
+  //       user.addSitePermission(this.permission)
+  //       user.sendNotification("Your request for " + getDescription + " permission has been approved.")
+  //   }
+  //   delete()
+  // }
 
   def deny() {
     getUser.foreach(_.sendNotification("Sorry, but your request for " + getDescription + " permission has been denied."))
@@ -85,7 +85,7 @@ case class SitePermissionRequest(id: Option[Long], userId: Long, permission: Str
    * @return The user
    */
   def getUser: Option[User] = cache.getUser
-  
+
   def getDescription: String = SitePermissions.getDescription(this.permission)
 
 }

@@ -1,0 +1,134 @@
+@(path: String)(implicit request: RequestHeader)
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Y-Video</title>
+    @Dependencies(
+      Local(
+        Icon("images/favicon.png", "image/png"),
+        Rel("stylesheets/",
+          CSS("bootstrap.min.css"),
+          CSS("bootstrap-responsive.min.css"),
+          CSS("font-awesome.min.css"),
+          CSS("main.css"),
+          CSS("index.css")),
+        Rel("javascripts/",
+          Rel("libraries/",
+            JS("jquery.min.js"),
+            JS("bootstrap.min.js")),
+          JS("pageScripts/index.js")))
+    )
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="text-center">
+            <img src="@routes.Assets.at("images/logo.png")" style="height: 200px; margin-top: 20px;">
+        </div>
+
+        <!--<h1>Y-Video <small>A better way to learn languages with video.</small></h1>-->
+
+        <div class="getStarted">
+
+            @if(request.flash.get("alert").isDefined) {
+                <div class="alert alert-warning">
+                    <a class="close" data-dismiss="alert">×</a>
+                    <strong>Just a sec...</strong> @request.flash("alert")
+                </div>
+            }
+            @if(request.flash.get("error").isDefined) {
+                <div class="alert alert-danger">
+                    <a class="close" data-dismiss="alert">×</a>
+                    <strong>Oh snap!</strong> @request.flash("error")
+                </div>
+            }
+            @if(request.flash.get("success").isDefined) {
+                <div class="alert alert-success">
+                    <a class="close" data-dismiss="alert">×</a>
+                    <strong>Alright!</strong> @request.flash("success")
+                </div>
+            }
+            @if(request.flash.get("info").isDefined) {
+                <div class="alert alert-info">
+                    <a class="close" data-dismiss="alert">×</a>
+                    <strong>Heads up.</strong> @request.flash("info")
+                </div>
+            }
+
+            <div class="text-center">
+                <a href="#loginModal" class="btn btn-yellow btn-lg" data-toggle="modal">Admin Login</a>
+            </div>
+
+        </div>
+
+    <div id="loginModal" class="modal fade" role="dialog" aria-labelledby="loginModalLabel" >
+        <div class="modal-dialog">
+        
+          <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" >×</button>
+                <h3 id="loginModalLabel">Sign in</h3>
+            </div>
+            <div class="modal-body">
+              <form class="form-horizontal" id="loginForm">
+                <div class="form-group">
+                    <label class="control-label col-sm-4" for="username">Username:</label>
+                    <div class="col-sm-6">
+                        <input class="form-control" id="username" name="username" placeholder="Enter username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4" for="password">Password:</label>
+                    <div class="col-sm-6">          
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+                        <input style="position: absolute; left: -9999px"/>
+                    </div>
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-gray" data-dismiss="modal">Close</button>
+                <button id="login" class="btn btn-blue">Sign in</button>
+            </div>
+          </div>
+          
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        
+        $(function() {
+            document.getElementById('login').addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                var data = new FormData();
+                var username = document.getElementById('username').value;
+                var password = document.getElementById('password').value;
+                data.append("username", username);
+                data.append("password", password);
+
+                var that = this;
+                $.ajax("@controllers.authentication.routes.Password.login("login", path)", {
+                    type: "post",
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                    success: function(value) {
+                        window.location.reload();
+                    },
+                    failure: function(err) {
+                        alert("Login failed. Please try again.")
+                    }
+                });
+
+            })
+        });
+
+        $('#loginModal').on('shown.bs.modal', function() {
+            $(this).find('[autofocus]').focus();
+        });
+    </script>
+
+</body>
+</html>

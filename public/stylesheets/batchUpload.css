@@ -1,3 +1,17 @@
+.dropZone{
+	background: lightgrey;
+	border: 3px solid white;
+	border-radius: 3px;
+	padding: 45px;
+	margin-bottom: 15px;
+	min-height: 125px;
+	min-width: 300px;
+	max-width: 45%;
+	resize: both;
+}
+.dropZone:hover{ background: #bbb; }
+#dropLeft{ float: left; }
+#dropRight{ float: right; }
 
 tr td:first-child { text-align: center; }
 .short { width: 86px; }
@@ -8,24 +22,14 @@ tr td:first-child { text-align: center; }
 	height: 25px;
 	width: 25px;
 	border-radius: 10em;
-
 	position: relative;
 	outline: none;
 	border: 1px solid firebrick;
 	background: white;
 	color: firebrick;
-	transition: background .25s, color .25s;
+	transition: all .25s;
 }
 
-.addRemoveLineButton:hover {
-	background: firebrick;
-	color: white;
-}
-
-input {
-	margin: 0 !important;
-}
-
-.mainContent {
-	overflow-x: scroll;
-}
+.addRemoveLineButton:hover { background: firebrick; color: white; }
+input { margin: 0 !important; }
+.addedItems > td { padding: 2px 0; border-bottom: 1px solid lightgrey; }

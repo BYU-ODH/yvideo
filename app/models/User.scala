@@ -51,7 +51,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   /**
    * Deletes the user from the DB
    */
-  def delete() {  
+  def delete() {
     // Delete the user's content
     getContent.foreach(_.delete())
 
@@ -59,10 +59,9 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
       try {
         BatchSql(
           "delete from {table} where userId = {id}",
-          List('table -> "courseMembership", 'id -> id.get),
-          List('table -> "announcement", 'id -> id.get),
+          List('table -> "collectionMembership", 'id -> id.get),
           List('table -> "notification", 'id -> id.get),
-          List('table -> "addCourseRequest", 'id -> id.get),
+          List('table -> "addCollectionRequest", 'id -> id.get),
           List('table -> "sitePermissionRequest", 'id -> id.get),
           List('table -> "sitePermissions", 'id -> id.get)
         )
@@ -103,35 +102,35 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   //
 
   /**
-   * Checks if a user is already enrolled in a course
-   * @param course The course in which the user will be enrolled
+   * Checks if a user is already enrolled in a collection
+   * @param collection The collection in which the user will be enrolled
    */
-  def isEnrolled(course: Course) = CourseMembership.userIsEnrolled(this, course)
+  def isEnrolled(collection: Collection): Boolean = CollectionMembership.userIsEnrolled(this, collection)
 
   /**
-   * Enrolls the user in a course
-   * @param course The course in which the user will be enrolled
-   * @param teacher Is this user a teacher of the course?
+   * Enrolls the user in a collection
+   * @param collection The collection in which the user will be enrolled
+   * @param teacher Is this user a teacher of the collection?
    * @return The user (for chaining)
    */
-  def enroll(course: Course, teacher: Boolean = false): User = {
-    if(!this.isEnrolled(course))
-      CourseMembership(None, id.get, course.id.get, teacher).save
+  def enroll(collection: Collection, teacher: Boolean = false, exception: Boolean = false): User = {
+    if(!this.isEnrolled(collection))
+      CollectionMembership(None, id.get, collection.id.get, teacher, exception).save
     this
   }
 
   /**
-   * Unenroll the user from a course
-   * @param course The course from which to unenroll
+   * Unenroll the user from a collection
+   * @param collection The collection from which to unenroll
    * @return The user (for chaining)
    */
-  def unenroll(course: Course): User = {
+  def unenroll(collection: Collection): User = {
 
     // First, find the membership
-    val membership = CourseMembership.listByUser(this).filter(_.courseId == course.id.get)
+    val membership = CollectionMembership.listByUser(this).filter(_.collectionId == collection.id.get)
 
     if (membership.size > 1)
-      Logger.warn("Multiple (or zero) memberships for user #" + id.get + " in course #" + course.id.get)
+      Logger.warn("Multiple (or zero) memberships for user #" + id.get + " in collection #" + collection.id.get)
 
     // Delete all found
     membership.foreach(_.delete)
@@ -185,13 +184,10 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
     // Move the notifications over
     user.getNotifications.foreach { _.copy(userId = thisid).save }
 
-    // Move the announcements over
-    Announcement.list.filter(_.userId == user.id.get).foreach { _.copy(userId = thisid).save }
-
-    // Move the course membership over. Check this user's membership to prevent duplicates
-    val myMembership = CourseMembership.listByUser(this).map(_.courseId)
-    CourseMembership.listByUser(user).foreach { membership =>
-      if (myMembership.contains(membership.courseId))
+    // Move the collection membership over. Check this user's membership to prevent duplicates
+    val myMembership = CollectionMembership.listByUser(this).map(_.collectionId)
+    CollectionMembership.listByUser(user).foreach { membership =>
+      if (myMembership.contains(membership.collectionId))
         membership.delete()
       else
         membership.copy(userId = thisid).save
@@ -277,15 +273,17 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   /**
    * Gets all of the fields required for the Admin dashboard table
    */
-  def toJson = Json.obj(
-    "id" -> id.get,
-    "authScheme" -> authScheme.name,
-    "username" -> username,
-    "name" -> getStringFromOption(name),
-    "email" -> getStringFromOption(email),
-    "linked" -> accountLinkId,
-    "permissions" -> getPermissions
-  )
+  def toJson = {
+    Json.obj(
+      "id" -> id,
+      "authScheme" -> authScheme.name,
+      "username" -> username,
+      "name" -> getStringFromOption(name),
+      "email" -> getStringFromOption(email),
+      "linked" -> accountLinkId,
+      "permissions" -> getPermissions
+    )
+  }
 
   //       _____      _   _
   //      / ____|    | | | |
@@ -304,19 +302,27 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   val cacheTarget = this
   object cache {
 
-    var enrollment: Option[List[Course]] = None
+    var enrollment: Option[List[Collection]] = None
 
     def getEnrollment = {
       if (enrollment.isEmpty)
-        enrollment = Some(CourseMembership.listUsersClasses(cacheTarget))
+        enrollment = Some(CollectionMembership.listUsersClasses(cacheTarget))
       enrollment.get
     }
 
-    var teacherEnrollment: Option[List[Course]] = None
+    var collections: Option[List[Collection]] = None
+
+    def getEligibleCollections(courseNames: List[Course]) = {
+      if (collections.isEmpty)
+        collections = Some(Collection.getEligibleCollections(courseNames, cacheTarget))
+      collections.get
+    }
+
+    var teacherEnrollment: Option[List[Collection]] = None
 
     def getTeacherEnrollment = {
       if (teacherEnrollment.isEmpty)
-        teacherEnrollment = Some(CourseMembership.listTeacherClasses(cacheTarget))
+        teacherEnrollment = Some(CollectionMembership.listTeacherClasses(cacheTarget))
       teacherEnrollment.get
     }
 
@@ -333,21 +339,10 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
     def getContentFeed = {
       if (contentFeed.isEmpty)
         contentFeed = Some(
-          getEnrollment.flatMap(course => course.getContent.map(c => (c, course.id.get)))
+          getEnrollment.flatMap(collection => collection.getContent.map(c => (c, collection.id.get)))
             .sortWith((c1, c2) => TimeTools.dateToTimestamp(c1._1.dateAdded) > TimeTools.dateToTimestamp(c2._1.dateAdded))
         )
       contentFeed.get
-    }
-
-    var announcementFeed: Option[List[(Announcement, Course)]] = None
-
-    def getAnnouncementFeed = {
-      if (announcementFeed.isEmpty)
-        announcementFeed = Some(
-          getEnrollment.flatMap(course => course.getAnnouncements.map(announcement => (announcement, course)))
-            .sortWith((d1, d2) => TimeTools.dateToTimestamp(d1._1.timeMade) > TimeTools.dateToTimestamp(d2._1.timeMade))
-        )
-      announcementFeed.get
     }
 
     var notifications: Option[List[Notification]] = None
@@ -385,16 +380,22 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   }
 
   /**
-   * Gets the enrollment--courses the user is in--of the user
-   * @return The list of courses
+   * Gets the collections that the user can be enrolled in
+   * @return A list of collections
    */
-  def getEnrollment: List[Course] = cache.getEnrollment
+  def getEligibleCollections(courseList: List[Course]): List[Collection] = cache.getEligibleCollections(courseList)
 
   /**
-   * Gets the courses this user is teaching
-   * @return The list of courses
+   * Gets the enrollment--collections the user is in--of the user
+   * @return The list of collections
    */
-  def getTeacherEnrollment: List[Course] = cache.getTeacherEnrollment
+  def getEnrollment: List[Collection] = cache.getEnrollment
+
+  /**
+   * Gets the collections this user is teaching
+   * @return The list of collections
+   */
+  def getTeacherEnrollment: List[Collection] = cache.getTeacherEnrollment
 
   /**
    * Gets the content belonging to this user
@@ -415,18 +416,11 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   def displayName: String = name.getOrElse(username)
 
   /**
-   * Gets the latest content from this user's courses.
+   * Gets the latest content from this user's collections.
    * @param limit The number of content objects to get
    * @return The content
    */
   def getContentFeed(limit: Int = 5): List[(Content, Long)] = cache.getContentFeed.take(limit)
-
-  /**
-   * Gets the latest announcements made in this user's courses.
-   * @param limit The number of announcement to get
-   * @return The announcements paired with the course they came from
-   */
-  def getAnnouncementFeed(limit: Int = 5): List[(Announcement, Course)] = cache.getAnnouncementFeed.take(limit)
 
   /**
    * Gets a list of the user's notifications
@@ -460,14 +454,16 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
 
   def getPermissions = SitePermissions.listByUser(this)
 
-  def getCoursePermissions(course: Course) = course.getUserPermissions(this)
+  def getCollectionPermissions(collection: Collection) = collection.getUserPermissions(this)
 
   def hasSitePermission(permission: String): Boolean =
     SitePermissions.userHasPermission(this, permission) || SitePermissions.userHasPermission(this, "admin")
 
-  def hasCoursePermission(course: Course, permission: String): Boolean =
-    course.userHasPermission(this, permission) || course.getTeachers.contains(this) || SitePermissions.userHasPermission(this, "admin")
+  def isCollectionTeacher(collection: Collection): Boolean =
+    collection.userIsTeacher(this) || SitePermissions.userHasPermission(this, "admin")
 
+  def isCollectionTA(collection: Collection): Boolean =
+    collection.userIsTA(this) || isCollectionTeacher(collection)
 
   //       _____      _   _
   //      / ____|    | | | |
@@ -488,14 +484,14 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   def removeAllSitePermissions =
     SitePermissions.removeAllUserPermissions(this)
 
-  def addCoursePermission(course: Course, permission: String) =
-    course.addUserPermission(this, permission)
+  def addCollectionPermission(collection: Collection, permission: String) =
+    collection.addUserPermission(this, permission)
 
-  def removeCoursePermission(course: Course, permission: String) =
-    course.removeUserPermission(this, permission)
+  def removeCollectionPermission(collection: Collection, permission: String) =
+    collection.removeUserPermission(this, permission)
 
-  def removeAllCoursePermissions(course: Course) =
-    course.removeAllUserPermissions(this)
+  def removeAllCollectionPermissions(collection: Collection) =
+    collection.removeAllUserPermissions(this)
 }
 
 object User extends SQLSelectable[User] {
@@ -527,6 +523,24 @@ object User extends SQLSelectable[User] {
    */
   def findById(id: Long): Option[User] = findById(id, simple)
 
+
+  def findUsersByUserIdList(idList: List[Long]): List[User] = {
+    DB.withConnection { implicit connection =>
+      try {
+        if (idList.isEmpty)
+          List[User]()
+        else
+          SQL("select * from userAccount where id in ({ids})") .on('ids -> idList) .as(simple *)
+      } catch {
+        case e: SQLException =>
+          Logger.debug("Failed in User.scala / findUsersByUserIdList")
+          Logger.debug(e.getMessage())
+          List[User]()
+      }
+    }
+  }
+
+
   /**
    * Search the DB for a user with the given authentication info
    * @param authId The id from the auth scheme
@@ -544,31 +558,6 @@ object User extends SQLSelectable[User] {
           Logger.debug("Failed in User.scala / findByAuthInfo")
           Logger.debug(e.getMessage())
           None
-      }
-    }
-  }
-
-  /**
-   * Search the DB for a lti user with the given authentication info
-   * @param name The user's name
-   * @param email The user's email
-   * @return If a user was found, then Some[User], otherwise None
-   */
-  def findLtiUserByNameAndEmail(name: Option[String], email: Option[String]): Option[User] = {
-    if (email.isEmpty) {
-      None
-    } else {
-      DB.withConnection { implicit connection =>
-        try {
-          SQL("select * from userAccount where authScheme = 'ltiAuth' and name = {name} and email = {email}")
-            .on('name -> name.getOrElse(""), 'email -> email.get)
-            .as(simple.singleOpt)
-        } catch {
-          case e: SQLException =>
-            Logger.debug("Failed in User.scala / findLtiUserByNameAndEmail")
-            Logger.debug(e.getMessage())
-            None
-        }
       }
     }
   }

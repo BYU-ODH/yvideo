@@ -14,3 +14,11 @@
 #bottomSpacer {
     margin-top: 117px;
 }
+
+.control-group {
+	margin-left: -15px;
+}
+
+.controls {
+	margin-left: 30px;
+}

@@ -3,26 +3,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ayamel</title>
-	@Dependencies(
+    <title>Y-Video</title>
+    @Dependencies(
       Local(
-		Icon("images/favicon.png", "image/png"),
-		Rel("stylesheets/",
+        Icon("images/favicon.png", "image/png"),
+        Rel("stylesheets/",
           CSS("bootstrap.min.css"),
           CSS("bootstrap-responsive.min.css"),
           CSS("font-awesome.min.css"),
           CSS("main.css"),
-		  CSS("index.css")),
-		Rel("javascripts/",
-		  Rel("libraries/",
-			JS("jquery-1.9.0.min.js"),
-			JS("bootstrap.min.js")),
-		  JS("pageScripts/index.js")))
-	)
+          CSS("index.css")),
+        Rel("javascripts/",
+          Rel("libraries/",
+            JS("jquery.min.js"),
+            JS("bootstrap.min.js")),
+          JS("pageScripts/index.js")))
+    )
 </head>
 <body>
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="text-center">
             <img src="@routes.Assets.at("images/logo.png")" style="height: 200px; margin-top: 20px;">
 
@@ -40,18 +40,18 @@
 
         </div>
 
-        <!--<h1>Ayamel <small>A better way to learn languages with video.</small></h1>-->
+        <!--<h1>Y-Video <small>A better way to learn languages with video.</small></h1>-->
 
         <div class="getStarted">
 
             @if(request.flash.get("alert").isDefined) {
-                <div class="alert">
+                <div class="alert alert-warning">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Just a sec...</strong> @request.flash("alert")
                 </div>
             }
             @if(request.flash.get("error").isDefined) {
-                <div class="alert alert-error">
+                <div class="alert alert-danger">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Oh snap!</strong> @request.flash("error")
                 </div>
@@ -69,160 +69,103 @@
                 </div>
             }
 
-            <p>
-                Sign in with one of the following services to get started.
-            </p>
-
-            <div class="clearfix">
-                <div class="pull-left">
-                    <a class="btn btn-danger btn-large" href="@controllers.authentication.routes.Google.login("login", path)"><i class="icon-google-plus"></i> Sign in with Google</a>
-                </div>
-                <div class="pull-right">
-                    <a class="btn btn-primary btn-large" href="@controllers.authentication.routes.Cas.login("login", path)"><img src="@routes.Assets.at("images/auth/byu.png")" /> Sign in with BYU</a>
-                </div>
-            </div>
-
-            <hr>
-
-            <p>You can, alternatively, sign in with an Ayamel account.</p>
             <div class="text-center">
-                <a href="#signupModal" role="button" class="btn btn-yellow" data-toggle="modal">Create an account</a>
-                <a href="#loginModal" role="button" class="btn btn-magenta" data-toggle="modal">Use existing account</a>
+                <a class="btn btn-blue btn-lg" href="@controllers.authentication.routes.Cas.login("login", path)"><img src="@routes.Assets.at("images/auth/byu.png")" /> Sign in with BYU</a>
             </div>
         </div>
 
         <div id="aboutAyamel">
-            <div class="row-fluid">
-                <div class="span3">
-                    <h3 class="text-center"><span class="ayamel-icon"></span> What is Ayamel?</h3>
-                    <p>
-                        Ayamel is a web-based system for streaming video and audio content especially as it applies to
-                        learning a foreign language. It houses a collection of media all with the express purpose of
-                        helping you learn languages.
-                    </p>
-                </div>
-                <div class="span3">
-                    <h3 class="text-center"><i class="icon-comment"></i> Text helps</h3>
-                    <p>
-                        Additional aids are available to be used in conjunction with the
-                        media, such as captions and annotations. A key feature of the site enables learners to directly
-                        interact with subtitle tracks to quickly access translations for foreign words and phrases and
-                        iew relevant annotations.
-                    </p>
-                </div>
-                <div class="span3">
-                    <h3 class="text-center"><i class="icon-pencil"></i> For school</h3>
-                    <p>
-                        Teachers or course designers are able to aggregate media into a single location and set up specific
-                        conditions in order to optimize the learning experience. Statistics and analytics are available to
-                        improve the learning experience.
-                    </p>
-                </div>
-                <div class="span3">
-                    <h3 class="text-center"><i class="icon-cogs"></i> LTI compatible</h3>
-                    <p>
-                        Because Ayamel uses the LTI standard, seamless integration with LMSs is possible. This means media
-                        on Ayamel is able to be dropped right into a course. Take full advantage of Ayamel's features and
-                        tools to create to best possible learning experience.
-                    </p>
-                    <p class="yellow">
-                        <a target="youtube" href="http://www.youtube.com/watch?v=YaCaYIaEfuQ"><i class="icon-play-sign"></i> See how</a>
-                    </p>
+            <div class="container-fluid">
+                <div class="justify-content-md-center">
+                    <div class="col-md-4">
+                        <h3 class="text-center"><span class="ayamel-icon"></span> What is Y-Video?</h3>
+                        <p>
+                            Y-Video is a web-based system for streaming video and audio content especially as it applies to
+                            learning a foreign language. It houses a collection of media all with the express purpose of
+                            helping you learn languages.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-center"><i class="icon-comment"></i> Text helps</h3>
+                        <p>
+                            Additional aids are available to be used in conjunction with the
+                            media, such as captions and annotations. A key feature of the site enables learners to directly
+                            interact with subtitle tracks to quickly access translations for foreign words and phrases and
+                            view relevant annotations.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-center"><i class="icon-pencil"></i> For school</h3>
+                        <p>
+                            Teachers or course designers are able to aggregate media into a single location and set up specific
+                            conditions in order to optimize the learning experience. Statistics and analytics are available to
+                            improve the learning experience.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="closing">
-        <div>Brought about by the <a href="http://arclite.byu.edu">ARCLITE Lab</a></div>
+            <div>Brought about by the <a href="http://arclite.byu.edu">ARCLITE Lab</a></div>
         <div>Copyright © 2013 <a href="http://byu.edu">Brigham Young University</a></div>
         <div>Funding from <a href="http://www.thelanguageflagship.org/">The Language Flagship</a></div>
     </div>
 
-    <div id="signupModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="signupModalLabel" aria-hidden="true">
+  <div id="loginModal" class="modal fade" role="dialog" aria-labelledby="loginModalLabel" >
+    <div class="modal-dialog">
+    
+      <div class="modal-content">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="signupModalLabel">Create an account</h3>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal" id="signupForm" method="post" action="@controllers.authentication.routes.Password.createAccount(path)">
-                <div class="control-group">
-                    <label class="control-label" for="username">Username</label>
-                    <div class="controls">
-                        <input type="text" id="username" name="username" placeholder="Username" autofocus>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="password1">Password</label>
-                    <div class="controls">
-                        <input type="password" id="password1" name="password1" placeholder="Password">
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="password2">Password again</label>
-                    <div class="controls">
-                        <input type="password" id="password2" name="password2" placeholder="Password again">
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="name">Your name</label>
-                    <div class="controls">
-                        <input type="text" id="name" name="name" placeholder="Your name">
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="email">Email address</label>
-                    <div class="controls">
-                        <input type="text" id="email" name="email" placeholder="Email address">
-                    </div>
-                </div>
-                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button id="signup" class="btn btn-blue">Sign up</button>
-        </div>
-    </div>
-
-    <div id="loginModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <button type="button" class="close" data-dismiss="modal" >×</button>
             <h3 id="loginModalLabel">Sign in</h3>
         </div>
-
         <div class="modal-body">
-            <form class="form-horizontal" id="loginForm" method="post" action="@controllers.authentication.routes.Password.login("login", path)">
-                <div class="control-group">
-                    <label class="control-label" for="username">Username</label>
-                    <div class="controls">
-                        <input type="text" id="username" name="username" placeholder="Username" autofocus>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="password">Password</label>
-                    <div class="controls">
-                        <input type="password" id="password" name="password" placeholder="Password">
-                    </div>
-                </div>
-                <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+          <form class="form-horizontal" id="loginForm" method="post" action="@controllers.authentication.routes.Password.login("login", path)">
+            <div class="form-group">
+            <label class="control-label col-sm-4" for="username">Username:</label>
+            <div class="col-sm-6">
+                <input class="form-control" id="username" name="username" placeholder="Enter username">
+            </div>
+            </div>
+            <div class="form-group">
+            <label class="control-label col-sm-4" for="password">Password:</label>
+            <div class="col-sm-6">          
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+                <input type="submit" style="position: absolute; left: -9999px"/>
+            </div>
+            </div>
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+          <button class="btn btn-gray" data-dismiss="modal">Close</button>
             <button id="login" class="btn btn-blue">Sign in</button>
         </div>
+      </div>
+      
+    </div>
+  </div>
 
+    <div id="konamiContainer">
+        <style>
+            #konamiContainer {margin:0px;padding:0px;border:0px;color:#0c0;font-family: "Lucida Console", monaco, monospace;overflow: wrap;word-break:break-all;
+                position: absolute;top: 0;height: 100%;width: 100%;background-color: black;display:none;}
+            body {background-color: black;}
+            #past div div {display: inline;}
+            #present div {display: inline;}
+            #cursor {height:100%;background-color:#0c0;}
+            .blink {animation: blinker 1s linear infinite;}
+            @@keyframes blinker {  
+              50% { opacity: 0.0; }
+            }
+        </style>
     </div>
 
     <script type="text/javascript">
         $(function() {
             document.getElementById("login").addEventListener('click', function(){
                 $("#loginForm").submit();
-            }, false);
-            document.getElementById("signup").addEventListener('click', function(){
-                $("#signupForm").submit();
             }, false);
         });
         $('#loginModal').on('shown.bs.modal', function() {
@@ -233,5 +176,295 @@
         });
     </script>
 
+    <script type="text/javascript">
+    var cnct = null;
+    let konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65], index = 0;
+    window.addEventListener('keydown', (event) => {
+        if(event.keyCode == konami[index]){
+            index++;
+            if(index >= konami.length){
+                if (cnct == null) {
+                    cnct  = new Cnct();
+                    cnct.create(document.getElementById("konamiContainer"));
+                }
+                index = 0;
+            }
+        }
+        else{
+            index = 0;
+        }
+    });
+    class CnctEngine {
+        constructor(procs) {
+            this.procs = procs;
+        }
+
+        lex(string) {
+            let tokens = string.split(" ").filter((str) => { return str !== ""; });
+            return tokens;
+        }
+
+        parse( expr ) {
+            if (this.procs.hasOwnProperty(expr[0])) {
+                let op = expr.shift();
+                return new CnctEngine.Command( this.procs[op], expr );
+            } else {
+                return null;
+            }
+        }
+
+        run( ast ) {
+            if (ast != null){
+                return ast.operator.apply( ast, ast.args );
+            } else {
+                return "Function Does not exist.";
+            }
+        }
+
+        interp( cs ) {
+            let lxd = this.lex( cs );
+            let ast = this.parse( lxd );
+            return this.run( ast );
+        }
+    }
+    CnctEngine.Command = class Command {
+        constructor( operator, args ) {
+            this.args = args;
+            this.operator = operator;
+        }
+    };
+    class Cnct {
+        constructor() {
+            this.cnctString = '<div id="cnct"><div id="past"></div> <div id="present"> <div id="PS1">anon@@yvideo></div> <div id="cmd"></div><div id="cursor" class="blink">*</div> </div></div>';
+            this.parseElement = document.createElement("div");
+            this.cnct = this.parse(this.cnctString);
+            this.past = this.cnct.querySelector("#past");
+            this.cmdEl = this.cnct.querySelector("#cmd");
+            this.ps1 = this.cnct.querySelector("#PS1");
+            this.defaultps1 = this.ps1.innerText;
+            this.kpl = this.keypressListener.bind(this, this.cmdEl, null);
+            this.kdl = this.keydownListener.bind(this, this.cmdEl, null);
+            this.userInput = "";
+            this.engine = null;
+
+            this.engine = new CnctEngine({
+                "exit": () => {
+                    this.destroy();
+                    /* | mem leak? */
+                    /* V   ???     */
+                    cnct = null;
+                    return "Exiting...";
+                },
+                "echo": (str) => {
+                    return str;
+                },
+                "clear": () => {
+                    this.past.innerHTML = "";
+                    return "Console cleared."
+                },
+                "login": (username, password) => {
+                    username = username || "";
+                    password = password || "";
+                    if (username.length === 0 || password.length === 0) {
+                        this.changePrompt("Enter Username: ", true);
+                        this.username = this.keydownListener.bind(this, this.cmdEl, (function(text) {
+                                            this.changePrompt("Enter Password: ", true);
+                                            this.clearInput();
+                                            this.submitPassword = this.keydownListener.bind(this, this.cmdEl, login.bind(this, text));
+                                            this.getPassword = getPasswordOnKeypress.bind(this, this.cmdEl);
+                                            this.returnControl(this.kpl, this.username);
+                                            this.takeControl(this.getPassword, this.submitPassword);
+                                        }).bind(this));
+                        this.takeControl(this.kpl, this.username);
+                    }
+
+                    function getPasswordOnKeypress(element, e) {
+                        if (e.keyCode == 13) {
+                            /* do nothing on <enter key> */
+                        } else {
+                            this.userInput += String.fromCharCode(e.keyCode);
+                            element.innerHTML += "*";
+                        }
+                    }
+
+                    function login(username, password) {
+                        console.log(password);
+                        var data = new FormData();
+                        data.append("username", username);
+                        data.append("password", password);
+                        var that = this;
+                        $.ajax("@controllers.authentication.routes.Password.login("login", path)", {
+                            type: "post",
+                            data: data,
+                            processData: false,
+                            contentType: false,
+                            success: function(value) {
+                                that.pastMessage("Authenticated with the server; reload to complete login.");
+                            },
+                            failure: function(err) {
+                                console.log(err);
+                                that.pastMessage("Authentication failed.");
+                            },
+                            complete: function(event) {
+                                that.clearInput();
+                                that.changePrompt(null, null, true);
+                                that.returnControl(that.getPassword, that.submitPassword);
+                                if (event.status === 200)
+                                    that.type("reload");
+                            }
+                        });
+                    }
+                    return "Attempting to login...";
+                },
+                "reload": () => {
+                    window.location.reload();
+                    return "Reloading page...";
+                },
+                "help": () => {
+                    let helpText = "<br>Commands:<br><br>"
+                    Object.keys(this.engine.procs).forEach((key) => {
+                        helpText += key + "<br>";
+                    });
+                    helpText += "<br>";
+                    return helpText;
+                }
+            });
+        }
+
+        pastMessage(text) {
+            this.past.innerHTML += text + "<br>";
+        }
+
+        changePrompt(str, custom, reset) {
+            var standard = "anon@@yvideo";
+            if (reset === true) {
+                this.ps1.innerHTML = standard + ">";
+                return standard + ">";
+            }            
+            if (this.ps1Text !== standard)
+                standard = this.ps1Text;
+            this.ps1Text = (str || standard) + (custom===true?"":">");
+            this.ps1.innerHTML = this.ps1Text;
+            return this.ps1Text;
+        }
+
+        type(text, enter) {
+            var letters = text;
+            if (typeof letters === "string")
+                letters = text.split("");
+            if (letters instanceof Array) {
+                letters.forEach((str) => {
+                    if (typeof str === "string" && str.length > 0)
+                        this.keypressListener(this.cmdEl, null, {keyCode: str.charCodeAt(0)});
+                });
+               if (enter === true)
+                   this.pressEnter();
+            }
+        }
+
+        parse(text) {
+            var frag;
+            this.parseElement.innerHTML = text;
+            if(this.parseElement.childNodes.length > 1){
+                frag = document.createDocumentFragment();
+                [].slice.call(this.parseElement.childNodes).forEach(frag.appendChild.bind(frag));
+                return frag;
+            }else{
+                return this.parseElement.firstChild;
+            }
+        }
+
+        pressEnter(callback) {
+            this.keydownListener(this.cmdEl, callback, {keyCode: 13});
+        }
+
+        takeControl(kpl, kdl) {
+            this.removeEventListeners(this.kpl, this.kdl);
+            this.addEventListeners(kpl, kdl);
+        }
+
+        returnControl(kpl, kdl) {
+            this.removeEventListeners(kpl, kdl);
+            this.addEventListeners(this.kpl, this.kdl);
+        }
+
+        // both element and callback should be bound so e is the first parameter
+        // when being used as an event listener
+        keypressListener(element, callback, e) {
+            if (e.keyCode == 32) {
+                element.innerHTML += "&nbsp;";
+                this.userInput += String.fromCharCode(e.keyCode);
+            } else if (e.keyCode == 13) {
+                /* do nothing on <enter key> */
+            } else {
+                element.innerHTML += String.fromCharCode(e.keyCode);
+                this.userInput += String.fromCharCode(e.keyCode);
+            }
+        }
+
+        keydownListener(element, callback,  e) {
+            if (e.keyCode === 8) {
+                /* <backspace key> */
+                if (element.innerHTML.endsWith("&nbsp;")) {
+                    element.innerHTML = element.innerHTML.slice(0,-6);
+                } else if (element.innerHTML.endsWith("&amp;")) {
+                    element.innerHTML = element.innerHTML.slice(0,-5);
+                } else {
+                    element.innerHTML = element.innerHTML.slice(0,-1);
+                }
+                this.userInput = this.userInput.slice(0,-1);
+            } else if (e.keyCode === 13) {
+                // <enter key>
+                if (typeof callback === "function")
+                    callback(this.userInput);
+                else
+                   this.updateConsole(element, this.userInput);
+                this.userInput = "";
+            }
+        }
+
+        clearInput() {
+            this.cmdEl.innerHTML = "";
+            this.userInput = "";
+        }
+
+        updateConsole(element, text) {
+            let output = this.engine.interp(text);
+            var p = document.createElement("div"),
+                c = document.createElement("div"),
+                f = document.createElement("div");
+            p.innerHTML = this.defaultps1 + " ";
+            c.innerHTML = element.innerHTML + "<br>" + output;
+            f.appendChild(p);
+            f.appendChild(c);
+
+            element.innerHTML = "";
+
+            this.past.appendChild(f);
+        }
+
+        create(element) {
+            this.addEventListeners(this.kpl, this.kdl);
+            element.appendChild(this.cnct);
+            document.getElementById('konamiContainer').style.display = "block";
+        }
+
+        addEventListeners(kpl, kdl) {
+            window.addEventListener('keypress', kpl, false);
+            window.addEventListener('keydown', kdl, false);
+        }
+
+        destroy() {
+            this.removeEventListeners(this.kpl, this.kdl);
+            this.cnct.remove();
+            document.getElementById('konamiContainer').style.display = "none";
+        }
+
+        removeEventListeners(kpl, kdl) {
+            window.removeEventListener('keypress', kpl, false);
+            window.removeEventListener('keydown', kdl, false);
+        }
+    }
+    </script>
 </body>
 </html>

@@ -11,6 +11,7 @@ $(function() {
             return {value: code, text: engname, desc: localname!==engname?localname:void 0};
         });
 
+
     var saveDiv = document.createElement('div'),
     saveImg = new Image(),
     saveText = document.createElement('p');
@@ -25,22 +26,32 @@ $(function() {
     saveDiv.appendChild(saveText);
     document.body.appendChild(saveDiv);
 
+    // EVENT TRACK EDITOR html
+   
+
+    ///////////////////////////////////////
+
     langList.push({ value: "apc", text: "North Levantine Arabic"});
     langList.push({ value: "arz", text: "Egyptian Arabic"});
     langList.sort(function(a,b){ return a.text.localeCompare(b.text); });
 
     Dialog = Ractive.extend({
-        template: '<div class="modal-header">\
+        template: '<div class="modal-dialog">\
+        <div class="modal-content">\
+        <div class="modal-header">\
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>\
             <h3>{{dialogTitle}}</h3>\
         </div>\
-        <div class="modal-body">{{>dialogBody}}</div>\
+        \
+        <div class="modal-body">\
+            <div class="container-fluid">{{>dialogBody}}</div>\
+        </div>\
         <div class="modal-footer">\
             {{#buttons}}\
             <button class="btn btn-blue" on-tap="buttonpress:{{.event}}">{{.label}}</button>\
             {{/buttons}}\
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>\
-        </div>',
+            <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>\
+        </div></div></div>',
         onrender: function(){
             var actions = this.actions;
             this.on('buttonpress',function(event,which){
@@ -50,7 +61,7 @@ $(function() {
         }
     });
 
-    Ractive.partials.trackKindSelect = '<div class="control-group">\
+    Ractive.partials.trackKindSelect = '<div class="form-group">\
         <label class="control-label">Kind</label>\
         <div class="controls">\
             <select value="{{trackKind}}">\
@@ -62,14 +73,14 @@ $(function() {
             </select>\
         </div>\
     </div>';
-    Ractive.partials.trackLangSelect = '<div class="control-group">\
+    Ractive.partials.trackLangSelect = '<div class="form-group">\
         <label class="control-label">Language</label>\
         <div class="controls">\
-            <SuperSelect icon="icon-globe" text="Select Language" value="{{trackLang}}" button="left" open="{{selectOpen}}" multiple="false" options="{{languages}}" modal="{{modalId}}" defaultValue={{defaultValue}}>\
+            <SuperSelect icon="icon-globe" text="Select Language" value="{{trackLang}}" button="left" open="{{selectOpen}}" multiple="false" options="{{languages}}" modal="{{modalId}}" defaultOption={{defaultOption}}>\
         </div>\
     </div>';
 
-    Ractive.partials.trackSelect = '<div class="control-group">\
+    Ractive.partials.trackSelect = '<div class="form-group">\
         <div class="controls">\
                 <SuperSelect icon="icon-laptop" text="Select Track" value="{{selectedTracks}}" button="left" open="{{selectOpen}}" multiple="true" options="{{tracks}}" modal="{{modalId}}">\
         </div>\
@@ -117,7 +128,7 @@ $(function() {
                 types: types,
                 modalId: "newTrackModal",
                 buttons: [{event:"create",label:"Create"}],
-                defaultValue: {value:'zxx',text:'No Linguistic Content'}
+                defaultOption: {value:'zxx',text:'No Linguistic Content'}
             },
             partials:{ dialogBody: document.getElementById('createTrackTemplate').textContent },
             actions: {
@@ -166,7 +177,7 @@ $(function() {
                 trackName: "",
                 modalId: "editTrackModal",
                 buttons: [{event:"save",label:"Save"}],
-                defaultValue: {value:'zxx',text:'No Linguistic Content'}
+                defaultOption: {value:'zxx',text:'No Linguistic Content'}
             },
             partials:{ dialogBody: document.getElementById('editTrackTemplate').textContent },
             actions: {
@@ -192,7 +203,7 @@ $(function() {
                 }
             }
         });
-        $("#editTrackModal").on("show", function() {
+        $("#editTrackModal").on("shown.bs.modal", function() {
             var trackList = timeline.trackNames.slice();
             ractive.set({
                 trackList: trackList,
@@ -237,6 +248,7 @@ $(function() {
             partials:{ dialogBody: document.getElementById('saveTrackTemplate').textContent },
             actions: {
                 save: function(event){
+                    var stracks = this.get("selectedTracks");
                     var tracks = stracks;
 
                     $("#saveTrackModal").modal("hide");
@@ -257,7 +269,7 @@ $(function() {
             }
         });
         // Saving modal opening
-        $("#saveTrackModal").on("show", function(){
+        $("#saveTrackModal").on("shown.bs.modal", function(){
 
             // We do this because ractive can't seem to update correctly with partials
             // even when we use ractive.set
@@ -379,7 +391,7 @@ $(function() {
                 trackLang: [],
                 trackKind: "subtitles",
                 modalId: 'loadTrackModal',
-                defaultValue: {value:'zxx',text:'No Linguistic Content'},
+                defaultOption: {value:'zxx',text:'No Linguistic Content'},
                 sources: Object.keys(sources).map(function(key){ return {name: key, label: sources[key].label}; }),
                 buttons: [{event:"load",label:"Load"}]
             },
@@ -458,8 +470,7 @@ $(function() {
             }
         });
 
-        $('#showTrackModal').on('show',function(){
-
+        $('#showTrackModal').on('shown.bs.modal',function(){
             // We do this because ractive can't seem to update correctly with partials
             // even when we use ractive.set
             while(availableTracks.length > 0){ availableTracks.pop(); }
@@ -600,7 +611,6 @@ $(function() {
             return {
                 content: content,
                 resource: resource,
-                courseId: courseId,
                 contentId: content.id,
                 holder: contentHolder,
                 permission: "edit",
@@ -669,6 +679,16 @@ $(function() {
             timeline.cacheTextTrack(track,trackMimes.get(track),'server');
         });
 
+        // EVENT TRACK EDITOR event listeners
+        timeline.on('select', function(selected){
+            selected.segments[0].makeEventTrackEditor(selected.segments[0].cue, videoPlayer);
+        })
+
+        timeline.on('unselect', function(deselected){ deselected.segments[0].destroyEventTrackEditor(); })
+
+        //Auto delete eventTrackEditor when track is deleted
+        timeline.on('delete', function(deleted){ deleted.segments[0].destroyEventTrackEditor(); })
+        
         //keep the editor and the player menu in sync
         timeline.on('altertrack', function(){ videoPlayer.refreshCaptionMenu(); });
 
@@ -733,4 +753,5 @@ $(function() {
             }
         });
     }
+
 });

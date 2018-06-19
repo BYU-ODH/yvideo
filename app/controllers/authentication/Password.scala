@@ -14,11 +14,12 @@ object Password extends Controller {
    * @param action Login or merge
    * @param path When logging in, the path where the user will be redirected
    */
-  def login(action: String, path: String = "") = Action(parse.urlFormEncoded) {
+  def login(action: String, path: String = "") = Action(parse.multipartFormData) {
     implicit request =>
-      val username = request.body("username")(0)
-      val password = request.body("password")(0)
-
+      val data = request.body.dataParts
+      val username = data("username")(0)
+      val password = data("password")(0)
+      
       // Get the user based on the username and password
       val user = User.findByUsername('password, username)
       val passwordHash = HashTools.sha256Base64(password)
@@ -52,8 +53,15 @@ object Password extends Controller {
       val name = request.body("name")(0)
       val email = request.body("email")(0)
 
-      // Check the username isn't taken
-      if (User.findByUsername('password, username).isEmpty) {
+      if (username.length < 3) {
+        Redirect(controllers.routes.Application.index().toString(), request.queryString)
+          .flashing("alert" -> "Username is too short.")
+      }
+      else if (password1.length < 6 || password2.length < 6) {
+        Redirect(controllers.routes.Application.index().toString(), request.queryString)
+          .flashing("alert" -> "Passwords should be a minimum of six characters long.")
+      }
+      else if (User.findByUsername('password, username).isEmpty) {
 
         // Check the passwords match
         if (password1 == password2) {

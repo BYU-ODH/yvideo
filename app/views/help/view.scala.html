@@ -11,15 +11,15 @@
         simple(title)(content)(r, u)
 }
 
-@template("Ayamel - " + helpPage.title) {
+@template("Y-Video - " + helpPage.title) {
 
     @views.html.content.header.includes()
 
     <div class="padded">
 
         <ul class="breadcrumb">
-            <li><a href="@routes.Application.home()">Home</a> <span class="divider">/</span></li>
-            <li><a href="@routes.HelpPages.tableOfContents()">Help Pages</a> <span class="divider">/</span></li>
+            <li><a href="@routes.Application.home()">Home</a> <span class="divider"></span></li>
+            <li><a href="@routes.HelpPages.tableOfContents()">Help Pages</a><span class="divider"></span></li>
             <li class="active">@helpPage.title</li>
         </ul>
 

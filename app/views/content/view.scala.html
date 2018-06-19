@@ -1,5 +1,5 @@
 @import play.api.Play.current
-@(content: models.Content, resourceLibraryUrl: String, user: Option[User] = None, course: Option[Course] = None)(implicit request: RequestHeader)
+@(content: models.Content, resourceLibraryUrl: String, user: Option[User] = None, collection: Option[Collection] = None)(implicit request: RequestHeader)
 
 @contentIcons = @{
     Map(
@@ -12,7 +12,7 @@
     )
 }
 
-@main("Ayamel - " + content.name, user,
+@main("Y-Video - " + content.name, user,
   Meta("og:image", content.thumbnail),
   Local(
     Rel("javascripts/",
@@ -36,7 +36,7 @@
         //content page at the wrong address. If that happens, we need to re-write history to display
         //the correct URL for this page here.
         if(location.pathname !== "/content/@{content.id.get}" && history.pushState){
-            history.pushState(null, "Ayamel - @{content.name}", "/content/@{content.id.get}");
+            history.pushState(null, "Y-Video - @{content.name}", "/content/@{content.id.get}");
         }
 
         function setupXapi(args) {
@@ -51,13 +51,13 @@
             xApi.registerPage({
                 page:{
                     "category":"content",
-                    "action":"@{course.map(c => "course_" + c.id.get + ":").getOrElse("")}view",
+                    "action":"@{collection.map(c => "collection_" + c.id.get + ":").getOrElse("")}view",
                     "name":window.location.href
                 },
-                @if(course.isDefined) {
-                    course: {
-                        "id":@course.get.id.get,
-                        "name":"@course.get.name"
+                @if(collection.isDefined) {
+                    collection: {
+                        "id":@collection.get.id.get,
+                        "name":"@collection.get.name"
                     },
                 }
                 user: {
@@ -75,129 +75,110 @@
         }
     </script>
     <div class="padded">
-        @if(course.isDefined) {
+        @if(collection.isDefined) {
             <ul class="breadcrumb">
-                <li><a href="@routes.Courses.view(course.get.id.get)">@course.get.name</a> <span class="divider">/</span></li>
+                <li><a href="@routes.Collections.view(collection.get.id.get)">@collection.get.name</a> <span class="divider"></span></li>
                 <li class="active">@content.name</li>
             </ul>
-            @if(user.isDefined) {
-                @views.html.content.header.LTISettings(content, course.get, user.get)
-            }
         }
         @if(user.isDefined) {
-            <div class="navbar">
-                <div class="navbar-inner">
-                    <div class="container">
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#contentNavbar">
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
-                        </a>
-                        <div class="nav-collapse collapse">
-                            <ul class="nav">
-                                @if(content.isShareableBy(user.get)) {
-                                    <li><a href="#shareModal" data-toggle="modal"><i class="icon-share-alt"></i> Share</a></li>
-                                    @views.html.content.header.share(content, user.get)
-                                }
-                            </ul>
-                            <ul class="nav pull-right">
-                                <li class="dropdown">
-                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                        <i class="icon-quote-left"></i> Text <b class="caret"></b>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        @if(content.contentType == 'video || content.contentType == 'audio) {
-                                            <li><a href="#captionTrackModal" data-toggle="modal"><span class="captionsIcon"></span> Captions/Subtitles</a></li>
-                                        }
-                                        <li><a href="#annotationsModal" data-toggle="modal"><i class="icon-comments"></i> Annotations</a></li>
-                                    </ul>
-                                </li>
-                                @if(course.isDefined) {
-                                    @if(user.get.hasCoursePermission(course.get, "teacher") || user.get.hasCoursePermission(course.get, "removeContent")) {
-                                        <li class="dropdown">
-                                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                                <i class="icon-book"></i> Course <b class="caret"></b>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                              @if(user.get.hasCoursePermission(course.get, "teacher")) {
-                                                <li><a href="#lmsModal" data-toggle="modal"><i class="icon-briefcase"></i> Add to LMS</a></li>
-                                              }
-                                              @if(user.get.hasCoursePermission(course.get, "removeContent")) {
-                                                <li><a href="#" id="courseremovebtn"><i class="icon-remove"></i> Remove from course</a></li>
-                                                <script>
-                                                    document.getElementById("courseremovebtn").addEventListener("click",function(){
-                                                        var xhr = new XMLHttpRequest();
-                                                        xhr.addEventListener('load',function(){
-                                                            if(history.pushState){ history.pushState(null,"",xhr.responseURL); }
-                                                            document.open();
-                                                            document.write(xhr.responseText);
-                                                            document.close();
-                                                        },false);
-                                                        xhr.addEventListener('error',function(){ alert("Error removing content"); },false);
-                                                        xhr.open("POST", "@routes.CourseContent.removeFromCourse(content.id.get, course.get.id.get)");
-                                                        xhr.send();
-                                                    },false);
-                                                </script>
-                                              }
-                                            </ul>
-                                        </li>
+                        </button>
+                    </div>
+                    <div class="collapse navbar-collapse" id="contentNavbar">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <i class="icon-quote-left"></i> Text <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    @if(content.contentType == 'video || content.contentType == 'audio) {
+                                        <li><a href="#captionTrackModal" data-toggle="modal"><i class="captionsIcon"></i> Captions/Subtitles</a></li>
                                     }
-                                }
-                                @defining(Course.list.filter { course =>
-                                    user.get.hasCoursePermission(course, "addContent") && !course.getContent.contains(content)
-                                }) { possibleCourses =>
-                                    @if(possibleCourses.length > 0) {
-                                        <li><a href="#addToCourseModal" data-toggle="modal"><i class="icon-book"></i> Add to Course</a></li>
-                                        @views.html.content.header.addToCourse(content, possibleCourses, user.get)
-                                    }
-                                }
-                                @if(content.isEditableBy(user.get)) {
+                                    <li><a href="#annotationsModal" data-toggle="modal"><i class="icon-comments"></i> Annotations</a></li>
+                                </ul>
+                            </li>
+                            @if(collection.isDefined) {
+                                @if(user.get.isCollectionTA(collection.get)) {
                                     <li class="dropdown">
                                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                            <i class="icon-pencil"></i> Edit <b class="caret"></b>
+                                            <i class="icon-book"></i> Collection <b class="caret"></b>
                                         </a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="#metadataModal" data-toggle="modal"><i class="icon-info-sign"></i> Edit metadata</a></li>
-                                            <li><a href="#thumbnailModal" data-toggle="modal"><i class="icon-camera"></i> Set thumbnail</a></li>
-                                            <li class="divider"></li>
-                                            <li><a href="#changeSourceModal" data-toggle="modal"><i class="icon-link"></i> Set media source</a></li>
-                                            <li class="divider"></li>
-                                            <li><a href="#deleteModal" data-toggle="modal"><i class="icon-trash"></i> Delete</a></li>
+                                          @if(user.get.isCollectionTA(collection.get)) {
+                                            <li><a href="#" id="collectionremovebtn"><i class="icon-remove"></i> Remove from collection</a></li>
+                                            <script>
+                                                document.getElementById("collectionremovebtn").addEventListener("click",function(){
+                                                    var xhr = new XMLHttpRequest();
+                                                    xhr.addEventListener('load',function(){
+                                                        if(history.pushState){ history.pushState(null,"",xhr.responseURL); }
+                                                        document.open();
+                                                        document.write(xhr.responseText);
+                                                        document.close();
+                                                    },false);
+                                                    xhr.addEventListener('error',function(){ alert("Error removing content"); },false);
+                                                    xhr.open("POST", "@routes.CollectionContent.removeFromCollection(content.id.get, collection.get.id.get)");
+                                                    xhr.send();
+                                                },false);
+                                            </script>
+                                          }
                                         </ul>
-                                        @views.html.content.header.settings(content, resourceLibraryUrl, user.get)
                                     </li>
-                                    <li class="dropdown" id="downloadButton">
-                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                            <i class="icon-download"></i> Download <b class="caret"></b>
-                                        </a>
-                                        <ul class="dropdown-menu" id="downloadMenu"></ul>
-                                    </li>
-                                    <li><a href="#configurationModal" data-toggle="modal"><i class="icon-cogs"></i> Configuration</a></li>
-                                    @views.html.content.header.configuration(content, resourceLibraryUrl, course, user.get)
                                 }
-                                @if(user.get.hasSitePermission("createContent")) {
-                                    <li><a href="#" id="clonebtn"><i class="icon-copy"></i> Clone</a></li>
-                                    <script>
-                                        document.getElementById("clonebtn").addEventListener("click",function(){
-                                            var xhr = new XMLHttpRequest();
-                                            xhr.addEventListener('load',function(){
-                                                if(history.pushState){ history.pushState(null,"",xhr.responseURL); }
-                                                document.open();
-                                                document.write(xhr.responseText);
-                                                document.close();
-                                            },false);
-                                            xhr.addEventListener('error',function(){ alert("Error cloning content"); },false);
-                                            xhr.open("POST", "@routes.ContentController.cloneContent(content.id.get)");
-                                            xhr.send();
+                            }
+                            
+                            @if(content.isEditableBy(user.get)) {
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                        <i class="icon-pencil"></i> Edit <b class="caret"></b>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#metadataModal" data-toggle="modal"><i class="icon-info-sign"></i> Edit metadata</a></li>
+                                        <li><a href="#thumbnailModal" data-toggle="modal"><i class="icon-camera"></i> Set thumbnail</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="#changeSourceModal" data-toggle="modal"><i class="icon-link"></i> Set media source</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="#deleteModal" data-toggle="modal"><i class="icon-trash"></i> Delete</a></li>
+                                    </ul>
+                                    @views.html.content.header.settings(content, resourceLibraryUrl, user.get)
+                                </li>
+                                <li class="dropdown" id="downloadButton">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                        <i class="icon-download"></i> Download <b class="caret"></b>
+                                    </a>
+                                    <ul class="dropdown-menu" id="downloadMenu"></ul>
+                                </li>
+                                <li><a href="#configurationModal" data-toggle="modal"><i class="icon-cogs"></i> Configuration</a></li>
+                                @views.html.content.header.configuration(content, resourceLibraryUrl, collection, user.get)
+                            }
+                            @if(user.get.hasSitePermission("createContent")) {
+                                <li><a href="#" id="clonebtn"><i class="icon-copy"></i> Clone</a></li>
+                                <script>
+                                    document.getElementById("clonebtn").addEventListener("click",function(){
+                                        var xhr = new XMLHttpRequest();
+                                        xhr.addEventListener('load',function(){
+                                            if(history.pushState){ history.pushState(null,"",xhr.responseURL); }
+                                            document.open();
+                                            document.write(xhr.responseText);
+                                            document.close();
                                         },false);
-                                    </script>
-                                }
-                            </ul>
-                        </div>
+                                        xhr.addEventListener('error',function(){ alert("Error cloning content"); },false);
+                                        xhr.open("POST", "@routes.ContentController.cloneContent(content.id.get)");
+                                        xhr.send();
+                                    },false);
+                                </script>
+                            }
+                        </ul>
                     </div>
                 </div>
-            </div>
-            @views.html.content.header.addRelatedDocs(content, course, resourceLibraryUrl, user.get)
+            </nav>
+            @views.html.content.header.addRelatedDocs(content, collection, resourceLibraryUrl, user.get)
         }
         <div id="contentHolder" class="@content.contentType.name"></div>
         <div>
@@ -227,9 +208,9 @@
                     @if(user.isDefined) {
                     userId: "@user.get.id.get",
                     owner: @content.isEditableBy(user.get),
-                    teacher: @course.exists(c => user.get.hasCoursePermission(c, "teacher")),
+                    teacher: @collection.exists(c => user.get.isCollectionTeacher(c)),
                     }
-                    courseId: @course.map(_.id.get).getOrElse(0),
+                    collectionId: @collection.map(_.id.get).getOrElse(0),
                     holder: document.getElementById('contentHolder'),
                     annotate: true,
                     open: true,

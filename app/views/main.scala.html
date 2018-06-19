@@ -15,12 +15,11 @@
             Icon("images/favicon.png", "image/png"),
             Rel("stylesheets/",
               CSS("bootstrap.min.css"),
-              CSS("bootstrap-responsive.min.css"),
               CSS("font-awesome.min.css"),
               CSS("main.css")),
             Rel("javascripts/",
               Rel("libraries/",
-                JS("jquery-1.9.0.min.js"),
+                JS("jquery.min.js"),
                 JS("bootstrap.min.js"),
                 JS("Ractive.min.js"),
                 JS("Ractive-events-tap.js")),
@@ -53,19 +52,19 @@
 
                     @if(user.exists(!_.getEnrollment.isEmpty)) {
                         <div class="link">
-                            <a class="headerDropdownLink" data-target="#coursesDropdown" href="#">
-                                <i class="icon-group"></i> My Courses
+                            <a class="headerDropdownLink" data-target="#collectionsDropdown" href="#">
+                                <i class="icon-group"></i> My Collections
                             </a>
-                            <div class="headerDropdown" id="coursesDropdown">
+                            <div class="headerDropdown" id="collectionsDropdown">
                                 <div class="dropdownPoint"></div>
-                                @for(course <- user.get.getEnrollment) {
+                                @for(collection <- user.get.getEnrollment) {
                                     <div class="dropdownItem">
-                                        <a href="@routes.Courses.view(course.id.get)"><i class="icon-book"></i> @course.name</a>
+                                        <a href="@routes.Collections.view(collection.id.get)"><i class="icon-book"></i> @collection.name</a>
                                     </div>
                                 }
-                                @if(user.get.hasSitePermission("createCourse")) {
+                                @if(user.get.hasSitePermission("createCollection")) {
                                     <div class="dropdownItem">
-                                        <a href="@routes.Courses.createPage()"><i class="icon-plus"></i> Create a new course</a>
+                                        <a href="@routes.Collections.createPage()"><i class="icon-plus"></i> Create a new collection</a>
                                     </div>
                                 }
                             </div>
@@ -78,6 +77,7 @@
                                 <i class="icon-folder-open"></i> My Content
                             </a>
                         </div>
+                    }
 
                         <div class="link">
                             <a href="@routes.HelpPages.tableOfContents()">
@@ -86,7 +86,8 @@
                         </div>
                         <div class="link">
                             <a href="#" class="headerDropdownLink" data-target="#profileDropdown">
-                                <span class="profileIcon" style="background-image: url('@user.get.getPicture')"></span>
+                                <!-- <span class="profileIcon" style="background-image: url('@user.get.getPicture')"></span> -->
+                                <i class="icon-cog"></i>
                                 @*<i class="icon-user"></i> Profile*@
                                 @if(!notifications.isEmpty) {
                                     <span class="badge badge-yellow pad-left-low">@notifications.size</span>
@@ -123,22 +124,6 @@
                             <i class="icon-search"></i>
                             <input type="text" class="searchBox" id="searchBox" />
                         </div>-->
-                    } else {
-                        <div class="link">
-                            <a href="@routes.HelpPages.tableOfContents()">
-                                <i class="icon-question-sign"></i> Help
-                            </a>
-                        </div>
-                        @if(user.isDefined) {
-                            <!--<div class="link">
-                                <i class="icon-search"></i>
-                                <input type="text" class="searchBox" id="searchBox" />
-                            </div>-->
-                            <div class="link">
-                                <a href="@controllers.authentication.routes.Authentication.logout()"><i class="icon-off"></i> Log out</a>
-                            </div>
-                        }
-                    }
                 </div>
             </div>
         </div>
@@ -149,27 +134,28 @@
 
                 <div class="footer">
                     <div class="padded">
-                        <div class="row-fluid">
-                            <div class="span10 offset1">
-                                <div class="row-fluid">
-                                    <div class="span3">
-                                        @if(user.exists(_.hasSitePermission("joinCourse"))) {
-                                            <div><a href="@routes.Courses.list()">Course Directory</a></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        @if(user.exists(_.hasSitePermission("joinCollection"))) {
+                                            <div><a href="@routes.Collections.list()">Collection Directory</a></div>
                                         }
-                                        <div><a href="@routes.Application.about()">About Ayamel</a></div>
+                                        <div><a href="@routes.Application.about()">About Y-Video</a></div>
                                         <div><a href="mailto:@configuration.getString("smtp.address").get">Contact Us</a></div>
                                     </div>
-                                    <div class="span3">
+                                    <div class="col-md-3">
                                         <div><a href="@routes.Application.terms()">Terms of Use</a></div>
                                         <div><a href="@routes.Application.policy()">Privacy Policy</a></div>
+                                        <div><a href="#" id="feedback">Feedback</a></div>
                                     </div>
-                                    <div class="span3">
+                                    <div class="col-md-3">
                                         <div>Copyright © 2013 <a href="http://byu.edu">Brigham Young University</a></div>
                                         <div>By the <a href="http://arclite.byu.edu">ARCLITE Lab</a></div>
                                         <div>Funding from <a href="http://www.thelanguageflagship.org/">The Language Flagship</a></div>
                                     </div>
-                                    <div class="span3">
-                                        <div>All source code is <a href="https://github.com/BYU-ARCLITE">Open Source</a></div>
+                                    <div class="col-md-3">
+                                        <div>All source code is <a href="https://github.com/BYU-ODH/yvideo">Open Source</a></div>
                                         <div>Uses the <a href="http://ayamel.org/">Ayamel Resource Library</a></div>
                                         <div>and the <a href="http://y-lex.byu.edu/about">Y-Lex Dictionary Service</a></div>
                                     </div>
@@ -184,13 +170,13 @@
         <div class="messageContainer">
                 <!-- Messages/alerts -->
             @if(request.flash.get("alert").isDefined) {
-                <div class="alert">
+                <div class="alert alert-warning">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Just a sec...</strong> @Html(request.flash("alert"))
                 </div>
             }
             @if(request.flash.get("error").isDefined) {
-                <div class="alert alert-error">
+                <div class="alert alert-danger">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Oh snap!</strong> @Html(request.flash("error"))
                 </div>

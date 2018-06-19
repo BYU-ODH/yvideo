@@ -14,10 +14,10 @@ object SitePermissions extends SQLSelectable[String]  {
 
   val desc_map = Map(
     "admin" -> "Administrator",
-    "createCourse" -> "Create Course",
+    "createCollection" -> "Create Collection",
     "createContent" -> "Create Content",
     "viewRestricted" -> "View Restricted Content",
-    "joinCourse" -> "Join Courses",
+    "joinCollection" -> "Join Collections",
     "requestPermission" -> "Request New Permissions"
   )
 
@@ -103,8 +103,8 @@ object SitePermissions extends SQLSelectable[String]  {
   
   val roles = Map(
     'guest -> List(),
-    'student -> List("requestPermission", "createContent", "joinCourse"),
-    'teacher -> List("requestPermission", "createContent", "joinCourse", "createCourse", "viewRestricted"),
+    'student -> List("requestPermission", "joinCollection"),
+    'teacher -> List("requestPermission", "createContent", "joinCollection", "createCollection", "viewRestricted"),
     'admin -> List("admin")
   )
   

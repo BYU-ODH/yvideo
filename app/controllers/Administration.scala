@@ -27,53 +27,53 @@ object Administration extends Controller {
         }
   }
 
-  /**
-   * Request approval view
-   */
-  def approvalPage = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("admin") {
-          val requests = SitePermissionRequest.list
-          Future(Ok(views.html.admin.permissionRequests(requests)))
-        }
-  }
+  // /**
+  //  * Request approval view
+  //  */
+  // def approvalPage = Authentication.authenticatedAction() {
+  //   implicit request =>
+  //     implicit user =>
+  //       Authentication.enforcePermission("admin") {
+  //         val requests = SitePermissionRequest.list
+  //         Future(Ok(views.html.admin.permissionRequests(requests)))
+  //       }
+  // }
 
-  /**
-   * Approves a request
-   * @param id The ID of the request
-   */
-  def approveRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("admin") {
-          for( id <- request.body.dataParts("reqid");
-               req <- SitePermissionRequest.findById(id.toLong)
-          ) { req.approve() }
-          Future(Ok)
-        }
-  }
+  // /**
+  //  * Approves a request
+  //  * @param id The ID of the request
+  //  */
+  // def approveRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
+  //   implicit request =>
+  //     implicit user =>
+  //       Authentication.enforcePermission("admin") {
+  //         for( id <- request.body.dataParts("reqid");
+  //              req <- SitePermissionRequest.findById(id.toLong)
+  //         ) { req.approve() }
+  //         Future(Ok)
+  //       }
+  // }
 
-  /**
-   * Denies a request
-   * @param id The ID of the request
-   */
-  def denyRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("admin") {
-          for( id <- request.body.dataParts("reqid");
-               req <- SitePermissionRequest.findById(id.toLong)
-          ) { req.deny(); }
-          Future(Ok)
-        }
-  }
+  // /**
+  //  * Denies a request
+  //  * @param id The ID of the request
+  //  */
+  // def denyRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
+  //   implicit request =>
+  //     implicit user =>
+  //       Authentication.enforcePermission("admin") {
+  //         for( id <- request.body.dataParts("reqid");
+  //              req <- SitePermissionRequest.findById(id.toLong)
+  //         ) { req.deny(); }
+  //         Future(Ok)
+  //       }
+  // }
 
   /**
    * User management view
    */
   def manageUsers = Authentication.authenticatedAction() {
-    implicit request => 
+    implicit request =>
       implicit user =>
         Authentication.enforcePermission("admin") {
           Future(Ok(views.html.admin.users()))
@@ -82,7 +82,7 @@ object Administration extends Controller {
 
   /**
    * Get Users {limit} at a time
-   * @param id The id for the last user currently loaded on the page 
+   * @param id The id for the last user currently loaded on the page
    * @param limit The size of the list of users queried from the db
    * @return list of user JSON objects
    */
@@ -157,7 +157,7 @@ object Administration extends Controller {
               Redirect(if(currentPage == 0) {
                 routes.Administration.manageUsers()
               } else if (currentPage == 1) {
-                routes.Administration.manageCourses()
+                routes.Administration.manageCollections()
               } else {
                 routes.Application.home
               }).flashing("info" -> "Notification sent to user")
@@ -185,58 +185,56 @@ object Administration extends Controller {
   }
 
   /**
-   * The course management view
+   * The collection management view
    */
-  def manageCourses = Authentication.authenticatedAction() {
+  def manageCollections = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Authentication.enforcePermission("admin") {
-          val courses = Course.list
-          Future(Ok(views.html.admin.courses(courses)))
+          val collections = Collection.list
+          Future(Ok(views.html.admin.collections(collections)))
         }
   }
 
   /**
-   * Updates the name and enrollment of the course
-   * @param id The ID of the course
+   * Updates the name of the collection
+   * @param id The ID of the collection
    */
-  def editCourse(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def editCollection(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         Authentication.enforcePermission("admin") {
-          Courses.getCourse(id) { course =>
-            // Update the course
+          Collections.getCollection(id) { collection =>
+            // Update the collection
             val params = request.body.mapValues(_(0))
-            course.copy(
-			  name = params("name"),
-			  enrollment = Symbol(params("enrollment")),
-			  featured = (params("status") == "featured")
+            collection.copy(
+			  name = params("name")
 			).save
             Future {
-              Redirect(routes.Administration.manageCourses())
-                .flashing("info" -> "Course updated")
+              Redirect(routes.Administration.manageCollections())
+                .flashing("info" -> "Collection updated")
             }
           }
         }
   }
 
   /**
-   * Deletes a course
-   * @param id The ID of the course to delete
+   * Deletes a collection
+   * @param id The ID of the collection to delete
    */
-  def deleteCourse(id: Long) = Authentication.authenticatedAction() {
+  def deleteCollection(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Courses.getCourse(id) { course =>
+        Collections.getCollection(id) { collection =>
           Future {
-            if (user.hasCoursePermission(course, "deleteCourse")) {
-              course.delete()
+            if (user.isCollectionTeacher(collection)) {
+              collection.delete()
               Redirect(routes.Application.home)
-                .flashing("info" -> "Course deleted")
+                .flashing("info" -> "Collection deleted")
             } else if(user.hasSitePermission("admin")) {
-              course.delete()
-              Redirect(routes.Administration.manageCourses())
-                .flashing("info" -> "Course deleted")
+              collection.delete()
+              Redirect(routes.Administration.manageCollections())
+                .flashing("info" -> "Collection deleted")
             } else Errors.forbidden
           }
       }
@@ -264,12 +262,11 @@ object Administration extends Controller {
           val redirect = Redirect(routes.Administration.manageContent())
           try {
             val params = request.body.mapValues(_(0))
-            val shareability = params("shareability").toInt
             val visibility = params("visibility").toInt
 
             for(id <- params("ids").split(",") if !id.isEmpty;
                 content <- Content.findById(id.toLong)) {
-              content.copy(shareability = shareability, visibility = visibility).save
+              content.copy(visibility = visibility).save
             }
             Future(redirect.flashing("info" -> "Contents updated"))
           } catch {
@@ -389,7 +386,7 @@ object Administration extends Controller {
     implicit request =>
       implicit user =>
         Authentication.enforcePermission("admin") {
-          request.body.mapValues(_(0)).foreach { data => 
+          request.body.mapValues(_(0)).foreach { data =>
             Setting.findByName(data._1).get.copy(value = data._2).save
             Logger.debug(data._1 + ": " + data._2)
           }

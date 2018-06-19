@@ -18,7 +18,7 @@
               CSS("main.css")),
             Rel("javascripts/",
               Rel("libraries/",
-                JS("jquery-1.9.0.min.js"),
+                JS("jquery.min.js"),
                 JS("bootstrap.min.js"),
                 JS("Ractive.min.js"),
                 JS("Ractive-events-tap.js")),
@@ -54,19 +54,19 @@
 
                     @if(!user.getEnrollment.isEmpty) {
                         <div class="link">
-                            <a class="headerDropdownLink" data-target="#coursesDropdown" href="#">
-                                <i class="icon-group"></i> My Courses
+                            <a class="headerDropdownLink" data-target="#collectionsDropdown" href="#">
+                                <i class="icon-group"></i> My Collections
                             </a>
-                            <div class="headerDropdown" id="coursesDropdown">
+                            <div class="headerDropdown" id="collectionsDropdown">
                                 <div class="dropdownPoint"></div>
-                                @for(course <- user.getEnrollment) {
+                                @for(collection <- user.getEnrollment) {
                                     <div class="dropdownItem">
-                                        <a href="@routes.Courses.view(course.id.get)"><i class="icon-book"></i> @course.name</a>
+                                        <a href="@routes.Collections.view(collection.id.get)"><i class="icon-book"></i> @collection.name</a>
                                     </div>
                                 }
-                                @if(user.hasSitePermission("createCourse")) {
+                                @if(user.hasSitePermission("createCollection")) {
                                     <div class="dropdownItem">
-                                        <a href="@routes.Courses.createPage()"><i class="icon-plus"></i> Create a new course</a>
+                                        <a href="@routes.Collections.createPage()"><i class="icon-plus"></i> Create a new collection</a>
                                     </div>
                                 }
                             </div>
@@ -132,13 +132,13 @@
         <div class="messageContainer">
                 <!-- Messages/alerts -->
             @if(request.flash.get("alert").isDefined) {
-                <div class="alert">
+                <div class="alert alert-warning">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Just a sec...</strong> @Html(request.flash("alert"))
                 </div>
             }
             @if(request.flash.get("error").isDefined) {
-                <div class="alert alert-error">
+                <div class="alert alert-danger">
                     <a class="close" data-dismiss="alert">×</a>
                     <strong>Oh snap!</strong> @Html(request.flash("error"))
                 </div>

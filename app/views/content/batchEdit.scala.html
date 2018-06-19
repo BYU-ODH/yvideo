@@ -1,6 +1,6 @@
 @(contentList: List[models.Content])(implicit request: RequestHeader, user: User)
 
-@main("Ayamel - Manage My Content", Some(user),
+@main("Y-Video - Manage My Content", Some(user),
   Local(CSS("stylesheets/content.css"))) {
 
     <div class="padded">
@@ -25,11 +25,10 @@
           </div>
         }
 
-        <table class="table table-bordered table-striped table-condensed">
+        <table class="table table-bordered table-striped table-condensed batch-table">
             <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Shareability</th>
                 <th>Visibility</th>
                 <th>Resource Id</th>
                 <th>Type</th>
@@ -40,17 +39,6 @@
                 <tr>
                     <td>@content.id.get</td>
                     <td>@content.name</td>
-                    <td>
-                        @if(content.shareability == models.Content.shareability.notShareable) {
-                            Not Shareable
-                        }
-                        @if(content.shareability == models.Content.shareability.byMeOnly) {
-                            By Owner Only
-                        }
-                        @if(content.shareability == models.Content.shareability.shareable) {
-                            Shareable
-                        }
-                    </td>
                     <td>
                         @if(content.visibility == models.Content.visibility._private) {
                             Private
@@ -68,7 +56,7 @@
                     <td>@content.resourceId</td>
                     <td>@content.contentType.name</td>
                     <td>
-                        <a href="@routes.ContentController.view(content.id.get)" class="btn">View</a>
+                        <a href="@routes.ContentController.view(content.id.get)" class="btn btn-gray">View</a>
 					    <form method="POST" action="@routes.ContentController.delete(content.id.get)">
                             <button class="btn btn-magenta">Delete</button>
                         </form>
@@ -84,61 +72,51 @@
 
     </div>
 
-    <div id="batchEditModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="batchEditModal" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="batchEditModal">Batch edit</h3>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal" method="post" action="@routes.ContentEditing.batchUpdateContent()">
-                <input type="hidden" name="ids" id="ids">
-                <div class="control-group">
-                    <label class="control-label">Shareability</label>
-                    <div class="controls">
-                        <label class="radio">
-                            <input type="radio" name="shareability" id="shareability1" value="1" checked>
-                            Not shareable
-                        </label>
-                        <label class="radio">
-                            <input type="radio" name="shareability" id="shareability2" value="2">
-                            Shareable by owner only
-                        </label>
-                        <label class="radio">
-                            <input type="radio" name="shareability" id="shareability3" value="3">
-                            Shareable by anybody who can see the content
-                        </label>
+<<<<<<< HEAD
+    <div id="batchEditModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="batchEditModal" aria-hidden="true">
+    	<div class="modal-dialog">
+    		<div class="modal-content">
+		        <div class="modal-header">
+		            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		            <h3 id="batchEditModal">Batch edit</h3>
+		        </div>
+		        <div class="modal-body">
+    		        <div class="container-fluid">
+                        <form class="form-horizontal" method="post" action="@routes.ContentEditing.batchUpdateContent()">
+    		                <input type="hidden" name="ids" id="ids">
+    			            <div class="container-fluid">
+    			                <div class="form-group">
+    			                    <label class="control-label">Visibility</label>
+    			                    <div class="controls">
+    			                        <label class="radio">
+    			                            <input type="radio" name="visibility" id="visibility1" value="1" checked>
+    			                            Private
+    			                        </label>
+    			                        <label class="radio">
+    			                            <input type="radio" name="visibility" id="visibility1" value="2">
+    			                            Tightly Restricted
+    			                        </label>
+    			                        <label class="radio">
+    			                            <input type="radio" name="visibility" id="visibility1" value="3">
+    			                            Loosely Restricted
+    			                        </label>
+    			                        <label class="radio">
+    			                            <input type="radio" name="visibility" id="visibility1" value="4">
+    			                            Public
+    			                        </label>
+    			                    </div>
+    			                </div>
+    			            </div>
+    		            </form>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label">Visibility</label>
-                    <div class="controls">
-                        <label class="radio">
-                            <input type="radio" name="visibility" id="visibility1" value="1" checked>
-                            Private
-                        </label>
-                        <label class="radio">
-                            <input type="radio" name="visibility" id="visibility1" value="2">
-                            Tightly Restricted
-                        </label>
-                        <label class="radio">
-                            <input type="radio" name="visibility" id="visibility1" value="3">
-                            Loosely Restricted
-                        </label>
-                        <label class="radio">
-                            <input type="radio" name="visibility" id="visibility1" value="4">
-                            Public
-                        </label>
-                    </div>
-                </div>
-                <div class="control-group">
+		    	</div>
+                <div class="modal-footer">
                     <div class="controls">
                         <button type="submit" class="btn btn-blue">Save</button>
+                        <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
                     </div>
                 </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+		    </div>
         </div>
     </div>
 
