@@ -13,17 +13,17 @@ before_install:
 - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
 - export YVIDEO_VERSION=$(if [ "$BRANCH" == "master" ]; then echo "--production"; else echo "--beta"; fi)
 - cd ..
-- git clone https://github.com/dro248/runAyamel
-- cp -r Ayamel runAyamel/test
-- cd runAyamel
-- sshpass -p $serverpassword scp -o StrictHostKeyChecking=no $sshuser@$host:$conffile ./test/Ayamel/conf/application.conf
+- git clone https://github.com/BYU-ODH/yvideo-deploy
+- cp -r yvideo yvideo-deploy/test
+- cd yvideo-deploy
+- sshpass -p $serverpassword scp -o StrictHostKeyChecking=no $sshuser@$host:$conffile ./test/yvideo/conf/application.conf
 - chmod 775 setup_yvideo.sh
 - ./setup_yvideo.sh --travis
-- docker attach runayamel_yvideo_test_1
+- docker attach yvideo_yvideo_test_1
 script:
-- cd /home/travis/build/BYU-ODH/Ayamel
+- cd /home/travis/build/BYU-ODH/yvideo
 - chmod 775 sbt_test_result.sh
 - ./sbt_test_result.sh
 after_success: 
-- sshpass -p $serverpassword $sshuser@$host /var/yvideo/runayamel/setup_yvideo.sh $YVIDEO_VERSION --build
+- sshpass -p $serverpassword $sshuser@$host /var/yvideo/yvideo-deploy/setup_yvideo.sh $YVIDEO_VERSION --build
 
