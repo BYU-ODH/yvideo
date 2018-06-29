@@ -27,48 +27,6 @@ object Administration extends Controller {
         }
   }
 
-  // /**
-  //  * Request approval view
-  //  */
-  // def approvalPage = Authentication.authenticatedAction() {
-  //   implicit request =>
-  //     implicit user =>
-  //       Authentication.enforcePermission("admin") {
-  //         val requests = SitePermissionRequest.list
-  //         Future(Ok(views.html.admin.permissionRequests(requests)))
-  //       }
-  // }
-
-  // /**
-  //  * Approves a request
-  //  * @param id The ID of the request
-  //  */
-  // def approveRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
-  //   implicit request =>
-  //     implicit user =>
-  //       Authentication.enforcePermission("admin") {
-  //         for( id <- request.body.dataParts("reqid");
-  //              req <- SitePermissionRequest.findById(id.toLong)
-  //         ) { req.approve() }
-  //         Future(Ok)
-  //       }
-  // }
-
-  // /**
-  //  * Denies a request
-  //  * @param id The ID of the request
-  //  */
-  // def denyRequest() = Authentication.authenticatedAction(parse.multipartFormData) {
-  //   implicit request =>
-  //     implicit user =>
-  //       Authentication.enforcePermission("admin") {
-  //         for( id <- request.body.dataParts("reqid");
-  //              req <- SitePermissionRequest.findById(id.toLong)
-  //         ) { req.deny(); }
-  //         Future(Ok)
-  //       }
-  // }
-
   /**
    * User management view
    */

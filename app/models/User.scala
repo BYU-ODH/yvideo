@@ -62,7 +62,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
           List('table -> "collectionMembership", 'id -> id.get),
           List('table -> "notification", 'id -> id.get),
           List('table -> "addCollectionRequest", 'id -> id.get),
-          List('table -> "sitePermissionRequest", 'id -> id.get),
+          // List('table -> "sitePermissionRequest", 'id -> id.get),
           List('table -> "sitePermissions", 'id -> id.get)
         )
 
@@ -147,13 +147,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
     ContentOwnership(None, this.id.get, content.id.get).save
 
   /**
-   * Submits a teacher request for this user
-   * @param reason The reason for the request
-   * @return The teacher request
-   */
-  def requestPermission(permission: String, reason: String): SitePermissionRequest = SitePermissionRequest(None, this.id.get, permission, reason).save
-
-  /**
    * Sends a notification to this user
    * @param message The message of the notification
    * @return The notification
@@ -193,16 +186,9 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
         membership.copy(userId = thisid).save
     }
 
-    // Merge permission requests
-    val otherRequests = SitePermissionRequest.listByUser(user)
-    val newRequests = (otherRequests.map(_.copy(userId = thisid)).toSet
-      -- SitePermissionRequest.listByUser(this))
-
     // Merge permissions
     user.getPermissions.foreach { p => addSitePermission(p) }
 
-    otherRequests.foreach { _.delete() }
-    newRequests.foreach { _.save }
   }
 
   /**

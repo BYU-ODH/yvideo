@@ -17,8 +17,7 @@ object SitePermissions extends SQLSelectable[String]  {
     "createCollection" -> "Create Collection",
     "createContent" -> "Create Content",
     "viewRestricted" -> "View Restricted Content",
-    "joinCollection" -> "Join Collections",
-    "requestPermission" -> "Request New Permissions"
+    "joinCollection" -> "Join Collections"
   )
 
   def permissionList = desc_map.keys.toList
@@ -98,16 +97,16 @@ object SitePermissions extends SQLSelectable[String]  {
       }
     }
   }
-    
+
   def getDescription(permission: String) = desc_map.get(permission).getOrElse("")
-  
+
   val roles = Map(
     'guest -> List(),
-    'student -> List("requestPermission", "joinCollection"),
-    'teacher -> List("requestPermission", "createContent", "joinCollection", "createCollection", "viewRestricted"),
+    'student -> List("joinCollection"),
+    'teacher -> List("createContent", "joinCollection", "createCollection", "viewRestricted"),
     'admin -> List("admin")
   )
-  
+
   def assignRole(user: User, role: Symbol) {
     roles(role).foreach { p =>
       addUserPermission(user, p)
