@@ -143,8 +143,10 @@
                                         <li><a href="#thumbnailModal" data-toggle="modal"><i class="icon-camera"></i> Set thumbnail</a></li>
                                         <li class="divider"></li>
                                         <li><a href="#changeSourceModal" data-toggle="modal"><i class="icon-link"></i> Set media source</a></li>
+                                        @if(user.get.hasSitePermission("admin")) {
                                         <li class="divider"></li>
                                         <li><a href="#deleteModal" data-toggle="modal"><i class="icon-trash"></i> Delete</a></li>
+                                    }
                                     </ul>
                                     @views.html.content.header.settings(content, resourceLibraryUrl, user.get)
                                 </li>

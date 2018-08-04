@@ -534,14 +534,16 @@ object ContentController extends Controller {
   def delete(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        getContent(id) { content =>
-          Future {
-            // Make sure the user is able to edit
-            if (content isEditableBy user) {
-              content.delete()
-              Redirect(routes.ContentController.mine()).flashing("success" -> "Content deleted.")
-            } else
-              Errors.forbidden
+        Authentication.enforcePermission("admin") {  
+          getContent(id) { content =>
+            Future {
+              // Make sure the user is able to edit
+              if (user.hasSitePermission("admin")) {
+                content.delete()
+                Redirect(routes.ContentController.mine()).flashing("success" -> "Content deleted.")
+              } else
+                Errors.forbidden
+            }
           }
         }
   }

@@ -53,6 +53,10 @@
                     <td>@content.contentType.name</td>
                     <td>
                         <a target="_blank" href="@routes.ContentController.view(content.id.get)" class="btn btn-gray">View</a>
+                        <form method="POST" action="@routes.ContentController.delete(content.id.get)">
+                            <button class="btn btn-magenta">Delete</button>
+                        </form>
+                    </td>
                     </td>
                     <td>
                         <input type="checkbox" class="contentSelector" data-id="@content.id.get">
@@ -65,48 +69,48 @@
 
     </div>
 
-    <div id="batchEditModal" class="modal fade" role="dialog" aria-labelledby="batchEditModal" >
+    <div id="batchEditModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="batchEditModal" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     <h3 id="batchEditModal">Batch edit</h3>
                 </div>
+                <div class="modal-body">
                     <div class="container-fluid">
-                    <div class="modal-body">
                         <form class="form-horizontal" method="post" action="@routes.ContentEditing.batchUpdateContent()">
                             <input type="hidden" name="ids" id="ids">
-                            <div class="form-group">
-                                <label class="control-label">Visibility</label>
-                                <div class="col-sm-6">
-                                    <label class="radio">
-                                        <input type="radio" name="visibility" id="visibility1" value="1" checked>
-                                        Private
-                                    </label>
-                                    <label class="radio">
-                                        <input type="radio" name="visibility" id="visibility1" value="2">
-                                        Tightly Restricted
-                                    </label>
-                                    <label class="radio">
-                                        <input type="radio" name="visibility" id="visibility1" value="3">
-                                        Loosely Restricted
-                                    </label>
-                                    <label class="radio">
-                                        <input type="radio" name="visibility" id="visibility1" value="4">
-                                        Public
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-sm-6">
-                                    <button type="submit" class="btn btn-blue">Save</button>
+                            <div class="container-fluid">
+                                <div class="form-group">
+                                    <label>Visibility</label>
+                                    <div class="controls">
+                                        <label class="radio">
+                                            <input type="radio" name="visibility" id="visibility1" value="1" checked>
+                                            Private
+                                        </label>
+                                        <label class="radio">
+                                            <input type="radio" name="visibility" id="visibility1" value="2">
+                                            Tightly Restricted
+                                        </label>
+                                        <label class="radio">
+                                            <input type="radio" name="visibility" id="visibility1" value="3">
+                                            Loosely Restricted
+                                        </label>
+                                        <label class="radio">
+                                            <input type="radio" name="visibility" id="visibility1" value="4">
+                                            Public
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <div class="controls">
+                        <button type="submit" class="btn btn-blue">Save</button>
+                        <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
