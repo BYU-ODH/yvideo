@@ -44,14 +44,59 @@ object Administration extends Controller {
    * @param limit The size of the list of users queried from the db
    * @return list of user JSON objects
    */
-  def pagedUsers(id: Long, limit: Long) = Authentication.authenticatedAction() {
+  def pagedUsers(id: Long, limit: Long, up: Boolean) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
       //check if admin
       Authentication.enforcePermission("admin") {
-        Future(Ok(Json.toJson(User.listPaginated(id, limit).map(_.toJson))))
+        Future(Ok(Json.toJson(User.listPaginated(id, limit, up).map(_.toJson))))
       }
   }
+
+
+  /**
+   * Get the number of all current users
+   * @return the total number of current users
+   */
+  def userCount() = Authentication.authenticatedAction() {
+    implicit request =>
+      implicit user =>    
+      Authentication.enforcePermission("admin") {
+        println(Json.toJson(User.count))
+        Future(Ok(Json.toJson(User.count)))
+      }
+  }
+
+
+  /**
+   * Get the users that match the given search criteria
+   * @return a list of users based on the given serach criteria
+   */
+   def searchUsers(columnName: String, searchValue: String) = Authentication.authenticatedAction() {
+    implicit request =>
+      implicit user =>
+      val allowedColumns = List("username", "name", "email")
+      if (allowedColumns.contains(columnName)) {
+        if (searchValue.length > 3) {
+          Authentication.enforcePermission("admin") {
+            Future(Ok(Json.toJson(User.userSearch(columnName, searchValue).map(_.toJson))))
+          }
+        } else {
+          Future {
+            Redirect(routes.Administration.manageUsers())
+              .flashing("error" -> "Search value was too short.")
+          }
+        }
+      } else {
+        Future {
+          Redirect(routes.Administration.manageUsers())
+            .flashing("error" -> "Search column is not allowed.")
+        }
+      }
+   }
+
+
+
 
   /**
    * Helper function for finding user accounts

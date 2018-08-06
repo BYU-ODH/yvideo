@@ -90,13 +90,15 @@ POST    /user/notifications/delete/     controllers.Users.deleteNotification()
 # Admin pages
 GET     /admin                                  controllers.Administration.admin
 GET     /admin/users                            controllers.Administration.manageUsers
-GET     /admin/users/:id/:limit                 controllers.Administration.pagedUsers(id: Long, limit: Long)
+GET     /admin/users/:id/:limit/:up             controllers.Administration.pagedUsers(id: Long, limit: Long, up: Boolean)
+GET 	/admin/users/count 						controllers.Administration.userCount
+GET 	/admin/users/:columnName/:searchValue	controllers.Administration.searchUsers(columnName: String, searchValue: String)
 POST    /admin/users/setPermission/:operation   controllers.Administration.setPermission(operation: String)
 POST    /admin/users/notify                     controllers.Administration.sendNotification(currentPage: Int)
 POST    /admin/users/:id/delete                 controllers.Administration.delete(id: Long)
-GET     /admin/collections                          controllers.Administration.manageCollections
-POST    /admin/collections/:id                      controllers.Administration.editCollection(id: Long)
-POST    /admin/collections/:id/delete               controllers.Administration.deleteCollection(id: Long)
+GET     /admin/collections                      controllers.Administration.manageCollections
+POST    /admin/collections/:id                  controllers.Administration.editCollection(id: Long)
+POST    /admin/collections/:id/delete           controllers.Administration.deleteCollection(id: Long)
 GET     /admin/content                          controllers.Administration.manageContent
 POST    /admin/content                          controllers.Administration.batchUpdateContent
 GET     /admin/homePageContent                  controllers.Administration.homePageContent

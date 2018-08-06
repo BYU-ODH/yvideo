@@ -1,7 +1,6 @@
 $(function(){
     "use strict";
-
-    var userList = getUsers(0, 50),
+    var userList = getUsers(0, 50, true),
     userTemplate = '<SuperSelect\
         icon="" text="Select Permissions"\
         button="left"\
@@ -9,18 +8,23 @@ $(function(){
         multiple="true"\
         options="{{permissionList}}"\
     />\
+    <input id="searchVal" type="text" value="" placeholder="Search..."><br>\
+    <input type="radio" id="username" value="username" name="radio" checked/>Username<br>\
+    <input type="radio" id="name" value="name" name="radio"/>Name<br>\
+    <input type="radio" id="email" value="email" name="radio"/>Email<br>\
+    <button on-tap="searchUsers" class="btn btn-small">Search</button>\
     <table class="table table-bordered table-condensed">\
         <tr>\
-            <th>Id</th><th>Auth Scheme</th><th>Username</th><th>Name</th><th>Email</th>\
-            <th>Merged?</th><th>Permissions</th><th>Actions</th>\
+            <th>Id</th><th>Last Login</th><th>Username</th><th>Name</th><th>Email</th>\
+            <th>Account Type</th><th>Permissions</th><th>Actions</th>\
         </tr>\
         {{#users:index}}\
             <tr style="background: {{calc_color(.permissions, activePermissions)}};" id="uid{{.id}}">\
-                <td><label><input type="checkbox" name="{{selectedUsers}}" value="{{index}}"/>{{.id}}</label></td>\
-                <td>{{.authScheme}}</td><td>{{{shorten(.username)}}}</td>\
+                <td><label><input type="checkbox" name="{{selectedUsers}}" value="{{index}}" id={{.id}}/>{{.id}}</label></td>\
+                <td>{{.lastLogin.substr(0,10)}}</td><td>{{{shorten(.username)}}}</td>\
                 <td>{{{(.name?shorten(.name):"<em>Not set</em>")}}}</td>\
                 <td>{{{(.email?shorten(.email):"<em>Not set</em>")}}}</td>\
-                <td>{{{(.linked === -1 ? "No" : "Yes: #"+.linked)}}}</td>\
+                <td>{{.authScheme}}</td>\
                 <td>\
                     {{#is_missing(.permissions, activePermissions)}}<a on-tap="add:{{index}}" class="btn btn-small btn-yellow">Add Missing</a>{{/missing}}\
                     {{#has_extra(.permissions, activePermissions)}}<a on-tap="remove:{{index}}" class="btn btn-small btn-yellow">Remove Extra</a>{{/extra}}\
@@ -38,10 +42,11 @@ $(function(){
         {{/users}}\
         <tr><td colspan="8">\
             <b>For selected:</b>\
-            <!--<a on-tap="deletesel" class="btn btn-small btn-magenta deleteUser">Delete</a>-->\
             <a on-tap="addsel" class="btn btn-small btn-yellow">Add Missing</a>\
             <a on-tap="removesel" class="btn btn-small btn-yellow">Remove Extra</a>\
             <a on-tap="matchsel" class="btn btn-small btn-yellow">Match Filter</a>\
+            <a on-tap="notifysel" class="btn btn-small btn-blue">Notify</a>\
+            <a on-tap="deletesel" class="btn btn-small btn-magenta deleteUser">Delete</a>\
         </td></tr>\
     </table>\
     <input id="limit" type="text" value="50" style="width: 35px; margin-top: 10px;">\
@@ -127,26 +132,25 @@ $(function(){
     utable.on("getPrev", function(){
         var limit = $("#limit").val();
         var index = utable.get("get_first_index")();
-        console.log(index);
         if (isNum(limit) && +limit > 0 && index >= 0) {
-            if(index === 0){
-                getUsers(0, Math.abs(limit));
-            }
-            else{
-                limit=(limit>index)?index:limit;
-                console.log("Limit: " + limit);
-                getUsers(index-limit, index);
-            }
+            getUsers(index, limit, false);
         } else console.log("error getting prev");
     });
 
     utable.on("getNext", function(){
         var limit = $("#limit").val();
         if (isNum(limit) && +limit > 0) {
-            getUsers(utable.get("get_last_index")(), limit);
-            console.log("Asdfasdf");
-        } else console.log("error getting next");
+            getUsers(utable.get("get_last_index")(), Math.abs(limit), true);
+        } else {
+        console.log("error getting next")
+        };
     });
+
+    utable.on("searchUsers", function (){
+        var searchVal = $("#searchVal").val();
+        var colName = document.querySelector('input[name = "radio"]:checked').value;
+        getUsers(null, null, null, true, colName, searchVal);
+    })
 
     utable.on('proxy', function(e,id){
         window.location = "/admin/proxy/"+id;
@@ -180,12 +184,46 @@ $(function(){
             alert("Error updating permissions");
         });
     });
-    //utable.on('deletesel', function(){alert("Unimplemented");});
+
+    utable.on('deletesel', function(){
+        if (utable.get("selectedUsers").length == 0) {
+            alert("Nothing selected");
+        } else {
+            //TODO convert to bootstrap modal instead of JavaScript confirm
+            var cont = confirm("Are you sure you want to delete the selected users?");
+            cont;
+            if (cont == true) {
+                utable.get("selectedUsers").forEach(deleteUsers);
+            }
+        }
+    });
+
+    utable.on('notifysel', function(){
+        if (utable.get("selectedUsers").length == 0) {
+            alert("Nothing selected");
+        } else {
+            utable.get("selectedUsers").forEach(notifyUsers);
+        }
+    });
+
+    function deleteUsers(index){
+        var userId = utable.get("users")[index].id;
+        var request = new XMLHttpRequest();
+        request.open("POST", "/admin/users/"+userId+"/delete");
+        request.send();
+        location.reload();
+    }
+
+    //TODO
+    function notifyUsers(index){
+        var userId = utable.get("users")[index].id;
+        alert(userId);
+    }
 
     /**
      * Does an AJAX request for getting paginated users for admin dashbaord.
      */
-    function getUsers(index, limit){
+    function getUsers(index, limit, up, search, columnName, searchValue){
         var request = new XMLHttpRequest();
         request.onreadystatechange = function(){
             if (request.readyState == 4 && request.status == 200) {
@@ -193,8 +231,13 @@ $(function(){
               if(users.length > 0) { utable.set("users", users); }
             }
         }
-        request.open("GET", "/admin/users/"+index+"/"+limit, true);
-        request.send();
+        if (search) {
+            request.open("GET", "/admin/users/"+columnName+"/"+searchValue, true);
+            request.send();
+        } else {
+            request.open("GET", "/admin/users/"+index+"/"+limit+"/"+up, true);
+            request.send();    
+        }
     }
 
     function updateUserPermissions(index, perms, operation){
@@ -225,6 +268,7 @@ $(function(){
             }
         });
     }
+
 
     function addUserPermissions(index){
         var aperm = utable.get('activePermissions'),

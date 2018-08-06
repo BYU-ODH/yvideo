@@ -57,15 +57,14 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
 
     DB.withConnection { implicit connection =>
       try {
-        BatchSql(
-          "delete from {table} where userId = {id}",
-          List('table -> "collectionMembership", 'id -> id.get),
-          List('table -> "notification", 'id -> id.get),
-          List('table -> "addCollectionRequest", 'id -> id.get),
-          // List('table -> "sitePermissionRequest", 'id -> id.get),
-          List('table -> "sitePermissions", 'id -> id.get)
-        )
-
+        SQL("delete from collectionMembership where userId = {userId}")
+          .on('userId -> id.get).execute()
+        SQL("delete from notification where userId = {userId}")
+          .on('userId -> id.get).execute()
+        SQL("delete from sitePermissions where userId = {userId}")
+          .on('userId -> id.get).execute()
+        SQL("delete from sitePermissionRequest where userId = {userId}")
+          .on('userId -> id.get).execute()
         // Delete all linked accounts
         getAccountLink.map { accountLink =>
           if (accountLink.primaryAccount == id.get) {
@@ -97,7 +96,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   //     / ____ \ (__| |_| | (_) | | | \__ \
   //    /_/    \_\___|\__|_|\___/|_| |_|___/
   //
-  //   ______ ______ ______ ______ ______ ______ ______ ______ ______
+  //  ______ ______ ______ ______ ______ ______ ______ ______ ______
   // |______|______|______|______|______|______|______|______|______|
   //
 
@@ -267,7 +266,8 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
       "name" -> getStringFromOption(name),
       "email" -> getStringFromOption(email),
       "linked" -> accountLinkId,
-      "permissions" -> getPermissions
+      "permissions" -> getPermissions,
+      "lastLogin" -> lastLogin
     )
   }
 
@@ -516,7 +516,7 @@ object User extends SQLSelectable[User] {
         if (idList.isEmpty)
           List[User]()
         else
-          SQL("select * from userAccount where id in ({ids})") .on('ids -> idList) .as(simple *)
+          SQL(s"select * from $tableName where id in ({ids})") .on('ids -> idList) .as(simple *)
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in User.scala / findUsersByUserIdList")
@@ -536,7 +536,7 @@ object User extends SQLSelectable[User] {
   def findByAuthInfo(authId: String, authScheme: Symbol): Option[User] = {
     DB.withConnection { implicit connection =>
       try {
-        SQL("select * from userAccount where authId = {authId} and authScheme = {authScheme}")
+        SQL(s"select * from $tableName where authId = {authId} and authScheme = {authScheme}")
           .on('authId -> authId, 'authScheme -> authScheme.name)
           .as(simple.singleOpt)
       } catch {
@@ -557,7 +557,7 @@ object User extends SQLSelectable[User] {
   def findByUsername(authScheme: Symbol, username: String): Option[User] = {
     DB.withConnection { implicit connection =>
       try {
-        SQL("select * from userAccount where authScheme = {authScheme} and username = {username}")
+        SQL(s"select * from $tableName where authScheme = {authScheme} and username = {username}")
           .on('authScheme -> authScheme.name, 'username -> username)
           .as(simple.singleOpt)
       } catch {
@@ -576,15 +576,43 @@ object User extends SQLSelectable[User] {
   def list: List[User] = list(simple)
 
   /**
-   *
+   * Gets the number of users in the DB
+   * @return the number of total users
    */
-  def listPaginated(id: Long, limit: Long): List[User] = {
+  def count: List[Int] = {
+    DB.withConnection {
+      implicit connection =>
+      try {
+        SQL(s"select COUNT(id) as c from $tableName")
+        .as(get[Int]("c") *)
+      } catch {
+        case e: SQLException =>
+          Logger.debug("Error getting user count. User.scala")
+          Nil
+      }
+    }
+  }
+
+  /**
+   * Returns a paginated list of users for the admin user view
+   * @param id The id of the last user in the current page
+   * @param limit The desired size of the page
+   * @param up: The direction in which to paginate i.e. up will be true when getting the next page
+   * @return a paginated list of users
+   */
+  def listPaginated(id: Long, limit: Long, up: Boolean): List[User] = {
     DB.withConnection {
       implicit connection =>
         try {
-          SQL(s"select * from $tableName where id between {lowerBound} and {upperBound}")
-            .on('lowerBound -> id, 'upperBound -> (id + limit))
-            .as(simple *)
+          if (up) {
+            SQL(s"select * from $tableName where id >= {lowerBound} order by id asc limit {upperBound}")
+              .on('lowerBound -> id, 'upperBound -> (limit))
+              .as(simple *)
+          } else {
+            SQL(s"select * from (select * from $tableName where id <= {lowerBound} order by id desc limit {upperBound}) as a order by id asc")
+              .on('lowerBound -> id, 'upperBound -> (limit))
+              .as(simple *)
+          }
         } catch {
           case e: SQLException =>
             Logger.debug("Error getting paginated users. User.scala")
@@ -592,6 +620,30 @@ object User extends SQLSelectable[User] {
         }
     }
   }
+
+
+  /**
+   * Returns a list of users based on the search criteria that is passed in
+   * @param columnName The column that is being searched - Must be username, name or email
+   * @param searchValue The value to be search for in the given columnEXIT
+   * @return a list of users based on the given serach criteria
+   */
+  def userSearch(columnName: String, searchValue: String): List[User] = {
+    DB.withConnection {
+      implicit connection =>
+        try {
+          val searchVal = "%"+searchValue+"%"
+          SQL(s"select * from $tableName where $columnName like {searchValue}")
+            .on('columnName -> columnName, 'searchValue -> searchVal)
+            .as(simple *)
+        } catch {
+          case e: SQLException =>
+            Logger.debug("Error getting user search results. User.scala")
+            Nil
+        }
+    }
+  }
+
 
   /**
    * Create a user from fixture data
