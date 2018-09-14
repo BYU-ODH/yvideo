@@ -457,7 +457,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   //      \___ \ / _ \ __| __/ _ \ '__/ __|
   //      ____) |  __/ |_| ||  __/ |  \__ \
   //     |_____/ \___|\__|\__\___|_|  |___/
-  //     ____ ______ ______ ______ ______ ______ ______ ______ ______
+  //  ______ ______ ______ ______ ______ ______ ______ ______ ______
   // |______|______|______|______|______|______|______|______|______|
   //
 
@@ -626,7 +626,7 @@ object User extends SQLSelectable[User] {
    * Returns a list of users based on the search criteria that is passed in
    * @param columnName The column that is being searched - Must be username, name or email
    * @param searchValue The value to be search for in the given columnEXIT
-   * @return a list of users based on the given serach criteria
+   * @return a list of users based on the given search criteria
    */
   def userSearch(columnName: String, searchValue: String): List[User] = {
     DB.withConnection {

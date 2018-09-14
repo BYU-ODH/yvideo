@@ -60,7 +60,7 @@ object Administration extends Controller {
    */
   def userCount() = Authentication.authenticatedAction() {
     implicit request =>
-      implicit user =>    
+      implicit user =>
       Authentication.enforcePermission("admin") {
         println(Json.toJson(User.count))
         Future(Ok(Json.toJson(User.count)))
@@ -70,7 +70,7 @@ object Administration extends Controller {
 
   /**
    * Get the users that match the given search criteria
-   * @return a list of users based on the given serach criteria
+   * @return a list of users based on the given search criteria
    */
    def searchUsers(columnName: String, searchValue: String) = Authentication.authenticatedAction() {
     implicit request =>
@@ -211,8 +211,8 @@ object Administration extends Controller {
             // Update the collection
             val params = request.body.mapValues(_(0))
             collection.copy(
-			  name = params("name")
-			).save
+              name = params("name")
+            ).save
             Future {
               Redirect(routes.Administration.manageCollections())
                 .flashing("info" -> "Collection updated")
