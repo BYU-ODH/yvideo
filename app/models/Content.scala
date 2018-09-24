@@ -160,6 +160,21 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, thumbnai
     "labels" -> labels
   )
 
+  /**
+   * Gets all of the fields required for the Admin dashboard table
+   */
+  def ownershipToJson(user: User) = {
+    Json.obj(
+      "contentId" -> id,
+      "cname" -> name,
+      "contentType" -> contentType.toString,
+      "resourceId" -> resourceId,
+      "dateAdded" -> dateAdded,
+      "visibility" -> visibility,
+      "views" -> views,
+      "username" -> user.username)
+  }
+
   val cacheTarget = this
   object cache {
     var owner: Option[User] = None
@@ -460,4 +475,48 @@ object Content extends SQLSelectable[Content] {
           Logger.debug(e.getMessage())
       }
     }
+
+  /**
+   *
+   */
+  def listPaginated(id: Long, limit: Long, up: Boolean): List[(Content, User)] = {
+    DB.withConnection {
+      implicit connection =>
+        try {
+          if (up) {
+            println("hello thar")
+            SQL(s"""select * from userAccount join (( 
+                      select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
+                      from content join contentOwnership on content.id = contentOwnership.contentid) as listing
+                    ) on userAccount.id = listing.userId
+                    where contentId >= {lowerBound} order by contentId asc limit {upperBound}""")
+              .on('lowerBound -> id, 'upperBound -> (limit))
+              .as(contentOwnership *)
+          } else {
+            SQL(s"""select * from (
+                      select * from userAccount join (( 
+                        select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
+                        from content join contentOwnership on content.id = contentOwnership.contentid) as listing
+                      ) on userAccount.id = listing.userId)
+                      where content.id >= {lowerBound} order by content.id desc limit {upperBound}) 
+                    as a order by content.id asc""")
+              .on('lowerBound -> id, 'upperBound -> (limit))
+              .as(contentOwnership *)
+          }
+        } catch {
+          case e: SQLException =>
+            Logger.debug("Error getting paginated content. Content.scala")
+            Nil
+        }
+    }
+  }
 }
+
+
+/*SQL("""
+          select * from userAccount join (
+            ( select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
+              from content join contentOwnership on content.id = contentOwnership.contentid
+            ) as listing
+          ) on userAccount.id = listing.userId
+        """).as(contentOwnership *)*/

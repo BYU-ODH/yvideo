@@ -69,7 +69,6 @@ $(function(){
             users: userList,
             viewer_id: viewer_id,
             shorten: function(str) {
-                // console.log(str);
                 return str.length < 16?str:
                     '<span title="'+str+'">'+str.substr(0,12)+'...</span>';
             },

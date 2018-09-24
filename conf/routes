@@ -101,6 +101,7 @@ POST    /admin/collections/:id                  controllers.Administration.editC
 POST    /admin/collections/:id/delete           controllers.Administration.deleteCollection(id: Long)
 GET     /admin/content                          controllers.Administration.manageContent
 POST    /admin/content                          controllers.Administration.batchUpdateContent
+GET 	/admin/content/:id/:limit/:up 		controllers.Administration.pagedContent(id: Long, limit: Long, up: Boolean)
 GET     /admin/homePageContent                  controllers.Administration.homePageContent
 POST    /admin/homePageContent                  controllers.Administration.createHomePageContent
 POST    /admin/homePageContent/:id/active       controllers.Administration.toggleHomePageContent(id: Long)

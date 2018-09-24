@@ -1,6 +1,10 @@
-@(contentList: List[(models.Content, User)], resourceLibraryUrl: String)(implicit request: RequestHeader, user: User)
+@(resourceLibraryUrl: String)(implicit request: RequestHeader, user: User)
 
-@main("Y-Video - Manage Content", Some(user), Local(CSS("stylesheets/admin.css"))) {
+@main("Y-Video - Manage Content", Some(user), 
+    Local(
+        CSS("stylesheets/admin.css"),
+        JS("javascripts/pageScripts/adminContentView.js"))
+) {
 
     @Dependencies(Extern("Ayamel.js",Rel("js/",JS("Resource.js"), JS("LangCodes.js"))))
 
@@ -14,8 +18,9 @@
         <h1>Manage Content</h1>
 
         <a href="#batchEditModal" role="button" class="btn btn-blue pad-bottom-high" data-toggle="modal"><i class="icon-edit"></i> Batch edit</a>
+        <span id="contentTable"></span>
 
-        <table class="table table-bordered table-striped table-condensed adminTable">
+       @*<!--  <table class="table table-bordered table-striped table-condensed adminTable">
             <tr>
                 <th>Id</th>
                 <th>Name</th>
@@ -63,7 +68,8 @@
                     </td>
                 </tr>
             }
-        </table>
+        </table> -->
+        *@
 
         <a href="#batchEditModal" role="button" class="btn btn-blue" data-toggle="modal"><i class="icon-edit"></i> Batch edit</a>
 
@@ -118,11 +124,6 @@
 
     <script type="text/javascript">
         $(function(){
-            $("#batchEditModal").on("show", function(){
-                var ids = $(".contentSelector:checked").map(function(e, f){return $(f).attr("data-id");}).toArray().join(",");
-                document.getElementById("ids").value = ids;
-            });
-
             ResourceLibrary.setBaseUrl("@resourceLibraryUrl");
             var rows = document.getElementsByTagName("tr");
 

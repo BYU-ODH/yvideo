@@ -199,7 +199,7 @@ object Administration extends Controller {
         }
   }
 
-  /**
+    /**
    * Updates the name of the collection
    * @param id The ID of the collection
    */
@@ -251,8 +251,19 @@ object Administration extends Controller {
       implicit user =>
         Authentication.enforcePermission("admin") {
           val content = Content.ownershipList
-          Future(Ok(views.html.admin.content(content, ResourceController.baseUrl)))
+          Future(Ok(views.html.admin.content(ResourceController.baseUrl)))
         }
+  }
+
+  /**
+   *
+   */
+  def pagedContent(id: Long, limit: Long, up: Boolean) = Authentication.authenticatedAction() {
+    implicit request =>
+      implicit user =>
+      Authentication.enforcePermission("admin") {
+        Future(Ok(Json.toJson(Content.listPaginated(id, limit, up).map((tupy: (models.Content, models.User)) => tupy._1.ownershipToJson(tupy._2))))) //(models.Content, models.User)
+      }
   }
 
   /**
