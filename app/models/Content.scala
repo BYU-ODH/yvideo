@@ -484,27 +484,28 @@ object Content extends SQLSelectable[Content] {
       implicit connection =>
         try {
           if (up) {
-            SQL(s"""select * from userAccount join (( 
-                      select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
-                      from content join contentOwnership on content.id = contentOwnership.contentid) as listing
-                    ) on userAccount.id = listing.userId
-                    where contentId >= {lowerBound} order by contentId asc limit {upperBound}""")
+            SQL(s"""select * from userAccount join
+                      (select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
+                        from content join contentOwnership on content.id = contentOwnership.contentid
+                      ) as listing on userAccount.id = listing.userId where contentId >= {lowerBound} 
+                    order by contentId asc limit {upperBound}""")
               .on('lowerBound -> id, 'upperBound -> (limit))
               .as(contentOwnership *)
           } else {
-            SQL(s"""select * from (
-                      select * from userAccount join (( 
-                        select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
-                        from content join contentOwnership on content.id = contentOwnership.contentid) as listing
-                      ) on userAccount.id = listing.userId)
-                      where content.id >= {lowerBound} order by content.id desc limit {upperBound}) 
-                    as a order by content.id asc""")
+            SQL(s"""select * from
+                      (select * from userAccount join
+                        (select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
+                          from content join contentOwnership on content.id = contentOwnership.contentid
+                        ) as listing on userAccount.id = listing.userId where contentId >= {lowerBound} 
+                      order by contentId asc limit {upperBound}
+                    ) as a order by contentId desc""")
               .on('lowerBound -> id, 'upperBound -> (limit))
               .as(contentOwnership *)
           }
         } catch {
           case e: SQLException =>
             Logger.debug("Error getting paginated content. Content.scala")
+            println(e)
             Nil
         }
     }
@@ -519,3 +520,4 @@ object Content extends SQLSelectable[Content] {
             ) as listing
           ) on userAccount.id = listing.userId
         """).as(contentOwnership *)*/
+// select * from (select * from userAccount join (select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId from content join contentOwnership on content.id = contentOwnership.contentid) as listing on userAccount.id = listing.userId) as a order by contentId desc

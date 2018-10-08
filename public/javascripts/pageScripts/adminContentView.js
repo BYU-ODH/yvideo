@@ -1,6 +1,6 @@
 $(function(){
 	"use strict";
-	var contentList = getContentList(0, 50, true),
+	var contentList = getContentList(0, 50, false),
 	contentTemplate = '<table class="table table-bordered table-striped table-condensed adminTable">\
             <tr>\
                 <th></th>\
