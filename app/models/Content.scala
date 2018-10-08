@@ -484,7 +484,6 @@ object Content extends SQLSelectable[Content] {
       implicit connection =>
         try {
           if (up) {
-            println("hello thar")
             SQL(s"""select * from userAccount join (( 
                       select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
                       from content join contentOwnership on content.id = contentOwnership.contentid) as listing
