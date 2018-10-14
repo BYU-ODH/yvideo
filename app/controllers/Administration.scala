@@ -1,7 +1,7 @@
 package controllers
 
 import authentication.Authentication
-import play.api.mvc.{RequestHeader, Result, Request, Controller}
+import play.api.mvc._
 import models._
 import service.FileUploader
 import scala.concurrent._
@@ -14,7 +14,9 @@ import play.api.libs.json.{Json, JsValue}
 /**
  * Controller for Administration pages and actions
  */
-object Administration extends Controller {
+trait Administration {
+  // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
+  this: Controller =>
 
   /**
    * Admin dashboard view
@@ -422,3 +424,5 @@ object Administration extends Controller {
         }
   }
 }
+
+object Administration extends Controller with Administration
