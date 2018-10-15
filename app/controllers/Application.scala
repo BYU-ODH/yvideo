@@ -9,7 +9,8 @@ import service.EmailTools
 import models.Content
 import play.api.libs.json.{JsNull, Json}
 
-object Application extends Controller {
+trait Application {
+  this: Controller =>
 
   /**
    * The landing page. The login screen if the user isn't logged in. The home page if the user is.
@@ -156,3 +157,5 @@ object Application extends Controller {
         Future(Ok)
   }
 }
+
+object Application extends Controller with Application
