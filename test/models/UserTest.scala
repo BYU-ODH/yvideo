@@ -15,18 +15,22 @@ import org.specs2.specification.AfterEach
 
 object UserModelTest extends Specification with AfterEach {
 
-  def after = {
-    Logger.info("After")
-  }
-
-  def deleteUserAccount = {
+  def truncateTables = {
     running(FakeApplication()) {
       DB.withConnection {
         implicit connection =>
-          println("Deleting Contents of UserAccount")
-          SQL("delete from userAccount").execute()
+        List("accountLink", "addCourseRequest", "collection", "collectionCourseLink", "collectionMembership", "collectionPermissions",
+          "content", "contentListing", "contentSetting", "course", "contentOwnership", "feedback", "helpPage", "homePageContent", 
+          "login_tokens", "notification", "scoring", "setting", "sitePermissionRequest", "sitePermissions", "userAccount", "wordList")
+        foreach { table: String =>
+          SQL("truncate table {table}").on('table -> table).execute()
+        }
       }
     }
+  }
+
+  def after = {
+    truncateTables
   }
 
   "User Model Tests" >> {
