@@ -7,6 +7,9 @@ import play.api.test.Helpers._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import play.api.libs.json._
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 
 import models.{Content, User, Course, Collection}
 import controllers.Administration
@@ -66,13 +69,14 @@ object AdministrationControllerSpec extends Specification {
                   user.id mustNotEqual None
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.pagedUsers(1, 10, true)(request)
+                  val length = 10
+                  val result = controller.pagedUsers(1, length, true)(request)
                   contentType(result) mustEqual Some("application/json")
-                  // val jsonResult = contentAsJson(result)
-                  
-
+                  val jsonResult = contentAsJson(result)
+                  val jsVal: JsValue = Json.parse(jsonResult.toString)
+                  val idList = (jsVal \\ "id")
+                  idList.size mustEqual length
               }
-        //must be length 'limit'
         //must start with 'id'
       }
     }
