@@ -80,4 +80,65 @@ object ApplicationControllerSpec extends Specification {
     }
   }
 
+  "The About Endpoint" should {
+    "send defined users to the about page" in {
+      implicit ee: ExecutionEnv =>
+          running(FakeApplication()) {
+              val userOpt = User.findByUsername('password, "admin")
+              userOpt mustNotEqual None
+              val user = userOpt.get
+              user.id mustNotEqual None
+              val controller = new ApplicationTestController()
+              val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+              val result = controller.about(request)
+              status(result) shouldEqual 200
+          }
+    }
+  }
+
+  "The Terms Endpoint" should {
+    "send defined users to the terms page" in {
+      implicit ee: ExecutionEnv =>
+          running(FakeApplication()) {
+              val userOpt = User.findByUsername('password, "admin")
+              userOpt mustNotEqual None
+              val user = userOpt.get
+              user.id mustNotEqual None
+              val controller = new ApplicationTestController()
+              val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+              val result = controller.terms(request)
+              status(result) shouldEqual 200
+          }
+    }
+  }
+
+  "The Policy Endpoint" should {
+    "send defined users to the policy page" in {
+      implicit ee: ExecutionEnv =>
+          running(FakeApplication()) {
+              val userOpt = User.findByUsername('password, "admin")
+              userOpt mustNotEqual None
+              val user = userOpt.get
+              user.id mustNotEqual None
+              val controller = new ApplicationTestController()
+              val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+              val result = controller.policy(request)
+              status(result) shouldEqual 200
+          }
+    }
+  }  
+
+  "The Get Problem Info Endpoint" should {
+    "send bug report info based on user input" in {
+      1 mustEqual 1
+    }
+  }
+
+  "The Get Suggestion Info Endpoint" should {
+    "send suggestion info based on user input" in {
+      1 mustEqual 1
+    }
+  }
+
+  
 }

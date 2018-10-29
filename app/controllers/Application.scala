@@ -47,6 +47,7 @@ trait Application {
     implicit request =>
       implicit user =>
         Future(Ok(views.html.application.home()))
+
   }
 
   /**
