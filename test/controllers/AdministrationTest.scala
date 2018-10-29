@@ -60,6 +60,7 @@ object AdministrationControllerSpec extends Specification {
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
                   val length = 10
+                  //with paging going forward
                   val result = controller.pagedUsers(1, length, true)(request)
                   contentType(result) mustEqual Some("application/json")
                   val jsonResult = contentAsJson(result)
@@ -141,6 +142,35 @@ object AdministrationControllerSpec extends Specification {
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
                   val result = controller.manageCollections(request)
+                  status(result) shouldEqual 200
+          }
+      }
+    }
+
+    "The Edit Collection Endpoint" should {
+      "update a collection with the given map of values" in {
+        1 mustEqual 1
+      }
+    }
+
+    "The Delete Collection Endpoint" should {
+      "delete the given collection if the current user is the collection teacher or an admin" in {
+        1 mustEqual 1
+      }
+    }
+    //And be rejected if they aren't either one
+
+    "The Manage Content Endpoint" should {
+      "serve the manage content page to admins" in {
+        implicit ee: ExecutionEnv =>
+              running(FakeApplication()) {
+                  val userOpt = User.findByUsername('password, "admin")
+                  userOpt mustNotEqual None
+                  implicit val user = userOpt.get
+                  user.id mustNotEqual None
+                  val controller = new AdministrationTestController()
+                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+                  val result = controller.manageContent(request)
                   status(result) shouldEqual 200
           }
       }

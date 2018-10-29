@@ -269,12 +269,12 @@ object Content extends SQLSelectable[Content] {
     DB.withConnection { implicit connection =>
       try {
         SQL("""
-          select * from userAccount join (
+          select * from
             ( select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
               from content join contentOwnership on content.id = contentOwnership.contentid
             ) as listing
-          ) on userAccount.id = listing.userId
-        """).as(contentOwnership *)
+          join userAccount on userAccount.id = listing.userId
+            """).as(contentOwnership *)
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in Content.scala / ownershipList")
