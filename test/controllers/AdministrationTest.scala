@@ -7,9 +7,6 @@ import play.api.test.Helpers._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import play.api.libs.json._
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 
 import models.{Content, User, Course, Collection}
 import controllers.Administration
@@ -30,12 +27,8 @@ object AdministrationControllerSpec extends Specification {
                   user.id mustNotEqual None
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-
                   val result = controller.admin(request)
-
-                  result map ( res => {
-                      res.header.status shouldEqual 200
-                  }) await
+                  status(result) shouldEqual 200
           }
       }
     }
@@ -51,10 +44,7 @@ object AdministrationControllerSpec extends Specification {
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
                   val result = controller.manageUsers(request)
-
-                  result map ( res => {
-                      res.header.status shouldEqual 200
-                  }) await
+                  status(result) shouldEqual 200
           }
       }
     }
@@ -77,7 +67,8 @@ object AdministrationControllerSpec extends Specification {
                   val idList = (jsVal \\ "id")
                   idList.size mustEqual length
               }
-        //must start with 'id'
+        //entries should be user objects
+        //some way to check between up and down pagination
       }
     }
 
@@ -149,12 +140,8 @@ object AdministrationControllerSpec extends Specification {
                   user.id mustNotEqual None
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-
                   val result = controller.manageCollections(request)
-
-                  result map ( res => {
-                      res.header.status shouldEqual 200
-                  }) await
+                  status(result) shouldEqual 200
           }
       }
     }
