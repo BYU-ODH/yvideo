@@ -47,23 +47,6 @@ trait Application {
     implicit request =>
       implicit user =>
         Future(Ok(views.html.application.home()))
-
-  }
-
-  /**
-   * Searches and shows the results
-   */
-  def search = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Future {
-          request.queryString.get("query").flatMap(_.headOption).map { query =>
-            (Content.search(query), Collection.search(query))
-          }.getOrElse((Nil, Nil)) match {
-            case (content, collections) =>
-              Ok(views.html.application.search(content, collections))
-          }
-        }
   }
 
   /**

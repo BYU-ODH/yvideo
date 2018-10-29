@@ -5,7 +5,6 @@
 # Home/basic pages
 GET     /                               controllers.Application.index
 GET     /home                           controllers.Application.home
-GET     /search                         controllers.Application.search
 GET     /about                          controllers.Application.about
 GET     /terms                          controllers.Application.terms
 GET     /policy                         controllers.Application.policy

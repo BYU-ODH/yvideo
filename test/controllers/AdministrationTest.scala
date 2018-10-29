@@ -29,7 +29,7 @@ object AdministrationControllerSpec extends Specification {
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
                   val result = controller.admin(request)
                   status(result) shouldEqual 200
-          }
+              }
       }
     }
 
@@ -45,7 +45,7 @@ object AdministrationControllerSpec extends Specification {
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
                   val result = controller.manageUsers(request)
                   status(result) shouldEqual 200
-          }
+              }
       }
     }
 
@@ -143,7 +143,7 @@ object AdministrationControllerSpec extends Specification {
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
                   val result = controller.manageCollections(request)
                   status(result) shouldEqual 200
-          }
+              }
       }
     }
 
@@ -172,8 +172,80 @@ object AdministrationControllerSpec extends Specification {
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
                   val result = controller.manageContent(request)
                   status(result) shouldEqual 200
-          }
+              }
       }
     }
+
+    "The Batch Update Content Endpoint" should {
+      "update multiple content items with the given map of values" in {
+        1 mustEqual 1
+      }
+    }
+    //And throw an error if something goes wrong
+
+    "The Home Page Content Endpoint" should {
+      "serve the home page management page to admins" in {
+        implicit ee: ExecutionEnv =>
+              running(FakeApplication()) {
+                  val userOpt = User.findByUsername('password, "admin")
+                  userOpt mustNotEqual None
+                  implicit val user = userOpt.get
+                  user.id mustNotEqual None
+                  val controller = new AdministrationTestController()
+                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+                  val result = controller.homePageContent(request)
+                  status(result) shouldEqual 200
+              }
+      }
+    }
+
+    "The Create Home Page Content Endpoint" should {
+      "create a banner for displaying on the homepage with the given map of values" in {
+        1 mustEqual 1
+      }
+    }
+    //Have a case for the background being empty
+    //Throw an error if something goes wrong
+
+    "The Toggle Home Page Content Endpoint" should {
+      "toggle an existing homepage banner to be active/inactive" in {
+        1 mustEqual 1
+      }
+    }
+
+    "The Delete Home Page Content Endpoint" should {
+      "delete an existing homepage banner" in {
+        1 mustEqual 1
+      }
+    }
+
+    "The Site Settings Endpoint" should {
+      "serve the site settings page to admins" in {
+        implicit ee: ExecutionEnv =>
+              running(FakeApplication()) {
+                  val userOpt = User.findByUsername('password, "admin")
+                  userOpt mustNotEqual None
+                  implicit val user = userOpt.get
+                  user.id mustNotEqual None
+                  val controller = new AdministrationTestController()
+                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+                  val result = controller.siteSettings(request)
+                  status(result) shouldEqual 200
+              }
+      }
+    }
+
+    "The Save Site Settings Endpoint" should {
+      "apply changes to the site settings with the given map of values" in {
+        1 mustEqual 1
+      }
+    }
+
+    "The Proxy Endpoint" should {
+      "allow an admin to log in as the given user" in {
+        1 mustEqual 1
+      }
+    }
+    //And fail if the user is not found
   }
 }
