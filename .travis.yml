@@ -1,4 +1,8 @@
 dist: trusty
+branches:
+  only:
+  - master
+  - develop
 services:
 - docker
 - docker-engine
