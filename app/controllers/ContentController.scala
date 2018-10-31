@@ -135,7 +135,7 @@ object ContentController extends Controller {
                         InternalServerError(Json.obj("message" -> s"Could not add content to collection: $message"))
                       }
                   } else {
-                    ContentManagement.createContent(info, user, contentType)
+                    ContentManagement.createContent(info, user, contentType, collectionId)
                     .map { cid => Ok(Json.obj("contentId" -> cid)) }
                     .recover { case e: Exception =>
                       val message = e.getMessage()
@@ -182,7 +182,7 @@ object ContentController extends Controller {
                       InternalServerError(Json.obj("message" -> s"Could not add content to collection: $message"))
                     }
                 } else {
-                  ContentManagement.createContent(info, user, contentType)
+                  ContentManagement.createContent(info, user, contentType, collectionId)
                   .map { cid => Ok(Json.obj("contentId" -> cid)) }
                     .recover { case e: Exception =>
                       val message = e.getMessage()
@@ -256,7 +256,7 @@ object ContentController extends Controller {
                 //check if we came from the annotation editor
                 val createFromAnnotations: Boolean = request.queryString.getOrElse("annotations", Nil).contains("true")
 
-                ContentManagement.createContentObject(info, user, contentType)
+                ContentManagement.createContentObject(info, user, contentType, collectionId)
                 .map{ content =>
                   if (!createAndAdd.isEmpty) {
                     if (createFromAnnotations) {
@@ -336,7 +336,7 @@ object ContentController extends Controller {
                     redirect.flashing("error" -> s"Could not add content to collection: $message")
                   }
               } else {
-                ContentManagement.createContent(info, user, contentType)
+                ContentManagement.createContent(info, user, contentType, collectionId)
                 .map { _ =>
                     redirect.flashing("success" -> "Content created")
                   }
@@ -381,7 +381,7 @@ object ContentController extends Controller {
                 //TODO: properly handle collections
                 //TODO: update our code to match the resource library, rather than special-casing "text"
                 val contentType = if(resourceType == "document") "text" else resourceType
-                val content = Content(None, title, Symbol(contentType), "", resourceId).save
+                val content = Content(None, title, Symbol(contentType), collectionId, "", resourceId).save
                 user.addContent(content)
                 if (collectionId > 0) {
                   ContentManagement.addToCollection(collectionId, content)
@@ -430,7 +430,7 @@ object ContentController extends Controller {
                 val title = request.body("title")(0)
                 val labels = request.body.get("labels").map(_.toList).getOrElse(Nil)
                 val description = request.body("description")(0)
-                val content = Content(None, title, 'playlist, "", graphId.toString, labels = labels).save
+                val content = Content(None, title, 'playlist, collectionId, "", graphId.toString, labels = labels).save
                 content.setSetting("description", List(description))
                 user.addContent(content)
 
@@ -455,7 +455,7 @@ object ContentController extends Controller {
           val description = request.body("description")(0)
 
           GoogleFormScripts.createForm(title, user.email.get).map { formId =>
-            val content = Content(None, title, 'questions, "", formId, labels = labels).save
+            val content = Content(None, title, 'questions, collectionId, "", formId, labels = labels).save
             content.setSetting("description", List(description))
             user.addContent(content)
 

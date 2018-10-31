@@ -52,8 +52,7 @@ object ContentManagement {
    * @return The content object in a future
    */
   def createAndAddToCollection(info: ContentDescriptor, owner: User, contentType: Symbol, collectionId: Long): Future[Long] = {
-
-    createContentObject(info, owner, contentType).map { content =>
+    createContentObject(info, owner, contentType, collectionId).map { content =>
       addToCollection(collectionId, content)
 	  content.id.get
     }
@@ -67,9 +66,8 @@ object ContentManagement {
    * @param contentType The type of content
    * @return The content id in a future
    */
-  def createContent(info: ContentDescriptor, owner: User, contentType: Symbol): Future[Long] = {
-      createContentObject(info, owner, contentType).map { content => content.id.get
-    }
+  def createContent(info: ContentDescriptor, owner: User, contentType: Symbol, collectionId: Long): Future[Long] = {
+      createContentObject(info, owner, contentType, collectionId).map { content => content.id.get }
   }
 
   /**
@@ -79,28 +77,28 @@ object ContentManagement {
    * @param contentType The type of content
    * @return The content object in a future
    */
-  def createContentObject(info: ContentDescriptor, owner: User, contentType: Symbol): Future[Content] = {
+  def createContentObject(info: ContentDescriptor, owner: User, contentType: Symbol, collectionId: Long): Future[Content] = {
     contentType match {
       case 'audio =>
-        createAudio(info, owner)
+        createAudio(info, owner, collectionId)
       case 'image =>
         // Create a thumbnail
         ImageTools.generateThumbnail(info.url).flatMap { url =>
           val imageInfo = info.copy(thumbnail = Some(url))
-          createImage(imageInfo, owner)
+          createImage(imageInfo, owner, collectionId)
         }.recoverWith { case _ =>
-          createImage(info, owner)
+          createImage(info, owner, collectionId)
         }
       case 'video =>
         // Create a thumbnail
         VideoTools.generateThumbnail(info.url).flatMap { url =>
           val videoInfo = info.copy(thumbnail = Some(url))
-          createVideo(videoInfo, owner)
+          createVideo(videoInfo, owner, collectionId)
         }.recoverWith { case _ =>
-          createVideo(info, owner)
+          createVideo(info, owner, collectionId)
         }
       case 'text =>
-        createText(info, owner)
+        createText(info, owner, collectionId)
       case _ =>
         Future.failed(new Exception(s"Unrecognized Content Type: $contentType"))
     }
@@ -126,7 +124,7 @@ object ContentManagement {
    * @param owner The user who is to own the video
    * @return The content object in a future
    */
-  def createVideo(info: ContentDescriptor, owner: User): Future[Content] = {
+  def createVideo(info: ContentDescriptor, owner: User, collectionId: Long): Future[Content] = {
     // Create the resource
     createResource(info, "video", owner).map { json =>
       val resourceId = (json \ "id").as[String]
@@ -136,7 +134,7 @@ object ContentManagement {
         ResourceHelper.addThumbnail(resourceId, info.thumbnail.get)
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'video, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
+      val content = Content(None, info.title, 'video, collectionId, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
       owner.addContent(content)
       content
     }
@@ -148,13 +146,13 @@ object ContentManagement {
    * @param owner The user who is to own the audio
    * @return The content object in a future
    */
-  def createAudio(info: ContentDescriptor, owner: User): Future[Content] = {
+  def createAudio(info: ContentDescriptor, owner: User, collectionId: Long): Future[Content] = {
     // Create the resource
     createResource(info, "audio", owner).map { json =>
       val resourceId = (json \ "id").as[String]
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'audio, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
+      val content = Content(None, info.title, 'audio, collectionId, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
       owner.addContent(content)
       content
     }
@@ -166,13 +164,13 @@ object ContentManagement {
    * @param owner The user who is to own the audio
    * @return The content object in a future
    */
-  def createText(info: ContentDescriptor, owner: User): Future[Content] = {
+  def createText(info: ContentDescriptor, owner: User, collectionId: Long): Future[Content] = {
     // Create the resource
     createResource(info, "document", owner).map { json =>
       val resourceId = (json \ "id").as[String]
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'text, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
+      val content = Content(None, info.title, 'text, collectionId, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
       owner.addContent(content)
       content
     }
@@ -184,7 +182,7 @@ object ContentManagement {
    * @param owner The user who is to own the image
    * @return The content object in a future
    */
-  def createImage(info: ContentDescriptor, owner: User): Future[Content] = {
+  def createImage(info: ContentDescriptor, owner: User, collectionId: Long): Future[Content] = {
     // Create the resource
     createResource(info, "image", owner).map { json =>
       val resourceId = (json \ "id").as[String]
@@ -195,7 +193,7 @@ object ContentManagement {
       )
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'image, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
+      val content = Content(None, info.title, 'image, collectionId, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
       owner.addContent(content)
       content
     }

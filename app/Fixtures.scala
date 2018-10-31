@@ -25,14 +25,14 @@ object Fixtures {
     )
 
     val content = List(
-      ("Dreyfus by Yves Duteil", 'video, "", "515c9b7d35e544681f000000"),
-      ("Resource 2", 'video, "", "resource2"),
-      ("Resource 3", 'video, "", "resource3"),
-      ("Resource 4", 'video, "", "resource4"),
-      ("Resource 5", 'video, "", "resource5"),
-      ("Resource 6", 'video, "", "resource6"),
-      ("Resource 7", 'video, "", "resource7"),
-      ("Resource 8", 'video, "", "resource8")
+      ("Dreyfus by Yves Duteil", 'video, 0L, "", "515c9b7d35e544681f000000"),
+      ("Resource 2", 'video, 0L, "", "resource2"),
+      ("Resource 3", 'video, 0L, "", "resource3"),
+      ("Resource 4", 'video, 0L, "", "resource4"),
+      ("Resource 5", 'video, 0L, "", "resource5"),
+      ("Resource 6", 'video, 0L, "", "resource6"),
+      ("Resource 7", 'video, 0L, "", "resource7"),
+      ("Resource 8", 'video, 0L, "", "resource8")
     )
 
     val collections = List(

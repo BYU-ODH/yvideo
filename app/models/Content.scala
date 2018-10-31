@@ -18,7 +18,7 @@ import java.text.Normalizer
  * @param id The id of this link in the DB
  * @param resourceId The id of the resource
  */
-case class Content(id: Option[Long], name: String, contentType: Symbol, thumbnail: String, resourceId: String,
+case class Content(id: Option[Long], name: String, contentType: Symbol, collectionId: Long, thumbnail: String, resourceId: String,
                    dateAdded: String = TimeTools.now(),
                    visibility: Int = Content.visibility.tightlyRestricted,
                    authKey: String = HashTools.md5Hex(util.Random.nextString(16)), labels: List[String] = Nil, views: Long = 0)
@@ -30,14 +30,15 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, thumbnai
    */
   def save =
     if (id.isDefined) {
-      update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name, 'thumbnail -> thumbnail,
-        'resourceId -> resourceId, 'dateAdded -> dateAdded, 'visibility -> visibility,
-        'authKey -> authKey, 'labels -> normalize(labels.mkString(",")), 'views -> views)
+      update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name,
+        'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
+        'dateAdded -> dateAdded, 'visibility -> visibility, 'authKey -> authKey,
+        'labels -> normalize(labels.mkString(",")), 'views -> views)
       this
     } else {
-      val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name, 'thumbnail -> thumbnail,
-        'resourceId -> resourceId, 'dateAdded -> dateAdded, 'visibility -> visibility,
-        'authKey -> authKey, 'labels -> normalize(labels.mkString(",")), 'views -> views)
+      val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name,
+        'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'dateAdded -> dateAdded,
+        'visibility -> visibility, 'authKey -> authKey, 'labels -> normalize(labels.mkString(",")), 'views -> views)
       this.copy(id)
     }
 
@@ -150,6 +151,7 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, thumbnai
     "id" -> id.get,
     "name" -> name,
     "contentType" -> contentType.name,
+    "collectionId" -> collectionId,
     "thumbnail" -> thumbnail,
     "resourceId" -> resourceId,
     "dateAdded" -> dateAdded,
@@ -201,6 +203,7 @@ object Content extends SQLSelectable[Content] {
     get[Option[Long]](tableName + ".id") ~
       get[String](tableName + ".name") ~
       get[String](tableName + ".contentType") ~
+      get[Long](tableName + ".collectionId") ~
       get[String](tableName + ".thumbnail") ~
       get[String](tableName + ".resourceId") ~
       get[String](tableName + ".dateAdded") ~
@@ -208,8 +211,8 @@ object Content extends SQLSelectable[Content] {
       get[String](tableName + ".authKey") ~
       get[String](tableName + ".labels") ~
       get[Long](tableName + ".views") map {
-      case id ~ name ~ contentType ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ authKey ~ labels ~ views =>
-        Content(id, name, Symbol(contentType), thumbnail, resourceId, dateAdded, visibility,
+      case id ~ name ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ authKey ~ labels ~ views =>
+        Content(id, name, Symbol(contentType), collectionId, thumbnail, resourceId, dateAdded, visibility,
           authKey, labels.split(",").toList.filterNot(_.isEmpty), views)
     }
   }
@@ -222,6 +225,7 @@ object Content extends SQLSelectable[Content] {
     get[Option[Long]]("contentId") ~
     get[String]("cname") ~
     get[String]("contentType") ~
+    get[Long]("collectionId") ~
     get[String]("thumbnail") ~
     get[String]("resourceId") ~
     get[String]("dateAdded") ~
@@ -240,9 +244,9 @@ object Content extends SQLSelectable[Content] {
     get[Long]("accountLinkId") ~
     get[String]("created") ~
     get[String]("lastLogin") map {
-      case contentId ~ cname ~ contentType ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ authKey ~ labels ~ views ~
+      case contentId ~ cname ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ authKey ~ labels ~ views ~
         userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
-          Content(contentId, cname, Symbol(contentType), thumbnail, resourceId, dateAdded, visibility,
+          Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, dateAdded, visibility,
           authKey, labels.split(",").toList.filterNot(_.isEmpty), views) -> 
           User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
     }
@@ -307,8 +311,8 @@ object Content extends SQLSelectable[Content] {
    * @param data Fixture data
    * @return The content
    */
-  def fromFixture(data: (String, Symbol, String, String)): Content =
-    Content(None, data._1, data._2, data._3, data._4)
+  def fromFixture(data: (String, Symbol, Long, String, String)): Content =
+    Content(None, data._1, data._2, data._3, data._4, data._5)
 
   /**
    * Search the names of content
