@@ -16,6 +16,7 @@ object AdministrationControllerSpec extends Specification {
   class AdministrationTestController() extends Controller with Administration
 
   "Administration Controller Tests" >> {
+    // Authentication.enforcePermission("admin") will be tested in the Authentication Controller
 
     "The Admin Dashboard Endpoint" should {
       "serve the admin dashboard to admins" in {

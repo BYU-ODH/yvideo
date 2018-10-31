@@ -14,22 +14,35 @@ object UserControllerSpec extends Specification {
 
   class UsersTestController() extends Controller with Users
 
-  "The User Controller" should {
-
-    "return account settings" in { 
-        implicit ee: ExecutionEnv =>
+  "The Notifications Endpoint" should {
+    "serve the notification view to authenticated users" in {
+      implicit ee: ExecutionEnv =>
           running(FakeApplication()) {
+            val userOpt = User.findByUsername('password, "admin")
+            userOpt mustNotEqual None
+            implicit val user = userOpt.get
+            user.id mustNotEqual None
+            val controller = new UsersTestController()
+            val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+            val result = controller.notifications(request)
+            status(result) shouldEqual 200
+          }
+    }
+  }
 
-            val userOpt = User.findByUsername('password, "student1")
+  "The Accout Settings Endpoint" should {
+    "serve the account settings view to authenticated users" in { 
+      implicit ee: ExecutionEnv =>
+          running(FakeApplication()) {
+            val userOpt = User.findByUsername('password, "admin")
             userOpt mustNotEqual None
             implicit val user = userOpt.get
             user.id mustNotEqual None
             val controller = new UsersTestController()
             val request = FakeRequest().withSession("userId" -> user.id.get.toString)
             val result = controller.accountSettings(request)
-
-            result map ( res => res.header.status shouldEqual 200) await
-        }
+            status(result) shouldEqual 200
+          }
     }
 
   }
