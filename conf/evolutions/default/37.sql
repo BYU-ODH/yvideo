@@ -1,4 +1,4 @@
-# --- Removing collectionCoownerLink
+# --- adding collectionId to content table
 
 # --- !Ups
 

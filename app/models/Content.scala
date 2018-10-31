@@ -19,7 +19,8 @@ import java.text.Normalizer
  * @param resourceId The id of the resource
  */
 case class Content(id: Option[Long], name: String, contentType: Symbol, collectionId: Long, thumbnail: String, resourceId: String,
-                   dateAdded: String = TimeTools.now(),
+                   physicalCopyExists: Boolean, isCopyrighted: Boolean, enabled: Boolean, dateEnabled: Option[String],
+                   submitter: String, dateAdded: String = TimeTools.now(),
                    visibility: Int = Content.visibility.tightlyRestricted,
                    authKey: String = HashTools.md5Hex(util.Random.nextString(16)), labels: List[String] = Nil, views: Long = 0)
   extends SQLSavable with SQLDeletable {
@@ -31,13 +32,15 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
   def save =
     if (id.isDefined) {
       update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name,
-        'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
+        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateEnabled -> normalize(dateEnabled.getOrElse("")),
+         'submitter -> submitter, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
         'dateAdded -> dateAdded, 'visibility -> visibility, 'authKey -> authKey,
         'labels -> normalize(labels.mkString(",")), 'views -> views)
       this
     } else {
       val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name,
-        'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'dateAdded -> dateAdded,
+        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateEnabled -> normalize(dateEnabled.getOrElse("")),
+        'submitter -> submitter, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'dateAdded -> dateAdded,
         'visibility -> visibility, 'authKey -> authKey, 'labels -> normalize(labels.mkString(",")), 'views -> views)
       this.copy(id)
     }
@@ -153,6 +156,11 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "contentType" -> contentType.name,
     "collectionId" -> collectionId,
     "thumbnail" -> thumbnail,
+    "physicalCopyExists" -> physicalCopyExists,
+    "isCopyrighted" -> isCopyrighted,
+    "enabled" -> enabled,
+    "dateEnabled" -> dateEnabled.getOrElse("").asInstanceOf[String],
+    "submitter" -> submitter,
     "resourceId" -> resourceId,
     "dateAdded" -> dateAdded,
     "visibility" -> visibility,
@@ -206,13 +214,20 @@ object Content extends SQLSelectable[Content] {
       get[Long](tableName + ".collectionId") ~
       get[String](tableName + ".thumbnail") ~
       get[String](tableName + ".resourceId") ~
+      get[Boolean](tableName + ".physicalCopyExists") ~
+      get[Boolean](tableName + ".isCopyrighted") ~
+      get[Boolean](tableName + ".enabled") ~
+      get[Option[String]](tableName + ".dateEnabled") ~
+      get[String](tableName + ".submitter") ~
       get[String](tableName + ".dateAdded") ~
       get[Int](tableName + ".visibility") ~
       get[String](tableName + ".authKey") ~
       get[String](tableName + ".labels") ~
       get[Long](tableName + ".views") map {
-      case id ~ name ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ authKey ~ labels ~ views =>
-        Content(id, name, Symbol(contentType), collectionId, thumbnail, resourceId, dateAdded, visibility,
+      case id ~ name ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
+         enabled ~ dateEnabled ~ submitter ~ dateAdded ~ visibility ~ authKey ~ labels ~ views =>
+        Content(id, name, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists, isCopyrighted,
+          enabled, dateEnabled, submitter, dateAdded, visibility,
           authKey, labels.split(",").toList.filterNot(_.isEmpty), views)
     }
   }
@@ -228,6 +243,11 @@ object Content extends SQLSelectable[Content] {
     get[Long]("collectionId") ~
     get[String]("thumbnail") ~
     get[String]("resourceId") ~
+    get[Boolean]("physicalCopyExists") ~
+    get[Boolean]("isCopyrighted") ~
+    get[Boolean]("enabled") ~
+    get[Option[String]]("dateEnabled") ~
+    get[String]("submitter") ~
     get[String]("dateAdded") ~
     get[Int]("visibility") ~
     get[String]("authKey") ~
@@ -244,10 +264,12 @@ object Content extends SQLSelectable[Content] {
     get[Long]("accountLinkId") ~
     get[String]("created") ~
     get[String]("lastLogin") map {
-      case contentId ~ cname ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ dateAdded ~ visibility ~ authKey ~ labels ~ views ~
+      case contentId ~ cname ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
+        enabled ~ dateEnabled ~ submitter ~ dateAdded ~ visibility ~ authKey ~ labels ~ views ~
         userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
-          Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, dateAdded, visibility,
-          authKey, labels.split(",").toList.filterNot(_.isEmpty), views) -> 
+          Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists,
+            isCopyrighted, enabled, dateEnabled, submitter, dateAdded, visibility,
+            authKey, labels.split(",").toList.filterNot(_.isEmpty), views) -> 
           User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
     }
   }
