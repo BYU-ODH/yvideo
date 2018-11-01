@@ -5,7 +5,6 @@
   Local(
     Rel("stylesheets/", CSS("collection.css"), CSS("content.css")),
     Rel("javascripts/",
-      JS("formFixes/labelsInput.js"),
       JS("contentSelection/PopupBrowser.js")))
 ) {
 
@@ -44,7 +43,6 @@
                         format: "table",
                         sizing: true,
                         sorting: true,
-                        labels: [@Html(content.flatMap(_.labels).distinct.map(s => Literal(Constant(s)).toString).mkString(","))],
                         filters: ContentItemRenderer.standardFilters,
                         collectionId: collectionId
                     });

@@ -111,7 +111,6 @@ object ContentController extends Controller {
           val title = data("title")(0)
           val description = data("description")(0)
           val categories = data.get("categories").map(_.toList).getOrElse(Nil)
-          val labels = data.get("labels").map(_.toList).getOrElse(Nil)
           val keywords = data.get("keywords").map(_.toList).getOrElse(Nil).mkString(",")
           val languages = data.get("languages").map(_.toList).getOrElse(List("eng"))
 
@@ -124,7 +123,7 @@ object ContentController extends Controller {
                   // Create the content
                   val info = ContentDescriptor(title, description, keywords, url,
                                                file.ref.file.length(), file.contentType.get,
-                                               labels = labels, categories = categories,
+                                               categories = categories,
                                                languages = languages)
                   if (collectionId > 0) {
                     ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
@@ -169,7 +168,7 @@ object ContentController extends Controller {
                 0
               }.flatMap { bytes =>
                 val info = ContentDescriptor(title, description, keywords, url, bytes, mime,
-                                             labels = labels, categories = categories,
+                                             categories = categories,
                                              languages = languages)
 
                 // find alternate create content ↓ through annotations method
@@ -216,7 +215,6 @@ object ContentController extends Controller {
           val description = data("description")(0)
           val categories = data.get("categories").map(_.toList).getOrElse(Nil)
           val createAndAdd = data.getOrElse("createAndAdd", Nil)
-          val labels = data.get("labels").map(_.toList).getOrElse(Nil)
           val keywords = data.get("keywords").map(_.toList).getOrElse(Nil).mkString(",")
           val languages = data.get("languages").map(_.toList).getOrElse(List("eng"))
 
@@ -234,7 +232,7 @@ object ContentController extends Controller {
               0
             }.flatMap { bytes =>
               val info = ContentDescriptor(title, description, keywords, url, bytes, mime,
-                                           labels = labels, categories = categories,
+                                           categories = categories,
                                            languages = languages)
 
               if (collectionId > 0) {
@@ -307,7 +305,6 @@ object ContentController extends Controller {
           val description = data("description")(0)
           val categories = data.get("categories").map(_.toList).getOrElse(Nil)
           val createAndAdd = data.getOrElse("createAndAdd", Nil)
-          val labels = data.get("labels").map(_.toList).getOrElse(Nil)
           val keywords = data.get("keywords").map(_.toList).getOrElse(Nil).mkString(",")
           val languages = data.get("languages").map(_.toList).getOrElse(List("eng"))
           lazy val redirect = Redirect(routes.ContentController.createPage("file", collectionId))
@@ -318,7 +315,7 @@ object ContentController extends Controller {
               // Create the content
               val info = ContentDescriptor(title, description, keywords, url,
                                            file.ref.file.length(), file.contentType.get,
-                                           labels = labels, categories = categories,
+                                           categories = categories,
                                            languages = languages)
               if (collectionId > 0) {
                 val redirect = if (!createAndAdd.isEmpty) {
@@ -435,7 +432,6 @@ object ContentController extends Controller {
 
                 // Create playlist
                 val title = request.body("title")(0)
-                val labels = request.body.get("labels").map(_.toList).getOrElse(Nil)
                 val description = request.body("description")(0)
                 val content = Content(None, title, 'playlist, collectionId, "", graphId.toString,
                                       false, // physicalCopyExists
@@ -443,8 +439,7 @@ object ContentController extends Controller {
                                       true,  // enabled
                                       None,  // dateValidated
                                       "",    // requester
-                                      true,  // published
-                                      labels = labels
+                                      true  // published
                                       ).save
                 content.setSetting("description", List(description))
                 user.addContent(content)
@@ -466,7 +461,6 @@ object ContentController extends Controller {
         Authentication.enforcePermission("createContent") {
 
           val title = request.body("title")(0)
-          val labels = request.body.get("labels").map(_.toList).getOrElse(Nil)
           val description = request.body("description")(0)
 
           GoogleFormScripts.createForm(title, user.email.get).map { formId =>
@@ -476,8 +470,8 @@ object ContentController extends Controller {
                                       true,  // enabled
                                       None,  // dateValidated
                                       "",    // requester
-                                      true,  // published
-                                      labels = labels).save
+                                      true  // published
+                                      ).save
             content.setSetting("description", List(description))
             user.addContent(content)
 

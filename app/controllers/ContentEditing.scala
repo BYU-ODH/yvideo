@@ -34,12 +34,11 @@ object ContentEditing extends Controller {
             val title = request.body("title")(0)
             val description = request.body("description")(0)
             val categories = request.body.get("categories").map(_.toList).getOrElse(Nil)
-            val labels = request.body.get("labels").map(_.toList).getOrElse(Nil)
             val keywords = request.body.get("keywords").map(_.toList).getOrElse(Nil).mkString(",")
             val languages = request.body.get("languages").map(_.toList).getOrElse(List("eng"))
 
-            // Update the name and labels of the content
-            content.copy(name = title, labels = labels).save
+            // Update the name of the content
+            content.copy(name = title).save
 
             // Validate description
             val validated = if (description.length > 5000) {

@@ -84,7 +84,6 @@ var PopupBrowser = (function(){
         "mine": function(container){
             clearSelection();
             ajax("ajax/content/mine", function(data){
-                var labels = [].concat.apply([], data.map(function(d){return d.labels;}));
                 ContentItemRenderer.renderAll({
                     content: data,
                     courseId: 0,
@@ -92,7 +91,6 @@ var PopupBrowser = (function(){
                     format: "table",
                     sizing: true,
                     sorting: true,
-                    labels: labels,
                     filters: ContentItemRenderer.standardFilters,
                     click: click,
                     clickHeader: clickHeader

@@ -21,8 +21,7 @@
         JS("xapiwrapper.min.js"),
         JS("oauth.js")),
       Rel("formFixes/",
-        JS("fileFix.js"),
-        JS("labelsInput.js")),
+        JS("fileFix.js")),
       JS("ContentSettings.js")))
 ) {
     @views.html.content.header.includes()
@@ -191,7 +190,6 @@
             <div class="inline-block">
                 <div id="metadataContainer">
                     <div id="metadataLanguages"><i class="icon-globe"></i> </div>
-                    <div id="metadataLabels"><i class="icon-tags"></i> </div>
                 </div>
             </div>
             <!-- TODO: Metadata. Issue # 54 -->
@@ -241,11 +239,6 @@
                         resource.languages.iso639_3.map(function(langCode) {
                             return '<em class="pad-left-high">' + Ayamel.utils.getLangName(langCode) + '</em>';
                         }).join('');
-
-                    document.getElementById("metadataLabels").firstChild.innerHTML =
-                        content.labels
-                        .map(function(w){return "<span class='label label-info pad-left-med'>" + w + "</span>";})
-                        .join('');
 
                 @if(user.map(content.isEditableBy(_)).getOrElse(false)){
                     var downloads = resource.content.files

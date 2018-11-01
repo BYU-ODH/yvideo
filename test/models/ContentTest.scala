@@ -17,7 +17,7 @@ object ContentModelTest extends Specification {
     // Content(id: Option[Long], name: String, contentType: Symbol, thumbnail: String, resourceId: String,
     //                dateAdded: String = TimeTools.now(),
     //                visibility: Int = Content.visibility.tightlyRestricted,
-    //                authKey: String = HashTools.md5Hex(util.Random.nextString(16)), labels: List[String] = Nil, views: Long = 0)
+    //                authKey: String = HashTools.md5Hex(util.Random.nextString(16)), views: Long = 0)
 
       val testContent = Content(None, "Harry Potter: The Sorcerer's Stone", 'video, "", "")
 

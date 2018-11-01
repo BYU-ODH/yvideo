@@ -42,7 +42,6 @@
                     format: "auto",
                     sizing: true,
                     sorting: true,
-                    labels: [@Html(user.getContent.flatMap(_.labels).distinct.map(s => Literal(Constant(s)).toString).mkString(","))],
                     filters: ContentItemRenderer.standardFilters
                 });
             });

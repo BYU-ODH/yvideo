@@ -53,7 +53,6 @@
 				<th>Title</th>
 				<th>URL</th>
 				<th>Description</th>
-				<th>Labels</th>
 				<th>Languages</th>
 				<th>View</th>
 			</tr>
@@ -74,7 +73,6 @@
 				<td><input type="text" value="{{.title}}"       name="title"       class="form-control med"></td>
 				<td><input type="text" value="{{.url}}"         name="url"         class="form-control long"></td>
 				<td><input type="text" value="{{.description}}" name="description" class="form-control long"></td>
-				<td><input type="text" value="{{.labels}}"      name="labels"      class="form-control short"></td>
 				<td><input type="text" value="{{.languages}}"   name="languages"   class="form-control short"></td>
 				<td>{{#(.contentId)}}
 					<a href="/content/{{contentId}}" target="_blank" class="btn btn-small"><i class="icon-eye-open"></i></a>

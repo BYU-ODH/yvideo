@@ -14,7 +14,7 @@ import play.api.mvc._
 import play.api.mvc.Results._
 
 case class ContentDescriptor(title: String, description: String, keywords: String, url: String, bytes: Long,
-                             mime: String, thumbnail: Option[String] = None, labels: List[String] = Nil,
+                             mime: String, thumbnail: Option[String] = None,
                              categories: List[String] = Nil, languages: List[String] = Nil)
 
 /**
@@ -140,8 +140,8 @@ object ContentManagement {
                             true,  // enabled
                             None,  // dateValidated
                             "",    // requester
-                            true,  // published
-                            labels = info.labels).save
+                            true  // published
+                            ).save
       owner.addContent(content)
       content
     }
@@ -165,8 +165,8 @@ object ContentManagement {
                             true,  // enabled
                             None,  // dateValidated
                             "",    // requester
-                            true,  // published
-                            labels = info.labels).save
+                            true  // published
+                            ).save
       owner.addContent(content)
       content
     }
@@ -190,8 +190,8 @@ object ContentManagement {
                             true,  // enabled
                             None,  // dateValidated
                             "",    // requester
-                            true,  // published
-                            labels = info.labels).save
+                            true  // published
+                            ).save
       owner.addContent(content)
       content
     }
@@ -220,8 +220,8 @@ object ContentManagement {
                             true,  // enabled
                             None,  // dateValidated
                             "",    // requester
-                            true,  // published
-                            labels = info.labels).save
+                            true  // published
+                            ).save
       owner.addContent(content)
       content
     }

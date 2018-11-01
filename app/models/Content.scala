@@ -21,7 +21,7 @@ import java.text.Normalizer
 case class Content(id: Option[Long], name: String, contentType: Symbol, collectionId: Long, thumbnail: String, resourceId: String,
                    physicalCopyExists: Boolean, isCopyrighted: Boolean, enabled: Boolean, dateValidated: Option[String],
                    requester: String, published: Boolean, authKey: String = HashTools.md5Hex(util.Random.nextString(16)),
-                   labels: List[String] = Nil, views: Long = 0)
+                   views: Long = 0)
   extends SQLSavable with SQLDeletable {
 
   /**
@@ -33,14 +33,13 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
       update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name,
         'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateValidated -> normalize(dateValidated.getOrElse("")),
          'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
-        'published -> published, 'authKey -> authKey,
-        'labels -> normalize(labels.mkString(",")), 'views -> views)
+        'published -> published, 'authKey -> authKey, 'views -> views)
       this
     } else {
       val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name,
         'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateValidated -> normalize(dateValidated.getOrElse("")),
         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'published -> published,
-        'authKey -> authKey, 'labels -> normalize(labels.mkString(",")), 'views -> views)
+        'authKey -> authKey, 'views -> views)
       this.copy(id)
     }
 
@@ -140,8 +139,7 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "published" -> published,
     "settings" -> Content.getSettingMap(this).mapValues(_.mkString(",")),
     "authKey" -> authKey,
-    "views" -> views,
-    "labels" -> labels
+    "views" -> views
   )
 
   val cacheTarget = this
@@ -187,13 +185,11 @@ object Content extends SQLSelectable[Content] {
       get[String](tableName + ".requester") ~
       get[Boolean](tableName + ".published") ~
       get[String](tableName + ".authKey") ~
-      get[String](tableName + ".labels") ~
       get[Long](tableName + ".views") map {
       case id ~ name ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-         enabled ~ dateValidated ~ requester ~ published ~ authKey ~ labels ~ views =>
+         enabled ~ dateValidated ~ requester ~ published ~ authKey ~ views =>
         Content(id, name, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists, isCopyrighted,
-          enabled, dateValidated, requester, published,
-          authKey, labels.split(",").toList.filterNot(_.isEmpty), views)
+          enabled, dateValidated, requester, published, authKey, views)
     }
   }
 
@@ -215,7 +211,6 @@ object Content extends SQLSelectable[Content] {
     get[String]("requester") ~
     get[Boolean]("published") ~
     get[String]("authKey") ~
-    get[String]("labels") ~
     get[Long]("views") ~
     // user object
     get[Option[Long]]("userId") ~
@@ -229,11 +224,10 @@ object Content extends SQLSelectable[Content] {
     get[String]("created") ~
     get[String]("lastLogin") map {
       case contentId ~ cname ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-        enabled ~ dateValidated ~ requester ~ published ~ authKey ~ labels ~ views ~
+        enabled ~ dateValidated ~ requester ~ published ~ authKey ~ views ~
         userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
           Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists,
-            isCopyrighted, enabled, dateValidated, requester, published,
-            authKey, labels.split(",").toList.filterNot(_.isEmpty), views) -> 
+            isCopyrighted, enabled, dateValidated, requester, published, authKey, views) -> 
           User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
     }
   }

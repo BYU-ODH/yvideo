@@ -9,7 +9,6 @@ function initBatchTable(target){
 				title: "",
 				url: "",
 				description: "",
-				labels: "",
 				languages: ""
 			}]
 		}
@@ -21,7 +20,6 @@ function initBatchTable(target){
 			title: "",
 			url: "",
 			description: "",
-			labels: "",
 			languages: ""
 		});
 	});
@@ -53,7 +51,6 @@ function initBatchTable(target){
 		formData.append("title",        row.title       );
 		formData.append("url",          row.url         );
 		formData.append("description",  row.description );
-		formData.append("labels",        row.labels       );
 		formData.append("languages",     row.languages    );
 
 		return new Promise(function(resolve, reject){
@@ -94,7 +91,6 @@ function initBatchTable(target){
 			title: "",
 			url: "",
 			description: "",
-			labels: "",
 			languages: ""
 		}]);
 	}
@@ -144,7 +140,6 @@ function initBatchTable(target){
 						title: v[1],
 						url: v[2],
 						description: v[3],
-						labels: v[4],
 						languages: v[5]
 					});
 				});

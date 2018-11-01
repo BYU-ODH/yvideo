@@ -141,7 +141,7 @@ var ContentItemRenderer = (function(){
         return (content.length > tableThreshold)?"table":"block";
     }
 
-    /* args: format, content, holder, sorting, organization, labels, filters, courseId, click */
+    /* args: format, content, holder, sorting, organization, filters, courseId, click */
     function createSizer(args){
         var element = Ayamel.utils.parseHTML(
             '<div class="btn-group" data-toggle="buttons-radio">\
@@ -167,7 +167,6 @@ var ContentItemRenderer = (function(){
                 sizing: true,
                 sorting: args.sorting,
                 organization: args.organization,
-                labels: args.labels,
                 filters: args.filters,
                 courseId: args.courseId,
                 click: args.click,
@@ -178,12 +177,11 @@ var ContentItemRenderer = (function(){
         return element;
     }
 
-    /* args: format, content, holder, sorting, labels, filters, courseId, click */
+    /* args: format, content, holder, sorting, filters, courseId, click */
     function createOrganizer(args){
         var element = Ayamel.utils.parseHTML(
             '<div class="btn-group" data-toggle="buttons-radio">\
                 <button class="btn btn-gray" data-organization="contentType"><i class="icon-play-circle"></i> Content Type</button>\
-                <button class="btn btn-gray" data-organization="labels"><i class="icon-tags"></i> Labels</button>\
                 <button class="btn btn-gray" data-organization="title"><i class="icon-sort-by-alphabet"></i> Title</button>\
             </div>'
             // <button class="btn btn-gray" data-organization="language"><i class="icon-globe"></i> Language</button>\
@@ -205,7 +203,6 @@ var ContentItemRenderer = (function(){
                 sizing: true,
                 sorting: args.sorting,
                 organization: this.dataset["organization"],
-                labels: args.labels,
                 filters: args.filters,
                 courseId: args.courseId,
                 click: args.click,
@@ -228,7 +225,7 @@ var ContentItemRenderer = (function(){
             }
         },
 
-        /* args: holder, format, sizing, content, sorting, organization, labels, filters, courseId, click */
+        /* args: holder, format, sizing, content, sorting, organization, filters, courseId, click */
         renderAll: function(args){
             // Clear out the holder
             args.holder.innerHTML = "";
@@ -247,7 +244,6 @@ var ContentItemRenderer = (function(){
                     holder: args.holder,
                     sorting: args.sorting,
                     organization: args.organization,
-                    labels: args.labels,
                     filters: args.filters,
                     courseId: args.courseId,
                     click: args.click,
@@ -257,55 +253,7 @@ var ContentItemRenderer = (function(){
 
             // Set up organizing
             var filters = args.filters;
-            if(args.labels){
-                args.organization = args.organization || "labels";
-                args.holder.appendChild(createOrganizer({
-                    content: args.content,
-                    holder: args.holder,
-                    format: args.format,
-                    organization: args.organization,
-                    sorting: args.sorting,
-                    labels: args.labels,
-                    filters: args.filters,
-                    courseId: args.courseId,
-                    click: args.click,
-                    clickHeader: args.clickHeader
-                }));
-                if(args.organization === "labels"){
-                    filters = {};
-                    args.labels.forEach(function(label){
-                        filters['<h3><i class="icon-tag"></i> ' + label + '</h3>'] = function(content){ // where the freak does this come from
-                            return content.labels.indexOf(label) >= 0;
-                        };
-
-                    });
-                    filters['<h3>Unlabeled</h3>'] = function(content){
-                        return content.labels.length === 0;
-                    };
-                }else if(args.organization === "language"){
-                    filters = {};
-                    // for each content object, get the language from the resource library and add it to the filter
-                    args.content.forEach(function(content){
-                        ResourceLibrary.load(content.resourceId).then(function(resource){
-                            var lang = resource.languages.iso639_3.map(function(langCode){
-                                return '<em class="pad-left-high">' + Ayamel.utils.getLangName(langCode) + '</em>';
-                            }).join('');
-                            filters['<h3><i class="icon-globe"></i> ' + lang + '</h3>'] = true;
-                        });
-                    });
-
-                }else if(args.organization === "title"){
-                    filters = {};
-                    args.content.forEach(function(obj){
-                        filters['<h3> ' + obj.name[0] + '</h3>'] = function(content){
-                            // filters the content by the first letter.
-                            return (content.name[0] === obj.name[0]) ? true : false;
-                        };
-                    });
-                }
-            }else{
-                args.organization = "contentType";
-            }
+            args.organization = "contentType";
 
             // Set up sorting
             if(args.sorting){

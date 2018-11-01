@@ -256,19 +256,17 @@ object PlayGraph {
        * @param contentId The ID of the content
        * @param contentType The type of the content
        * @param transitions A list of transitions
-       * @param labels A list of labels
        * @param settings Custom settings for the node
-       * @return A future json. Example: {"success":true,"node":{"id":10,"contentId":8,"contentType":"data","script":"0","labels":[""]}}
+       * @return A future json. Example: {"success":true,"node":{"id":10,"contentId":8,"contentType":"data","script":"0"}}
        */
       def create(contentId: Long, contentType: String, transitions: List[(Long, String)] = Nil,
-                 labels: List[String] = Nil, settings: String = ""): Future[JsValue] = {
+                 settings: String = ""): Future[JsValue] = {
 
         val path = "api/v1/author/node"
         val postBody = Map(
           "contentId" -> contentId.toString,
           "contentType" -> contentType,
           "transitions" -> transitions.map(t => Json.obj("targetId" -> t._1, "rule" -> t._2)).mkString("[", ",", "]"),
-          "labels" -> labels.mkString(","),
           "settings" -> settings
         )
         val auth = sign(authorKey, path, "POST", postBody)
@@ -295,12 +293,11 @@ object PlayGraph {
        * @param contentId The ID of the content
        * @param contentType The type of the content
        * @param transitions A list of transitions
-       * @param labels A list of labels
        * @param settings Custom settings for the node
        * @return A future json
        */
       def update(id: Long, contentId: Option[Long] = None, contentType: Option[String] = None,
-                 transitions: Option[List[(Long, String)]] = None, labels: Option[List[String]] = None,
+                 transitions: Option[List[(Long, String)]] = None,
                  settings: Option[String]): Future[JsValue] = {
 
         val path = "api/v1/author/node/" + id
@@ -308,7 +305,6 @@ object PlayGraph {
           "contentId" -> contentId.map(_.toString),
           "contentType" -> contentType,
           "transitions" -> transitions.map(_.map(t => Json.obj("targetId" -> t._1, "rule" -> t._2)).mkString("[", ",", "]")),
-          "labels" -> labels.map(_.mkString(",")),
           "settings" -> settings
         ).filter(_._2.isDefined).mapValues(_.get)
         val auth = sign(authorKey, path, "POST", postBody)
