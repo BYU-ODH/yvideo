@@ -23,7 +23,7 @@ object Playlists extends Controller {
             // Check the content type
             if (content.contentType == 'playlist) {
               // Check that the user can view the content
-              if (content isVisibleBy user) {
+              if (true) {
                 Ok(views.html.playlists.about(content))
               } else {
                 Errors.forbidden
@@ -47,7 +47,7 @@ object Playlists extends Controller {
             // Check the content type
             if (content.contentType == 'playlist) {
               // Check that the user can view the content
-              if (content isVisibleBy user) {
+              if (true) {
                 Ok(views.html.playlists.view(content, ResourceController.baseUrl))
               } else {
                 Errors.forbidden

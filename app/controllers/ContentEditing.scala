@@ -103,10 +103,7 @@ object ContentEditing extends Controller {
           Future {
             // Make sure the user is able to edit
             if (content isEditableBy user) {
-              val visibility = data("visibility").lift(0)
-                .map(_.toInt).getOrElse(content.visibility)
-              val newcontent = content.copy(visibility = visibility).save
-              recordSettings(newcontent, data)
+              recordSettings(content, data)
               Ok
             } else
               Errors.forbidden
@@ -320,7 +317,7 @@ object ContentEditing extends Controller {
 
             if(contentList.forall(_.isEditableBy(user))) {
               for(content <- contentList) {
-                content.copy(visibility = visibility).save
+                //content.copy(visibility = visibility).save
               }
               redirect.flashing("info" -> "Content updated")
             } else {

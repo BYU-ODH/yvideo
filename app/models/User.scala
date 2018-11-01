@@ -326,7 +326,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
       if (contentFeed.isEmpty)
         contentFeed = Some(
           getEnrollment.flatMap(collection => collection.getContent.map(c => (c, collection.id.get)))
-            .sortWith((c1, c2) => TimeTools.dateToTimestamp(c1._1.dateAdded) > TimeTools.dateToTimestamp(c2._1.dateAdded))
         )
       contentFeed.get
     }

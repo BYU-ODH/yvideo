@@ -19,10 +19,9 @@ import java.text.Normalizer
  * @param resourceId The id of the resource
  */
 case class Content(id: Option[Long], name: String, contentType: Symbol, collectionId: Long, thumbnail: String, resourceId: String,
-                   physicalCopyExists: Boolean, isCopyrighted: Boolean, enabled: Boolean, dateEnabled: Option[String],
-                   submitter: String, dateAdded: String = TimeTools.now(),
-                   visibility: Int = Content.visibility.tightlyRestricted,
-                   authKey: String = HashTools.md5Hex(util.Random.nextString(16)), labels: List[String] = Nil, views: Long = 0)
+                   physicalCopyExists: Boolean, isCopyrighted: Boolean, enabled: Boolean, dateValidated: Option[String],
+                   requester: String, published: Boolean, authKey: String = HashTools.md5Hex(util.Random.nextString(16)),
+                   labels: List[String] = Nil, views: Long = 0)
   extends SQLSavable with SQLDeletable {
 
   /**
@@ -32,16 +31,16 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
   def save =
     if (id.isDefined) {
       update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name,
-        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateEnabled -> normalize(dateEnabled.getOrElse("")),
-         'submitter -> submitter, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
-        'dateAdded -> dateAdded, 'visibility -> visibility, 'authKey -> authKey,
+        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateValidated -> normalize(dateValidated.getOrElse("")),
+         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
+        'published -> published, 'authKey -> authKey,
         'labels -> normalize(labels.mkString(",")), 'views -> views)
       this
     } else {
       val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name,
-        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateEnabled -> normalize(dateEnabled.getOrElse("")),
-        'submitter -> submitter, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'dateAdded -> dateAdded,
-        'visibility -> visibility, 'authKey -> authKey, 'labels -> normalize(labels.mkString(",")), 'views -> views)
+        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateValidated -> normalize(dateValidated.getOrElse("")),
+        'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'published -> published,
+        'authKey -> authKey, 'labels -> normalize(labels.mkString(",")), 'views -> views)
       this.copy(id)
     }
 
@@ -102,30 +101,6 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
   //
 
   /**
-   * Visibility has four levels:
-   * 1. Private - Only the owner can see this.
-   * 2. Tightly Restricted - The owner and course members can see this.
-   * 3. Loosely Restricted - The owner, teachers, and course members can see this.
-   * 4. Public - Everybody can see this.
-   * @param user The user to be checked
-   * @return Visible or not
-   */
-  def isVisibleBy(user: User): Boolean = {
-    // Always true if the user is an admin or the owner
-    if (user.hasSitePermission("admin") || user.getContent.contains(this))
-      true
-    else
-      // Check the visibility attribute of the content object
-      visibility match {
-        //super inefficient; at some point, we should re-vamp the storage of content->course membership
-        case Content.visibility.tightlyRestricted => user.getEnrollment.flatMap(_.getContent).contains(this)
-        case Content.visibility.looselyRestricted => user.hasSitePermission("viewRestricted") || user.getEnrollment.flatMap(_.getContent).contains(this)
-        case Content.visibility.public => true
-        case _ => false
-      }
-  }
-
-  /**
    * Checks if the user is authorized to edit this content. Owners and admins can edit.
    * @param user The user to check
    * @return Can edit or not
@@ -159,11 +134,10 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "physicalCopyExists" -> physicalCopyExists,
     "isCopyrighted" -> isCopyrighted,
     "enabled" -> enabled,
-    "dateEnabled" -> dateEnabled.getOrElse("").asInstanceOf[String],
-    "submitter" -> submitter,
+    "dateValidated" -> dateValidated.getOrElse("").asInstanceOf[String],
+    "requester" -> requester,
     "resourceId" -> resourceId,
-    "dateAdded" -> dateAdded,
-    "visibility" -> visibility,
+    "published" -> published,
     "settings" -> Content.getSettingMap(this).mapValues(_.mkString(",")),
     "authKey" -> authKey,
     "views" -> views,
@@ -199,14 +173,6 @@ object Content extends SQLSelectable[Content] {
   val tableName = "content"
   val settingTable = "contentSetting"
 
-  /* Visibility levels */
-  object visibility {
-    val _private = 1
-    val tightlyRestricted = 2
-    val looselyRestricted = 3
-    val public = 4
-  }
-
   val simple = {
     get[Option[Long]](tableName + ".id") ~
       get[String](tableName + ".name") ~
@@ -217,17 +183,16 @@ object Content extends SQLSelectable[Content] {
       get[Boolean](tableName + ".physicalCopyExists") ~
       get[Boolean](tableName + ".isCopyrighted") ~
       get[Boolean](tableName + ".enabled") ~
-      get[Option[String]](tableName + ".dateEnabled") ~
-      get[String](tableName + ".submitter") ~
-      get[String](tableName + ".dateAdded") ~
-      get[Int](tableName + ".visibility") ~
+      get[Option[String]](tableName + ".dateValidated") ~
+      get[String](tableName + ".requester") ~
+      get[Boolean](tableName + ".published") ~
       get[String](tableName + ".authKey") ~
       get[String](tableName + ".labels") ~
       get[Long](tableName + ".views") map {
       case id ~ name ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-         enabled ~ dateEnabled ~ submitter ~ dateAdded ~ visibility ~ authKey ~ labels ~ views =>
+         enabled ~ dateValidated ~ requester ~ published ~ authKey ~ labels ~ views =>
         Content(id, name, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists, isCopyrighted,
-          enabled, dateEnabled, submitter, dateAdded, visibility,
+          enabled, dateValidated, requester, published,
           authKey, labels.split(",").toList.filterNot(_.isEmpty), views)
     }
   }
@@ -246,10 +211,9 @@ object Content extends SQLSelectable[Content] {
     get[Boolean]("physicalCopyExists") ~
     get[Boolean]("isCopyrighted") ~
     get[Boolean]("enabled") ~
-    get[Option[String]]("dateEnabled") ~
-    get[String]("submitter") ~
-    get[String]("dateAdded") ~
-    get[Int]("visibility") ~
+    get[Option[String]]("dateValidated") ~
+    get[String]("requester") ~
+    get[Boolean]("published") ~
     get[String]("authKey") ~
     get[String]("labels") ~
     get[Long]("views") ~
@@ -265,10 +229,10 @@ object Content extends SQLSelectable[Content] {
     get[String]("created") ~
     get[String]("lastLogin") map {
       case contentId ~ cname ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-        enabled ~ dateEnabled ~ submitter ~ dateAdded ~ visibility ~ authKey ~ labels ~ views ~
+        enabled ~ dateValidated ~ requester ~ published ~ authKey ~ labels ~ views ~
         userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
           Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists,
-            isCopyrighted, enabled, dateEnabled, submitter, dateAdded, visibility,
+            isCopyrighted, enabled, dateValidated, requester, published,
             authKey, labels.split(",").toList.filterNot(_.isEmpty), views) -> 
           User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
     }
@@ -311,49 +275,12 @@ object Content extends SQLSelectable[Content] {
   }
 
   /**
-   * Gets all the public content sorted by newest first
-   * @return The list of content
-   */
-  def listPublic(count: Long): List[Content] =
-    DB.withConnection {
-      implicit connection =>
-        try {
-          SQL(s"select * from $tableName where visibility = 4 order by id desc limit {count}")
-            .on('count -> count).as(simple *)
-        } catch {
-          case e: SQLException =>
-            Logger.debug("Failed in Content.scala / listPublic")
-            Logger.debug(e.getMessage())
-            List[Content]()
-        }
-    }
-
-  /**
    * Create a content from fixture data
    * @param data Fixture data
    * @return The content
    */
-  def fromFixture(data: (String, Symbol, Long, String, String)): Content =
-    Content(None, data._1, data._2, data._3, data._4, data._5)
-
-  /**
-   * Search the names of content
-   * @param query The string to look for
-   * @return The list of content that match
-   */
-  def search(query: String): List[Content] =
-    DB.withConnection { implicit connection =>
-      // TODO: Search the resource library metadata. Issue # 51
-      try {
-        SQL(s"select * from $tableName where name like {query} and visibility = 4")
-          .on('query -> ("%" + query + "%")).as(simple *)
-      } catch {
-        case e: SQLException =>
-          Logger.debug("Failed in Content.scala / search")
-          Logger.debug(e.getMessage())
-          List[Content]()
-      }
-    }
+  def fromFixture(data: (String, Symbol, Long, String, String, Boolean, Boolean, Boolean, Option[String], String, Boolean)): Content =
+    Content(None, data._1, data._2, data._3, data._4, data._5, data._6, data._7, data._8, data._9, data._10, data._11)
 
   def setSetting(content: Content, setting: String, arguments: Seq[String]) {
     if (arguments.size == 0) { return }

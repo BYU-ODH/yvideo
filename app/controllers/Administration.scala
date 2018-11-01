@@ -258,31 +258,6 @@ trait Administration {
   }
 
   /**
-   * Updates the settings of multiple content items
-   */
-  def batchUpdateContent = Authentication.authenticatedAction(parse.urlFormEncoded) {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("admin") {
-          val redirect = Redirect(routes.Administration.manageContent())
-          try {
-            val params = request.body.mapValues(_(0))
-            val visibility = params("visibility").toInt
-
-            for(id <- params("ids").split(",") if !id.isEmpty;
-                content <- Content.findById(id.toLong)) {
-              content.copy(visibility = visibility).save
-            }
-            Future(redirect.flashing("info" -> "Contents updated"))
-          } catch {
-            case e: Throwable =>
-              Logger.debug("Batch Update Error: " + e.getMessage())
-              Future(redirect.flashing("error" -> s"Error while updating: ${e.getMessage()}"))
-          }
-        }
-  }
-
-  /**
    * The home page content view
    */
   def homePageContent = Authentication.authenticatedAction() {

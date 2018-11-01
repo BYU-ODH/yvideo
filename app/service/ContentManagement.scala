@@ -134,7 +134,14 @@ object ContentManagement {
         ResourceHelper.addThumbnail(resourceId, info.thumbnail.get)
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'video, collectionId, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
+      val content = Content(None, info.title, 'video, collectionId, info.thumbnail.getOrElse(""), resourceId,
+                            false, // physicalCopyExists
+                            false, // isCopyrighted
+                            true,  // enabled
+                            None,  // dateValidated
+                            "",    // requester
+                            true,  // published
+                            labels = info.labels).save
       owner.addContent(content)
       content
     }
@@ -152,7 +159,14 @@ object ContentManagement {
       val resourceId = (json \ "id").as[String]
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'audio, collectionId, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
+      val content = Content(None, info.title, 'audio, collectionId, info.thumbnail.getOrElse(""), resourceId,
+                            false, // physicalCopyExists
+                            false, // isCopyrighted
+                            true,  // enabled
+                            None,  // dateValidated
+                            "",    // requester
+                            true,  // published
+                            labels = info.labels).save
       owner.addContent(content)
       content
     }
@@ -170,7 +184,14 @@ object ContentManagement {
       val resourceId = (json \ "id").as[String]
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'text, collectionId, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
+      val content = Content(None, info.title, 'text, collectionId, info.thumbnail.getOrElse(""), resourceId,
+                            false, // physicalCopyExists
+                            false, // isCopyrighted
+                            true,  // enabled
+                            None,  // dateValidated
+                            "",    // requester
+                            true,  // published
+                            labels = info.labels).save
       owner.addContent(content)
       content
     }
@@ -193,7 +214,14 @@ object ContentManagement {
       )
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'image, collectionId, info.thumbnail.getOrElse(""), resourceId, labels = info.labels).save
+      val content = Content(None, info.title, 'image, collectionId, info.thumbnail.getOrElse(""), resourceId,
+                            false, // physicalCopyExists
+                            false, // isCopyrighted
+                            true,  // enabled
+                            None,  // dateValidated
+                            "",    // requester
+                            true,  // published
+                            labels = info.labels).save
       owner.addContent(content)
       content
     }

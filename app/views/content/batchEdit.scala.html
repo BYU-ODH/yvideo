@@ -29,7 +29,6 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Visibility</th>
                 <th>Resource Id</th>
                 <th>Type</th>
                 <th>Actions</th>
@@ -39,20 +38,6 @@
                 <tr>
                     <td>@content.id.get</td>
                     <td>@content.name</td>
-                    <td>
-                        @if(content.visibility == models.Content.visibility._private) {
-                            Private
-                        }
-                        @if(content.visibility == models.Content.visibility.tightlyRestricted) {
-                            Tightly Restricted
-                        }
-                        @if(content.visibility == models.Content.visibility.looselyRestricted) {
-                            Loosely Restricted
-                        }
-                        @if(content.visibility == models.Content.visibility.public) {
-                            Public
-                        }
-                    </td>
                     <td>@content.resourceId</td>
                     <td>@content.contentType.name</td>
                     <td>

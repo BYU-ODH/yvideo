@@ -27,7 +27,7 @@ object CollectionContent extends Controller {
           Collections.getCollection(collectionId) { collection =>
             Future {
               // Check that the user can view the content
-              if (content isVisibleBy user) Ok(
+              if (content.published || collection.userIsTA(user) || collection.userIsTeacher(user)) Ok(
                 /*if (MobileDetection.isMobile()) {
                   views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user), Some(collection))
                 } else {*/

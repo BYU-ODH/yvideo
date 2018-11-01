@@ -183,9 +183,9 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * @return The list of content
    */
   def getContentFor(user: User): List[Content] =
-    if (user.hasSitePermission("admin")) this.getContent
+    if (user.hasSitePermission("admin") || userIsTeacher(user) || userIsTA(user)) this.getContent
     else this.getContent.filter { c =>
-      c.visibility != Content.visibility._private || user.getContent.contains(c)
+      c.published && c.enabled
     }
 
   def getLinkedCourses: List[Course] = cache.getForCollection[Course](cache.linkedCourses_=, cache.linkedCourses _, CollectionCourseLink.listCollectionCourses) match {

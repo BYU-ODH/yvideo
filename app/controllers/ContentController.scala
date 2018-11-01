@@ -52,7 +52,7 @@ object ContentController extends Controller {
           // A user can get the JSON if he can see the content
           Future {
             val authKey = request.queryString.get("authKey").getOrElse("")
-            if (content.isVisibleBy(user))
+            if (true)
               Ok(content.toJson)
             else
               Forbidden
@@ -381,7 +381,14 @@ object ContentController extends Controller {
                 //TODO: properly handle collections
                 //TODO: update our code to match the resource library, rather than special-casing "text"
                 val contentType = if(resourceType == "document") "text" else resourceType
-                val content = Content(None, title, Symbol(contentType), collectionId, "", resourceId).save
+                val content = Content(None, title, Symbol(contentType), collectionId, "", resourceId,
+                                      false, // physicalCopyExists
+                                      false, // isCopyrighted
+                                      true,  // enabled
+                                      None,  // dateValidated
+                                      "",    // requester
+                                      true   // published
+                                      ).save
                 user.addContent(content)
                 if (collectionId > 0) {
                   ContentManagement.addToCollection(collectionId, content)
@@ -430,7 +437,15 @@ object ContentController extends Controller {
                 val title = request.body("title")(0)
                 val labels = request.body.get("labels").map(_.toList).getOrElse(Nil)
                 val description = request.body("description")(0)
-                val content = Content(None, title, 'playlist, collectionId, "", graphId.toString, labels = labels).save
+                val content = Content(None, title, 'playlist, collectionId, "", graphId.toString,
+                                      false, // physicalCopyExists
+                                      false, // isCopyrighted
+                                      true,  // enabled
+                                      None,  // dateValidated
+                                      "",    // requester
+                                      true,  // published
+                                      labels = labels
+                                      ).save
                 content.setSetting("description", List(description))
                 user.addContent(content)
 
@@ -455,7 +470,14 @@ object ContentController extends Controller {
           val description = request.body("description")(0)
 
           GoogleFormScripts.createForm(title, user.email.get).map { formId =>
-            val content = Content(None, title, 'questions, collectionId, "", formId, labels = labels).save
+            val content = Content(None, title, 'questions, collectionId, "", formId,
+                                      false, // physicalCopyExists
+                                      false, // isCopyrighted
+                                      true,  // enabled
+                                      None,  // dateValidated
+                                      "",    // requester
+                                      true,  // published
+                                      labels = labels).save
             content.setSetting("description", List(description))
             user.addContent(content)
 
@@ -502,7 +524,7 @@ object ContentController extends Controller {
             } else if (content.contentType != 'data) {
               //TODO: make this a whitelist instead of blacklist
               // Check that the user can view the content
-              if (content isVisibleBy user) Ok(
+              if (true) Ok(
                 /*if (MobileDetection.isMobile()) {
                   views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user))
                 } else {*/

@@ -21,7 +21,6 @@
                 <th>Name</th>
                 <th>Owner</th>
                 <th>Language</th>
-                <th>Visibility</th>
                 <th>Resource Id</th>
                 <th>Type</th>
                 <th>Actions</th>
@@ -35,20 +34,6 @@
                         @user.username
                     </td>
                     <td class="lang"></td>
-                    <td>
-                        @if(content.visibility == models.Content.visibility._private) {
-                            Private
-                        }
-                        @if(content.visibility == models.Content.visibility.tightlyRestricted) {
-                            Tightly Restricted
-                        }
-                        @if(content.visibility == models.Content.visibility.looselyRestricted) {
-                            Loosely Restricted
-                        }
-                        @if(content.visibility == models.Content.visibility.public) {
-                            Public
-                        }
-                    </td>
                     <td>@content.resourceId</td>
                     <td>@content.contentType.name</td>
                     <td>
@@ -67,53 +52,6 @@
 
         <a href="#batchEditModal" role="button" class="btn btn-blue" data-toggle="modal"><i class="icon-edit"></i> Batch edit</a>
 
-    </div>
-
-    <div id="batchEditModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="batchEditModal" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 id="batchEditModal">Batch edit</h3>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <form class="form-horizontal" method="post" action="@routes.ContentEditing.batchUpdateContent()">
-                            <input type="hidden" name="ids" id="ids">
-                            <div class="container-fluid">
-                                <div class="form-group">
-                                    <label>Visibility</label>
-                                    <div class="controls">
-                                        <label class="radio">
-                                            <input type="radio" name="visibility" id="visibility1" value="1" checked>
-                                            Private
-                                        </label>
-                                        <label class="radio">
-                                            <input type="radio" name="visibility" id="visibility1" value="2">
-                                            Tightly Restricted
-                                        </label>
-                                        <label class="radio">
-                                            <input type="radio" name="visibility" id="visibility1" value="3">
-                                            Loosely Restricted
-                                        </label>
-                                        <label class="radio">
-                                            <input type="radio" name="visibility" id="visibility1" value="4">
-                                            Public
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="controls">
-                        <button type="submit" class="btn btn-blue">Save</button>
-                        <button class="btn btn-gray" data-dismiss="modal" aria-hidden="true">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script type="text/javascript">

@@ -25,14 +25,14 @@ object Fixtures {
     )
 
     val content = List(
-      ("Dreyfus by Yves Duteil", 'video, 0L, "", "515c9b7d35e544681f000000"),
-      ("Resource 2", 'video, 0L, "", "resource2"),
-      ("Resource 3", 'video, 0L, "", "resource3"),
-      ("Resource 4", 'video, 0L, "", "resource4"),
-      ("Resource 5", 'video, 0L, "", "resource5"),
-      ("Resource 6", 'video, 0L, "", "resource6"),
-      ("Resource 7", 'video, 0L, "", "resource7"),
-      ("Resource 8", 'video, 0L, "", "resource8")
+      ("Dreyfus by Yves Duteil", 'video, 1L, "", "515c9b7d35e544681f000000", false, false, true, Some("adatestring"), "me@pm.me", true),
+      ("Resource 2", 'video, 1L, "", "resource2", false, false, true, Some("adatestring"), "me@pm.me", true),
+      ("Resource 3", 'video, 1L, "", "resource3", false, false, true, Some("adatestring"), "me@pm.me", true),
+      ("Resource 4", 'video, 1L, "", "resource4", false, false, true, Some("adatestring"), "me@pm.me", true),
+      ("Resource 5", 'video, 1L, "", "resource5", false, false, true, Some("adatestring"), "me@pm.me", true),
+      ("Resource 6", 'video, 1L, "", "resource6", false, false, true, Some("adatestring"), "me@pm.me", true),
+      ("Resource 7", 'video, 1L, "", "resource7", false, false, true, Some("adatestring"), "me@pm.me", true),
+      ("Resource 8", 'video, 1L, "", "resource8", false, false, true, Some("adatestring"), "me@pm.me", true)
     )
 
     val collections = List(
