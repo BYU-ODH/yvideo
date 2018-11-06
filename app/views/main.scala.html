@@ -71,14 +71,6 @@
                         </div>
                     }
 
-                    @if(user.exists(_.hasSitePermission("createContent"))) {
-                        <div class="link">
-                            <a href="@routes.ContentController.mine()">
-                                <i class="icon-folder-open"></i> My Content
-                            </a>
-                        </div>
-                    }
-
                         <div class="link">
                             <a href="@routes.HelpPages.tableOfContents()">
                                 <i class="icon-question-sign"></i> Help

@@ -14,22 +14,6 @@ import models.Content
 object ContentLister extends Controller {
 
   /**
-   * Lists content the user owns.
-   */
-  def mine = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        val content = user.getContent.map(_.toJson)
-        val origin = request.headers.get("Origin").getOrElse("*")
-        Future {
-          Ok(JsArray(content)).withHeaders(
-            "Access-Control-Allow-Origin" -> origin,
-            "Access-Control-Allow-Credentials" -> "true"
-          )
-        }
-  }
-
-  /**
    * Lists the collections the user is in and the content under each collection.
    */
   def collection = Authentication.authenticatedAction() {

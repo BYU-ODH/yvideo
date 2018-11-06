@@ -6,7 +6,6 @@
 @if(user.isCollectionTA(collection)) {
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.20/angular.min.js"></script>
   <div id="editCollectionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editCollectionModalLabel" aria-hidden="true">
-  <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCollection.js")'></script>
   <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/collectionOptions.js")'></script>
       <div ng-app="editModule" class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -19,7 +18,7 @@
             <div class="container-fluid">
               <div ng-controller="editController" ng-init="collectionId = @{collection.id.get}" class="row">
                 <div class="col-sm-5" id="collectionOptionsLeft">
-                  
+
                   <div class="collectionGroup">
                     <label class="control-label" for="collectionName">Name</label>
                     <div class="controls">
@@ -36,11 +35,11 @@
                     </div>
                   </div>
                   }
-                  
+
                   <div class="collectionGroup">
                     <label class="control-label">Manage Content</label>
                     <div class="controls">
-                      <a id="browseContent" class="btn btn-black"><i class="icon-plus"></i> Add</a>
+                      <a id="browseContent" class="btn btn-black" href="/content/create/url/@collection.id.get"><i class="icon-plus"></i> Add</a>
                       <a ng-click="selected = 'removeContent'" role="button" class="btn btn-black"><i class="icon-minus"></i> Remove</a>
                     </div>
                   </div>
@@ -78,10 +77,10 @@
                         <strong><em>There is no content in this collection.</em></strong>
                     } else {
                     <form class="form-horizontal" id="removeContentForm" method="post" action="@routes.Collections.removeContent(collection.id.get)">
-                      <div class="container-fluid"> 
+                      <div class="container-fluid">
                         <div class="form-group">
                           <label class="control-label" for="removeContent">Content to remove:</label>
-                          <div class="controls">  
+                          <div class="controls">
                             <select id="removeContent" class="form-control" name="removeContent" multiple="multiple">
                               @for(contentObj <- availableContent) {
                                 <option value="@contentObj.id.get">@contentObj.name (@contentObj.contentType.name)</option>
@@ -222,7 +221,7 @@
               </div>
 
               </div>
-            </div>  
+            </div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-blue" data-dismiss="modal" aria-hidden="true">Close</button>
@@ -233,7 +232,7 @@
   <script type="text/javascript">
     document.getElementById("saveButton").addEventListener("click", function() {
       var newName = document.getElementById("collectionName").value
-      
+
       if (newName !== "@collection.name") {
         $.ajax("@routes.Collections.edit(collection.id.get)", {
           type: "post",

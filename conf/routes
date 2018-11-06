@@ -43,7 +43,6 @@ POST    /collection/:collectionId/addException              controllers.Collecti
 POST    /collection/:collectionId/removeException           controllers.Collections.removeException(collectionId: Long)
 
 # Content pages
-GET     /content/mine                      controllers.ContentController.mine
 GET     /content/manage                    controllers.ContentController.manageContent
 POST    /content/manage                    controllers.ContentEditing.batchUpdateContent
 GET     /content/create/:page              controllers.ContentController.createPage(page: String, collectionId: Long = 0)
@@ -137,7 +136,6 @@ POST    /help/:id/delete                    controllers.HelpPages.delete(id: Lon
 POST    /scola                              controllers.Scola.buildUrl
 POST    /byusecure                          controllers.BYUSecure.buildUrl
 POST    /ajax/permissionChecker             controllers.ajax.PermissionChecker.check
-GET     /ajax/content/mine                  controllers.ajax.ContentLister.mine
 GET     /ajax/content/collection            controllers.ajax.ContentLister.collection
 GET     /ajax/content/:id                   controllers.ajax.ContentLister.get(id: Long)
 GET     /ajax/questions/:id/grade/:index    controllers.QuestionSets.gradeAjax(id: Long, index: Int)

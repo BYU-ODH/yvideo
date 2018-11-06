@@ -495,7 +495,7 @@ object ContentController extends Controller {
               Redirect(routes.ContentController.view(copied.id.get))
                 .flashing("success" -> "Content Cloned")
             case None =>
-              Redirect(routes.ContentController.mine())
+              Redirect(routes.Application.home())
                 .flashing("error" -> "No Such Content")
             }
           }
@@ -556,7 +556,7 @@ object ContentController extends Controller {
               // Make sure the user is able to edit
               if (user.hasSitePermission("admin")) {
                 content.delete()
-                Redirect(routes.ContentController.mine()).flashing("success" -> "Content deleted.")
+                Redirect(routes.Application.home()).flashing("success" -> "Content deleted.")
               } else
                 Errors.forbidden
             }
@@ -564,12 +564,4 @@ object ContentController extends Controller {
         }
   }
 
-  /**
-   * "My Content" page
-   */
-  def mine = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Future(Ok(views.html.content.mine()))
-  }
 }

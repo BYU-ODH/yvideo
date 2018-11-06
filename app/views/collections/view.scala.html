@@ -8,9 +8,6 @@
       JS("contentSelection/PopupBrowser.js")))
 ) {
 
-@if(user.isCollectionTA(collection)){
-    <script type="text/javascript" src='@routes.Assets.at("javascripts/pageScripts/viewCollection.js")'></script>
-}
     <script type="text/javascript">
         var collectionId = @collection.id.get;
     </script>

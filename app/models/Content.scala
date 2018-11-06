@@ -100,12 +100,15 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
   //
 
   /**
-   * Checks if the user is authorized to edit this content. Owners and admins can edit.
+   * Checks if the user is authorized to edit this content.
+   * Teachers and TA's in the collection to which the content belongs can edit
    * @param user The user to check
    * @return Can edit or not
    */
-  def isEditableBy(user: User): Boolean =
-    user.hasSitePermission("admin") || user.getContent.contains(this)
+  def isEditableBy(user: User): Boolean = {
+    val collection: Option[Collection] = Collection.findById(collectionId)
+    collection.nonEmpty && (user.hasSitePermission("admin") || collection.get.userCanEditContent(user))
+  }
 
   def getSetting(setting: String) = Content.getSetting(this, setting)
 
@@ -227,7 +230,7 @@ object Content extends SQLSelectable[Content] {
         enabled ~ dateValidated ~ requester ~ published ~ authKey ~ views ~
         userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
           Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists,
-            isCopyrighted, enabled, dateValidated, requester, published, authKey, views) -> 
+            isCopyrighted, enabled, dateValidated, requester, published, authKey, views) ->
           User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
     }
   }
