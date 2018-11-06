@@ -18,12 +18,12 @@ object Playlists extends Controller {
   def about(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        ContentController.getContent(id) { content =>
+        ContentController.getContentCollection(id) { (content, collection) =>
           Future {
             // Check the content type
             if (content.contentType == 'playlist) {
               // Check that the user can view the content
-              if (true) {
+              if (collection.userCanViewContent(user)) {
                 Ok(views.html.playlists.about(content))
               } else {
                 Errors.forbidden
@@ -42,12 +42,12 @@ object Playlists extends Controller {
   def view(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        ContentController.getContent(id) { content =>
+        ContentController.getContentCollection(id) { (content, collection) =>
           Future {
             // Check the content type
             if (content.contentType == 'playlist) {
               // Check that the user can view the content
-              if (true) {
+              if (collection.userCanViewContent(user)) {
                 Ok(views.html.playlists.view(content, ResourceController.baseUrl))
               } else {
                 Errors.forbidden

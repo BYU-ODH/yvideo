@@ -201,6 +201,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
   def userIsTA(user: User) = getTAs.contains(user)
   def userIsTeacher(user: User) = getTeachers.contains(user)
   def userCanEditContent(user: User) = userIsTA(user) || userIsTeacher(user)
+  def userCanViewContent(user: User) = getMembers.contains(user)
 }
 
 object Collection extends SQLSelectable[Collection] {

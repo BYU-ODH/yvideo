@@ -2,7 +2,7 @@ package controllers
 
 import authentication.Authentication
 import service._
-import models.{User, Content}
+import models.{User, Content, Collection}
 import scala.concurrent.{Future, ExecutionContext}
 import ExecutionContext.Implicits.global
 import service.ContentDescriptor
@@ -40,6 +40,14 @@ object ContentController extends Controller {
       .getOrElse(Future(Errors.notFound))
   }
 
+  /*
+   * Action mix-in to get the content and collection from the request
+   */
+  def getContentCollection(id: Long)(f: (Content, Collection) => Future[Result])(implicit request: Request[_]) = {
+    Content.findById(id).map(con => Collection.findById(con.collectionId).map(col => f(con, col)).getOrElse(Future(Errors.notFound)))
+      .getOrElse(Future(Errors.notFound))
+  }
+
   /**
    * Returns a content object as JSON
    * @param id the ID of the content
@@ -47,12 +55,12 @@ object ContentController extends Controller {
   def getAsJson(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        getContent(id) { content =>
+        getContentCollection(id) { (content, collection) =>
 
           // A user can get the JSON if he can see the content
           Future {
             val authKey = request.queryString.get("authKey").getOrElse("")
-            if (true)
+            if (collection.userCanViewContent(user))
               Ok(content.toJson)
             else
               Forbidden
@@ -508,7 +516,7 @@ object ContentController extends Controller {
   def view(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        getContent(id) { content =>
+        getContentCollection(id) { (content, collection) =>
           Future {
             // Check for playlists
             if (content.contentType == 'playlist) {
@@ -518,7 +526,7 @@ object ContentController extends Controller {
             } else if (content.contentType != 'data) {
               //TODO: make this a whitelist instead of blacklist
               // Check that the user can view the content
-              if (true) Ok(
+              if (collection.userCanViewContent(user)) Ok(
                 /*if (MobileDetection.isMobile()) {
                   views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user))
                 } else {*/

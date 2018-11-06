@@ -18,12 +18,12 @@ object QuestionSets extends Controller {
   def about(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        ContentController.getContent(id) { content =>
+        ContentController.getContentCollection(id) { (content, collection) =>
           Future {
             // Check the content type
             if (content.contentType == 'questions) {
               // Check that the user can view the content
-              if (true) {
+              if (collection.userCanViewContent(user)) {
                 Ok(views.html.questionSets.about(content))
               } else {
                 Errors.forbidden
@@ -42,12 +42,12 @@ object QuestionSets extends Controller {
   def take(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        ContentController.getContent(id) { content =>
+        ContentController.getContentCollection(id) { (content, collection) =>
           Future {
             // Check the content type
             if (content.contentType == 'questions) {
             // Check that the user can view the content
-              if (true) {
+              if (collection.userCanViewContent(user)) {
                 Ok(views.html.questionSets.take(content))
               } else {
                 Errors.forbidden
@@ -90,11 +90,11 @@ object QuestionSets extends Controller {
   def grade(id: Long, index: Int) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        ContentController.getContent(id) { content =>
+        ContentController.getContentCollection(id) { (content, collection) =>
           // Check the content type
           if (content.contentType == 'questions) {
             // Check that the user can view the content
-            if (true) {
+            if (collection.userCanViewContent(user)) {
               GoogleFormScripts.grade(content.resourceId, index).map { scoring =>
                 // Save the scoring
                 scoring.copy(userId = user.id.get, contentId = content.id.get).save
@@ -119,11 +119,11 @@ object QuestionSets extends Controller {
   def gradeAjax(id: Long, index: Int) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        ContentController.getContent(id) { content =>
+        ContentController.getContentCollection(id) { (content, collection) =>
           // Check the content type
           if (content.contentType == 'questions) {
             // Check that the user can view the content
-            if (true) {
+            if (collection.userCanViewContent(user)) {
               GoogleFormScripts.grade(content.resourceId, index).map { scoring =>
                 // Save the scoring
                 val newScoring = scoring.copy(userId = user.id.get, contentId = content.id.get).save
