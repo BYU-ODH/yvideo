@@ -51,7 +51,7 @@ object AdministrationControllerSpec extends Specification {
     }
 
     "The Paged Users Endpoint" should {
-      "return a JSON of user objects with the given length and starting point" in {
+      "return a JSON of user objects with the length and starting point" in {
           implicit ee: ExecutionEnv =>
               running(FakeApplication()) {
                   val userOpt = User.findByUsername('password, "admin")
@@ -105,29 +105,29 @@ object AdministrationControllerSpec extends Specification {
     //consider updating this endpoint to fit more with Y-Video (teacher, student, TA, etc.)
     "The Set Permissions Endpoint" should {
       //all of these should also redirect with info message
-      "remove the given permissions" in {
+      "remove the permissions" in {
         1 mustEqual 1
       }
 
-      "match the given permissions" in {
+      "match the permissions" in {
         1 mustEqual 1
       }
 
-      "add the given permissions" in {
+      "add the permissions" in {
         1 mustEqual 1
       }
     }
 
     "The Send Notification Endpoint" should {
       //should also redirect based on the current page with info message
-      "send a notification to a giver user with a given message" in {
+      "send a notification to a giver user with a message" in {
         1 mustEqual 1
       }
     }
 
     "The Delete Endpoint" should {
       //should also redirect with info message
-      "delete a user based on the given id" in {
+      "delete a user based on the id" in {
         1 mustEqual 1
       }
     }
@@ -149,13 +149,13 @@ object AdministrationControllerSpec extends Specification {
     }
 
     "The Edit Collection Endpoint" should {
-      "update a collection with the given map of values" in {
+      "update a collection with the map of values" in {
         1 mustEqual 1
       }
     }
 
     "The Delete Collection Endpoint" should {
-      "delete the given collection if the current user is the collection teacher or an admin" in {
+      "delete the collection if the current user is the collection teacher or an admin" in {
         1 mustEqual 1
       }
     }
@@ -178,7 +178,7 @@ object AdministrationControllerSpec extends Specification {
     }
 
     "The Batch Update Content Endpoint" should {
-      "update multiple content items with the given map of values" in {
+      "update multiple content items with the map of values" in {
         1 mustEqual 1
       }
     }
@@ -201,7 +201,7 @@ object AdministrationControllerSpec extends Specification {
     }
 
     "The Create Home Page Content Endpoint" should {
-      "create a banner for displaying on the homepage with the given map of values" in {
+      "create a banner for displaying on the homepage with the map of values" in {
         1 mustEqual 1
       }
     }
@@ -237,13 +237,13 @@ object AdministrationControllerSpec extends Specification {
     }
 
     "The Save Site Settings Endpoint" should {
-      "apply changes to the site settings with the given map of values" in {
+      "apply changes to the site settings with the map of values" in {
         1 mustEqual 1
       }
     }
 
     "The Proxy Endpoint" should {
-      "allow an admin to log in as the given user" in {
+      "allow an admin to log in as the user" in {
         1 mustEqual 1
       }
     }

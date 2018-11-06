@@ -78,7 +78,7 @@ trait Collections {
       implicit user =>
         getCollection(id) { collection =>
           Future {
-            // Only non-guest members and admins can add content
+            // Only collection owners and TAs can add content
             if (user.isCollectionTA(collection)) {
               for ( // Add the content to the collection
                 id <- request.body.dataParts("addContent");
@@ -140,7 +140,7 @@ trait Collections {
   }
 
   /**
-   * The create a new collection view
+   * The 'create a new collection' view
    */
   def createPage = Authentication.authenticatedAction() {
     implicit request =>
@@ -262,7 +262,7 @@ trait Collections {
               case success: JsSuccess[String] => {
                 val userOpt = User.findByUsername('cas, success.get)
                 if (userOpt.isEmpty) {
-                  Results.BadRequest("User not found. Make sure the user has logged in via CAS")
+                  Results.BadRequest("User not found. Make sure the user has previously logged in via CAS")
                 } else {
                   if (!userOpt.get.isEnrolled(collOption.get))
                     userOpt.get.enroll(collOption.get, false, true)
