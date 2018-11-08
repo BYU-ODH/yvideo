@@ -14,7 +14,8 @@ import play.api.libs.json.{JsObject, Json}
 /**
  * Controller associated with CaptionAider.
  */
-object CaptionAider extends Controller {
+trait CaptionAider {
+  this: Controller =>
 
   /**
    * View CaptionAider. You specify the ID of the content and the ID of the collection under whose context we will operate.
@@ -135,3 +136,5 @@ object CaptionAider extends Controller {
         }
     }
 }
+
+object CaptionAider extends Controller with CaptionAider

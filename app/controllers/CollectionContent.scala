@@ -15,7 +15,8 @@ import play.api.libs.iteratee.Enumerator
 /**
  * A controller which deals with content in the context of a collection
  */
-object CollectionContent extends Controller {
+trait CollectionContent {
+  this: Controller =>
 
   /**
    * Content view in collection page
@@ -85,3 +86,5 @@ object CollectionContent extends Controller {
         }
   }
 }
+
+object CollectionContent extends Controller with CollectionContent

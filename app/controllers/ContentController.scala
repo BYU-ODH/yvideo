@@ -20,7 +20,8 @@ import java.util.Calendar
 /**
  * The controller for dealing with content.
  */
-object ContentController extends Controller {
+trait ContentController {
+  this: Controller =>
 
   /**
    * Store content id created in annotation editor in the browser.
@@ -572,3 +573,5 @@ object ContentController extends Controller {
   }
 
 }
+
+object ContentController extends Controller with ContentController
