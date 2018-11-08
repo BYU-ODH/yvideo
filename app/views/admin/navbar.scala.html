@@ -5,14 +5,7 @@
 <nav class="navbar navbar-default">
     <div class="navbar-inner">
         <ul class="nav navbar-nav">
-            <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-group"></i>
-                    Users <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    <li class="@active("userAccounts")"><a href="@routes.Administration.manageUsers()"><i class="icon-user"></i> User Accounts</a></li>
-                </ul>
-            </li>
-
+            <li class="@active("userAccounts")"><a href="@routes.Administration.manageUsers()"><i class="icon-group"></i> Users</a></li>
             <li class="@active("collections")"><a href="@routes.Administration.manageCollections()"><i class="icon-book"></i> Collections</a></li>
             <li class="@active("content")"><a href="@routes.Administration.manageContent()"><i class="icon-picture"></i> Content</a></li>
 

@@ -14,7 +14,9 @@ import ExecutionContext.Implicits.global
 /**
  * Controller for generating signed BYU URLs.
  */
-object BYUSecure extends Controller {
+// object BYUSecure extends Controller {
+trait BYUSecure {
+  this: Controller =>
 
   // These values are configurable and should be pulled from config.
   val lifespan = configuration.getLong("byusecure.lifetime").getOrElse[Long](28800)
@@ -67,3 +69,5 @@ object BYUSecure extends Controller {
         Future(Ok(response))
   }
 }
+
+object BYUSecure extends Controller with BYUSecure
