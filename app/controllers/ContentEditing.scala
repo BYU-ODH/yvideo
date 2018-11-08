@@ -18,7 +18,8 @@ import scala.Some
 /**
  * Controller that deals with the editing of content
  */
-object ContentEditing extends Controller {
+trait ContentEditing {
+  this: Controller =>
 
   /**
    * Sets the metadata for a particular content object
@@ -330,3 +331,5 @@ object ContentEditing extends Controller {
         }
   }
 }
+
+object ContentEditing extends Controller with ContentEditing

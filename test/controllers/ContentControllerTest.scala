@@ -52,17 +52,17 @@ object ContentControllerSpec extends Specification {
   			implicit ee: ExecutionEnv =>
   					running(FakeApplication()) {
 	  						val userOpt = User.findByUsername('password, "admin")
-	                  userOpt mustNotEqual None
-	                  implicit val user = userOpt.get
-	                  user.id mustNotEqual None
-	                  val controller = new ContentTestController()
-	                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-	                  val pageList = List("url", "batch", "resource", "playlist", "questions", "nothing")
-	                  for(x <- pageList) {
-	                  		val result = controller.createPage(x,7)(request)
-	                  		status(result) shouldEqual 200
-	                  }
-	                  1 mustEqual 1 //this assertion needs to be here to prevent syntax errors
+                userOpt mustNotEqual None
+                implicit val user = userOpt.get
+                user.id mustNotEqual None
+                val controller = new ContentTestController()
+                val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+                val pageList = List("url", "batch", "resource", "playlist", "questions", "nothing")
+                for(x <- pageList) {
+                		val result = controller.createPage(x,7)(request)
+                		status(result) shouldEqual 200
+                }
+                1 mustEqual 1 //this assertion needs to be here to prevent syntax errors
   					}
   		}
   	}

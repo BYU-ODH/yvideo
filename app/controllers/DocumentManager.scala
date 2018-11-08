@@ -13,7 +13,8 @@ import play.api.libs.json._
 /**
  * Controller that deals with documents (annotation sets and caption tracks)
  */
-object DocumentManager extends Controller {
+trait DocumentManager {
+  this: Controller =>
 
   /**
    * Annotation editor view
@@ -231,3 +232,5 @@ object DocumentManager extends Controller {
   }
 
 }
+
+object DocumentManager extends Controller with DocumentManager

@@ -10,7 +10,8 @@ import dataAccess.ResourceController
 /**
  * Controller dealing with help pages
  */
-object HelpPages extends Controller {
+trait HelpPages {
+  this: Controller =>
 
   /**
    * Table of contents view
@@ -93,3 +94,5 @@ object HelpPages extends Controller {
   }
 
 }
+
+object HelpPages extends Controller with HelpPages
