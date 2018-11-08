@@ -14,7 +14,7 @@ object UserControllerSpec extends Specification {
 
   class UsersTestController() extends Controller with Users
 
-  "The Notifications Endpoint" should {
+  "The Notifications Endpoint" should { //will potentially be removed
     "serve the notification view to authenticated users" in {
       implicit ee: ExecutionEnv =>
           running(FakeApplication()) {
@@ -30,7 +30,25 @@ object UserControllerSpec extends Specification {
     }
   }
 
-  "The Accout Settings Endpoint" should {
+  "The Mod Notification Endpoint" should { //will potentially be removed
+    "find the notifications for the user with the given notification ids" in {
+      1 mustEqual 1
+    }
+  }
+
+  "The Mark Notification Endpoint" should { //will potentially be removed
+    "mark a notification as read" in {
+      1 mustEqual 1
+    }
+  }
+
+  "The Delete Notification Endpoint" should { //will potentially be removed
+    "delete a notification for a user by id" in {
+      1 mustEqual 1
+    }
+  }
+
+  "The Accout Settings Endpoint" should { //will potentially be removed/altered
     "serve the account settings view to authenticated users" in { 
       implicit ee: ExecutionEnv =>
           running(FakeApplication()) {
@@ -45,5 +63,26 @@ object UserControllerSpec extends Specification {
           }
     }
 
+  }
+
+  "The Save Settings Endpoint" should { //will potentially be removed/altered
+    "change the user settings based on the map values" in {
+      1 mustEqual 1
+    }
+    //also redirect to the settings view
+  }
+
+  "The Change Password Endpoint" should { //will potentially be removed
+    "change the user's password after ensuring they match" in {
+      1 mustEqual 1
+    }
+    //another case for failing when passwords don't match
+    //also redirect to the settings view
+  }
+
+  "The Upload Profile Picture Endpoint" should {//will potentially be removed
+    "change the user's profile picture" in {
+      1 mustEqual 1
+    }
   }
 }

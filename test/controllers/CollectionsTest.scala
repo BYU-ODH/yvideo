@@ -93,7 +93,7 @@ object CollectionsControllerSpec extends Specification {
 		}
 
 		"The List Endpoint" should {
-			"serve the page that lists all the collections to anyone" in {
+			"serve the page that lists all the collections to anyone" in { //Shouldn't this only be admins?
 					implicit ee: ExecutionEnv =>
 							running(FakeApplication()) {
 									val userOpt = User.findByUsername('password, "admin")
