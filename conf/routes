@@ -3,25 +3,25 @@
 # ~~~~
 
 # Home/basic pages
-GET     /                               controllers.Application.index
-GET     /home                           controllers.Application.home
-GET     /about                          controllers.Application.about
-GET     /terms                          controllers.Application.terms
-GET     /policy                         controllers.Application.policy
-GET 	/login							controllers.Application.login
+GET     /                                                   controllers.Application.index
+GET     /home                                               controllers.Application.home
+GET     /about                                              controllers.Application.about
+GET     /terms                                              controllers.Application.terms
+GET     /policy                                             controllers.Application.policy
+GET     /login                                              controllers.Application.login
 
 # Authentication
-GET     /auth/cas                                      controllers.authentication.Cas.login(action: String = "login", path: String = "")
-GET     /auth/cas/redirect*path                        controllers.authentication.Cas.login(action: String = "login", path: String)
-GET     /auth/cas/merge                                controllers.authentication.Cas.login(action: String = "merge", path: String = "")
-GET     /auth/cas/callback/:action                     controllers.authentication.Cas.callback(action: String, path: String = "")
-GET     /auth/cas/callback/:action/redirect*path       controllers.authentication.Cas.callback(action: String, path: String)
-POST    /auth/password                                 controllers.authentication.Password.login(action: String = "login", path: String = "")
-POST    /auth/password/redirect*path                   controllers.authentication.Password.login(action: String = "login", path: String)
-POST    /auth/password/merge                           controllers.authentication.Password.login(action: String = "merge", path: String = "")
-POST    /auth/createAccount                            controllers.authentication.Password.createAccount(path: String = "")
-POST    /auth/createAccount/redirect*path              controllers.authentication.Password.createAccount(path: String)
-GET     /auth/logout                                   controllers.authentication.Authentication.logout
+GET     /auth/cas                                           controllers.authentication.Cas.login(action: String = "login", path: String = "")
+GET     /auth/cas/redirect*path                             controllers.authentication.Cas.login(action: String = "login", path: String)
+GET     /auth/cas/merge                                     controllers.authentication.Cas.login(action: String = "merge", path: String = "")
+GET     /auth/cas/callback/:action                          controllers.authentication.Cas.callback(action: String, path: String = "")
+GET     /auth/cas/callback/:action/redirect*path            controllers.authentication.Cas.callback(action: String, path: String)
+POST    /auth/password                                      controllers.authentication.Password.login(action: String = "login", path: String = "")
+POST    /auth/password/redirect*path                        controllers.authentication.Password.login(action: String = "login", path: String)
+POST    /auth/password/merge                                controllers.authentication.Password.login(action: String = "merge", path: String = "")
+POST    /auth/createAccount                                 controllers.authentication.Password.createAccount(path: String = "")
+POST    /auth/createAccount/redirect*path                   controllers.authentication.Password.createAccount(path: String)
+GET     /auth/logout                                        controllers.authentication.Authentication.logout
 
 # Collection pages
 GET     /collection                                         controllers.Collections.list
@@ -43,109 +43,112 @@ POST    /collection/:collectionId/addException              controllers.Collecti
 POST    /collection/:collectionId/removeException           controllers.Collections.removeException(collectionId: Long)
 
 # Content pages
-GET     /content/manage                    controllers.ContentController.manageContent
-POST    /content/manage                    controllers.ContentEditing.batchUpdateContent
-GET     /content/create/:page              controllers.ContentController.createPage(page: String, collectionId: Long = 0)
-GET     /content/create/:page/:collectionId    controllers.ContentController.createPage(page: String, collectionId: Long)
-POST    /content/create/url                controllers.ContentController.createFromUrl(collectionId: Long, annotations: Boolean)
-POST    /content/create/batch              controllers.ContentController.createFromBatch(collectionId: Long)
-POST    /content/create/file               controllers.ContentController.createFromFile(collectionId: Long)
-POST    /content/create/resource           controllers.ContentController.createFromResource(collectionId: Long)
-POST    /content/create/playlist           controllers.ContentController.createPlaylist(collectionId: Long)
-POST    /content/create/questions          controllers.ContentController.createQuestionSet(collectionId: Long)
-GET     /content/:id                       controllers.ContentController.view(id: Long)
-GET     /content/:id/json                  controllers.ContentController.getAsJson(id: Long)
-POST    /content/:id/delete                controllers.ContentController.delete(id: Long)
-POST    /content/:id/clone                 controllers.ContentController.cloneContent(id: Long)
-POST    /content/:id/addToCollection           controllers.CollectionContent.addToCollection(id: Long)
-POST    /content/:id/settings              controllers.ContentEditing.setSettings(id: Long)
-POST    /content/:id/metadata              controllers.ContentEditing.setMetadata(id: Long)
-POST    /content/:id/thumbnail             controllers.ContentEditing.changeThumbnail(id: Long)
-GET     /content/:id/edit                  controllers.ContentEditing.editImage(id: Long)
-POST    /content/:id/edit                  controllers.ContentEditing.saveImageEdits(id: Long)
-POST    /content/:id/makeThumb/:time       controllers.ContentEditing.createThumbnail(id: Long, time: Double)
-POST    /content/:id/source                controllers.ContentEditing.setMediaSource(id: Long)
+GET     /content/mine                                       controllers.ContentController.mine
+GET     /content/manage                                     controllers.ContentController.manageContent
+POST    /content/manage                                     controllers.ContentEditing.batchUpdateContent
+GET     /content/create/:page                               controllers.ContentController.createPage(page: String, collectionId: Long = 0)
+GET     /content/create/:page/:collectionId                 controllers.ContentController.createPage(page: String, collectionId: Long)
+POST    /content/create/url                                 controllers.ContentController.createFromUrl(collectionId: Long, annotations: Boolean)
+POST    /content/create/batch                               controllers.ContentController.createFromBatch(collectionId: Long)
+POST    /content/create/file                                controllers.ContentController.createFromFile(collectionId: Long)
+POST    /content/create/resource                            controllers.ContentController.createFromResource(collectionId: Long)
+POST    /content/create/playlist                            controllers.ContentController.createPlaylist(collectionId: Long)
+POST    /content/create/questions                           controllers.ContentController.createQuestionSet(collectionId: Long)
+GET     /content/:id                                        controllers.ContentController.view(id: Long)
+GET     /content/:id/json                                   controllers.ContentController.getAsJson(id: Long)
+POST    /content/:id/delete                                 controllers.ContentController.delete(id: Long)
+POST    /content/:id/clone                                  controllers.ContentController.cloneContent(id: Long)
+POST    /content/:id/addToCollection                        controllers.CollectionContent.addToCollection(id: Long)
+POST    /content/:id/settings                               controllers.ContentEditing.setSettings(id: Long)
+POST    /content/:id/metadata                               controllers.ContentEditing.setMetadata(id: Long)
+POST    /content/:id/thumbnail                              controllers.ContentEditing.changeThumbnail(id: Long)
+GET     /content/:id/edit                                   controllers.ContentEditing.editImage(id: Long)
+POST    /content/:id/edit                                   controllers.ContentEditing.saveImageEdits(id: Long)
+POST    /content/:id/makeThumb/:time                        controllers.ContentEditing.createThumbnail(id: Long, time: Double)
+POST    /content/:id/source                                 controllers.ContentEditing.setMediaSource(id: Long)
 
 # Playlist pages
-GET     /playlist/:id/play              controllers.Playlists.view(id: Long)
-GET     /playlist/:id                   controllers.Playlists.about(id: Long)
+GET     /playlist/:id/play                                  controllers.Playlists.view(id: Long)
+GET     /playlist/:id                                       controllers.Playlists.about(id: Long)
 
 # Question set pages
-GET     /questions/:id                  controllers.QuestionSets.about(id: Long)
-GET     /questions/:id/take             controllers.QuestionSets.take(id: Long)
-GET     /questions/:id/getIndex         controllers.QuestionSets.getIndex(id: Long)
-GET     /questions/:id/grade/:index     controllers.QuestionSets.grade(id: Long, index: Int)
+GET     /questions/:id                                      controllers.QuestionSets.about(id: Long)
+GET     /questions/:id/take                                 controllers.QuestionSets.take(id: Long)
+GET     /questions/:id/getIndex                             controllers.QuestionSets.getIndex(id: Long)
+GET     /questions/:id/grade/:index                         controllers.QuestionSets.grade(id: Long, index: Int)
 
 # User pages
-GET     /user/settings                  controllers.Users.accountSettings
-POST    /user/settings                  controllers.Users.saveSettings
-POST    /user/changePassword            controllers.Users.changePassword
-POST    /user/uploadPicture             controllers.Users.uploadProfilePicture
-GET     /user/notifications             controllers.Users.notifications
-POST    /user/notifications/mark/       controllers.Users.markNotification()
-POST    /user/notifications/delete/     controllers.Users.deleteNotification()
+GET     /user/settings                                      controllers.Users.accountSettings
+POST    /user/settings                                      controllers.Users.saveSettings
+POST    /user/changePassword                                controllers.Users.changePassword
+POST    /user/uploadPicture                                 controllers.Users.uploadProfilePicture
+GET     /user/notifications                                 controllers.Users.notifications
+POST    /user/notifications/mark/                           controllers.Users.markNotification()
+POST    /user/notifications/delete/                         controllers.Users.deleteNotification()
 
 # Admin pages
-GET     /admin                                  controllers.Administration.admin
-GET     /admin/users                            controllers.Administration.manageUsers
-GET     /admin/users/:id/:limit/:up             controllers.Administration.pagedUsers(id: Long, limit: Long, up: Boolean)
-GET 	/admin/users/count 						controllers.Administration.userCount
-GET 	/admin/users/:columnName/:searchValue	controllers.Administration.searchUsers(columnName: String, searchValue: String)
-POST    /admin/users/setPermission/:operation   controllers.Administration.setPermission(operation: String)
-POST    /admin/users/notify                     controllers.Administration.sendNotification(currentPage: Int)
-POST    /admin/users/:id/delete                 controllers.Administration.delete(id: Long)
-GET     /admin/collections                      controllers.Administration.manageCollections
-POST    /admin/collections/:id                  controllers.Administration.editCollection(id: Long)
-POST    /admin/collections/:id/delete           controllers.Administration.deleteCollection(id: Long)
-GET     /admin/content                          controllers.Administration.manageContent
-GET     /admin/homePageContent                  controllers.Administration.homePageContent
-POST    /admin/homePageContent                  controllers.Administration.createHomePageContent
-POST    /admin/homePageContent/:id/active       controllers.Administration.toggleHomePageContent(id: Long)
-POST    /admin/homePageContent/:id/delete       controllers.Administration.deleteHomePageContent(id: Long)
-GET     /admin/settings                         controllers.Administration.siteSettings
-POST    /admin/settings                         controllers.Administration.saveSiteSettings
-GET     /admin/proxy/:id                        controllers.Administration.proxy(id: Long)
+GET     /admin                                              controllers.Administration.admin
+GET     /admin/users                                        controllers.Administration.manageUsers
+GET     /admin/users/:id/:limit/:up                         controllers.Administration.pagedUsers(id: Long, limit: Long, up: Boolean)
+GET     /admin/users/count                                  controllers.Administration.userCount
+GET     /admin/users/:columnName/:searchValue               controllers.Administration.searchUsers(columnName: String, searchValue: String)
+POST    /admin/users/setPermission/:operation               controllers.Administration.setPermission(operation: String)
+POST    /admin/users/notify                                 controllers.Administration.sendNotification(currentPage: Int)
+POST    /admin/users/:id/delete                             controllers.Administration.delete(id: Long)
+GET     /admin/collections                                  controllers.Administration.manageCollections
+POST    /admin/collections/:id                              controllers.Administration.editCollection(id: Long)
+POST    /admin/collections/:id/delete                       controllers.Administration.deleteCollection(id: Long)
+GET     /admin/content                                      controllers.Administration.manageContent
+POST    /admin/content                                      controllers.Administration.batchUpdateContent
+GET     /admin/homePageContent                              controllers.Administration.homePageContent
+POST    /admin/homePageContent                              controllers.Administration.createHomePageContent
+POST    /admin/homePageContent/:id/active                   controllers.Administration.toggleHomePageContent(id: Long)
+POST    /admin/homePageContent/:id/delete                   controllers.Administration.deleteHomePageContent(id: Long)
+GET     /admin/settings                                     controllers.Administration.siteSettings
+POST    /admin/settings                                     controllers.Administration.saveSiteSettings
+GET     /admin/proxy/:id                                    controllers.Administration.proxy(id: Long)
 
 # CaptionAider pages
-GET     /captionaider/:id/:collectionId         controllers.CaptionAider.view(id: Long, collectionId: Long)
-POST    /captionaider/save                  controllers.CaptionAider.save
+GET     /captionaider/:id/:collectionId                     controllers.CaptionAider.view(id: Long, collectionId: Long)
+POST    /captionaider/save                                  controllers.CaptionAider.save
 
 # Annotation Editor pages
-GET     /annotations/:id/                   controllers.DocumentManager.editAnnotations(id: Long)
-POST    /annotations/save                   controllers.DocumentManager.saveAnnotations
-POST    /annotations/saveEditedAnnotations  controllers.DocumentManager.saveEditedAnnotations
-POST    /content/:contentId/delete/:docId   controllers.DocumentManager.deleteDocument(contentId: Long, docId: String)
+GET     /annotations/:id/                                   controllers.DocumentManager.editAnnotations(id: Long)
+POST    /annotations/save                                   controllers.DocumentManager.saveAnnotations
+POST    /annotations/saveEditedAnnotations                  controllers.DocumentManager.saveEditedAnnotations
+POST    /content/:contentId/delete/:docId                   controllers.DocumentManager.deleteDocument(contentId: Long, docId: String)
 
 # Word List pages
-GET     /words                              controllers.WordLists.view
-GET     /wordList                           controllers.WordLists.viewJSON
-POST    /words                              controllers.WordLists.add
-POST    /words/delete/:id                   controllers.WordLists.deleteWord(id: Long)
-POST    /words/export                       controllers.WordLists.export
-GET     /words/auth                         controllers.WordLists.authorize
-GET     /words/auth/callback                controllers.WordLists.authorizeCallback
+GET     /words                                              controllers.WordLists.view
+GET     /wordList                                           controllers.WordLists.viewJSON
+POST    /words                                              controllers.WordLists.add
+POST    /words/delete/:id                                   controllers.WordLists.deleteWord(id: Long)
+POST    /words/export                                       controllers.WordLists.export
+GET     /words/auth                                         controllers.WordLists.authorize
+GET     /words/auth/callback                                controllers.WordLists.authorizeCallback
 
 # Help pages
-GET     /help                               controllers.HelpPages.tableOfContents
-GET     /help/:id                           controllers.HelpPages.view(id: Long)
-GET     /help/:id/edit                      controllers.HelpPages.edit(id: Long)
-POST    /help/:id/edit                      controllers.HelpPages.save(id: Long)
-POST    /help/:id/delete                    controllers.HelpPages.delete(id: Long)
+GET     /help                                               controllers.HelpPages.tableOfContents
+GET     /help/:id                                           controllers.HelpPages.view(id: Long)
+GET     /help/:id/edit                                      controllers.HelpPages.edit(id: Long)
+POST    /help/:id/edit                                      controllers.HelpPages.save(id: Long)
+POST    /help/:id/delete                                    controllers.HelpPages.delete(id: Long)
 
 # Ajax utilities
-POST    /scola                              controllers.Scola.buildUrl
-POST    /byusecure                          controllers.BYUSecure.buildUrl
-POST    /ajax/permissionChecker             controllers.ajax.PermissionChecker.check
-GET     /ajax/content/collection            controllers.ajax.ContentLister.collection
-GET     /ajax/content/:id                   controllers.ajax.ContentLister.get(id: Long)
-GET     /ajax/questions/:id/grade/:index    controllers.QuestionSets.gradeAjax(id: Long, index: Int)
+POST    /scola                                              controllers.Scola.buildUrl
+POST    /byusecure                                          controllers.BYUSecure.buildUrl
+POST    /ajax/permissionChecker                             controllers.ajax.PermissionChecker.check
+GET     /ajax/content/mine                                  controllers.ajax.ContentLister.mine
+GET     /ajax/content/collection                            controllers.ajax.ContentLister.collection
+GET     /ajax/content/:id                                   controllers.ajax.ContentLister.get(id: Long)
+GET     /ajax/questions/:id/grade/:index                    controllers.QuestionSets.gradeAjax(id: Long, index: Int)
 
 # Feedback
-POST    /feedback                       controllers.Application.saveFeedback
-POST    /feedback/error                 controllers.Application.saveErrorFeedback
+POST    /feedback                                           controllers.Application.saveFeedback
+POST    /feedback/error                                     controllers.Application.saveErrorFeedback
 
 # API
-GET     /api/user/preview               controllers.Users.collectionsPreview
+GET     /api/user/preview                                   controllers.Users.collectionsPreview
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                   controllers.Assets.at(path="/public", file)
+GET     /assets/*file                                       controllers.Assets.at(path="/public", file)
