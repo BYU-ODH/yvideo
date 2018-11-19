@@ -33,14 +33,14 @@ object ContentControllerSpec extends Specification {
                 user.id mustNotEqual None
                 val controller = new ContentTestController()
                 val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                val result = controller.getAsJson(9)(request) //volatile - create a content and then use it
+                val result = controller.getAsJson(1)(request) //volatile - create a content and then use it
                 val jsonResult = contentAsJson(result)
                 contentType(result) mustEqual Some("application/json")
                 val jsVal: JsValue = Json.parse(jsonResult.toString)
                 val id = (jsVal \\ "id")
                 val name = (jsVal \\ "name")
-                id(0).toString mustEqual "9"
-                name(0).toString mustEqual "\"Yeah frog\"" //update this with the content created for this test
+                id(0).toString mustEqual "1"
+                name(0).toString mustEqual "\"Dreyfus by Yves Duteil\"" //update this with the content created for this test
             }
             //forbidden if content isn't visible by the user
             //check more than just the result being json

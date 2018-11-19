@@ -27,7 +27,7 @@ object CollectionContentControllerSpec extends Specification {
   								user.id mustNotEqual None
   								val controller = new CollectionContentTestController()
   								val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-  								val result = controller.viewInCollection(9,7)(request) ////volatile - we need to add a specific content and collection and user their ids instead
+  								val result = controller.viewInCollection(1,1)(request) ////volatile - we need to add a specific content and collection and user their ids instead
 									status(result) shouldEqual 200  								
   						}
   						//forbidden if content isn't visible by user
