@@ -4,7 +4,7 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.mvc._
 import play.api.Play.current
-import models.{User, SitePermissions}
+import models.{User, SitePermissions, Collection}
 import controllers.Errors
 import service.TimeTools
 
@@ -94,7 +94,7 @@ object Authentication extends Controller {
   def getAuthenticatedUser(username: String, authScheme: Symbol, name: Option[String] = None, email: Option[String] = None): User = {
     // Check if the user is already created
     val user = User.findByAuthInfo(username, authScheme)
-    
+
     // Add the email and username if they are empty
     val updatedUser = user.map { user =>
       if ((user.email.filterNot(_.length!=0).isEmpty && !email.isEmpty) ||
@@ -118,6 +118,13 @@ object Authentication extends Controller {
   // action or ensuring a certain access level.
   // ==========================
 
+  def enforceCollectionAdmin(collection: Option[Collection])(result: Future[Result])(implicit request: Request[_], user: User): Future[Result] = {
+    if (collection.map(_.userIsAdmin(user)).getOrElse(false) || user.hasSitePermission("admin"))
+      result
+    else {
+      Future { Errors.forbidden }
+    }
+  }
 
   def enforcePermission(permission: String)(result: Future[Result])(implicit request: Request[_], user: User): Future[Result] = {
     if (user.hasSitePermission(permission))
@@ -144,5 +151,5 @@ object Authentication extends Controller {
         }
       }
   }
-
 }
+

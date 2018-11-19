@@ -74,7 +74,7 @@ object ContentController extends Controller {
   def createPage(page: String = "file", collectionId: Long = 0) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("createContent") {
+        Authentication.enforceCollectionAdmin(Collection.findById(collectionId)) {
           Future {
             page match {
             case "url" => Ok(views.html.content.create.url(collectionId))
@@ -206,7 +206,6 @@ object ContentController extends Controller {
       }
   }
 
-
   /**
    * Creates content based on the posted data (URL)
    */
@@ -214,7 +213,7 @@ object ContentController extends Controller {
     implicit request =>
       implicit user =>
 
-        Authentication.enforcePermission("createContent") {
+        Authentication.enforceCollectionAdmin(Collection.findById(collectionId)) {
 
           // Collect the information
           val data = request.body.dataParts
