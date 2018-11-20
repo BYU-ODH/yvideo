@@ -7,6 +7,7 @@ import service.{FileUploader, ImageTools, HashTools}
 import scala.util.{Try, Success, Failure}
 import javax.imageio.ImageIO
 import scala.concurrent._
+import play.api.libs.json._
 import ExecutionContext.Implicits.global
 
 /**
@@ -16,6 +17,23 @@ trait Users {
 
   // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
   this: Controller =>
+
+  /**
+   * Get the collections that a user belongs to 
+   * @return Result[json array] of collections
+   */
+  def collectionsPreview = Authentication.authenticatedAction() {
+    implicit request =>
+      implicit user =>
+        Future(Ok(Json.toJson(user.getEnrollment.map(coll =>
+          Json.obj(
+            "contentCount" -> coll.getContent.length,
+            "name" -> coll.name,
+            "url" -> Json.toJson(coll.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
+            "id" -> coll.id.get
+          )
+        ))))
+  }
 
   /**
    * View notifications
