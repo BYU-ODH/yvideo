@@ -147,7 +147,7 @@ object Authentication extends Controller {
     implicit request =>
       getUserFromRequest().map( user => f(request)(user) ).getOrElse {
         Future {
-          BadRequest(JsObject(Seq("message" -> JsString("You must be logged in to request this resource."))))
+          Forbidden(JsObject(Seq("message" -> JsString("You must be logged in to request this resource."))))
         }
       }
   }
