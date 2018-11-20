@@ -21,7 +21,7 @@ import java.text.Normalizer
 case class Content(id: Option[Long], name: String, contentType: Symbol, collectionId: Long, thumbnail: String, resourceId: String,
                    physicalCopyExists: Boolean, isCopyrighted: Boolean, enabled: Boolean, dateValidated: Option[String],
                    requester: String, published: Boolean, authKey: String = HashTools.md5Hex(util.Random.nextString(16)),
-                   views: Long = 0)
+                   views: Long = 0, fullVideo: Boolean = true)
   extends SQLSavable with SQLDeletable {
 
   /**
@@ -31,17 +31,16 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
   def save =
     if (id.isDefined) {
       update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name,
-        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled,
-        'dateValidated -> dateValidated.map(str => normalize(str)),
+        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateValidated -> dateValidated.map(str => normalize(str)),
         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
-        'published -> published, 'authKey -> authKey, 'views -> views)
+        'published -> published, 'authKey -> authKey, 'views -> views, 'fullVideo -> fullVideo)
       this
     } else {
       val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name,
         'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled,
         'dateValidated -> dateValidated.map(str => normalize(str)),
         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'published -> published,
-        'authKey -> authKey, 'views -> views)
+        'authKey -> authKey, 'views -> views, 'fullVideo -> fullVideo)
       this.copy(id)
     }
 
@@ -144,7 +143,8 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "published" -> published,
     "settings" -> Content.getSettingMap(this).mapValues(_.mkString(",")),
     "authKey" -> authKey,
-    "views" -> views
+    "views" -> views,
+    "fullVideo" -> fullVideo
   )
 
   val cacheTarget = this
@@ -190,11 +190,12 @@ object Content extends SQLSelectable[Content] {
       get[String](tableName + ".requester") ~
       get[Boolean](tableName + ".published") ~
       get[String](tableName + ".authKey") ~
-      get[Long](tableName + ".views") map {
+      get[Long](tableName + ".views") ~
+      get[Boolean](tableName + ".fullVideo") map {
       case id ~ name ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-         enabled ~ dateValidated ~ requester ~ published ~ authKey ~ views =>
+         enabled ~ dateValidated ~ requester ~ published ~ authKey ~ views ~ fullVideo =>
         Content(id, name, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists, isCopyrighted,
-          enabled, dateValidated, requester, published, authKey, views)
+          enabled, dateValidated, requester, published, authKey, views, fullVideo)
     }
   }
 
@@ -217,6 +218,7 @@ object Content extends SQLSelectable[Content] {
     get[Boolean]("published") ~
     get[String]("authKey") ~
     get[Long]("views") ~
+    get[Boolean]("fullVideo") ~
     // user object
     get[Option[Long]]("userId") ~
     get[String]("authId") ~
@@ -229,10 +231,10 @@ object Content extends SQLSelectable[Content] {
     get[String]("created") ~
     get[String]("lastLogin") map {
       case contentId ~ cname ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-        enabled ~ dateValidated ~ requester ~ published ~ authKey ~ views ~
+        enabled ~ dateValidated ~ requester ~ published ~ authKey ~ views ~ fullVideo ~
         userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
           Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists,
-            isCopyrighted, enabled, dateValidated, requester, published, authKey, views) ->
+            isCopyrighted, enabled, dateValidated, requester, published, authKey, views, fullVideo) ->
           User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
     }
   }
