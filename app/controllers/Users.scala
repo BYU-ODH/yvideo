@@ -30,9 +30,24 @@ trait Users {
             "contentCount" -> coll.getContent.length,
             "name" -> coll.name,
             "url" -> Json.toJson(coll.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
-            "id" -> coll.id.get
-          )
-        ))))
+            "id" -> coll.id.get)))))
+  }
+
+  /**
+   * Get the user's 4 most recently viewed contents
+   * @return Result[json array] of content with id, name, thumbnail, and collection name
+   */
+  def recentContent = Authentication.authenticatedAction() {
+    implicit request =>
+      implicit user =>
+        Future(Ok(Json.toJson(UserView.findByUserId(user.id.get).map{recentContent =>
+          Content.findById(recentContent.contentId).map{content =>
+            Json.obj(
+            "contentId" -> recentContent.contentId,
+            "name" -> content.name,
+            "thumbnail" -> content.thumbnail,
+            "collection" -> Collection.findById(content.collectionId).get.name)  
+          }}.flatMap(x => x).getOrElse(JsObject(Seq("message" -> JsString("Action failed.")))))))
   }
 
   /**
