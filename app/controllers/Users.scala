@@ -40,14 +40,18 @@ trait Users {
   def recentContent = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Future(Ok(Json.toJson(UserView.findByUserId(user.id.get).map{recentContent =>
-          Content.findById(recentContent.contentId).map{content =>
+        Future(Ok(Json.toJson(ViewingHistory.getUserViews(user.id.get).map { recentContent =>
+          Content.findById(recentContent.contentId).map { content =>
             Json.obj(
-            "contentId" -> recentContent.contentId,
-            "name" -> content.name,
-            "thumbnail" -> content.thumbnail,
-            "collection" -> Collection.findById(content.collectionId).get.name)  
-          }}.flatMap(x => x).getOrElse(JsObject(Seq("message" -> JsString("Action failed.")))))))
+              "contentId" -> recentContent.contentId,
+              "name" -> content.name,
+              "thumbnail" -> content.thumbnail,
+              "collection" -> Collection.findById(content.collectionId).get.name)
+          }.getOrElse(JsNull)
+        }.filter(_ match {
+          case JsNull => false
+          case _ => false
+        }))))
   }
 
   /**
@@ -153,9 +157,9 @@ trait Users {
 
         // Load the image from the file and make it into a thumbnail
         request.body.file("file") match {
-		case None =>
+        case None =>
           Future(redirect.flashing("error" -> "Missing File"))
-		case Some(picture) =>
+        case Some(picture) =>
           Try(Option(ImageIO.read(picture.ref.file))) match {
           case Failure(_) =>
             Future(redirect.flashing("error" -> "Could not read image"))
@@ -165,17 +169,17 @@ trait Users {
               Future(redirect.flashing("error" -> "Error reading image."))
             case Some(image) =>
               ImageTools.makeThumbnail(image) match {
-			  case None =>
+              case None =>
                 Future(redirect.flashing("error" -> "Error processing image."))
-			  case Some(thmb) =>
-			    // Upload the file
+              case Some(thmb) =>
+                // Upload the file
                 FileUploader.uploadImage(thmb, picture.filename).map { url =>
                   // Save the user info about the profile picture
                   user.copy(picture = Some(url)).save
                   redirect.flashing("info" -> "Profile picture updated")
                 }.recover { case _ =>
                   redirect.flashing("error" -> "Failed to upload image")
-				}
+                }
               }
             }
           }

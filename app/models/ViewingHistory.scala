@@ -21,7 +21,7 @@ import service.{EmailTools, TimeTools}
  * @param email The user's email address
  * @param role The permissions of the user
  */
-case class UserView(id: Option[Long], userId: Long, contentId: Long) extends SQLSavable with SQLDeletable {
+case class ViewingHistory(id: Option[Long], userId: Long, contentId: Long) extends SQLSavable with SQLDeletable {
 
   /**
    * Saves the user to the DB
@@ -80,11 +80,11 @@ case class UserView(id: Option[Long], userId: Long, contentId: Long) extends SQL
   val cacheTarget = this
   object cache {
 
-    var userViews: Option[List[UserView]] = None
+    var userViews: Option[List[ViewingHistory]] = None
 
-    def getUserViews = {
+    def getViewingHistory = {
       if (userViews.isEmpty)
-        userViews = Some(UserView.list)
+        userViews = Some(ViewingHistory.list)
       userViews.get
     }
 
@@ -94,7 +94,7 @@ case class UserView(id: Option[Long], userId: Long, contentId: Long) extends SQL
    * Gets the enrollment--collections the user is in--of the user
    * @return The list of collections
    */
-  def getUserViews: List[UserView] = cache.getUserViews
+  def getViewingHistory: List[ViewingHistory] = cache.getViewingHistory
 
   //       _____      _   _
   //      / ____|    | | | |
@@ -108,7 +108,7 @@ case class UserView(id: Option[Long], userId: Long, contentId: Long) extends SQL
 
 }
 
-object UserView extends SQLSelectable[UserView] {
+object ViewingHistory extends SQLSelectable[ViewingHistory] {
   val tableName = "userView"
 
   val simple = {
@@ -116,7 +116,7 @@ object UserView extends SQLSelectable[UserView] {
       get[Long](tableName + ".userId") ~
       get[Long](tableName + ".contentId") map {
       case id ~ userId ~ contentId => {
-        UserView(id, userId, contentId)
+        ViewingHistory(id, userId, contentId)
       }
     }
   }
@@ -126,7 +126,7 @@ object UserView extends SQLSelectable[UserView] {
    * @param id The id of the user.
    * @return If a user was found, then Some[User], otherwise None
    */
-  def findById(id: Long): Option[UserView] = findById(id, simple)
+  def findById(id: Long): Option[ViewingHistory] = findById(id, simple)
 
   /**
    * Finds a user based on the username and the contentId.
@@ -134,17 +134,17 @@ object UserView extends SQLSelectable[UserView] {
    * @param username The username to look for
    * @return If a user was found, then Some[User], otherwise None
    */
-  def findByUserId(userId: Long): Option[UserView] = {
+  def getUserViews(userId: Long): List[ViewingHistory] = {
     DB.withConnection { implicit connection =>
       try {
         SQL(s"select * from $tableName where userId = {userId}")
           .on('userId -> userId)
-          .as(simple.singleOpt)
+          .as(simple*)
       } catch {
         case e: SQLException =>
-          Logger.debug("Failed in UserView.scala / findByUserId")
+          Logger.debug("Failed in ViewingHistory.scala / getUserViews")
           Logger.debug(e.getMessage())
-          None
+          List[ViewingHistory]()
       }
     }
   }
@@ -153,7 +153,7 @@ object UserView extends SQLSelectable[UserView] {
    * Gets all users in the DB
    * @return The list of users
    */
-  def list: List[UserView] = list(simple)
+  def list: List[ViewingHistory] = list(simple)
 
   /**
    * Gets the number of users in the DB
