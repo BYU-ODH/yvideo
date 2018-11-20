@@ -19,13 +19,13 @@ trait Users {
   this: Controller =>
 
   /**
-   * Get the collections that a user belongs to 
+   * Get the collections that a user belongs to
    * @return Result[json array] of collections
    */
-  def collectionsPreview = Authentication.secureAPIAction() {
+  def collectionsPreview(max: Int = 100) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Future(Ok(Json.toJson(user.getEnrollment.map(coll =>
+        Future(Ok(Json.toJson(user.getEnrollment.take(max).map(coll =>
           Json.obj(
             "contentCount" -> coll.getContent.length,
             "name" -> coll.name,

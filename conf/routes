@@ -145,7 +145,7 @@ POST    /feedback                                           controllers.Applicat
 POST    /feedback/error                                     controllers.Application.saveErrorFeedback
 
 # API
-GET     /api/user/preview                                   controllers.Users.collectionsPreview
+GET     /api/user/preview/:max                              controllers.Users.collectionsPreview(max: Int)
 GET 	/api/user/recent 									controllers.Users.recentContent
 	
 # Map static resources from the /public folder to the /assets URL path
