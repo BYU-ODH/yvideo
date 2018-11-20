@@ -593,6 +593,20 @@ trait ContentController {
         }
   }
 
+  /**
+   * Update content and re-enable
+   */
+  def renewContent(id: Long, renewer: String) = Authentication.authenticatedAction() {
+    implicit request =>
+      implicit user =>
+        Authentication.enforcePermission("admin") {
+          Future {
+            Content.renew(id, renewer)
+            Redirect(routes.Application.home()).flashing("success" -> s"Successfully renewed content $id")
+          }
+        }
+  }
+
 }
 
 object ContentController extends Controller with ContentController

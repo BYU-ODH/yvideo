@@ -20,8 +20,8 @@ import java.text.Normalizer
  */
 case class Content(id: Option[Long], name: String, contentType: Symbol, collectionId: Long, thumbnail: String, resourceId: String,
                    physicalCopyExists: Boolean, isCopyrighted: Boolean, enabled: Boolean, dateValidated: Option[String],
-                   requester: String, published: Boolean, authKey: String = HashTools.md5Hex(util.Random.nextString(16)),
-                   views: Long = 0, fullVideo: Boolean = true)
+                   requester: String, published: Boolean, fullVideo: Boolean = true, authKey: String = HashTools.md5Hex(util.Random.nextString(16)),
+                   views: Long = 0)
   extends SQLSavable with SQLDeletable {
 
   /**
@@ -33,14 +33,14 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
       update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name,
         'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateValidated -> dateValidated.map(str => normalize(str)),
         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
-        'published -> published, 'authKey -> authKey, 'views -> views, 'fullVideo -> fullVideo)
+        'published -> published, 'fullVideo -> fullVideo, 'authKey -> authKey, 'views -> views)
       this
     } else {
       val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name,
         'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled,
         'dateValidated -> dateValidated.map(str => normalize(str)),
         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'published -> published,
-        'authKey -> authKey, 'views -> views, 'fullVideo -> fullVideo)
+        'fullVideo -> fullVideo, 'authKey -> authKey, 'views -> views)
       this.copy(id)
     }
 
@@ -142,9 +142,9 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "resourceId" -> resourceId,
     "published" -> published,
     "settings" -> Content.getSettingMap(this).mapValues(_.mkString(",")),
+    "fullVideo" -> fullVideo,
     "authKey" -> authKey,
-    "views" -> views,
-    "fullVideo" -> fullVideo
+    "views" -> views
   )
 
   val cacheTarget = this
@@ -189,13 +189,13 @@ object Content extends SQLSelectable[Content] {
       get[Option[String]](tableName + ".dateValidated") ~
       get[String](tableName + ".requester") ~
       get[Boolean](tableName + ".published") ~
+      get[Boolean](tableName + ".fullVideo") ~
       get[String](tableName + ".authKey") ~
-      get[Long](tableName + ".views") ~
-      get[Boolean](tableName + ".fullVideo") map {
+      get[Long](tableName + ".views") map {
       case id ~ name ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-         enabled ~ dateValidated ~ requester ~ published ~ authKey ~ views ~ fullVideo =>
+         enabled ~ dateValidated ~ requester ~ published ~ fullVideo ~ authKey ~ views =>
         Content(id, name, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists, isCopyrighted,
-          enabled, dateValidated, requester, published, authKey, views, fullVideo)
+          enabled, dateValidated, requester, published, fullVideo, authKey, views)
     }
   }
 
@@ -216,9 +216,9 @@ object Content extends SQLSelectable[Content] {
     get[Option[String]]("dateValidated") ~
     get[String]("requester") ~
     get[Boolean]("published") ~
+    get[Boolean]("fullVideo") ~
     get[String]("authKey") ~
     get[Long]("views") ~
-    get[Boolean]("fullVideo") ~
     // user object
     get[Option[Long]]("userId") ~
     get[String]("authId") ~
@@ -231,10 +231,10 @@ object Content extends SQLSelectable[Content] {
     get[String]("created") ~
     get[String]("lastLogin") map {
       case contentId ~ cname ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-        enabled ~ dateValidated ~ requester ~ published ~ authKey ~ views ~ fullVideo ~
+        enabled ~ dateValidated ~ requester ~ published ~ fullVideo ~ authKey ~ views ~
         userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
           Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists,
-            isCopyrighted, enabled, dateValidated, requester, published, authKey, views, fullVideo) ->
+            isCopyrighted, enabled, dateValidated, requester, published, fullVideo, authKey, views) ->
           User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
     }
   }
@@ -416,6 +416,10 @@ object Content extends SQLSelectable[Content] {
     }
 
 
+    /**
+     * Sets the given content as expired
+     * @param id The content id
+     */
     def expire(id: Long) =
       DB.withConnection { implicit connection =>
         try {
@@ -427,4 +431,21 @@ object Content extends SQLSelectable[Content] {
             Logger.debug(e.getMessage())     
         }
       }
+
+    /**
+     * Sets the given content as enabled, updates the dateValidated, and sets the requester
+     * @param id The content id
+     * @param requester The person requesting the renewal
+     */
+     def renew(id: Long, requester: String) =
+       DB.withConnection { implicit connection =>
+         val date = TimeTools.now()
+         try {
+           SQL(s"""
+                update $tableName set enabled = 1, dateValidated = {date}, requester = {requester} 
+                where id = {id}
+                """).on('date -> date, 'requester -> requester, 'id -> id).executeUpdate()
+         }
+
+       }
 }
