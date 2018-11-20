@@ -4,6 +4,7 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.mvc._
 import play.api.Play.current
+import play.api.libs.json._
 import models.{User, SitePermissions, Collection}
 import controllers.Errors
 import service.TimeTools
@@ -135,6 +136,20 @@ object Authentication extends Controller {
 
   def getUserFromRequest()(implicit request: RequestHeader): Option[User] = {
     request.session.get("userId").flatMap( userId => User.findById(userId.toLong) )
+  }
+
+  /**
+   * A generic action to be used for secured API endpoints
+   * @param f The action logic. A curried function which, given a request and the authenticated user, returns a result.
+   * @return The result. A BadRequest with a json object with a message field or the Result returned from the given action
+   */
+  def secureAPIRequest[A](parser: BodyParser[A] = BodyParsers.parse.anyContent)(f: Request[A] => User => Future[Result]) = Action.async(parser) {
+    implicit request =>
+      getUserFromRequest().map( user => f(request)(user) ).getOrElse {
+        Future {
+          BadRequest(JsObject(Seq("message" -> JsString("You must be logged in to request this resource."))))
+        }
+      }
   }
 
   /**
