@@ -51,14 +51,6 @@ object Fixtures {
       ("CS")
     )
 
-    val collectionListings = List(
-      (0, 0),
-      (1, 0),
-      (2, 1),
-      (3, 2),
-      (4, 3)
-    )
-
     val collectionMembership = List(
       (0, 0, false, false),
       (1, 0, false, false),
@@ -76,17 +68,6 @@ object Fixtures {
       (3, 9, true, false),
       (4, 10, true, false),
       (0, 11, true, false)
-    )
-
-    val contentListing = List(
-      (0, 0),
-      (1, 1),
-      (2, 2),
-      (3, 3),
-      (4, 4),
-      (0, 5),
-      (1, 6),
-      (2, 7)
     )
 
     val contentOwnership = List(
@@ -188,17 +169,6 @@ object Fixtures {
     data.collectionMembership.foreach {
       data => CollectionMembership(None, users(data._2).id.get, collections(data._1).id.get, data._3, data._4).save
     }
-
-    Logger.info("Creating content listing fixtures")
-    data.contentListing.foreach {
-      data => ContentListing(None, collections(data._1).id.get, content(data._2).id.get).save
-    }
-
-    Logger.info("Creating content ownership fixtures")
-    data.contentOwnership.foreach {
-      data => ContentOwnership(None, users(data._1).id.get, content(data._2).id.get).save
-    }
-
   }
 
   def createHomePageContent() {

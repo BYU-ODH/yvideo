@@ -28,7 +28,7 @@ trait Collections {
    */
   def getCollection(id: Long)(f: Collection => Future[Result])(implicit request: Request[_]): Future[Result] = {
     Collection.findById(id).map(collection => f(collection))
-	  .getOrElse(Future(Errors.notFound))
+      .getOrElse(Future(Errors.notFound))
   }
 
   /**
@@ -66,7 +66,7 @@ trait Collections {
             } else
               Errors.forbidden
           }
-		}
+        }
   }
 
   /**

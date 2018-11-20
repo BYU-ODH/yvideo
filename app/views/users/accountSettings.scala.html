@@ -83,59 +83,6 @@
                             </div>
                         </form>
                     }
-
-                    <h2>Merge accounts</h2>
-                    <p>
-                        There are many ways to log on to Y-Video, all provided for your convenience. You can combine these accounts
-                        so no matter which account you use to log in the same content will be available.
-                    </p>
-                    <div>
-                        Account merge status:
-
-                        @if(user.getAccountLink.isDefined) {
-                            <span class="label label-default label-magenta">Merged with @{user.getAccountLink.get.userIds.size - 1} other(s)</span>
-
-                            <table class="table table-bordered pad-top-med">
-                                <thead>
-                                    <tr>
-                                        <th>Login method</th>
-                                        <th>Username</th>
-                                        <th>Primary account? <i class="icon-question-sign color-blue" id="primaryHelp"></i></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @for(user <- user.getAccountLink.get.getUsers) {
-                                        <tr>
-                                        <td>@user.authScheme.name</td>
-                                        <td>@user.username</td>
-                                        <td>
-                                            @if(user.id.get == user.getAccountLink.get.primaryAccount) {
-                                                <span class="label label-default label-yellow">Primary</span>
-                                            } else {
-                                                <span class="label label-default label-blue">Secondary</span>
-                                            }
-                                        </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        } else {
-                            <span class="label label-default label-magenta">Not merged</span>
-                        }
-                    </div>
-                    <div class="pad-top-med">
-                        <p>
-                            To merge your account with another, please authenticate with one of the following methods:
-                        </p>
-                        <div class="row">
-                            <div class="col-md-6 offset3">
-                                <div class="well">
-                                    <a class="btn btn-primary btn-block" href="@controllers.authentication.routes.Cas.login("merge", "")"><img src="@routes.Assets.at("images/auth/byu.png")" style="height: 14px; margin-top: -2px;" /> BYU</a>
-                                    <a href="#passwordModal" role="button" class="btn btn-magenta btn-block" data-toggle="modal"><i class="icon-key"></i> Username/Password</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

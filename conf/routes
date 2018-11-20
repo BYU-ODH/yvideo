@@ -43,8 +43,6 @@ POST    /collection/:collectionId/addException              controllers.Collecti
 POST    /collection/:collectionId/removeException           controllers.Collections.removeException(collectionId: Long)
 
 # Content pages
-GET     /content/manage                                     controllers.ContentController.manageContent
-POST    /content/manage                                     controllers.ContentEditing.batchUpdateContent
 GET     /content/create/:page                               controllers.ContentController.createPage(page: String, collectionId: Long = 0)
 GET     /content/create/:page/:collectionId                 controllers.ContentController.createPage(page: String, collectionId: Long)
 POST    /content/create/url                                 controllers.ContentController.createFromUrl(collectionId: Long, annotations: Boolean)
@@ -52,7 +50,6 @@ POST    /content/create/batch                               controllers.ContentC
 POST    /content/create/file                                controllers.ContentController.createFromFile(collectionId: Long)
 POST    /content/create/resource                            controllers.ContentController.createFromResource(collectionId: Long)
 POST    /content/create/playlist                            controllers.ContentController.createPlaylist(collectionId: Long)
-POST    /content/create/questions                           controllers.ContentController.createQuestionSet(collectionId: Long)
 GET     /content/:id                                        controllers.ContentController.view(id: Long)
 GET     /content/:id/json                                   controllers.ContentController.getAsJson(id: Long)
 POST    /content/:id/delete                                 controllers.ContentController.delete(id: Long)
@@ -69,12 +66,6 @@ POST    /content/:id/source                                 controllers.ContentE
 # Playlist pages
 GET     /playlist/:id/play                                  controllers.Playlists.view(id: Long)
 GET     /playlist/:id                                       controllers.Playlists.about(id: Long)
-
-# Question set pages
-GET     /questions/:id                                      controllers.QuestionSets.about(id: Long)
-GET     /questions/:id/take                                 controllers.QuestionSets.take(id: Long)
-GET     /questions/:id/getIndex                             controllers.QuestionSets.getIndex(id: Long)
-GET     /questions/:id/grade/:index                         controllers.QuestionSets.grade(id: Long, index: Int)
 
 # User pages
 GET     /user/settings                                      controllers.Users.accountSettings
@@ -135,7 +126,6 @@ POST    /byusecure                                          controllers.BYUSecur
 POST    /ajax/permissionChecker                             controllers.ajax.PermissionChecker.check
 GET     /ajax/content/collection                            controllers.ajax.ContentLister.collection
 GET     /ajax/content/:id                                   controllers.ajax.ContentLister.get(id: Long)
-GET     /ajax/questions/:id/grade/:index                    controllers.QuestionSets.gradeAjax(id: Long, index: Int)
 
 # Feedback
 POST    /feedback                                           controllers.Application.saveFeedback

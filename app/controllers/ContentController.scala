@@ -82,7 +82,6 @@ trait ContentController {
             case "batch" => Ok(views.html.content.create.batchUrl(collectionId))
             case "resource" => Ok(views.html.content.create.resource(collectionId))
             case "playlist" => Ok(views.html.content.create.playlist(collectionId))
-            case "questions" => Ok(views.html.content.create.questionSet(collectionId))
             case _ => Ok(views.html.content.create.file(collectionId))
             }
           }
@@ -394,7 +393,6 @@ trait ContentController {
                                       "",    // requester
                                       true   // published
                                       ).save
-                user.addContent(content)
                 if (collectionId > 0) {
                   ContentManagement.addToCollection(collectionId, content)
                 }
@@ -450,40 +448,10 @@ trait ContentController {
                                       true  // published
                                       ).save
                 content.setSetting("description", List(description))
-                user.addContent(content)
 
                 Redirect(routes.Playlists.about(content.id.get))
               }
             }
-          }
-        }
-  }
-
-  /**
-   * Creates content based on the posted data (File)
-   */
-  def createQuestionSet(collectionId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
-    implicit request =>
-      implicit user =>
-
-        Authentication.enforcePermission("createContent") {
-
-          val title = request.body("title")(0)
-          val description = request.body("description")(0)
-
-          GoogleFormScripts.createForm(title, user.email.get).map { formId =>
-            val content = Content(None, title, 'questions, collectionId, "", formId,
-                                      false, // physicalCopyExists
-                                      false, // isCopyrighted
-                                      true,  // enabled
-                                      None,  // dateValidated
-                                      "",    // requester
-                                      true  // published
-                                      ).save
-            content.setSetting("description", List(description))
-            user.addContent(content)
-
-            Redirect(routes.QuestionSets.about(content.id.get))
           }
         }
   }
@@ -499,7 +467,6 @@ trait ContentController {
             Content.findById(id) match {
             case Some(content) =>
               val copied = content.copy(id = None).save
-              user.addContent(copied)
               Redirect(routes.ContentController.view(copied.id.get))
                 .flashing("success" -> "Content Cloned")
             case None =>
@@ -521,17 +488,10 @@ trait ContentController {
             // Check for playlists
             if (content.contentType == 'playlist) {
               Redirect(routes.Playlists.about(id))
-            } else if (content.contentType == 'questions) {
-              Redirect(routes.QuestionSets.about(id))
             } else if (content.contentType != 'data) {
-              //TODO: make this a whitelist instead of blacklist
               // Check that the user can view the content
               if (collection.userCanViewContent(user) || user.hasSitePermission("admin")) Ok(
-                /*if (MobileDetection.isMobile()) {
-                  views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user))
-                } else {*/
-              views.html.content.view(content, ResourceController.baseUrl, Some(user))
-                /*}*/
+                views.html.content.view(content, ResourceController.baseUrl, Some(user))
               ) else
                 Redirect(routes.Application.home)
                   .flashing("error" -> "You do not have permission to view the requested content.")
@@ -544,21 +504,12 @@ trait ContentController {
   }
 
   /**
-   * Content management page
-   */
-  def manageContent() = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Future(Ok(views.html.content.batchEdit(user.getContent)))
-  }
-
-  /**
    * Content deletion endpoint
    */
   def delete(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {  
+        Authentication.enforcePermission("admin") {
           getContent(id) { content =>
             Future {
               // Make sure the user is able to edit

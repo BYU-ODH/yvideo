@@ -26,7 +26,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
     if (id.isDefined) {
       update(Collection.tableName, 'owner -> owner, 'name -> name)
       this
-    } 
+    }
     else {
       val id = insert(Collection.tableName, 'owner -> owner, 'name -> name)
       this.copy(id)
@@ -70,7 +70,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * @param content The content to be posted
    * @return The content listing
    */
-  def addContent(content: Content): ContentListing = ContentListing(None, this.id.get, content.id.get).save
+  def addContent(content: Content): Content = content.copy(collectionId = this.id.get).save
 
   /**
    * Remove content from the collection
@@ -78,17 +78,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * @return The collection
    */
   def removeContent(content: Content): Collection = {
-    val listing = ContentListing.listByCollection(this).filter(_.contentId == content.id.get)
-
-    // Check the number or results
-    if (listing.size == 1) {
-      // One membership. So delete it
-      listing(0).delete()
-    } else if (listing.size != 0) {
-      // We didn't get exactly one listing so delete one of them, but warn
-      Logger.warn("Multiple content listings for content #" + content.id.get + " in collection #" + id.get)
-      listing(0).delete()
-    }
+    content.delete()
     this
   }
 
@@ -150,7 +140,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * @return The list of users who are students
    */
   def getStudents: List[User] = cache.getForCollection[User](cache.students_=, cache.students _, CollectionMembership.listClassMembers(_: Collection, false)) match {
-    case students: cache.CacheListHolder[User] => students.getList 
+    case students: cache.CacheListHolder[User] => students.getList
     case _ => List[User]()
   }
 
@@ -173,7 +163,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * Get content posted to this collection
    * @return The list of content
    */
-  def getContent: List[Content] = cache.getForCollection[Content](cache.content_=, cache.content _, ContentListing.listClassContent) match {
+  def getContent: List[Content] = cache.getForCollection[Content](cache.content_=, cache.content _, coll => Content.list.filter(_.collectionId == coll.id.get)) match {
     case content: cache.CacheListHolder[Content] => content.getList
     case _ => List[Content]()
   }
@@ -270,7 +260,7 @@ object Collection extends SQLSelectable[Collection] {
    * @return The list of collections that match
    */
   def search(query: String): List[Collection] = Nil
-    
+
     // DB.withConnection { implicit connection =>
     //   val sqlQuery = "%" + query + "%"
     //   try {

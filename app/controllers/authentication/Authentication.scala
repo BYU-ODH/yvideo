@@ -24,15 +24,8 @@ object Authentication extends Controller {
    */
   def login(user: User, path: String)(implicit request: RequestHeader): Result = {
 
-    // Check if the user's account is merged. If it is, then login with the primary account, if this one isn't it
-    val accountLink = user.getAccountLink
-    val loginUser =
-      if (accountLink.isDefined && user.id.get != accountLink.get.primaryAccount)
-        User.findById(accountLink.get.primaryAccount).getOrElse(user)
-      else user
-
     // Log the user in
-    loginUser.copy(lastLogin = TimeTools.now()).save
+    user.copy(lastLogin = TimeTools.now()).save
 
     // Redirect
     {
@@ -40,24 +33,8 @@ object Authentication extends Controller {
         Redirect(controllers.routes.Application.home())
       else
         Redirect(path)
-    }.withSession("userId" -> loginUser.id.get.toString)
-      .flashing("success" -> ("Welcome " + loginUser.displayName + "!"))
-  }
-
-  /**
-   * Merges a user with the active user
-   * @param user The user account to merge with the active one
-   */
-  def merge(user: User)(implicit request: RequestHeader): Result = {
-    getUserFromRequest().map { activeUser =>
-      if (activeUser != user) {
-        activeUser.merge(user)
-        Redirect(controllers.routes.Users.accountSettings()).flashing("success" -> "Account merged.")
-      } else
-        Redirect(controllers.routes.Users.accountSettings()).flashing("alert" -> "You cannot merge an account with itself")
-    }.getOrElse {
-      Redirect(controllers.routes.Application.index()).flashing("alert" -> "You are not logged in")
-    }
+    }.withSession("userId" -> user.id.get.toString)
+      .flashing("success" -> ("Welcome " + user.displayName + "!"))
   }
 
   /**
@@ -67,17 +44,9 @@ object Authentication extends Controller {
     implicit request =>
       val service = controllers.routes.Application.index().absoluteURL(isHTTPS)
       getUserFromRequest()(request).map { user =>
-        val accountLink = user.getAccountLink
         val casLogoutUrl  = "https://cas.byu.edu/cas/logout?service="
 
-        // If the account is not linked, there exists only one authentication scheme
-        val redir:String = if (accountLink == None) {
-          if (user.authScheme == 'cas) { casLogoutUrl + service } else { service }
-        } else {
-          val users = accountLink.get.getUsers
-          val authSchemes = for (u <- accountLink.get.getUsers) yield { u.authScheme }
-          if (authSchemes.contains('cas)) { casLogoutUrl + service } else { service }
-        }
+        val redir:String = if (user.authScheme == 'cas) { casLogoutUrl + service } else { service }
         Redirect(redir)
       }.getOrElse(Redirect(service))
         .withNewSession

@@ -48,12 +48,6 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
    * Deletes the content from the DB, but not from the resource library
    */
   def delete() {
-    // Delete the content from courses
-    ContentListing.listByContent(this).foreach(_.delete())
-
-    // Delete ownership
-    ContentOwnership.findByContent(this).delete()
-
     // Delete the content
     delete(Content.tableName)
   }
@@ -146,30 +140,6 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "authKey" -> authKey,
     "views" -> views
   )
-
-  val cacheTarget = this
-  object cache {
-    var owner: Option[User] = None
-    var scorings: Option[List[Scoring]] = None
-
-
-    def getOwner: Option[User] = {
-      if (owner.isEmpty)
-        owner = User.findById(ContentOwnership.findByContent(cacheTarget).userId)
-      owner
-    }
-
-    def getScorings: List[Scoring] = {
-      if (scorings.isEmpty)
-        scorings = Some(Scoring.listByContent(cacheTarget))
-      scorings.get
-    }
-  }
-
-  def getOwner = cache.getOwner
-
-  def getScorings = cache.getScorings
-
 }
 
 object Content extends SQLSelectable[Content] {
@@ -416,36 +386,35 @@ object Content extends SQLSelectable[Content] {
     }
 
 
-    /**
-     * Sets the given content as expired
-     * @param id The content id
-     */
-    def expire(id: Long) =
-      DB.withConnection { implicit connection =>
-        try {
-          SQL(s"update $tableName set enabled = 0 where id = {id}")
-            .on('id -> id).executeUpdate()
-        } catch {
-          case e: SQLException =>
-            Logger.debug("Failed to set content as expired")
-            Logger.debug(e.getMessage())     
-        }
+  /**
+   * Sets the given content as expired
+   * @param id The content id
+   */
+  def expire(id: Long) =
+    DB.withConnection { implicit connection =>
+      try {
+        SQL(s"update $tableName set enabled = 0 where id = {id}")
+          .on('id -> id).executeUpdate()
+      } catch {
+        case e: SQLException =>
+          Logger.debug("Failed to set content as expired")
+          Logger.debug(e.getMessage())
       }
+    }
 
-    /**
-     * Sets the given content as enabled, updates the dateValidated, and sets the requester
-     * @param id The content id
-     * @param requester The person requesting the renewal
-     */
-     def renew(id: Long, requester: String) =
-       DB.withConnection { implicit connection =>
-         val date = TimeTools.now()
-         try {
-           SQL(s"""
-                update $tableName set enabled = 1, dateValidated = {date}, requester = {requester} 
-                where id = {id}
-                """).on('date -> date, 'requester -> requester, 'id -> id).executeUpdate()
-         }
-
-       }
+  /**
+   * Sets the given content as enabled, updates the dateValidated, and sets the requester
+   * @param id The content id
+   * @param requester The person requesting the renewal
+   */
+  def renew(id: Long, requester: String) =
+    DB.withConnection { implicit connection =>
+      val date = TimeTools.now()
+      try {
+        SQL(s"""
+             update $tableName set enabled = 1, dateValidated = {date}, requester = {requester}
+             where id = {id}
+             """).on('date -> date, 'requester -> requester, 'id -> id).executeUpdate()
+      }
+    }
 }

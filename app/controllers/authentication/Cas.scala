@@ -119,10 +119,7 @@ object Cas extends Controller {
 
         updateAccount(user, isInstructor)
 
-        if (action == "merge")
-          Authentication.merge(user)
-        else
-          Authentication.login(user, path)
+        Authentication.login(user, path)
       }
 
       try {

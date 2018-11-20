@@ -27,17 +27,11 @@ object Password extends Controller {
       // Check that the user exists and the password matches
       if (user.isDefined && user.get.authId == passwordHash) {
 
-        if (action == "merge")
-          Authentication.merge(user.get)
-        else
-          Authentication.login(user.get, path)
+        Authentication.login(user.get, path)
       } else {
 
-        if (action == "merge")
-          Redirect(controllers.routes.Users.accountSettings()).flashing("error" -> "Invalid username/password.")
-        else
-          Redirect(controllers.routes.Application.index().toString(), request.queryString)
-            .flashing("error" -> "Invalid username/password.")
+        Redirect(controllers.routes.Application.index().toString(), request.queryString)
+          .flashing("error" -> "Invalid username/password.")
       }
   }
 

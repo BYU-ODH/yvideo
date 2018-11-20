@@ -52,8 +52,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
    * Deletes the user from the DB
    */
   def delete() {
-    // Delete the user's content
-    getContent.foreach(_.delete())
 
     DB.withConnection { implicit connection =>
       try {
@@ -61,21 +59,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
           .on('userId -> id.get).execute()
         SQL("delete from sitePermissions where userId = {userId}")
           .on('userId -> id.get).execute()
-        SQL("delete from sitePermissionRequest where userId = {userId}")
-          .on('userId -> id.get).execute()
-        // Delete all linked accounts
-        getAccountLink.map { accountLink =>
-          if (accountLink.primaryAccount == id.get) {
-            val params = accountLink.userIds.filterNot(_ == id.get)
-              .map { uid =>  List(NamedParameter.symbol('id -> uid)) }
-              .toList
-            BatchSql(
-              s"delete from $User.tableName where id = {id}",
-              params.head, params.tail:_*
-            ).execute()
-          }
-        }
-
       } catch {
         case e: SQLException =>
           Logger.debug("Failed to delete User data")
@@ -136,14 +119,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   }
 
   /**
-   * Create content from a resource and assign this user as the owner
-   * @param content The content that will be owned
-   * @return The content ownership
-   */
-  def addContent(content: Content): ContentOwnership =
-    ContentOwnership(None, this.id.get, content.id.get).save
-
-  /**
    * Sends an email notification to this user
    * @param message The message of the notification
    * @return The notification
@@ -159,90 +134,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   }
 
   def addWord(word: String, srcLang: String, destLang: String): WordListEntry = WordListEntry(None, word, srcLang, destLang, id.get).save
-
-  /**
-   * Moves user ownership and enrollment from the provided user to the current user
-   * @param user The user to move ownership
-   */
-  def consolidateOwnership(user: User) {
-    val thisid = this.id.get
-
-    // Transfer content ownership
-    ContentOwnership.listByUser(user).foreach { _.copy(userId = thisid).save }
-
-    // Move the collection membership over. Check this user's membership to prevent duplicates
-    val myMembership = CollectionMembership.listByUser(this).map(_.collectionId)
-    CollectionMembership.listByUser(user).foreach { membership =>
-      if (myMembership.contains(membership.collectionId))
-        membership.delete()
-      else
-        membership.copy(userId = thisid).save
-    }
-
-    // Merge permissions
-    user.getPermissions.foreach { p => addSitePermission(p) }
-
-  }
-
-  /**
-   * Merges the provided user into this one.
-   * @param user The user to merge
-   */
-  //TODO: Figure out how to properly deal with unchecked gets
-  //They will only fail if data is corrupted, and it's not immediately clear
-  //what should be done in those cases
-  def merge(user: User) {
-    val thisid = this.id.get
-
-    /*
-     * Three possibilities:
-     * 1. Neither user has an account link
-     * 2. One user has an account link
-     * 3. Both users have an account link
-     */
-    if (this.accountLinkId == -1) {
-      if (user.accountLinkId == -1) {
-        // Case 1: Create a new account link
-        val accountLink = AccountLink(None, Set(thisid, user.id.get), thisid).save
-
-        val linkId = accountLink.id.get
-        this.copy(accountLinkId = linkId).save
-        user.copy(accountLinkId = linkId).save
-
-        consolidateOwnership(user)
-      } else {
-        //Case 2: Make this the primary of the existing account link
-        val accountLink = AccountLink.findById(user.accountLinkId).get
-
-        accountLink.addUser(this)
-
-        consolidateOwnership(accountLink.getPrimaryUser.get)
-
-        this.copy(accountLinkId = accountLink.id.get).save
-        accountLink.copy(primaryAccount = thisid).save
-      }
-    } else {
-      //these branches can only be talen if this is the primary user
-      if (user.accountLinkId == -1) {
-        // Case 2: Add the other user to this account link
-        val accountLink = AccountLink.findById(this.accountLinkId).get
-
-        accountLink.addUser(user)
-
-        consolidateOwnership(user)
-      } else {
-        // Case 3: Merge the other account link into this one
-        val thisLink = AccountLink.findById(this.accountLinkId).get
-        val userLink = AccountLink.findById(user.accountLinkId).get
-        val newLink = thisLink.copy(userIds = thisLink.userIds ++ userLink.userIds, primaryAccount = thisid).save
-        val linkId = newLink.id.get
-
-        consolidateOwnership(userLink.getPrimaryUser.get)
-        newLink.getUsers foreach { user => user.copy(accountLinkId = linkId).save }
-        userLink.delete()
-      }
-    }
-  }
 
   /**
    * Gets a string from an option.
@@ -306,14 +197,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
       teacherEnrollment.get
     }
 
-    var content: Option[List[Content]] = None
-
-    def getContent = {
-      if (content.isEmpty)
-        content = Some(ContentOwnership.listUserContent(cacheTarget))
-      content.get
-    }
-
     var contentFeed: Option[List[(Content, Long)]] = None
 
     def getContentFeed = {
@@ -322,22 +205,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
           getEnrollment.flatMap(collection => collection.getContent.map(c => (c, collection.id.get)))
         )
       contentFeed.get
-    }
-
-    var accountLink: Option[Option[AccountLink]] = None
-
-    def getAccountLink = {
-      if (accountLink.isEmpty)
-        accountLink = Some(AccountLink.findById(accountLinkId))
-      accountLink.get
-    }
-
-    var scorings: Option[List[Scoring]] = None
-
-    def getScorings: List[Scoring] = {
-      if (scorings.isEmpty)
-        scorings = Some(Scoring.listByUser(cacheTarget))
-      scorings.get
     }
 
     var wordList: Option[List[WordListEntry]] = None
@@ -369,12 +236,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   def getTeacherEnrollment: List[Collection] = cache.getTeacherEnrollment
 
   /**
-   * Gets the content belonging to this user
-   * @return The list of content
-   */
-  def getContent: List[Content] = cache.getContent
-
-  /**
    * Get the profile picture. If it's not set then return the placeholder picture.
    * @return The url of the picture
    */
@@ -392,28 +253,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
    * @return The content
    */
   def getContentFeed(limit: Int = 5): List[(Content, Long)] = cache.getContentFeed.take(limit)
-
-  /**
-   * Returns the account link
-   * @return If it exists, then Some(AccountLink) otherwise None
-   */
-  def getAccountLink: Option[AccountLink] =
-    if (accountLinkId == -1)
-      None
-    else
-      cache.getAccountLink
-
-  /**
-   * Gets the list of this user's scorings
-   * @return The list of scorings
-   */
-  def getScorings = cache.getScorings
-
-  /**
-   * Gets the list of this user's scorings for a particular content
-   * @return The list of scorings
-   */
-  def getScorings(content: Content) = cache.getScorings.filter(_.contentId == content.id.get)
 
   def getWordList = cache.getWordList
 

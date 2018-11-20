@@ -97,9 +97,6 @@ trait Administration {
       }
    }
 
-
-
-
   /**
    * Helper function for finding user accounts
    * @param id The ID of the user account
@@ -107,7 +104,7 @@ trait Administration {
    */
   def getUser(id: Long)(f: User => Future[Result])(implicit request: RequestHeader): Future[Result] = {
     User.findById(id).map { user =>
-      f(user.getAccountLink.flatMap(_.getPrimaryUser).getOrElse(user))
+      f(user)
     }.getOrElse(Future(Errors.notFound))
   }
 

@@ -8,7 +8,6 @@ import play.api.Play
 import play.api.Play.current
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import models.ContentListing
 import dataAccess.ResourceController
 import play.api.libs.iteratee.Enumerator
 
@@ -75,7 +74,7 @@ trait CollectionContent {
         Collections.getCollection(collectionId) { collection =>
           if (user.isCollectionTA(collection)) {
             ContentController.getContent(id) { content =>
-              ContentListing.listByContent(content).find(_.collectionId == collectionId).map(_.delete())
+              content.delete()
               Future {
                 Redirect(routes.Collections.view(collectionId))
                   .flashing("info" -> "Content removed")

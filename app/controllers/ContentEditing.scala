@@ -319,36 +319,6 @@ trait ContentEditing {
         }
   }
 
-  /**
-   * Updates the settings of multiple content items
-   */
-  def batchUpdateContent = Authentication.authenticatedAction(parse.urlFormEncoded) {
-    implicit request =>
-      implicit user =>
-        val redirect = Redirect(routes.ContentController.manageContent())
-        Future {
-          try {
-            val params = request.body.mapValues(_(0))
-            val visibility = params("visibility").toInt
-            val contentList = params("ids").split(",").collect {
-              case id:String if !id.isEmpty => Content.findById(id.toLong)
-            }.flatten
-
-            if(contentList.forall(_.isEditableBy(user))) {
-              for(content <- contentList) {
-                //content.copy(visibility = visibility).save
-              }
-              redirect.flashing("info" -> "Content updated")
-            } else {
-              redirect.flashing("error" -> "You do not have permission to edit some of these items")
-            }
-          } catch {
-            case e: Throwable =>
-              Logger.debug("Batch Update Error: " + e.getMessage())
-              redirect.flashing("error" -> s"Error while updating: ${e.getMessage()}")
-          }
-        }
-  }
 }
 
 object ContentEditing extends Controller with ContentEditing

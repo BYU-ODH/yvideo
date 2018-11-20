@@ -54,7 +54,7 @@ object ContentManagement {
   def createAndAddToCollection(info: ContentDescriptor, owner: User, contentType: Symbol, collectionId: Long): Future[Long] = {
     createContentObject(info, owner, contentType, collectionId).map { content =>
       addToCollection(collectionId, content)
-	  content.id.get
+      content.id.get
     }
   }
 
@@ -108,7 +108,7 @@ object ContentManagement {
     val resource = ResourceHelper.make.resource(Json.obj(
       "title" -> info.title,
       "description" -> info.description,
-	  "categories" -> info.categories,
+      "categories" -> info.categories,
       "keywords" -> info.keywords,
       "type" -> resourceType,
       "languages" -> Json.obj(
@@ -134,16 +134,14 @@ object ContentManagement {
         ResourceHelper.addThumbnail(resourceId, info.thumbnail.get)
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'video, collectionId, info.thumbnail.getOrElse(""), resourceId,
-                            false, // physicalCopyExists
-                            false, // isCopyrighted
-                            true,  // enabled
-                            None,  // dateValidated
-                            "",    // requester
-                            true  // published
-                            ).save
-      owner.addContent(content)
-      content
+      Content(None, info.title, 'video, collectionId, info.thumbnail.getOrElse(""), resourceId,
+              false, // physicalCopyExists
+              false, // isCopyrighted
+              true,  // enabled
+              None,  // dateValidated
+              "",    // requester
+              true  // published
+              ).save
     }
   }
 
@@ -159,16 +157,14 @@ object ContentManagement {
       val resourceId = (json \ "id").as[String]
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'audio, collectionId, info.thumbnail.getOrElse(""), resourceId,
-                            false, // physicalCopyExists
-                            false, // isCopyrighted
-                            true,  // enabled
-                            None,  // dateValidated
-                            "",    // requester
-                            true  // published
-                            ).save
-      owner.addContent(content)
-      content
+      Content(None, info.title, 'audio, collectionId, info.thumbnail.getOrElse(""), resourceId,
+              false, // physicalCopyExists
+              false, // isCopyrighted
+              true,  // enabled
+              None,  // dateValidated
+              "",    // requester
+              true  // published
+              ).save
     }
   }
 
@@ -184,16 +180,14 @@ object ContentManagement {
       val resourceId = (json \ "id").as[String]
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'text, collectionId, info.thumbnail.getOrElse(""), resourceId,
-                            false, // physicalCopyExists
-                            false, // isCopyrighted
-                            true,  // enabled
-                            None,  // dateValidated
-                            "",    // requester
-                            true  // published
-                            ).save
-      owner.addContent(content)
-      content
+      Content(None, info.title, 'text, collectionId, info.thumbnail.getOrElse(""), resourceId,
+              false, // physicalCopyExists
+              false, // isCopyrighted
+              true,  // enabled
+              None,  // dateValidated
+              "",    // requester
+              true  // published
+              ).save
     }
   }
 
@@ -214,16 +208,14 @@ object ContentManagement {
       )
 
       // Create the content and set the user and the owner
-      val content = Content(None, info.title, 'image, collectionId, info.thumbnail.getOrElse(""), resourceId,
-                            false, // physicalCopyExists
-                            false, // isCopyrighted
-                            true,  // enabled
-                            None,  // dateValidated
-                            "",    // requester
-                            true  // published
-                            ).save
-      owner.addContent(content)
-      content
+      Content(None, info.title, 'image, collectionId, info.thumbnail.getOrElse(""), resourceId,
+              false, // physicalCopyExists
+              false, // isCopyrighted
+              true,  // enabled
+              None,  // dateValidated
+              "",    // requester
+              true  // published
+              ).save
     }
   }
 
