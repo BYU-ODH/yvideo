@@ -143,7 +143,7 @@ object Authentication extends Controller {
    * @param f The action logic. A curried function which, given a request and the authenticated user, returns a result.
    * @return The result. A BadRequest with a json object with a message field or the Result returned from the given action
    */
-  def secureAPIRequest[A](parser: BodyParser[A] = BodyParsers.parse.anyContent)(f: Request[A] => User => Future[Result]) = Action.async(parser) {
+  def secureAPIAction[A](parser: BodyParser[A] = BodyParsers.parse.anyContent)(f: Request[A] => User => Future[Result]) = Action.async(parser) {
     implicit request =>
       getUserFromRequest().map( user => f(request)(user) ).getOrElse {
         Future {
