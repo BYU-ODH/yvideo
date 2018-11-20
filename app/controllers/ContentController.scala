@@ -572,6 +572,27 @@ trait ContentController {
         }
   }
 
+  /**
+   * Disable expired content
+   */
+  def disableExpired = Authentication.authenticatedAction() {
+    implicit request =>
+      implicit user =>
+        Authentication.enforcePermission("admin") {
+          Future {
+            val contentList = Content.list
+            var count = 0
+            for (content <- contentList) {
+              if (content.dateValidated.getOrElse("") != "" && service.TimeTools.checkExpired(content.dateValidated.get)) {
+                Content.expire(content.id.get)
+                count += 1
+              }
+            }
+            Redirect(routes.Application.home()).flashing("success" -> s"Successfully expired $count content")
+          }
+        }
+  }
+
 }
 
 object ContentController extends Controller with ContentController

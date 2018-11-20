@@ -414,4 +414,17 @@ object Content extends SQLSelectable[Content] {
           Logger.debug(e.getMessage())
       }
     }
+
+
+    def expire(id: Long) =
+      DB.withConnection { implicit connection =>
+        try {
+          SQL(s"update $tableName set enabled = 0 where id = {id}")
+            .on('id -> id).executeUpdate()
+        } catch {
+          case e: SQLException =>
+            Logger.debug("Failed to set content as expired")
+            Logger.debug(e.getMessage())     
+        }
+      }
 }

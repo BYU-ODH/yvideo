@@ -50,4 +50,15 @@ object TimeTools {
 //      timecode
 //    }
 //  }
+
+  /**
+   * This takes a date string and checks to see if it is older than the given amount of months
+   * @param date The date to check against
+   * @return true for expired, false for not
+   */
+  def checkExpired(date: String): Boolean = {
+    val expirationDate = new DateTime().minusMonths(18)
+    val givenDate = new DateTime(date)
+    expirationDate.isAfter(givenDate)
+  }
 }
