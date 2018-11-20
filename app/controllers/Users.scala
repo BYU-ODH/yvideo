@@ -22,7 +22,7 @@ trait Users {
    * Get the collections that a user belongs to 
    * @return Result[json array] of collections
    */
-  def collectionsPreview = Authentication.authenticatedAction() {
+  def collectionsPreview = Authentication.secureAPIRequest() {
     implicit request =>
       implicit user =>
         Future(Ok(Json.toJson(user.getEnrollment.map(coll =>
@@ -37,7 +37,7 @@ trait Users {
    * Get the user's 4 most recently viewed contents
    * @return Result[json array] of content with id, name, thumbnail, and collection name
    */
-  def recentContent = Authentication.authenticatedAction() {
+  def recentContent = Authentication.secureAPIRequest() {
     implicit request =>
       implicit user =>
         Future(Ok(Json.toJson(UserView.findByUserId(user.id.get).map{recentContent =>
