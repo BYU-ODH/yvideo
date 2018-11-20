@@ -31,13 +31,15 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
   def save =
     if (id.isDefined) {
       update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name,
-        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateValidated -> normalize(dateValidated.getOrElse("")),
-         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
+        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled,
+        'dateValidated -> dateValidated.map(str => normalize(str)),
+        'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
         'published -> published, 'authKey -> authKey, 'views -> views)
       this
     } else {
       val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name,
-        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateValidated -> normalize(dateValidated.getOrElse("")),
+        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled,
+        'dateValidated -> dateValidated.map(str => normalize(str)),
         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'published -> published,
         'authKey -> authKey, 'views -> views)
       this.copy(id)

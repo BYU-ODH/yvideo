@@ -144,9 +144,12 @@ GET     /ajax/questions/:id/grade/:index                    controllers.Question
 POST    /feedback                                           controllers.Application.saveFeedback
 POST    /feedback/error                                     controllers.Application.saveErrorFeedback
 
-# API
+# user API
 GET     /api/user/preview/:max                              controllers.Users.collectionsPreview(max: Int)
-GET 	/api/user/recent 									controllers.Users.recentContent
-	
+GET     /api/user/recent                                    controllers.Users.recentContent
+
+# content API
+GET     /api/content/:id                                    controllers.ContentController.view(id: Long)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                       controllers.Assets.at(path="/public", file)
