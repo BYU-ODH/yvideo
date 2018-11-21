@@ -59,8 +59,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
       try {
         SQL("delete from collectionMembership where userId = {userId}")
           .on('userId -> id.get).execute()
-        SQL("delete from notification where userId = {userId}")
-          .on('userId -> id.get).execute()
         SQL("delete from sitePermissions where userId = {userId}")
           .on('userId -> id.get).execute()
         SQL("delete from sitePermissionRequest where userId = {userId}")
@@ -146,11 +144,11 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
     ContentOwnership(None, this.id.get, content.id.get).save
 
   /**
-   * Sends a notification to this user
+   * Sends an email notification to this user
    * @param message The message of the notification
    * @return The notification
    */
-  def sendNotification(message: String): Notification = {
+  def sendNotification(message: String) = {
     if (Setting.findByName("notifications.users.emailOn.notification").get.value == "true" && email.isDefined) {
       EmailTools.sendEmail(List((displayName, email.get)), "Ayamel notification") {
         s"You have received the following notification:\n\n$message"
@@ -158,7 +156,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
         s"<p>You have received the following notification:</p><p>$message</p>"
       }
     }
-    Notification(None, this.id.get, message).save
   }
 
   def addWord(word: String, srcLang: String, destLang: String): WordListEntry = WordListEntry(None, word, srcLang, destLang, id.get).save
@@ -172,9 +169,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
 
     // Transfer content ownership
     ContentOwnership.listByUser(user).foreach { _.copy(userId = thisid).save }
-
-    // Move the notifications over
-    user.getNotifications.foreach { _.copy(userId = thisid).save }
 
     // Move the collection membership over. Check this user's membership to prevent duplicates
     val myMembership = CollectionMembership.listByUser(this).map(_.collectionId)
@@ -330,14 +324,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
       contentFeed.get
     }
 
-    var notifications: Option[List[Notification]] = None
-
-    def getNotifications = {
-      if (notifications.isEmpty)
-        notifications = Some(Notification.listByUser(cacheTarget))
-      notifications.get
-    }
-
     var accountLink: Option[Option[AccountLink]] = None
 
     def getAccountLink = {
@@ -406,12 +392,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
    * @return The content
    */
   def getContentFeed(limit: Int = 5): List[(Content, Long)] = cache.getContentFeed.take(limit)
-
-  /**
-   * Gets a list of the user's notifications
-   * @return
-   */
-  def getNotifications: List[Notification] = cache.getNotifications
 
   /**
    * Returns the account link

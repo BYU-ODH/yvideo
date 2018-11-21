@@ -55,51 +55,6 @@ trait Users {
   }
 
   /**
-   * View notifications
-   */
-  def notifications = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Future(Ok(views.html.users.notifications()))
-  }
-
-  def modNotification(ids: Seq[String], user: User)(cb: Notification => Unit) =
-    for(
-      id <- ids;
-      note <- try{
-        Notification.findById(id.toLong)
-      }catch{
-        case _: Exception => None
-      } if (user.getNotifications.contains(note))
-    ) cb(note)
-
-  /**
-   * Marks a notification as read
-   * @param id The ID of the notification
-   */
-  def markNotification() = Authentication.authenticatedAction(parse.multipartFormData) {
-    implicit request =>
-      implicit user =>
-        modNotification(request.body.dataParts("id"), user) { note =>
-          note.copy(messageRead = true).save
-        }
-        Future(Ok)
-  }
-
-  /**
-   * Deletes a notification
-   * @param id The ID of the notification
-   */
-  def deleteNotification() = Authentication.authenticatedAction(parse.multipartFormData) {
-    implicit request =>
-      implicit user =>
-         modNotification(request.body.dataParts("id"), user) { note =>
-          note.delete()
-        }
-        Future(Ok)
-  }
-
-  /**
    * The account settings view
    */
   def accountSettings = Authentication.authenticatedAction() {

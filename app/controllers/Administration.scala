@@ -144,7 +144,7 @@ trait Administration {
   }
 
   /**
-   * Sends a notification to a user
+   * Sends an email notification to a user
    */
   def sendNotification(currentPage: Int) = Authentication.authenticatedAction(parse.urlFormEncoded) {
     //There may be a better way to control the way the user is redirected than with an Integer...

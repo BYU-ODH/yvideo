@@ -1,8 +1,6 @@
 @import views.html.resources._
 @(title: String, moreDependencies: Include*)(content: Html)(implicit request: RequestHeader, user: User)
 
-@notifications = @{user.getNotifications.filterNot(_.messageRead)}
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -79,9 +77,6 @@
                             <a href="#" class="headerDropdownLink" data-target="#profileDropdown">
                                 <!-- <span class="profileIcon" style="background-image: url('@user.getPicture')"></span> -->
                                 <i class="icon-cog"></i>
-                                @if(!notifications.isEmpty) {
-                                    <span class="badge badge-yellow pad-left-low">@notifications.size</span>
-                                }
                             </a>
                             <div id="profileDropdown" class="headerDropdown">
                                 <div class="dropdownPoint light"></div>
@@ -91,13 +86,6 @@
                                 </div>
                                 <div class="dropdownItem">
                                     <a href="@routes.Users.accountSettings()"><i class="icon-cog"></i> Account Settings</a>
-                                </div>
-                                <div class="dropdownItem">
-                                    <a href="@routes.Users.notifications()"><i class="icon-inbox"></i> Notifications
-                                        @if(!notifications.isEmpty) {
-                                            <span class="badge badge-yellow pad-left-low">@notifications.size</span>
-                                        }
-                                    </a>
                                 </div>
                                 @if(user.hasSitePermission("admin")) {
                                     <div class="dropdownItem">

@@ -81,9 +81,6 @@ GET     /user/settings                                      controllers.Users.ac
 POST    /user/settings                                      controllers.Users.saveSettings
 POST    /user/changePassword                                controllers.Users.changePassword
 POST    /user/uploadPicture                                 controllers.Users.uploadProfilePicture
-GET     /user/notifications                                 controllers.Users.notifications
-POST    /user/notifications/mark/                           controllers.Users.markNotification()
-POST    /user/notifications/delete/                         controllers.Users.deleteNotification()
 
 # Admin pages
 GET     /admin                                              controllers.Administration.admin

@@ -3,8 +3,6 @@
 @import views.html.resources._
 @import play.api.Play.{current, configuration}
 
-@notifications = @{user.map(_.getNotifications.filterNot(_.messageRead)).getOrElse(Seq())}
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -81,9 +79,6 @@
                                 <!-- <span class="profileIcon" style="background-image: url('@user.get.getPicture')"></span> -->
                                 <i class="icon-cog"></i>
                                 @*<i class="icon-user"></i> Profile*@
-                                @if(!notifications.isEmpty) {
-                                    <span class="badge badge-yellow pad-left-low">@notifications.size</span>
-                                }
                             </a>
                             <div id="profileDropdown" class="headerDropdown">
                                 <div class="dropdownPoint light"></div>
@@ -93,13 +88,6 @@
                                 </div>
                                 <div class="dropdownItem">
                                     <a href="@routes.Users.accountSettings()"><i class="icon-cog"></i> Account Settings</a>
-                                </div>
-                                <div class="dropdownItem">
-                                    <a href="@routes.Users.notifications()"><i class="icon-inbox"></i> Notifications
-                                        @if(!notifications.isEmpty) {
-                                            <span class="badge badge-yellow pad-left-low">@notifications.size</span>
-                                        }
-                                    </a>
                                 </div>
                                 @if(user.get.hasSitePermission("admin")) {
                                     <div class="dropdownItem">
