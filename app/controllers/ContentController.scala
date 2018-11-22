@@ -61,7 +61,7 @@ trait ContentController {
           // A user can get the JSON if he can see the content
           Future {
             val authKey = request.queryString.get("authKey").getOrElse("")
-            if (collection.userCanViewContent(user))
+            if (collection.userCanViewContent(user) || user.hasSitePermission("admin"))
               Ok(content.toJson)
             else
               Forbidden
@@ -526,7 +526,7 @@ trait ContentController {
             } else if (content.contentType != 'data) {
               //TODO: make this a whitelist instead of blacklist
               // Check that the user can view the content
-              if (collection.userCanViewContent(user)) Ok(
+              if (collection.userCanViewContent(user) || user.hasSitePermission("admin")) Ok(
                 /*if (MobileDetection.isMobile()) {
                   views.html.content.viewMobile(content, ResourceController.baseUrl, Some(user))
                 } else {*/

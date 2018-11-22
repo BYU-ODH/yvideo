@@ -26,7 +26,7 @@ object CaptionAiderControllerSpec extends Specification {
   								user.id mustNotEqual None
   								val controller = new CaptionAiderTestController()
   								val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-  								val result = controller.view(9,0)(request) //volatile - we need to add a specific content and use that instead of 9
+  								val result = controller.view(1,0)(request) //volatile - we need to add a specific content and use that instead of 9
   								status(result) shouldEqual 200
   						}
   						//should we make sure that users who aren't collection TAs or higher can't view? 

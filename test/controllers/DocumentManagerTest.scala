@@ -27,7 +27,7 @@ object DocumentManagerSpec extends Specification {
                 user.id mustNotEqual None
                 val controller = new DocumentManagerTestController()
                 val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                val result = controller.editAnnotations(9)(request) //volatile - use content created for this test
+                val result = controller.editAnnotations(1)(request) //volatile - use content created for this test
                 status(result) shouldEqual 200
   					}
   		}
