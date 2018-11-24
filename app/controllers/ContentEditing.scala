@@ -13,6 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import ExecutionContext.Implicits.global
 import play.api.Logger
 import scala.Some
+import scala.util.matching.Regex
 
 /**
  * Controller that deals with the editing of content
@@ -236,7 +237,7 @@ trait ContentEditing {
                     case _ => false
                   }
                 }.map[Future[Result]] { videoObject =>
-                  println(videoObject)
+                  //Check to see if it's downloadable
                   (videoObject \ "downloadUri") match {
                     case videoUrl:JsDefined =>
                     /*
@@ -265,7 +266,25 @@ trait ContentEditing {
                           redirect.flashing("error" -> e.getMessage())
                         }
                     case _ => Future {
-                      redirect.flashing("error" -> "No video file found. Thumbnails cannot be generated from streams.")
+                      (videoObject \ "mime") match {
+                        case videoType:JsDefined =>
+                          if (videoType.as[JsString].value == "video/x-youtube") {
+                            val youtubeRegex = new Regex("(?<=watch\\?v=|/videos/|embed\\/|youtu.be\\/|\\/v\\/|watch\\?v%3D|%2Fvideos%2F|embed%2F|youtu.be%2F|%2Fv%2F)[^#\\&\\?\n]*")
+                            (videoObject \ "streamUri") match {
+                              case youtubeUri:JsDefined => {
+                                val stringUri = youtubeUri.value.toString
+                                val videoId = youtubeRegex findFirstIn stringUri
+                                val thumbnailUrl = "https://img.youtube.com/vi/" + videoId.get.toString + "/default.jpg"
+                                content.copy(thumbnail = thumbnailUrl.toString).save
+                                redirect.flashing("info" -> "Thumbnail updated")
+                              }
+                              case _ => redirect.flashing("error" -> "Error getting youtube URL")
+                            }
+                          } else {
+                            redirect.flashing("error" -> "Sorry. We can only get youtube thumbnails for now.")
+                          }
+                        case _ => redirect.flashing("error" -> "Error getting video type")
+                      }
                     }
                   }
                 }.getOrElse {
