@@ -39,11 +39,11 @@ object VideoTools {
   def generateThumbnail(videoUrl: String, time: Double = thumbnailTime): Future[String] = {
     // Check that we are able to get the video
     if (!ffmpegExists) {
-	  return Future.failed(new Exception("Missing ffmpeg"))
-	}
-	if (!ResourceHelper.isHTTP(videoUrl)) {
-	  return Future.failed(new Exception("Not a Video"))
-	}
+	    return Future.failed(new Exception("Missing ffmpeg"))
+	  }
+	  if (!ResourceHelper.isHTTP(videoUrl)) {
+	    return Future.failed(new Exception("Not a Video"))
+	  }
 
     // Make a unique file to save the image to
     val filename = "/tmp/" + FileUploader.uniqueFilename("out.jpg")

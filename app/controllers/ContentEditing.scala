@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc._
 import controllers.authentication.Authentication
-import play.api.libs.json.{JsString, JsArray, Json}
+import play.api.libs.json.{JsString, JsArray, Json, JsDefined}
 import dataAccess.ResourceController
 import models.{User, Collection, Content}
 import service._
@@ -11,7 +11,6 @@ import java.io.IOException
 import javax.imageio.ImageIO
 import scala.concurrent.{ExecutionContext, Future}
 import ExecutionContext.Implicits.global
-import play.api.libs.json.JsArray
 import play.api.Logger
 import scala.Some
 
@@ -230,33 +229,34 @@ trait ContentEditing {
           ResourceController.getResource(content.resourceId).flatMap { json =>
             // Get the video file
             (json \ "resource" \ "content" \ "files") match {
-              case arr:JsArray =>
-                arr.value.find { file =>
+              case arr:JsDefined =>
+                arr.as[JsArray].value.find { file =>
                   (file \ "mime") match {
-                    case str:JsString => str.value.startsWith("video")
+                    case str:JsDefined => str.as[JsString].value.startsWith("video")
                     case _ => false
                   }
                 }.map[Future[Result]] { videoObject =>
+                  println(videoObject)
                   (videoObject \ "downloadUri") match {
-                    case videoUrl:JsString =>
+                    case videoUrl:JsDefined =>
                     /*
-                        The "-protocols" command will list your version of ffmpeg
-                        List of supported Protocols:
-                            applehttp, concat, crypto, file, gopher, http, httpproxy
-                            mmsh, mmst, pipe, rtmp, rtp, tcp, udp
-                        The default protocol is "file:" and you do not need to specify it in ffmpeg,
-                        so we can't check to see if we are using a supported protocol. However,
-                        we do know that "https:" is unsupported, so if we get one, try to convert it
-                        to "http:". If it doesn't work, we'll just get a message that the thumbnail
-                        could not be generated.
+                    The "-protocols" command will list your version of ffmpeg
+                    List of supported Protocols:
+                        applehttp, concat, crypto, file, gopher, http, httpproxy
+                        mmsh, mmst, pipe, rtmp, rtp, tcp, udp
+                    The default protocol is "file:" and you do not need to specify it in ffmpeg,
+                    so we can't check to see if we are using a supported protocol. However,
+                    we do know that "https:" is unsupported, so if we get one, try to convert it
+                    to "http:". If it doesn't work, we'll just get a message that the thumbnail
+                    could not be generated.
                     */
-                     val url = if (videoUrl.value.startsWith("https://"))
-                            JsString(videoUrl.value.replaceFirst("https://","http://"))
-                        else
-                            videoUrl
+                     // val url = if (videoUrl.as[JsString].value.startsWith("https://"))
+                     //        JsString(videoUrl.value.replaceFirst("https://","http://"))
+                     //    else
+                     //        videoUrl
 
                       // Generate the thumbnail for that video
-                      VideoTools.generateThumbnail(url.value, time)
+                      VideoTools.generateThumbnail(videoUrl.as[JsString].value, time)
                         .map { url =>
                           // Save it and be done
                           content.copy(thumbnail = url).save
