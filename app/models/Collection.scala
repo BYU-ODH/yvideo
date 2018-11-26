@@ -38,12 +38,8 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
   def delete() {
     DB.withConnection { implicit connection =>
       try {
-        BatchSql(
-          "delete from {table} where collectionId = {id}",
-          List('table -> "collectionPermissions", 'id -> id),
-          List('table -> "collectionMembership", 'id -> id),
-          List('table -> "contentListing", 'id -> id)
-        ).execute()
+        SQL("delete from collectionMembership where collectionId = {id}").on('id -> id).execute()
+        SQL("delete from collectionPermissions where collectionId = {id}").on('id -> id).execute()
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in Collection.scala / delete")

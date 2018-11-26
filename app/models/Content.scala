@@ -392,6 +392,10 @@ object Content extends SQLSelectable[Content] {
              update $tableName set enabled = 1, dateValidated = {date}, requester = {requester}
              where id = {id}
              """).on('date -> date, 'requester -> requester, 'id -> id).executeUpdate()
+      } catch {
+        case e: SQLException =>
+          Logger.debug("Failed to Renew content in Content.scala / renew.")
+          Logger.debug(e.getMessage())
       }
     }
 }
