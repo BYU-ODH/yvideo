@@ -223,29 +223,6 @@ object Content extends SQLSelectable[Content] {
   def list: List[Content] = list(simple)
 
   /**
-   * Gets all content and owners information
-   * @return map of contentId's to tuple (owner, email)
-   */
-  def ownershipList: List[(Content, User)] = {
-    DB.withConnection { implicit connection =>
-      try {
-        SQL("""
-          select * from
-            ( select content.name as cname, content.*, contentOwnership.contentId, contentOwnership.userId
-              from content join contentOwnership on content.id = contentOwnership.contentid
-            ) as listing
-          join userAccount on userAccount.id = listing.userId
-            """).as(contentOwnership *)
-      } catch {
-        case e: SQLException =>
-          Logger.debug("Failed in Content.scala / ownershipList")
-          Logger.debug(e.getMessage())
-          List[(Content, User)]()
-      }
-    }
-  }
-
-  /**
    * Create a content from fixture data
    * @param data Fixture data
    * @return The content

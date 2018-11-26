@@ -1,4 +1,4 @@
-@(contentList: List[(models.Content, User)], resourceLibraryUrl: String)(implicit request: RequestHeader, user: User)
+@(contentList: List[models.Content], resourceLibraryUrl: String)(implicit request: RequestHeader, user: User)
 
 @main("Y-Video - Manage Content", Some(user), Local(CSS("stylesheets/admin.css"))) {
 
@@ -19,20 +19,18 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Owner</th>
+                <th>Requester</th>
                 <th>Language</th>
                 <th>Resource Id</th>
                 <th>Type</th>
                 <th>Actions</th>
                 <th></th>
             </tr>
-            @for((content, user) <- contentList) {
+            @for(content <- contentList) {
                 <tr id="@content.resourceId">
                     <td>@content.id.get</td>
                     <td>@content.name</td>
-                    <td data-toggle="tooltip" @if(user.email.isDefined) { title="@user.email.get" }>
-                        @user.username
-                    </td>
+                    <td>@content.requester</td>
                     <td class="lang"></td>
                     <td>@content.resourceId</td>
                     <td>@content.contentType.name</td>

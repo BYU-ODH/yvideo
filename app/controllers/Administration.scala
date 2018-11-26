@@ -249,8 +249,7 @@ trait Administration {
     implicit request =>
       implicit user =>
         Authentication.enforcePermission("admin") {
-          val content = Content.ownershipList
-          Future(Ok(views.html.admin.content(content, ResourceController.baseUrl)))
+          Future(Ok(views.html.admin.content(Content.list, ResourceController.baseUrl)))
         }
   }
 
