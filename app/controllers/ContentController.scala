@@ -23,6 +23,22 @@ import java.util.Calendar
 trait ContentController {
   this: Controller =>
 
+  def contentAsJson(id: Long) = Authentication.secureAPIAction() {
+    implicit request =>
+      implicit user =>
+        getContentCollection(id) { (content, collection) =>
+          Future {
+            if (content.contentType != 'data) {
+              // Check that the user can view the content
+              if (collection.userCanViewContent(user) || user.hasSitePermission("admin")) Ok(content.toJson.toString)
+              else Forbidden("{'message':'User cannot view content.'}")
+            } else {
+                BadRequest("{'message':'Bad Request.'}")
+            }
+          }
+        }
+  }
+
   /**
    * Store content id created in annotation editor in the browser.
    */
