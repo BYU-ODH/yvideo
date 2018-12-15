@@ -25,12 +25,12 @@ trait Users {
   def collectionsPreview(max: Int = 100) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Future(Ok(Json.toJson(user.getEnrollment.take(max).map(coll =>
+        Ok(Json.toJson(user.getEnrollment.take(max).map(coll =>
           Json.obj(
             "contentCount" -> coll.getContent.length,
             "name" -> coll.name,
             "url" -> Json.toJson(coll.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
-            "id" -> coll.id.get)))))
+            "id" -> coll.id.get))))
   }
 
   def roles = Authentication.secureAPIAction() {
@@ -59,7 +59,7 @@ trait Users {
   def recentContent = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Future(Ok(Json.toJson(ViewingHistory.getUserViews(user.id.get).map { recentContent =>
+        Ok(Json.toJson(ViewingHistory.getUserViews(user.id.get).map { recentContent =>
           Content.findById(recentContent.contentId).map { content =>
             Json.obj(
               "contentId" -> recentContent.contentId,
@@ -70,7 +70,7 @@ trait Users {
         }.filter(_ match {
           case JsNull => false
           case _ => false
-        }))))
+        })))
   }
 
   /**

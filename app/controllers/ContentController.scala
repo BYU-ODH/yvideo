@@ -27,14 +27,12 @@ trait ContentController {
     implicit request =>
       implicit user =>
         getContentCollection(id) { (content, collection) =>
-          Future {
-            if (content.contentType != 'data) {
-              // Check that the user can view the content
-              if (collection.userCanViewContent(user) || user.hasSitePermission("admin")) Ok(content.toJson)
-              else Forbidden(Json.obj("message" -> "User cannot view this content."))
-            } else {
-                BadRequest(Json.obj("message" -> "User cannot view this content."))
-            }
+          if (content.contentType != 'data) {
+            // Check that the user can view the content
+            if (collection.userCanViewContent(user) || user.hasSitePermission("admin")) Ok(content.toJson.toString)
+            else Forbidden("{'message':'User cannot view content.'}")
+          } else {
+              BadRequest("{'message':'Bad Request.'}")
           }
         }
   }
@@ -60,29 +58,9 @@ trait ContentController {
   /*
    * Action mix-in to get the content and collection from the request
    */
-  def getContentCollection(id: Long)(f: (Content, Collection) => Future[Result])(implicit request: Request[_]) = {
-    Content.findById(id).map(con => Collection.findById(con.collectionId).map(col => f(con, col)).getOrElse(Future(Errors.notFound)))
-      .getOrElse(Future(Errors.notFound))
-  }
-
-  /**
-   * Returns a content object as JSON
-   * @param id the ID of the content
-   */
-  def getAsJson(id: Long) = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        getContentCollection(id) { (content, collection) =>
-
-          // A user can get the JSON if he can see the content
-          Future {
-            val authKey = request.queryString.get("authKey").getOrElse("")
-            if (collection.userCanViewContent(user) || user.hasSitePermission("admin"))
-              Ok(content.toJson)
-            else
-              Forbidden
-          }
-        }
+  def getContentCollection(id: Long)(f: (Content, Collection) => Result)(implicit request: Request[_]) = {
+    Content.findById(id).map(con => Collection.findById(con.collectionId).map(col => f(con, col)).getOrElse(Errors.notFound))
+      .getOrElse(Errors.notFound)
   }
 
   /**
@@ -478,8 +456,8 @@ trait ContentController {
   def view(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        getContentCollection(id) { (content, collection) =>
-          Future {
+        Future {
+          getContentCollection(id) { (content, collection) =>
             // Check for playlists
             if (content.contentType == 'playlist) {
               Redirect(routes.Playlists.about(id))

@@ -18,8 +18,8 @@ object Playlists extends Controller {
   def about(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        ContentController.getContentCollection(id) { (content, collection) =>
-          Future {
+        Future {
+          ContentController.getContentCollection(id) { (content, collection) =>
             // Check the content type
             if (content.contentType == 'playlist) {
               // Check that the user can view the content
@@ -42,8 +42,8 @@ object Playlists extends Controller {
   def view(id: Long) = Authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        ContentController.getContentCollection(id) { (content, collection) =>
-          Future {
+        Future {
+          ContentController.getContentCollection(id) { (content, collection) =>
             // Check the content type
             if (content.contentType == 'playlist) {
               // Check that the user can view the content

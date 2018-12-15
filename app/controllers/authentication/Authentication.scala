@@ -8,6 +8,7 @@ import play.api.libs.json._
 import models.{User, SitePermissions, Collection}
 import controllers.Errors
 import service.TimeTools
+import scala.collection.JavaConverters._
 
 /**
  * This controller does logging out and has a bunch of helpers for dealing with authentication and permissions.
@@ -15,6 +16,7 @@ import service.TimeTools
 object Authentication extends Controller {
 
   val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
+  val allowedOrigins: Option[List[String]] = current.configuration.getList("allowedOrigins").map(_.asScala.toList.map(_.unwrapped.toString))
 
   /**
    * Given a user, logs the user in and sets up the session
@@ -121,18 +123,19 @@ object Authentication extends Controller {
     request.session.get("userId").flatMap( userId => User.findById(userId.toLong) )
   }
 
+  private def withCORS(result: Result): Result = {
+    result.withHeaders("Access-Control-Allow-Origin" -> allowedOrigins.map(_.mkString(",")).getOrElse("*"))
+  }
+
   /**
    * A generic action to be used for secured API endpoints
    * @param f The action logic. A curried function which, given a request and the authenticated user, returns a result.
    * @return The result. A BadRequest with a json object with a message field or the Result returned from the given action
    */
-  def secureAPIAction[A](parser: BodyParser[A] = BodyParsers.parse.anyContent)(f: Request[A] => User => Future[Result]) = Action.async(parser) {
+  def secureAPIAction[A](parser: BodyParser[A] = BodyParsers.parse.anyContent)(f: Request[A] => User => Result) = Action.async(parser) {
     implicit request =>
-      getUserFromRequest().map( user => f(request)(user) ).getOrElse {
-        Future {
-          Forbidden(JsObject(Seq("message" -> JsString("You must be logged in to request this resource."))))
-        }
-      }
+      Future(withCORS(getUserFromRequest().map( user => f(request)(user) ).getOrElse(
+          Forbidden(JsObject(Seq("message" -> JsString("You must be logged in to request this resource.")))))))
   }
 
   /**

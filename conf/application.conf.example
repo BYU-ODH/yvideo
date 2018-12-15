@@ -128,3 +128,7 @@ mimetype.m4a="audio/mp4"
 mimetype.mpd="application/dash+xml"
 
 HTTPS=false
+
+# Allowed Origins for /api endpoints
+allowedOrigins = ["ayamel.byu.edu", "ayamelbeta.byu.edu"]
+
