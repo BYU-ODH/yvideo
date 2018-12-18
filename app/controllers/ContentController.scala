@@ -473,27 +473,6 @@ trait ContentController {
   }
 
   /**
-   * Creates a copy of an existing content object
-   */
-  def cloneContent(id: Long) = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("createContent") {
-          Future {
-            Content.findById(id) match {
-            case Some(content) =>
-              val copied = content.copy(id = None).save
-              Redirect(routes.ContentController.view(copied.id.get))
-                .flashing("success" -> "Content Cloned")
-            case None =>
-              Redirect(routes.Application.home())
-                .flashing("error" -> "No Such Content")
-            }
-          }
-        }
-  }
-
-  /**
    * Content view page
    */
   def view(id: Long) = Authentication.authenticatedAction() {
