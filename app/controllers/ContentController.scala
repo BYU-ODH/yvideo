@@ -6,7 +6,7 @@ import models.{User, Content, Collection}
 import scala.concurrent.{Future, ExecutionContext}
 import ExecutionContext.Implicits.global
 import service.ContentDescriptor
-import dataAccess.{GoogleFormScripts, PlayGraph, ResourceController}
+import dataAccess.{PlayGraph, ResourceController}
 import java.net.{URLDecoder, URI, URL}
 import play.api.mvc._
 import play.api.Logger

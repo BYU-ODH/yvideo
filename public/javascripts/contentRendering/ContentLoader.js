@@ -49,14 +49,7 @@ var ContentLoader = (function () {
             });
         } else if (args.content.contentType === "playlist") {
             PlayGraphPlayer.play(args);
-        } else if (args.content.contentType === "questions") {
-            QuestionSetRenderer.render({
-                content: args.content,
-                holder: args.holder,
-                inPlaylist: args.inPlaylist,
-                qcallback: args.callback
-            });
-        }
+        } 
     }
 
     function castContentObject(content){

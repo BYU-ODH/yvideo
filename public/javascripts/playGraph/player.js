@@ -64,18 +64,6 @@ var PlayGraphPlayer = (function() {
                 }
             }, settings.time * 1000);
         }
-        if (callbackData.content.contentType === "questions") {
-            callbackData.questionSetPlayer.addEventListener("done", function(event) {
-                var index = event.index;
-                $.ajax("/ajax/questions/" + callbackData.content.id + "/grade/" + index, {
-                    success: function(data) {
-                        PlayGraph.player.data.score = data.score / data.possible;
-                        PlayGraph.player.data.passingValue = settings.passingValue;
-                        progress(args, "questions");
-                    }
-                })
-            });
-        }
     }
 
     function displayPage(args, content, settings) {
