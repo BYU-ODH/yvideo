@@ -30,44 +30,8 @@ object Password extends Controller {
         Authentication.login(user.get, path)
       } else {
 
-        Redirect(controllers.routes.Application.index().toString(), request.queryString)
+        Redirect(controllers.routes.Application.login().toString(), request.queryString)
           .flashing("error" -> "Invalid username/password.")
       }
-  }
-
-  /**
-   * Creates an account for the user
-   * @param path The where the user will be redirected after account creation
-   */
-  def createAccount(path: String = "") = Action(parse.urlFormEncoded) {
-    implicit request =>
-      val username = request.body("username")(0)
-      val password1 = request.body("password1")(0)
-      val password2 = request.body("password2")(0)
-      val name = request.body("name")(0)
-      val email = request.body("email")(0)
-
-      if (username.length < 3) {
-        Redirect(controllers.routes.Application.index().toString(), request.queryString)
-          .flashing("alert" -> "Username is too short.")
-      }
-      else if (password1.length < 6 || password2.length < 6) {
-        Redirect(controllers.routes.Application.index().toString(), request.queryString)
-          .flashing("alert" -> "Passwords should be a minimum of six characters long.")
-      }
-      else if (User.findByUsername('password, username).isEmpty) {
-
-        // Check the passwords match
-        if (password1 == password2) {
-          val passwordHash = HashTools.sha256Base64(password1)
-          val user = User(None, passwordHash, 'password, username, Some(name), Some(email)).save
-          SitePermissions.assignRole(user, 'student)
-          Authentication.login(user, path)
-        } else
-          Redirect(controllers.routes.Application.index().toString(), request.queryString)
-            .flashing("alert" -> "Passwords do not match")
-      } else
-        Redirect(controllers.routes.Application.index().toString(), request.queryString)
-          .flashing("alert" -> "That username is already taken.")
   }
 }

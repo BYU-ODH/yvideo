@@ -42,7 +42,7 @@ object Authentication extends Controller {
    */
   def logout = Action {
     implicit request =>
-      val service = controllers.routes.Application.index().absoluteURL(isHTTPS)
+      val service = controllers.routes.Application.login().absoluteURL(isHTTPS)
       getUserFromRequest()(request).map { user =>
         val casLogoutUrl  = "https://cas.byu.edu/cas/logout?service="
 
@@ -130,7 +130,7 @@ object Authentication extends Controller {
     implicit request =>
       getUserFromRequest().map( user => f(request)(user) ).getOrElse {
         Future {
-          Redirect(controllers.routes.Application.index().toString(), Map("path" -> List(request.path)))
+          Redirect(controllers.routes.Application.login().toString(), Map("path" -> List(request.path)))
             .flashing("alert" -> "You are not logged in")
         }
       }
