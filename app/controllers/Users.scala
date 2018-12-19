@@ -33,6 +33,12 @@ trait Users {
             "id" -> coll.id.get)))))
   }
 
+  def getAsJson = Authentication.secureAPIAction() {
+    implicit request =>
+      implicit user =>
+        Future(Ok(user.toJson))
+  }
+
   /**
    * Get the user's 4 most recently viewed contents
    * @return Result[json array] of content with id, name, thumbnail, and collection name
