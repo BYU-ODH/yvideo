@@ -11,8 +11,7 @@ var ContentThumbnails = (function() {
         "video": function(c){return !!c.thumbnail ? c.thumbnail : "http://ayamel.byu.edu/assets/images/videos/placeholder.jpg";},
         "image": function(c){return c.thumbnail},
         "audio": function(c){return !!c.thumbnail ? c.thumbnail : "http://ayamel.byu.edu/assets/images/audio/placeholder.jpg";},
-        "text": function(c){return !!c.thumbnail ? c.thumbnail : "http://ayamel.byu.edu/assets/images/text/placeholder.jpg";},
-        "questions": function(c){return !!c.thumbnail ? c.thumbnail : "http://ayamel.byu.edu/assets/images/questions/placeholder.jpg";}
+        "text": function(c){return !!c.thumbnail ? c.thumbnail : "http://ayamel.byu.edu/assets/images/text/placeholder.jpg";}
     };
 
     return {

@@ -6,7 +6,7 @@ import models.{User, Content, Collection}
 import scala.concurrent.{Future, ExecutionContext}
 import ExecutionContext.Implicits.global
 import service.ContentDescriptor
-import dataAccess.{GoogleFormScripts, PlayGraph, ResourceController}
+import dataAccess.{PlayGraph, ResourceController}
 import java.net.{URLDecoder, URI, URL}
 import play.api.mvc._
 import play.api.Logger
@@ -467,27 +467,6 @@ trait ContentController {
 
                 Redirect(routes.Playlists.about(content.id.get))
               }
-            }
-          }
-        }
-  }
-
-  /**
-   * Creates a copy of an existing content object
-   */
-  def cloneContent(id: Long) = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("createContent") {
-          Future {
-            Content.findById(id) match {
-            case Some(content) =>
-              val copied = content.copy(id = None).save
-              Redirect(routes.ContentController.view(copied.id.get))
-                .flashing("success" -> "Content Cloned")
-            case None =>
-              Redirect(routes.Application.home())
-                .flashing("error" -> "No Such Content")
             }
           }
         }

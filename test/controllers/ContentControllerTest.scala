@@ -118,12 +118,6 @@ object ContentControllerSpec extends Specification {
   		}
   	}
 
-  	"The Clone Content Endpoint" should { //not 100% sure what's happening to this function either
-  		"clone the content passed in by id" in {
-  			1 mustEqual 1
-  		}
-  	}
-
   	"The View Endpoint" should {
   		"serve the content page to the user if they are allowed" in {
   			1 mustEqual 1

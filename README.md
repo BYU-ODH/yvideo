@@ -110,27 +110,6 @@ You will need to configure an email account with SMTP settings in order to send 
     smtp.address="my_email@gmail.com"
     smtp.password="my_password"
 
-### Configure Google Scripts
-
-You will need to create and authorize Google Scripts for [question sets](https://github.com/BYU-ARCLITE/Ayamel-Examples/wiki/Question%20Sets). The scripts are located under the `scripts` folder.
-
-For each script:
- * Create a script at https://script.google.com/
- * Copy the content of the file to the newly created Google Script.
- * Click Run once then click Authorize.
- * Then publish it. Click "Publish" > "Deploy as web app..."
- * Enter anything in the version box and click "Save New Version"
- * Under "Execute the app as:" make sure "me" is selected.
- * Under "Who has access to the app:" select "Anyone, even anonymous"
- * Click "Deploy"
- * Copy the URL and enter it in the configuration file.
-
-Your configuration will look something like:
-
-    exercises.createFormScript="https://script.google.com/macros/s/1234567890abcdefghijklmnopqrstuvwxyz/exec"
-    exercises.getResponseIndexScript="https://script.google.com/macros/s/1234567890abcdefghijklmnopqrstuvwxyz/exec"
-    exercises.gradeFormScript="https://script.google.com/macros/s/1234567890abcdefghijklmnopqrstuvwxyz/exec"
-
 ### Configure Quizlet
 
 Quizlet is used when exporting word lists. You will need to go to https://quizlet.com/api/2.0/docs/ and sign up for a developer key.

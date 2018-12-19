@@ -3,12 +3,9 @@
 # ~~~~
 
 # Home/basic pages
-GET     /                                                   controllers.Application.index
 GET     /home                                               controllers.Application.home
-GET     /about                                              controllers.Application.about
-GET     /terms                                              controllers.Application.terms
-GET     /policy                                             controllers.Application.policy
 GET     /login                                              controllers.Application.login
+GET 	/													controllers.Application.login
 
 # Authentication
 GET     /auth/cas                                           controllers.authentication.Cas.login(action: String = "login", path: String = "")
@@ -19,8 +16,6 @@ GET     /auth/cas/callback/:action/redirect*path            controllers.authenti
 POST    /auth/password                                      controllers.authentication.Password.login(action: String = "login", path: String = "")
 POST    /auth/password/redirect*path                        controllers.authentication.Password.login(action: String = "login", path: String)
 POST    /auth/password/merge                                controllers.authentication.Password.login(action: String = "merge", path: String = "")
-POST    /auth/createAccount                                 controllers.authentication.Password.createAccount(path: String = "")
-POST    /auth/createAccount/redirect*path                   controllers.authentication.Password.createAccount(path: String)
 GET     /auth/logout                                        controllers.authentication.Authentication.logout
 
 # Collection pages
@@ -53,7 +48,6 @@ POST    /content/create/playlist                            controllers.ContentC
 GET     /content/:id                                        controllers.ContentController.view(id: Long)
 GET     /content/:id/json                                   controllers.ContentController.getAsJson(id: Long)
 POST    /content/:id/delete                                 controllers.ContentController.delete(id: Long)
-POST    /content/:id/clone                                  controllers.ContentController.cloneContent(id: Long)
 POST    /content/:id/addToCollection                        controllers.CollectionContent.addToCollection(id: Long)
 POST    /content/:id/settings                               controllers.ContentEditing.setSettings(id: Long)
 POST    /content/:id/metadata                               controllers.ContentEditing.setMetadata(id: Long)
