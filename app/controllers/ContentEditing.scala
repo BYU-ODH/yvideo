@@ -274,7 +274,8 @@ trait ContentEditing {
                               case youtubeUri:JsDefined => {
                                 val stringUri = youtubeUri.value.toString
                                 val videoId = youtubeRegex findFirstIn stringUri
-                                val thumbnailUrl = "https://img.youtube.com/vi/" + videoId.get.toString + "/default.jpg"
+                                // Sometimes an extra character gets added on to the video ID so slice off everything but the first 11 chars
+                                val thumbnailUrl = "https://img.youtube.com/vi/" + videoId.get.toString.slice(0, 11) + "/default.jpg"
                                 content.copy(thumbnail = thumbnailUrl.toString).save
                                 redirect.flashing("info" -> "Thumbnail updated")
                               }
