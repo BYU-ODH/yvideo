@@ -14,31 +14,6 @@ object ApplicationControllerSpec extends Specification {
 
   class ApplicationTestController() extends Controller with Application
 
-  "The Index Endpoint" should {
-    "redirect defined users home" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
-              val userOpt = User.findByUsername('password, "admin")
-              userOpt mustNotEqual None
-              val user = userOpt.get
-              user.id mustNotEqual None
-              val controller = new ApplicationTestController()
-              val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-              val result = controller.index(request)
-              status(result) shouldEqual 303
-          }
-    }
-    "serve the index page to everyone else" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
-              val controller = new ApplicationTestController()
-              val request = FakeRequest()
-              val result = controller.index(request)
-              status(result) shouldEqual 200
-          }
-    }
-  }
-
   "The Login Endpoint" should {
     "redirect defined users home" in {
       implicit ee: ExecutionEnv =>
@@ -75,54 +50,6 @@ object ApplicationControllerSpec extends Specification {
               val controller = new ApplicationTestController()
               val request = FakeRequest().withSession("userId" -> user.id.get.toString)
               val result = controller.home(request)
-              status(result) shouldEqual 200
-          }
-    }
-  }
-
-  "The About Endpoint" should {
-    "send defined users to the about page" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
-              val userOpt = User.findByUsername('password, "admin")
-              userOpt mustNotEqual None
-              val user = userOpt.get
-              user.id mustNotEqual None
-              val controller = new ApplicationTestController()
-              val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-              val result = controller.about(request)
-              status(result) shouldEqual 200
-          }
-    }
-  }
-
-  "The Terms Endpoint" should {
-    "send defined users to the terms page" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
-              val userOpt = User.findByUsername('password, "admin")
-              userOpt mustNotEqual None
-              val user = userOpt.get
-              user.id mustNotEqual None
-              val controller = new ApplicationTestController()
-              val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-              val result = controller.terms(request)
-              status(result) shouldEqual 200
-          }
-    }
-  }
-
-  "The Policy Endpoint" should {
-    "send defined users to the policy page" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
-              val userOpt = User.findByUsername('password, "admin")
-              userOpt mustNotEqual None
-              val user = userOpt.get
-              user.id mustNotEqual None
-              val controller = new ApplicationTestController()
-              val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-              val result = controller.policy(request)
               status(result) shouldEqual 200
           }
     }

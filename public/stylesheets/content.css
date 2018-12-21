@@ -128,11 +128,6 @@
     background-size: cover;
 }
 
-.contentBadge.questions {
-    background: url("../images/questions/placeholder.jpg") center;
-    background-size: cover;
-}
-
 .contentItem.blockFormat .contentDescription {
     position: absolute;
     top: 0;

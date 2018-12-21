@@ -1,4 +1,4 @@
-name         := "AyamelExamples"
+name         := "yvideo"
 
 version      := "1.0-SNAPSHOT"
 

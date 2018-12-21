@@ -130,7 +130,7 @@ object Cas extends Controller {
             case Some(address) => "Please contact us at " + address + " so that we can figure out what went wrong."
             case None => "Please contact us at arlitelab@gmail.com so that we can figure out what went wrong."
           }
-          Redirect(controllers.routes.Application.index()).flashing("error" -> ("An error occurred with CAS. " + advice))
+          Redirect(controllers.routes.Application.login()).flashing("error" -> ("An error occurred with CAS. " + advice))
       }
   }
 }

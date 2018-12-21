@@ -13,20 +13,6 @@ trait Application {
   this: Controller =>
 
   /**
-   * The landing page. The login screen if the user isn't logged in. The home page if the user is.
-   */
-  def index = Action {
-    implicit request =>
-      val user = Authentication.getUserFromRequest()
-      if (user.isDefined)
-        Redirect(controllers.routes.Application.home())
-      else {
-        val path = request.queryString.get("path").map(path => path(0)).getOrElse("")
-        Ok(views.html.application.index(path))
-      }
-  }
-
-  /**
    * A special login page for admins
    */
   def login = Action {
@@ -48,33 +34,6 @@ trait Application {
       implicit user =>
         Future(Ok(views.html.application.home()))
 
-  }
-
-  /**
-   * The about page
-   */
-  def about = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Future(Ok(views.html.application.about()))
-  }
-
-  /**
-   * The Terms of Use page
-   */
-  def terms = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Future(Ok(views.html.application.terms()))
-  }
-
-  /**
-   * The Privacy Policy page
-   */
-  def policy = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Future(Ok(views.html.application.policy()))
   }
 
   /**
