@@ -1,18 +1,10 @@
 dist: trusty
-branches:
-  only:
-  - master
-  - develop
-services:
-- docker
-- docker-engine
-addons:
-  apt:
-    packages: sshpass
 language: bash
 before_install:
-- openssl aes-256-cbc -K $encrypted_17fe5c8c02ba_key -iv $encrypted_17fe5c8c02ba_iv
-  -in conf/application.conf.enc -out conf/application.conf -d
+- openssl aes-256-cbc -K $encrypted_df615d1513fc_key -iv $encrypted_df615d1513fc_iv
+  -in conf/secrets.tar.enc -out secrets.tar -d
+- tar xf secrets.tar
+- cp yvideo.travis.application.conf conf/application.conf
 - bash docker_install.sh
 - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH;
   else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
@@ -24,8 +16,17 @@ before_install:
 - cd yvideo-deploy
 - bash setup_yvideo.sh --travis
 script:
-- cd /home/travis/build/BYU-ODH/yvideo
+- cd $TRAVIS_BUILD_DIR
 - bash sbt_test_result.sh
-after_success:
-- sshpass -p $serverpassword $sshuser@$host /var/yvideo/yvideo-deploy/setup_yvideo.sh
-  $YVIDEO_VERSION --build
+before_deploy:
+- chmod 600 digital_ocean_rsa
+- export CONTAINER_NAME=$(if [ "$BRANCH" == "master" ]; then echo "yvideo_prod"; else
+  echo "yvideo_beta"; fi)
+deploy:
+- provider: script
+  skip_cleanup: true
+  script:
+  - ssh -i digital_ocean_rsa -o StrictHostKeyChecking=no $SSH_USER@$SERVER "source /var/yvideo/conf/yvideo_env && cd /var/yvideo/yvideo-deploy && git checkout -- . && git checkout master && git pull && ./setup_yvideo.sh -c $YVIDEO_VERSION --rebuild=$CONTAINER_NAME --force-recreate --no-deps && date >> deploy.log"
+  on:
+    all_branches: true
+    condition: "$BRANCH =~ ^master|develop$"
