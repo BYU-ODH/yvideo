@@ -136,4 +136,3 @@ object Authentication extends Controller {
       }
   }
 }
-

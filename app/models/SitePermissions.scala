@@ -8,6 +8,7 @@ import play.api.Logger
 import play.api.db.DB
 import play.api.Play.current
 import java.sql.Connection
+import scala.language.postfixOps
 
 object SitePermissions extends SQLSelectable[String]  {
   val tableName = "sitePermissions"
@@ -111,6 +112,12 @@ object SitePermissions extends SQLSelectable[String]  {
     roles(role).foreach { p =>
       addUserPermission(user, p)
     }
+  }
+
+  def permissionsToRoles(perms: List[String]): List[String] = {
+    {if (roles.get('teacher).get.forall(perms.contains)) Some("teacher") else None} ::
+    {if (roles.get('student).get.forall(perms.contains)) Some("student") else  None} ::
+    {if (roles.get('admin).get.forall(perms.contains)) Some("admin") else None} :: Nil flatten
   }
 
 }
