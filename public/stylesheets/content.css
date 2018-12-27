@@ -208,14 +208,6 @@
 
 /* Content rendering */
 
-#contentHolder {
-    margin-bottom: 10px;
-}
-
-#contentHolder.video, #contentHolder.audio {
-    margin-bottom: 70px;
-}
-
 #imgHolder {
     width: 100%;
     height: 600px;
