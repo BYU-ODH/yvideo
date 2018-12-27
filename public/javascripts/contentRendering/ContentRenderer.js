@@ -311,10 +311,6 @@ var ContentRenderer = (function(){
         Ayamel.prioritizedPlugins.video = ["html5", "flash", "brightcove", "youtube", "vimeo", "ooyala"];
         Ayamel.prioritizedPlugins.audio = ["html5"];
 
-        // padding to account for the control bar
-        //TODO: Dynamically check the actual control bar height
-        args.holder.style.paddingBottom = "61px";
-
         // Spacebar to play/pause video
         window.addEventListener("keydown", function(e){
             if(e.keyCode == 32 && document.querySelectorAll('input:focus, textarea:focus').length === 0){
