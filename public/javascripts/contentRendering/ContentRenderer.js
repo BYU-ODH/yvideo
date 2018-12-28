@@ -457,7 +457,7 @@ var ContentRenderer = (function(){
                     endTime: args.endTime,
                     renderCue: args.renderCue,
                     holder: container,
-                    translate: allowDefinitions(content),
+                    translate: allowDefinitions(args.content),
                     transcripts: arr[0],
                     annotations: arr[1],
                     callback: args.callback
