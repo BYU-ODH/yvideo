@@ -17,6 +17,7 @@ POST    /auth/password                                      controllers.authenti
 POST    /auth/password/redirect*path                        controllers.authentication.Password.login(action: String = "login", path: String)
 POST    /auth/password/merge                                controllers.authentication.Password.login(action: String = "merge", path: String = "")
 GET     /auth/logout                                        controllers.authentication.Authentication.logout
+GET     /auth/logout/redirect*path                          controllers.authentication.Authentication.logoutWithService(path: String)
 
 # Collection pages
 GET     /collection                                         controllers.Collections.list

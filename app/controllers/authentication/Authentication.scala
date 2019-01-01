@@ -53,6 +53,20 @@ object Authentication extends Controller {
   }
 
   /**
+   * Logs out
+   */
+  def logoutWithService(service: String) = Action {
+    implicit request =>
+      getUserFromRequest()(request).map { user =>
+        val casLogoutUrl  = "https://cas.byu.edu/cas/logout?service="
+
+        val redir: String = if (user.authScheme == 'cas) { casLogoutUrl + service } else { service }
+        Redirect(redir)
+      }.getOrElse(Redirect(service))
+        .withNewSession
+  }
+
+  /**
    * Once the user is authenticated with some scheme, call this to get the actual user object. If it doesn't exist then
    * it will be created.
    * @param username The username of the user
