@@ -29,11 +29,10 @@ trait ContentController {
         getContentCollection(id) { (content, collection) =>
           if (content.contentType != 'data) {
             // Check that the user can view the content
-            if (collection.userCanViewContent(user) || user.hasSitePermission("admin")) Ok(content.toJson.toString)
-            else Forbidden("{'message':'User cannot view content.'}")
-          } else {
-              BadRequest("{'message':'Bad Request.'}")
+            if (collection.userCanViewContent(user) || user.hasSitePermission("admin")) { Ok(content.toJson) }
+            else { Forbidden(Json.obj( "message" -> "User is not authorized to view this content." )) }
           }
+          else { BadRequest(Json.obj( "message" -> "Illegal Content Type." )) }
         }
   }
 
