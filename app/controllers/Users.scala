@@ -36,20 +36,19 @@ trait Users {
   def roles = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Future{
-          val perms = SitePermissions.listByUser(user)
-          Ok(Json.obj(
-            "data" -> Json.obj(
-              "authenticated" -> true,
-              "permissions" -> Json.toJson(perms),
-              "roles" -> Json.toJson(
-                SitePermissions.permissionsToRoles(perms)))))}
+        val perms = SitePermissions.listByUser(user)
+        Ok(Json.obj(
+        "data" -> Json.obj(
+          "authenticated" -> true,
+          "permissions" -> Json.toJson(perms),
+          "roles" -> Json.toJson(
+            SitePermissions.permissionsToRoles(perms)))))
   }
 
   def getAsJson = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Future(Ok(user.toJson))
+        Ok(user.toJson)
   }
 
   /**
