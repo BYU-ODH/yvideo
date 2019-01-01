@@ -33,7 +33,7 @@ object ContentControllerSpec extends Specification {
                 user.id mustNotEqual None
                 val controller = new ContentTestController()
                 val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                val result = controller.getAsJson(1)(request) //volatile - create a content and then use it
+                val result = controller.contentAsJson(1)(request) //volatile - create a content and then use it
                 val jsonResult = contentAsJson(result)
                 contentType(result) mustEqual Some("application/json")
                 val jsVal: JsValue = Json.parse(jsonResult.toString)
