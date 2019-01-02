@@ -290,7 +290,7 @@ var ContentRenderer = (function(){
             transcriptPlayer = null,
             components = args.components || {
                 left: ["play", "lastCaption", "volume", "captions", "annotations"],
-                right: ["rate", "fullScreen", "timeCode"]
+                right: ["rate", "fullScreen", "sideToggle", "timeCode"]
             };
 
         if(!showCaptions(args.content)){
