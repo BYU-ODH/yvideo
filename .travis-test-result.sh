@@ -1,6 +1,6 @@
 #!/bin/bash
 
-container="yvideo_yvideo_test_1"
+container="travis_yvideo_1"
 
 echo "Waiting for $container docker container to exit"
 sudo docker wait $container
