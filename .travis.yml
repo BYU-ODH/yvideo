@@ -15,7 +15,7 @@ script:
 - cd $TRAVIS_BUILD_DIR
 - bash .travis-test-result.sh
 before_deploy:
-- export SERVER=$(if [ "$BRANCH" == "master" ]; echo $BETA_SERVER; else echo $PROD_SERVER; fi)
+- export SERVER=$(if [ "$BRANCH" == "master" ]; then echo $BETA_SERVER; else echo $PROD_SERVER; fi)
 deploy:
 - provider: script
   script: ssh -i server_key -o StrictHostKeyChecking=no $SSH_USER@$SERVER 'bash /var/yvideo/yvideo-deploy/scripts/deploy.sh'
