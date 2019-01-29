@@ -14,10 +14,11 @@ before_install:
 script:
 - cd $TRAVIS_BUILD_DIR
 - bash .travis-test-result.sh
+before_deploy:
+- export SERVER=$(if [ "$BRANCH" == "master" ]; echo $BETA_SERVER; else echo $PROD_SERVER; fi)
 deploy:
 - provider: script
-  skip_cleanup: true
-  script: bash .travis-deploy.sh
+  script: ssh -i server_key -o StrictHostKeyChecking=no $SSH_USER@$SERVER 'bash /var/yvideo/yvideo-deploy/scripts/deploy.sh'
   on:
     all_branches: true
     condition: "$BRANCH =~ ^master|develop$"
