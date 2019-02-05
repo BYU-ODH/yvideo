@@ -15,10 +15,13 @@ object SitePermissions extends SQLSelectable[String]  {
 
   val desc_map = Map(
     "admin" -> "Administrator",
+    "manager" -> "Site Manager",
     "createCollection" -> "Create Collection",
     "createContent" -> "Create Content",
     "viewRestricted" -> "View Restricted Content",
-    "joinCollection" -> "Join Collections"
+    "joinCollection" -> "Join Collections",
+    "enableContent" -> "Enable and Disable Content",
+    "delete" -> "Delete site data"
   )
 
   def permissionList = desc_map.keys.toList
@@ -102,10 +105,10 @@ object SitePermissions extends SQLSelectable[String]  {
   def getDescription(permission: String) = desc_map.get(permission).getOrElse("")
 
   val roles = Map(
-    'guest -> List(),
     'student -> List("joinCollection"),
     'teacher -> List("createContent", "joinCollection", "createCollection", "viewRestricted"),
-    'admin -> List("admin")
+    'manager -> List("createContent", "joinCollection", "createCollection", "viewRestricted", "enableContent", "manager"),
+    'admin -> List("admin", "delete")
   )
 
   def assignRole(user: User, role: Symbol) {
@@ -117,6 +120,7 @@ object SitePermissions extends SQLSelectable[String]  {
   def permissionsToRoles(perms: List[String]): List[String] = {
     {if (roles.get('teacher).get.forall(perms.contains)) Some("teacher") else None} ::
     {if (roles.get('student).get.forall(perms.contains)) Some("student") else  None} ::
+    {if (roles.get('manager).get.forall(perms.contains)) Some("manager") else  None} ::
     {if (roles.get('admin).get.forall(perms.contains)) Some("admin") else None} :: Nil flatten
   }
 
