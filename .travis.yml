@@ -15,7 +15,7 @@ script:
 - cd $TRAVIS_BUILD_DIR
 - bash .travis-test-result.sh
 before_deploy:
-- export SERVER=$(if [ "$BRANCH" == "master" ]; then echo $BETA_SERVER; else echo $PROD_SERVER; fi)
+- export SERVER=$(if [ "$BRANCH" == "master" ]; then echo $PROD_SERVER; else echo $BETA_SERVER; fi)
 deploy:
 - provider: script
   skip_cleanup: true
