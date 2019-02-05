@@ -123,10 +123,6 @@ object Authentication extends Controller {
     request.session.get("userId").flatMap( userId => User.findById(userId.toLong) )
   }
 
-  private def withCORS(result: Result): Result = {
-    result.withHeaders("Access-Control-Allow-Origin" -> allowedOrigins.map(_.mkString(",")).getOrElse("*"))
-  }
-
   /**
    * A generic action to be used for secured API endpoints
    * @param f The action logic. A curried function which, given a request and the authenticated user, returns a result.
@@ -134,8 +130,8 @@ object Authentication extends Controller {
    */
   def secureAPIAction[A](parser: BodyParser[A] = BodyParsers.parse.anyContent)(f: Request[A] => User => Result) = Action.async(parser) {
     implicit request =>
-      Future(withCORS(getUserFromRequest().map( user => f(request)(user) ).getOrElse(
-          Forbidden(JsObject(Seq("message" -> JsString("You must be logged in to request this resource.")))))))
+      Future(getUserFromRequest().map( user => f(request)(user) ).getOrElse(
+          Forbidden(JsObject(Seq("message" -> JsString("You must be logged in to request this resource."))))))
   }
 
   /**

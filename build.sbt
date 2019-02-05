@@ -10,6 +10,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
   libraryDependencies ++= Seq(
     // Add your project dependencies here,
     evolutions,
+    filters,
     jdbc,
     cache,
 	ws,
