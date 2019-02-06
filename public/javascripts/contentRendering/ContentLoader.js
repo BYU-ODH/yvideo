@@ -3,7 +3,7 @@ var ContentLoader = (function () {
 
     function getDocumentWhitelist(args, type, ids){
         if(ids.length === 0){ return Promise.resolve([]); }
-        return Promise.resolve($.ajax("http://localhost:9000/ajax/permissionChecker", {
+        return Promise.resolve($.ajax("/ajax/permissionChecker", {
             type: "post",
             data: {
                 courseId: args.courseId,
