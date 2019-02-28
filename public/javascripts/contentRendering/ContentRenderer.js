@@ -290,7 +290,7 @@ var ContentRenderer = (function(){
             transcriptPlayer = null,
             components = args.components || {
                 left: ["play", "lastCaption", "volume", "captions", "annotations"],
-                right: ["rate", "fullScreen", "timeCode"]
+                right: ["rate", "fullScreen", "sideToggle", "timeCode"]
             };
 
         if(!showCaptions(args.content)){
@@ -310,10 +310,6 @@ var ContentRenderer = (function(){
         // Set the priority of players
         Ayamel.prioritizedPlugins.video = ["html5", "flash", "brightcove", "youtube", "vimeo", "ooyala"];
         Ayamel.prioritizedPlugins.audio = ["html5"];
-
-        // padding to account for the control bar
-        //TODO: Dynamically check the actual control bar height
-        args.holder.style.paddingBottom = "61px";
 
         // Spacebar to play/pause video
         window.addEventListener("keydown", function(e){
