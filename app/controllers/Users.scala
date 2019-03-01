@@ -22,27 +22,21 @@ trait Users {
    * Get the collections that a user belongs to
    * @return Result[json array] of collections
    */
-  def collectionsPreview(max: Int = 100) = Authentication.secureAPIAction() {
+  def collectionsPreview = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Ok(Json.toJson(user.getEnrollment.take(max).map(coll =>
+        Future(Ok(Json.toJson(user.getEnrollment.map(coll =>
           Json.obj(
-            "contentCount" -> coll.getContent.length,
             "name" -> coll.name,
-            "url" -> Json.toJson(coll.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
-            "id" -> coll.id.get))))
-  }
-
-  def roles = Authentication.secureAPIAction() {
-    implicit request =>
-      implicit user =>
-        val perms = SitePermissions.listByUser(user)
-        Ok(Json.obj(
-        "data" -> Json.obj(
-          "authenticated" -> true,
-          "permissions" -> Json.toJson(perms),
-          "roles" -> Json.toJson(
-            SitePermissions.permissionsToRoles(perms)))))
+            "thumbnail" -> Json.toJson(coll.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
+            "id" -> coll.id.get,
+            "content" -> coll.getContent.map(cont =>
+                Json.obj(
+                  "id" -> cont.id,
+                  "name" -> cont.name,
+                  "contentType" -> cont.contentType.toString,
+                  "thumbnail" -> cont.thumbnail,
+                  "views" -> cont.views)))))))
   }
 
   def getAsJson = Authentication.secureAPIAction() {

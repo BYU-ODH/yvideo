@@ -66,7 +66,6 @@ var TranscriptPlayer = (function(){
             });
 
             transcriptDisplay.appendChild(transcriptSelect);
-            transcriptDisplay.appendChild(document.createElement("hr"));
             transcriptDisplay.appendChild(transcriptContentHolder);
             element.appendChild(transcriptDisplay);
         })();
