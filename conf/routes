@@ -126,7 +126,7 @@ POST    /feedback                                           controllers.Applicat
 POST    /feedback/error                                     controllers.Application.saveErrorFeedback
 
 # user API
-GET     /api/user/preview/:max                              controllers.Users.collectionsPreview(max: Int)
+GET     /api/user/preview                             controllers.Users.collectionsPreview
 GET     /api/user/recent                                    controllers.Users.recentContent
 GET     /api/user                                           controllers.Users.getAsJson
 
