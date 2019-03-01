@@ -25,7 +25,7 @@ trait Users {
   def collectionsPreview = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Future(Ok(Json.toJson(user.getEnrollment.map(coll =>
+        Ok(Json.toJson(user.getEnrollment.map(coll =>
           Json.obj(
             "name" -> coll.name,
             "thumbnail" -> Json.toJson(coll.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
@@ -36,7 +36,18 @@ trait Users {
                   "name" -> cont.name,
                   "contentType" -> cont.contentType.toString,
                   "thumbnail" -> cont.thumbnail,
-                  "views" -> cont.views)))))))
+                  "views" -> cont.views))))))
+  }
+
+  def roles = Authentication.secureAPIAction() {
+    implicit request =>
+      implicit user =>
+        val perms = SitePermissions.listByUser(user)
+        Ok(Json.obj( 
+          "authenticated" -> true,  
+          "permissions" -> Json.toJson(perms),  
+          "roles" -> Json.toJson( 
+            SitePermissions.permissionsToRoles(perms)))) 
   }
 
   def getAsJson = Authentication.secureAPIAction() {
