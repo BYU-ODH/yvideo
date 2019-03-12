@@ -21,7 +21,7 @@ import service.{EmailTools, TimeTools}
  * @param email The user's email address
  * @param role The permissions of the user
  */
-case class ViewingHistory(id: Option[Long], userId: Long, contentId: Long) extends SQLSavable with SQLDeletable {
+case class ViewingHistory(id: Option[Long], userId: Long, contentId: Long, time: String) extends SQLSavable with SQLDeletable {
 
   /**
    * Saves the user to the DB
@@ -29,10 +29,10 @@ case class ViewingHistory(id: Option[Long], userId: Long, contentId: Long) exten
    */
   def save =
     if (id.isDefined) {
-      update(User.tableName, 'userId -> userId, 'contentId -> contentId)
+      update(ViewingHistory.tableName, 'userId -> userId, 'contentId -> contentId, 'time -> time)
       this
     } else {
-      val id = insert(User.tableName, 'userId -> userId, 'contentId -> contentId)
+      val id = insert(ViewingHistory.tableName, 'userId -> userId, 'contentId -> contentId, 'time -> time)
       this.copy(id)
     }
 
@@ -40,7 +40,7 @@ case class ViewingHistory(id: Option[Long], userId: Long, contentId: Long) exten
    */
   def delete() {
     // Delete the user's views
-    delete(User.tableName)
+    delete(ViewingHistory.tableName)
   }
 
 
@@ -57,9 +57,10 @@ case class ViewingHistory(id: Option[Long], userId: Long, contentId: Long) exten
 
   def toJson = {
     Json.obj(
-      "id" -> id,
+      "id" -> id.getOrElse(-1).asInstanceOf[Long],
       "userId" -> userId,
-      "contentId" -> contentId
+      "contentId" -> contentId,
+      "time" -> time
     )
   }
 
@@ -114,9 +115,10 @@ object ViewingHistory extends SQLSelectable[ViewingHistory] {
   val simple = {
     get[Option[Long]](tableName + ".id") ~
       get[Long](tableName + ".userId") ~
-      get[Long](tableName + ".contentId") map {
-      case id ~ userId ~ contentId => {
-        ViewingHistory(id, userId, contentId)
+      get[Long](tableName + ".contentId") ~
+      get[String](tableName + ".time") map {
+      case id ~ userId ~ contentId ~ time => {
+        ViewingHistory(id, userId, contentId, time)
       }
     }
   }
@@ -173,4 +175,20 @@ object ViewingHistory extends SQLSelectable[ViewingHistory] {
     }
   }
 
+  private val view2datetime = (x: ViewingHistory) => TimeTools.stringToDateTime(x.time)
+
+  /**
+   * Adds a userView entry if it has been more than 1 minute since the user's previous view
+   * Compares the dates in the userView entries
+   * @param userId The user
+   * @param contentId The content
+   * @return true if a userView was created false otherwise
+   */
+  def addView(userId: Long, contentId: Long): Boolean = {
+    if (TimeTools.timeHasElapsed(TimeTools.getLatest(getUserViews(userId).map(view2datetime)), 1000 * 60)) {
+      ViewingHistory(None, userId, contentId, TimeTools.now()).save
+      true
+    }
+    else false
+  }
 }

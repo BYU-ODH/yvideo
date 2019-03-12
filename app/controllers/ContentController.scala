@@ -2,7 +2,7 @@ package controllers
 
 import authentication.Authentication
 import service._
-import models.{User, Content, Collection}
+import models.{User, Content, Collection, ViewingHistory}
 import scala.concurrent.{Future, ExecutionContext}
 import ExecutionContext.Implicits.global
 import service.ContentDescriptor
@@ -527,6 +527,31 @@ trait ContentController {
             Content.renew(id, renewer)
             Redirect(routes.Application.home()).flashing("success" -> s"Successfully renewed content $id")
           }
+        }
+  }
+
+  /**
+   * Increment add a userview to the userView table
+   */
+  def addView(contentId: Long) = Authentication.secureAPIAction() {
+    implicit request =>
+      implicit user =>
+        getContentCollection(contentId) { (content, collection) =>
+          if (content.contentType != 'data) {
+            // Check that the user can view the content
+            if (collection.userCanViewContent(user) || user.hasSitePermission("admin")) {
+              if (ViewingHistory.addView(user.id.get, contentId)) {
+                // update this content's view count
+                content.copy(views = content.views+1).save
+                NoContent
+              }
+              else {
+                Forbidden(Json.obj("message" -> "Request repeated too quickly."))
+              }
+            }
+            else { Forbidden(Json.obj( "message" -> "User is not authorized to view this content." )) }
+          }
+          else { BadRequest(Json.obj( "message" -> "Illegal Content Type." )) }
         }
   }
 
