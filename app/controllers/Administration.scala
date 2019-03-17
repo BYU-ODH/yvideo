@@ -9,7 +9,7 @@ import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import play.api.Logger
 import dataAccess.ResourceController
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json._
 
 /**
  * Controller for Administration pages and actions
@@ -46,13 +46,14 @@ trait Administration {
    * @param limit The size of the list of users queried from the db
    * @return list of user JSON objects
    */
-  def pagedUsers(id: Long, limit: Long, up: Boolean) = Authentication.authenticatedAction() {
+  def pagedUsers(id: Long, limit: Long, up: Boolean) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
       //check if admin
-      Authentication.enforcePermission("admin") {
-        Future(Ok(Json.toJson(User.listPaginated(id, limit, up).map(_.toJson))))
-      }
+      if (user.hasSitePermission("admin"))
+        Ok(Json.toJson(User.listPaginated(id, limit, up).map(_.toJson)))
+      else 
+        Forbidden(JsObject(Seq("message" -> JsString("You must an admin to use this endpoint"))))
   }
 
 
@@ -60,13 +61,13 @@ trait Administration {
    * Get the number of all current users
    * @return the total number of current users
    */
-  def userCount() = Authentication.authenticatedAction() {
+  def userCount() = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-      Authentication.enforcePermission("admin") {
-        println(Json.toJson(User.count))
-        Future(Ok(Json.toJson(User.count)))
-      }
+      if (user.hasSitePermission("admin"))
+        Ok(Json.toJson(User.count))
+      else 
+        Forbidden(JsObject(Seq("message" -> JsString("You must an admin to use this endpoint"))))
   }
 
 
@@ -74,26 +75,21 @@ trait Administration {
    * Get the users that match the given search criteria
    * @return a list of users based on the given search criteria
    */
-   def searchUsers(columnName: String, searchValue: String) = Authentication.authenticatedAction() {
+   def searchUsers(columnName: String, searchValue: String) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
       val allowedColumns = List("username", "name", "email")
       if (allowedColumns.contains(columnName)) {
         if (searchValue.length > 3) {
-          Authentication.enforcePermission("admin") {
-            Future(Ok(Json.toJson(User.userSearch(columnName, searchValue).map(_.toJson))))
-          }
+          if (user.hasSitePermission("admin"))
+            Ok(Json.toJson(User.userSearch(columnName, searchValue).map(_.toJson)))
+          else
+            Forbidden(JsObject(Seq("message" -> JsString("You must an admin to use this endpoint"))))
         } else {
-          Future {
-            Redirect(routes.Administration.manageUsers())
-              .flashing("error" -> "Search value was too short.")
-          }
+            Forbidden(JsObject(Seq("message" -> JsString("Search value was too short"))))
         }
       } else {
-        Future {
-          Redirect(routes.Administration.manageUsers())
-            .flashing("error" -> "Search column is not allowed.")
-        }
+          Forbidden(JsObject(Seq("message" -> JsString("Search column is not allowed"))))
       }
    }
 
