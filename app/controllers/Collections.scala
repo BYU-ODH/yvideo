@@ -384,7 +384,6 @@ trait Collections {
         }
   }
 
-
   /**
    * Remove a student from the collection based on a Cas username
    * @param id The collection id
@@ -440,10 +439,6 @@ trait Collections {
           }
         }
   }
-
-
-
-
 
   /**
    * Give permissions to a user

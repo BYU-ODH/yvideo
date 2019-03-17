@@ -50,13 +50,12 @@ object WordLists extends Controller {
   /**
    * View the user's word list (in JSON)
    */
-  def viewJSON = Authentication.authenticatedAction() {
+  def viewJson = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         val wordList = user.getWordList
         .map{word => Json.obj("id"-> word.id, "word"-> word.word, "srcLang"-> word.srcLang, "destLang"-> word.destLang)}
-        // Future(Ok(views.html.words.view(wordList)))
-        Future(Ok(Json.obj("wordList"-> wordList)))
+        Ok(Json.obj("wordList"-> wordList))
   }
 
   /**

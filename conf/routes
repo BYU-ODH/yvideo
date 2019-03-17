@@ -5,7 +5,7 @@
 # Home/basic pages
 GET     /home                                               controllers.Application.home
 GET     /login                                              controllers.Application.login
-GET 	/													controllers.Application.login
+GET     /                                                   controllers.Application.login
 
 # Authentication
 GET     /auth/cas                                           controllers.authentication.Cas.login(action: String = "login", path: String = "")
@@ -100,7 +100,7 @@ POST    /content/:contentId/delete/:docId                   controllers.Document
 
 # Word List pages
 GET     /words                                              controllers.WordLists.view
-GET     /wordList                                           controllers.WordLists.viewJSON
+GET     /wordList                                           controllers.WordLists.viewJson
 POST    /words                                              controllers.WordLists.add
 POST    /words/delete/:id                                   controllers.WordLists.deleteWord(id: Long)
 POST    /words/export                                       controllers.WordLists.export
@@ -135,7 +135,15 @@ GET     /api/user/recent                                    controllers.Users.re
 GET     /api/content/:id                                    controllers.ContentController.contentAsJson(id: Long)
 
 # collection API
-GET 	/api/collection/:id 								controllers.Collections.collectionAsJson(id: Long)
+GET     /api/collection/:id                                 controllers.Collections.collectionAsJson(id: Long)
+
+# admin API
+GET     /api/admin/users/:id/:limit/:up                     controllers.Administration.pagedUsers(id: Long, limit: Long, up: Boolean)
+GET     /api/admin/users/count                              controllers.Administration.userCount
+GET     /api/admin/users/:columnName/:searchValue           controllers.Administration.searchUsers(columnName: String, searchValue: String)
+
+# wordlist API
+GET     /wordList                                           controllers.WordLists.viewJson
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                                       controllers.Assets.at(path="/public", file)

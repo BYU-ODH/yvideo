@@ -153,7 +153,7 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
    * Get all the members (teachers and students)
    * @return The list of all members
    */
-  def getMembers: List[User] = getTeachers ++ getStudents
+  def getMembers: List[User] = getTeachers ++ getStudents ++ getTAs
 
   /**
    * Get content posted to this collection
