@@ -2,6 +2,7 @@ package service
 
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter, ISODateTimeFormat}
 import org.joda.time.DateTime
+import org.joda.time.Duration
 
 /**
  * Tools for dealing with string dates.
@@ -31,25 +32,11 @@ object TimeTools {
    */
   def parseDate(date: String): String = {
     val dateTime = DateTimeFormat.forPattern("MM/dd/yy").parseDateTime(date)
-//    val dateTime = new DateTime(date)
     ISODateTimeFormat.dateTime().print(dateTime)
-
   }
 
   def dateToTimestamp(date: String): Long = new DateTime(date).getMillis
-
-//  def colonTimecodeToSeconds(timecode: String): String = {
-//    val parts = timecode.split(":")
-//    if (parts.size == 3) {
-//      // Hour:Min:Sec
-//      (parts(0).toInt * 3600 + parts(1).toInt * 60 + parts(2).toInt).toString
-//    } else if (parts.size == 2) {
-//      // Min:Sec
-//      (parts(0).toInt * 60 + parts(1).toInt).toString
-//    } else {
-//      timecode
-//    }
-//  }
+  def stringToDateTime(date: String): DateTime = new DateTime(date)
 
   /**
    * This takes a date string and checks to see if it is older than the given amount of months
@@ -61,4 +48,34 @@ object TimeTools {
     val givenDate = new DateTime(date)
     expirationDate.isAfter(givenDate)
   }
+
+  /**
+   * Returns true if the time between date1 and date2 is longer than m milliseconds
+   * @param date1 The start time
+   * @param date2 The end time
+   * @param m The duration to compare against in milliseconds
+   */
+  def timeSpanReached(date1: DateTime, date2: DateTime, m: Long): Boolean =
+    new Duration(date1, date2).isLongerThan(new Duration(m))
+
+  /**
+   * Returns true if more than m milliseconds has passed since the provided date
+   * @param date The start time
+   * @param m Duration in milliseconds
+   */
+  def timeHasElapsed(date: DateTime, m: Long): Boolean = timeSpanReached(date, DateTime.now(), m)
+
+  /*
+   * @param a DateTime
+   * @param b DateTime
+   * @return The latest DateTime
+   */
+  val later = (a: DateTime, b: DateTime) => if (a.isAfter(b)) a else b
+
+  /**
+   * Gets the latest datetime from a list of datetime
+   * @param dates A list of unsorted datetime
+   * @return The latest datetime object
+   */
+  def getLatest(dates: List[DateTime]): DateTime = dates.fold(new DateTime(0))(later)
 }

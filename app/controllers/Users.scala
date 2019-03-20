@@ -43,11 +43,10 @@ trait Users {
     implicit request =>
       implicit user =>
         val perms = SitePermissions.listByUser(user)
-        Ok(Json.obj( 
-          "authenticated" -> true,  
-          "permissions" -> Json.toJson(perms),  
-          "roles" -> Json.toJson( 
-            SitePermissions.permissionsToRoles(perms)))) 
+        Ok(Json.obj(
+          "authenticated" -> true,
+          "permissions" -> Json.toJson(perms),
+          "roles" -> Json.toJson(SitePermissions.permissionsToRoles(perms))))
   }
 
   def getAsJson = Authentication.secureAPIAction() {
@@ -63,7 +62,10 @@ trait Users {
   def recentContent = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Ok(Json.toJson(ViewingHistory.getUserViews(user.id.get).map { recentContent =>
+        Ok(Json.toJson(ViewingHistory.getUserViews(user.id.get).foldLeft(List[ViewingHistory]()){
+          // remove duplicates
+          (a, b) => if (a.exists(_.contentId == b.contentId)) a else b :: a
+        }.map { recentContent =>
           Content.findById(recentContent.contentId).map { content =>
             Json.obj(
               "contentId" -> recentContent.contentId,
@@ -73,7 +75,7 @@ trait Users {
           }.getOrElse(JsNull)
         }.filter(_ match {
           case JsNull => false
-          case _ => false
+          case _ => true
         })))
   }
 
