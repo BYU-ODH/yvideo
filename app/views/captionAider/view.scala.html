@@ -39,10 +39,8 @@
                 <ul class="breadcrumb">
                     @if(collection.isDefined) {
                         <li><a href="@routes.Collections.view(collection.get.id.get)">@collection.get.name</a> <span class="divider"></span></li>
-                        <li><a href="@routes.CollectionContent.viewInCollection(content.id.get, collection.get.id.get)">@content.name</a> <span class="divider">/</span></li>
-                    } else {
-                        <li><a href="@routes.ContentController.view(content.id.get)">@content.name</a> <span class="divider"></span></li>
                     }
+                    <li><a href="@routes.ContentController.view(content.id.get)">@content.name</a> <span class="divider"></span></li>
                     <li class="active">CaptionAider</li>
                 </ul>
                 <div id="contentHolder" class="@content.contentType.name"></div>

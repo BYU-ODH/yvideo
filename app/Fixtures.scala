@@ -36,11 +36,11 @@ object Fixtures {
     )
 
     val collections = List(
-      (1L, "Collection Test 1"),
-      (2L, "Collection Test 2"),
-      (3L, "Collection Test 3"),
-      (4L, "Collection Test 4"),
-      (5L, "Collection Test 5")
+      (1L, "Collection Test 1", true, false),
+      (2L, "Collection Test 2", true, false),
+      (3L, "Collection Test 3", true, false),
+      (4L, "Collection Test 4", false, false),
+      (5L, "Collection Test 5", false, true)
     )
 
     val courses = List(

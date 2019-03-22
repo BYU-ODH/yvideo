@@ -212,10 +212,7 @@ trait Administration {
             collection.copy(
               name = params("name")
             ).save
-            Future {
-              Redirect(routes.Administration.manageCollections())
-                .flashing("info" -> "Collection updated")
-            }
+            Redirect(routes.Administration.manageCollections()).flashing("info" -> "Collection updated")
           }
         }
   }
@@ -228,17 +225,15 @@ trait Administration {
     implicit request =>
       implicit user =>
         Collections.getCollection(id) { collection =>
-          Future {
-            if (user.isCollectionTeacher(collection)) {
-              collection.delete()
-              Redirect(routes.Application.home)
-                .flashing("info" -> "Collection deleted")
-            } else if(user.hasSitePermission("admin")) {
-              collection.delete()
-              Redirect(routes.Administration.manageCollections())
-                .flashing("info" -> "Collection deleted")
-            } else Errors.forbidden
-          }
+          if (user.isCollectionTeacher(collection)) {
+            collection.delete()
+            Redirect(routes.Application.home)
+              .flashing("info" -> "Collection deleted")
+          } else if(user.hasSitePermission("admin")) {
+            collection.delete()
+            Redirect(routes.Administration.manageCollections())
+              .flashing("info" -> "Collection deleted")
+          } else Errors.forbidden
       }
   }
 

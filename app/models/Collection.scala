@@ -9,6 +9,8 @@ import service.{TimeTools, HashTools}
 import util.Random
 import play.api.db.DB
 import play.api.Play.current
+import play.api.libs.json.Json
+import play.api.libs.json.JsNumber
 
 /**
  * A collection. Students and teachers are members. Content can be posted here.
@@ -17,18 +19,18 @@ import play.api.Play.current
  * @param startDate When the collection become functional
  * @param endDate When the collection ceases to be functional
  */
-case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSavable with SQLDeletable {
+case class Collection(id: Option[Long], owner: Long, name: String, published: Boolean, archived: Boolean) extends SQLSavable with SQLDeletable {
   /**
    * Saves the collection to the DB
    * @return The possibly updated collection
    */
   def save =
     if (id.isDefined) {
-      update(Collection.tableName, 'owner -> owner, 'name -> name)
+      update(Collection.tableName, 'owner -> owner, 'name -> name, 'published -> published, 'archived -> archived)
       this
     }
     else {
-      val id = insert(Collection.tableName, 'owner -> owner, 'name -> name)
+      val id = insert(Collection.tableName, 'owner -> owner, 'name -> name, 'published -> published, 'archived -> archived)
       this.copy(id)
     }
 
@@ -39,7 +41,9 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
     DB.withConnection { implicit connection =>
       try {
         SQL("delete from collectionMembership where collectionId = {id}").on('id -> id).execute()
+        SQL("delete from collectionCourseLink where collectionId = {id}").on('id -> id).execute()
         SQL("delete from collectionPermissions where collectionId = {id}").on('id -> id).execute()
+        SQL("delete from content where collectionId = {id}").on('id -> id).execute()
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in Collection.scala / delete")
@@ -76,6 +80,15 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
   def removeContent(content: Content): Collection = {
     content.delete()
     this
+  }
+
+  def toJson = {
+    Json.obj(
+        "id" -> id.getOrElse[Long](0),
+        "name" -> name,
+        "published" -> published,
+        "archived" -> archived
+      )
   }
 
   //       _____      _   _
@@ -184,6 +197,9 @@ case class Collection(id: Option[Long], owner: Long, name: String) extends SQLSa
   def removeUserPermission(user: User, permission: String) = CollectionPermissions.removeUserPermission(this, user, permission)
   def removeAllUserPermissions(user: User) = CollectionPermissions.removeAllUserPermissions(this, user)
 
+  def setPublished(value: Boolean): Collection = if (published != value) this.copy(published=value).save else this
+  def setArchived(value: Boolean): Collection = if (archived != value) this.copy(archived=value).save else this
+
   def userIsTA(user: User) = getTAs.contains(user)
   def userIsTeacher(user: User) = getTeachers.contains(user)
   def userIsAdmin(user: User) = userIsTA(user) || userIsTeacher(user)
@@ -197,9 +213,11 @@ object Collection extends SQLSelectable[Collection] {
   val simple = {
     get[Option[Long]](tableName + ".id") ~
       get[Long](tableName + ".owner") ~
-      get[String](tableName + ".name") map {
-      case id~owner~name =>
-        Collection(id, owner, name)
+      get[String](tableName + ".name") ~
+      get[Boolean](tableName + ".published") ~
+      get[Boolean](tableName + ".archived") map {
+      case id~owner~name~published~archived =>
+        Collection(id, owner, name, published, archived)
     }
   }
 
@@ -247,26 +265,6 @@ object Collection extends SQLSelectable[Collection] {
    * @param data Fixture data
    * @return The user
    */
-  def fromFixture(data: (Long, String)): Collection =
-    Collection(None, data._1, data._2)
-
-  /**
-   * Search the names of collections
-   * @param query The string to look for
-   * @return The list of collections that match
-   */
-  def search(query: String): List[Collection] = Nil
-
-    // DB.withConnection { implicit connection =>
-    //   val sqlQuery = "%" + query + "%"
-    //   try {
-    //     SQL(s"select * from $tableName where name like {query} order by name asc")
-    //       .on('query -> sqlQuery).as(simple *)
-    //   } catch {
-    //     case e: SQLException =>
-    //       Logger.debug("Failed in Collection.scala / search")
-    //       Logger.debug(e.getMessage())
-    //       List[Collection]()
-    //   }
-    // }
+  def fromFixture(data: (Long, String, Boolean, Boolean)): Collection =
+    Collection(None, data._1, data._2, data._3, data._4)
 }

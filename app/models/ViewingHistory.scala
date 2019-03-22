@@ -57,7 +57,7 @@ case class ViewingHistory(id: Option[Long], userId: Long, contentId: Long, time:
 
   def toJson = {
     Json.obj(
-      "id" -> id.getOrElse(-1).asInstanceOf[Long],
+      "id" -> id.getOrElse[Long](0),
       "userId" -> userId,
       "contentId" -> contentId,
       "time" -> time
