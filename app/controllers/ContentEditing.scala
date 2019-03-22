@@ -145,10 +145,7 @@ trait ContentEditing {
             val cropLeft = request.body("cropLeft")(0).toDouble
             val cropBottom = request.body("cropBottom")(0).toDouble
             val cropRight = request.body("cropRight")(0).toDouble
-            val redirect = Redirect(AdditionalDocumentAdder.getCollection() match {
-              case Some(collection) => routes.CollectionContent.viewInCollection(content.id.get, collection.id.get)
-              case _ => routes.ContentController.view(content.id.get)
-            })
+            val redirect = Redirect(routes.ContentController.view(content.id.get))
 
             // Load the image
             ImageTools.loadImageFromContent(content).flatMap { image =>
