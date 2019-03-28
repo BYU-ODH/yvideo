@@ -13,10 +13,7 @@ import ExecutionContext.Implicits.global
 /**
  * Controller dealing with users
  */
-trait Users {
-
-  // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
-  this: Controller =>
+trait Users { this: Controller =>
 
   /**
    * Get the collections that a user belongs to

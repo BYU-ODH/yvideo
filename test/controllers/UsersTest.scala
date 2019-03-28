@@ -10,17 +10,16 @@ import scala.concurrent.Future
 import models.{Content, User, Course}
 import controllers.Users
 import test.ApplicationContext
+import test.TestHelpers
 
-object UserControllerSpec extends Specification with ApplicationContext {
+object UserControllerSpec extends Specification with ApplicationContext with TestHelpers {
 
   class UsersTestController() extends Controller with Users
 
   "The Accout Settings Endpoint" should { //will potentially be removed/altered
     "serve the account settings view to authenticated users" in {
       application {
-        val userOpt = User.findByUsername('password, "admin")
-        userOpt mustNotEqual None
-        implicit val user = userOpt.get
+        val user = newCasAdmin("admin")
         user.id mustNotEqual None
         val controller = new UsersTestController()
         val request = FakeRequest().withSession("userId" -> user.id.get.toString)

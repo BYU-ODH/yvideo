@@ -9,22 +9,25 @@ import ExecutionContext.Implicits.global
 object Global extends GlobalSettings {
 
   override def onStart(app: play.api.Application) {
+    if (app.mode.toString != "Test") {
+      // If there are no users or collections then create all the fixtures
+      if (User.list.isEmpty || models.Collection.list.isEmpty) {
+        Logger.info("Creating fixtures")
+        Fixtures.create()
+      }
 
-    // If there are no users or collections then create all the fixtures
-    if (User.list.isEmpty || models.Collection.list.isEmpty) {
-      Logger.info("Creating fixtures")
-      Fixtures.create()
+      if (HomePageContent.list.isEmpty) {
+        Fixtures.createHomePageContent()
+      }
+
+      if (HelpPage.list.isEmpty) {
+        Fixtures.createHelpPages()
+      }
+
+      Fixtures.setupSetting()
+    } else {
+      Logger.debug("Skipping fixtures in test mode")
     }
-
-    if (HomePageContent.list.isEmpty) {
-      Fixtures.createHomePageContent()
-    }
-
-    if (HelpPage.list.isEmpty) {
-      Fixtures.createHelpPages()
-    }
-
-    Fixtures.setupSetting()
   }
 
   override def onError(request: RequestHeader, ex: Throwable) = {

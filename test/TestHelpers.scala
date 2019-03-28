@@ -5,7 +5,7 @@ import play.api.data.validation.ValidationError
 import org.specs2.matcher.Matcher
 import org.specs2.matcher.MatchersImplicits._
 
-import models.User
+import models.{SitePermissions, User}
 
 trait TestHelpers {
   /**
@@ -22,17 +22,30 @@ trait TestHelpers {
     err.errors.map(t=>s"JsError: ${t._1.toJsonString}: ${t._2.map(_.message).mkString(",")}").mkString("\n")
 
   /**
-   * Used to generate new users
-   * username = the name with spaces removed
-   * email = name @ fakemail.biz
+   * Creates new CAS user with admin, manager, teacher or student privileges
+   * @name The user's full name
+   * @return User object with Some(id)
    */
-  def newCasUser(name: String): User = User(
-      id=None,
-      authId="",
-      authScheme='cas,
-      username=name.filter(c => !Array(" ", "\n", "\t").contains(c)),
-      name=Some(name),
-      email=Some(s"$name@fakemail.biz")
-    ).save
+  def newCasAdmin(name: String): User = casUserWithRole(name, 'admin)
+  def newCasManager(name: String): User = casUserWithRole(name, 'manager)
+  def newCasTeacher(name: String): User = casUserWithRole(name, 'teacher)
+  def newCasStudent(name: String): User = casUserWithRole(name, 'student)
+
+  def casUserWithRole(name: String, perm: Symbol): User = {
+    val user = User(
+        id=None,
+        authId=formatName(name),
+        authScheme='cas,
+        username=formatName(name),
+        name=Some(name)
+      ).save
+    SitePermissions.assignRole(user, perm)
+    user
+  }
+
+  /**
+   * Returns the name in lower case without spaces
+   */
+  def formatName(name: String): String = name.toLowerCase().filter(c => !Array(" ", "\n", "\t").contains(c))
 }
 

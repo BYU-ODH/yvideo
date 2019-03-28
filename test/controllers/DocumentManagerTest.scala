@@ -11,8 +11,9 @@ import play.api.libs.json._
 import models.{Content, User, Course, Collection}
 import controllers.DocumentManager
 import test.ApplicationContext
+import test.TestHelpers
 
-object DocumentManagerSpec extends Specification with ApplicationContext {
+object DocumentManagerSpec extends Specification with ApplicationContext with TestHelpers {
 
   class DocumentManagerTestController() extends Controller with DocumentManager
 
@@ -21,9 +22,7 @@ object DocumentManagerSpec extends Specification with ApplicationContext {
     "The Edit Annotations Endpoint" should {
       "serve the annotation editor page to a user" in {
         application {
-          val userOpt = User.findByUsername('password, "admin")
-          userOpt mustNotEqual None
-          implicit val user = userOpt.get
+          val user = newCasAdmin("admin")
           user.id mustNotEqual None
           val controller = new DocumentManagerTestController()
           val request = FakeRequest().withSession("userId" -> user.id.get.toString)

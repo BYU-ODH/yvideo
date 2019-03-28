@@ -53,7 +53,7 @@ trait SQLSelectable[T] {
       }
     }
 
-  def listByCol(col: String, value: ParameterValue, parser: RowParser[T]): List[T] =
+  def listByCol[R](col: String, value: ParameterValue, parser: RowParser[R]): List[R] =
     DB.withConnection { implicit connection =>
       try {
         SQL(s"select * from $tableName where $col = {value}")
@@ -62,7 +62,7 @@ trait SQLSelectable[T] {
         case e: SQLException =>
           Logger.debug(s"Failed to list $tableName for $col = $value")
           Logger.debug(e.getMessage())
-          List[T]()
+          List[R]()
       }
     }
 }

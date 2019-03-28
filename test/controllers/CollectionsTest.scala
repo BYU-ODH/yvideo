@@ -7,7 +7,7 @@ import play.api.test.Helpers._
 import play.api.test.FakeRequest
 import org.specs2.mutable._
 
-import models.{Content, User, Course, Collection}
+import models.{Content, User, Course, Collection, SitePermissions}
 import controllers.Collections
 import test.ApplicationContext
 import test.TestHelpers
@@ -34,22 +34,17 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
       "" in {
         application {
           val controller = new CollectionsTestController()
-          val username = "admin"
-          User.findByUsername('password, username) match {
-            case Some(u) => {
-              u.id mustNotEqual None
-              val res = controller.collectionAsJson(1)(FakeRequest().withSession("userId" -> u.id.get.toString))
-              val json = contentAsJson(res)
-              json.validate[Collection] match {
-                case JsSuccess(c, _) => {
-                  c.id.get === 1
-                  c.published === true
-                  c.archived === false
-                }
-                case e: JsError => jserr2string(e) must fail
-              }
+          val admin = newCasAdmin("admin")
+          admin.id mustNotEqual None
+          val res = controller.collectionAsJson(1)(FakeRequest().withSession("userId" -> admin.id.get.toString))
+          val json = contentAsJson(res)
+          json.validate[Collection] match {
+            case JsSuccess(c, _) => {
+              c.id.get === 1
+              c.published === true
+              c.archived === false
             }
-            case None => s"User $username not found." must fail
+            case e: JsError => jserr2string(e) must fail
           }
         }
       }
@@ -59,12 +54,11 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
         "serve the collection based on the id to the user if they are allowed to view it" in {
           application {
             val controller = new CollectionsTestController()
-            val userOpt = User.findByUsername('password, "admin")
-            userOpt mustNotEqual None
-            implicit val user = userOpt.get
+            val user = newCasAdmin("admin")
             user.id mustNotEqual None
             val request = FakeRequest().withSession("userId" -> user.id.get.toString)
             val result = controller.view(2)(request) // volatile - change after fixtures work
+            println(headers(result))
             status(result) shouldEqual 200
           }
           //return a forbidden error if the user does not have permission
@@ -100,9 +94,7 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
     "The Create Endpoint" should {
         "create a new collection for the user if they are allowed to do so" in {
           application {
-              val userOpt = User.findByUsername('password, "admin")
-              userOpt mustNotEqual None
-              implicit val user = userOpt.get
+              val user = newCasAdmin("admin")
               user.id mustNotEqual None
               val controller = new CollectionsTestController()
               val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -115,9 +107,7 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
     "The Create Page Endpoint" should {
         "serves the create a collection page to the user if they are allowed to do so" in {
           application {
-            val userOpt = User.findByUsername('password, "admin")
-            userOpt mustNotEqual None
-            implicit val user = userOpt.get
+            val user = newCasAdmin("admin")
             user.id mustNotEqual None
             val controller = new CollectionsTestController()
             val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -131,9 +121,7 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
     "The List Endpoint" should {
         "serve the page that lists all the collections to anyone" in { //Shouldn't this only be admins?
           application {
-            val userOpt = User.findByUsername('password, "admin")
-            userOpt mustNotEqual None
-            implicit val user = userOpt.get
+            val user = newCasAdmin("admin")
             user.id mustNotEqual None
             val controller = new CollectionsTestController()
             val request = FakeRequest().withSession("userId" -> user.id.get.toString)

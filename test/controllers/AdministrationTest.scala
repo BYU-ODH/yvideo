@@ -8,8 +8,9 @@ import play.api.libs.json._
 import models.{Content, User, Course, Collection}
 import controllers.Administration
 import test.ApplicationContext
+import test.TestHelpers
 
-object AdministrationControllerSpec extends Specification with ApplicationContext {
+object AdministrationControllerSpec extends Specification with ApplicationContext with TestHelpers {
 
   class AdministrationTestController() extends Controller with Administration
 
@@ -19,9 +20,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Admin Dashboard Endpoint" should {
       "serve the admin dashboard to admins" in {
         application {
-          val userOpt = User.findByUsername('password, "admin")
-          userOpt mustNotEqual None
-          implicit val user = userOpt.get
+          val user = newCasAdmin("admin")
           user.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -34,9 +33,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Manage Users Endpoint" should {
       "serve the admin dashboard user view to admins" in {
         application {
-          val userOpt = User.findByUsername('password, "admin")
-          userOpt mustNotEqual None
-          implicit val user = userOpt.get
+          val user = newCasAdmin("admin")
           user.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -49,9 +46,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Paged Users Endpoint" should {
       "return a JSON of user objects with the length and starting point" in {
         application {
-          val userOpt = User.findByUsername('password, "admin")
-          userOpt mustNotEqual None
-          implicit val user = userOpt.get
+          val user = newCasAdmin("admin")
           user.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -130,9 +125,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Manage Collections Endpoint" should {
       "serve the manage collections page to admins" in {
         application {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
+                  val user = newCasAdmin("admin")
                   user.id mustNotEqual None
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -158,9 +151,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Manage Content Endpoint" should {
       "serve the manage content page to admins" in {
         application {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
+                  val user = newCasAdmin("admin")
                   user.id mustNotEqual None
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -180,9 +171,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Home Page Content Endpoint" should {
       "serve the home page management page to admins" in {
         application {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
+                  val user = newCasAdmin("admin")
                   user.id mustNotEqual None
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -215,9 +204,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Site Settings Endpoint" should {
       "serve the site settings page to admins" in {
         application {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
+                  val user = newCasAdmin("admin")
                   user.id mustNotEqual None
                   val controller = new AdministrationTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
