@@ -10,16 +10,16 @@ import play.api.libs.json._
 
 import models.{Content, User, Course, Collection}
 import controllers.HelpPages
+import test.ApplicationContext
 
-object HelpPagesControllerSpec extends Specification {
+object HelpPagesControllerSpec extends Specification with ApplicationContext {
 
   class HelpPagesTestController() extends Controller with HelpPages
 
   "HelpPages Controller Tests" >> {
   	"The Table Of Contents Endpoint" should {
   		"serve the table of contents view to a user" in {
-  				implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
+          application {
                   val userOpt = User.findByUsername('password, "admin")
                   userOpt mustNotEqual None
                   implicit val user = userOpt.get
@@ -34,8 +34,7 @@ object HelpPagesControllerSpec extends Specification {
 
   	"The View Endpoint" should {
   		"serve a specific help page to a user" in {
-  				implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
+          application {
                   val userOpt = User.findByUsername('password, "admin")
                   userOpt mustNotEqual None
                   implicit val user = userOpt.get
@@ -50,8 +49,7 @@ object HelpPagesControllerSpec extends Specification {
 
   	"The Edit Endpoint" should {
   		"serve a specific edit page for a help page by id to a user" in {
-  				implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
+          application {
                   val userOpt = User.findByUsername('password, "admin")
                   userOpt mustNotEqual None
                   implicit val user = userOpt.get

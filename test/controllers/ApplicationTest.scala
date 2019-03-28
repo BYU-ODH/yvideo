@@ -9,15 +9,15 @@ import scala.concurrent.Future
 
 import models.{Content, User, Course, Collection}
 import controllers.Application
+import test.ApplicationContext
 
-object ApplicationControllerSpec extends Specification {
+object ApplicationControllerSpec extends Specification with ApplicationContext {
 
   class ApplicationTestController() extends Controller with Application
 
   "The Login Endpoint" should {
     "redirect defined users home" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
+      application {
               val userOpt = User.findByUsername('password, "admin")
               userOpt mustNotEqual None
               val user = userOpt.get
@@ -29,8 +29,7 @@ object ApplicationControllerSpec extends Specification {
           }
     }
     "serve the secret login page to everyone else" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
+      application {
               val controller = new ApplicationTestController()
               val request = FakeRequest()
               val result = controller.login(request)
@@ -41,8 +40,7 @@ object ApplicationControllerSpec extends Specification {
 
   "The Home Endpoint" should {
     "send defined users home" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
+      application {
               val userOpt = User.findByUsername('password, "admin")
               userOpt mustNotEqual None
               val user = userOpt.get

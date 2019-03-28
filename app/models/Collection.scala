@@ -85,6 +85,7 @@ case class Collection(id: Option[Long], owner: Long, name: String, published: Bo
   def toJson = {
     Json.obj(
         "id" -> id.getOrElse[Long](0),
+        "owner" -> owner,
         "name" -> name,
         "published" -> published,
         "archived" -> archived
