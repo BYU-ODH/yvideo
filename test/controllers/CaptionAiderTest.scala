@@ -11,8 +11,9 @@ import play.api.libs.json._
 import models.{Content, User, Course, Collection}
 import controllers.CaptionAider
 import test.ApplicationContext
+import test.TestHelpers
 
-object CaptionAiderControllerSpec extends Specification with ApplicationContext {
+object CaptionAiderControllerSpec extends Specification with ApplicationContext with TestHelpers{
 
   class CaptionAiderTestController() extends Controller with CaptionAider
 
@@ -21,9 +22,7 @@ object CaptionAiderControllerSpec extends Specification with ApplicationContext 
     "The View Endpoint" should {
       "serve the CaptionAider page to users" in {
         application {
-          val userOpt = User.findByUsername('password, "admin")
-          implicit val user = userOpt.get
-          user.id mustNotEqual None
+          val user = newCasAdmin("admin")
           val controller = new CaptionAiderTestController()
           val request = FakeRequest().withSession("userId" -> user.id.get.toString)
           val result = controller.view(1,0)(request) //volatile - we need to add a specific content and use that instead of 9

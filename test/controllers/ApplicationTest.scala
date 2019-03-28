@@ -10,17 +10,16 @@ import scala.concurrent.Future
 import models.{Content, User, Course, Collection}
 import controllers.Application
 import test.ApplicationContext
+import test.TestHelpers
 
-object ApplicationControllerSpec extends Specification with ApplicationContext {
+object ApplicationControllerSpec extends Specification with ApplicationContext with TestHelpers {
 
   class ApplicationTestController() extends Controller with Application
 
   "The Login Endpoint" should {
     "redirect defined users home" in {
       application {
-              val userOpt = User.findByUsername('password, "admin")
-              userOpt mustNotEqual None
-              val user = userOpt.get
+              val user = newCasAdmin("admin")
               user.id mustNotEqual None
               val controller = new ApplicationTestController()
               val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -41,9 +40,7 @@ object ApplicationControllerSpec extends Specification with ApplicationContext {
   "The Home Endpoint" should {
     "send defined users home" in {
       application {
-              val userOpt = User.findByUsername('password, "admin")
-              userOpt mustNotEqual None
-              val user = userOpt.get
+              val user = newCasAdmin("admin")
               user.id mustNotEqual None
               val controller = new ApplicationTestController()
               val request = FakeRequest().withSession("userId" -> user.id.get.toString)

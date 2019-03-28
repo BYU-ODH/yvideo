@@ -3,10 +3,27 @@ import models._
 import play.api.Logger
 import scala.Some
 import service.HashTools
+import play.api.Play.current
+import scala.collection.JavaConverters._
 
 object Fixtures {
 
   object data {
+    type UserFixture = (String, Symbol, String, Option[String], Option[String], Symbol)
+
+    val admin2fixture: String => UserFixture = (netid => (netid, 'cas, netid, None, None, 'admin))
+    val manager2fixture: String => UserFixture = (netid => (netid, 'cas, netid, None, None, 'manager))
+
+    // Gets list of strings from play config
+    def predefList(listname: String, permission: Symbol): List[String] =
+      current.configuration.getStringList(listname) match {
+        case Some(l) => l.asScala.toList
+        case None => Nil
+      }
+
+    val adminFixtures = predefList("admins", 'admin) map admin2fixture
+    val managerFixtures = predefList("managers", 'manager) map manager2fixture
+
     val passwordHash = HashTools.sha256Base64("test123")
     val users = List(
       (passwordHash, 'password, "student1", Some("Student 1"), Some("s1@ayamel.byu.edu"), 'student),
@@ -20,9 +37,8 @@ object Fixtures {
       (passwordHash, 'password, "teacher3", Some("Teacher 3"), Some("t3@ayamel.byu.edu"), 'teacher),
       (passwordHash, 'password, "teacher4", Some("Teacher 4"), Some("t4@ayamel.byu.edu"), 'teacher),
       (passwordHash, 'password, "teacher5", Some("Teacher 5"), Some("t5@ayamel.byu.edu"), 'teacher),
-      (passwordHash, 'password, "teacher6", Some("Teacher 6"), Some("t6@ayamel.byu.edu"), 'teacher),
-      (passwordHash, 'password, "admin", Some("Admin"), Some("admin@ayamel.byu.edu"), 'admin)
-    )
+      (passwordHash, 'password, "teacher6", Some("Teacher 6"), Some("t6@ayamel.byu.edu"), 'teacher)
+    ) ::: adminFixtures ::: managerFixtures
 
     val content = List(
       ("Dreyfus by Yves Duteil", 'video, 1L, "", "515c9b7d35e544681f000000", false, false, true, Some("adatestring"), "me@pm.me", true),

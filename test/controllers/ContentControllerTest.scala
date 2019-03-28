@@ -11,8 +11,9 @@ import play.api.libs.json._
 import models.{Content, User, Course, Collection}
 import controllers.ContentController
 import test.ApplicationContext
+import test.TestHelpers
 
-object ContentControllerSpec extends Specification with ApplicationContext {
+object ContentControllerSpec extends Specification with ApplicationContext with TestHelpers {
 
   class ContentTestController() extends Controller with ContentController
 
@@ -52,9 +53,7 @@ object ContentControllerSpec extends Specification with ApplicationContext {
   	"The Create Page Endpoint" should {
   		"serve the content creation page based on the string passed in" in {
           application {
-	  						val userOpt = User.findByUsername('password, "admin")
-                userOpt mustNotEqual None
-                implicit val user = userOpt.get
+                val user = newCasAdmin("admin")
                 user.id mustNotEqual None
                 val controller = new ContentTestController()
                 val request = FakeRequest().withSession("userId" -> user.id.get.toString)

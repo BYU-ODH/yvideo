@@ -11,8 +11,9 @@ import play.api.libs.json._
 import models.{Content, User, Course, Collection}
 import controllers.HelpPages
 import test.ApplicationContext
+import test.TestHelpers
 
-object HelpPagesControllerSpec extends Specification with ApplicationContext {
+object HelpPagesControllerSpec extends Specification with ApplicationContext with TestHelpers {
 
   class HelpPagesTestController() extends Controller with HelpPages
 
@@ -20,9 +21,7 @@ object HelpPagesControllerSpec extends Specification with ApplicationContext {
   	"The Table Of Contents Endpoint" should {
   		"serve the table of contents view to a user" in {
           application {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
+                  val user = newCasAdmin("admin")
                   user.id mustNotEqual None
                   val controller = new HelpPagesTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -35,9 +34,7 @@ object HelpPagesControllerSpec extends Specification with ApplicationContext {
   	"The View Endpoint" should {
   		"serve a specific help page to a user" in {
           application {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
+                  val user = newCasAdmin("admin")
                   user.id mustNotEqual None
                   val controller = new HelpPagesTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -50,9 +47,7 @@ object HelpPagesControllerSpec extends Specification with ApplicationContext {
   	"The Edit Endpoint" should {
   		"serve a specific edit page for a help page by id to a user" in {
           application {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
+                  val user = newCasAdmin("admin")
                   user.id mustNotEqual None
                   val controller = new HelpPagesTestController()
                   val request = FakeRequest().withSession("userId" -> user.id.get.toString)

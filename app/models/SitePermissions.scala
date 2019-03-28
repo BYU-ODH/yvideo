@@ -10,7 +10,7 @@ import play.api.Play.current
 import java.sql.Connection
 import scala.language.postfixOps
 
-object SitePermissions extends SQLSelectable[String]  {
+object SitePermissions extends SQLSelectable[String] {
   val tableName = "sitePermissions"
 
   val desc_map = Map(
@@ -30,6 +30,9 @@ object SitePermissions extends SQLSelectable[String]  {
 
   def listByUser(user: User): List[String] =
     listByCol("userId", user.id, get[String](tableName+".permission"))
+
+  def listByPerm(perm: String): List[User] =
+    User.findUsersByUserIdList(listByCol[Long]("permission", perm, get[Long](tableName+".userId")))
 
   private def permissionExists(user: User, permission: String)(implicit connection: Connection): Boolean = {
     try {

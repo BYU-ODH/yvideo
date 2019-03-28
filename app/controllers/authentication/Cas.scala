@@ -6,8 +6,10 @@ import play.api.libs.json._
 import play.api.libs.ws.WS
 import play.api.Play
 import play.api.Play.current
+import java.util.{List => JList}
 import scala.concurrent.{Await, Future, ExecutionContext}
 import scala.concurrent.duration._
+import scala.collection.JavaConverters._
 import ExecutionContext.Implicits.global
 
 import models.SitePermissions
@@ -21,12 +23,17 @@ import models.Collection
  */
 object Cas extends Controller {
 
-  def logPrefix(submodule: String): String = s"[CAS]$submodule"
-
   // For parsing schedule service
   case class BYU_Course(course: String, course_title: String, instructor: String)
   implicit val BYU_CourseReads = Json.reads[BYU_Course]
 
+  def getList[T](jlistopt: Option[JList[T]]): List[T] = jlistopt match {
+    case Some(list) => list.asScala.toList
+    case _ => Nil
+  }
+
+  val admins: List[String] = getList(current.configuration.getStringList("admins"))
+  val managers: List[String] = getList(current.configuration.getStringList("managers"))
   val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
 
   /**
@@ -60,6 +67,17 @@ object Cas extends Controller {
     eligibleCollections.foreach(user.enroll (_, isInstructor))
   }
 
+  private def getUserRole(username: String, isInstructor: Boolean): Symbol = {
+    if (admins.contains(username))
+      'admin
+    else if (managers.contains(username))
+      'manager
+    else if (isInstructor)
+      'teacher
+    else
+      'student
+  }
+
   /**
    * Query aim to update the user's account
    */
@@ -76,7 +94,7 @@ object Cas extends Controller {
           updatedUser.save
 
         SitePermissions.removeAllUserPermissions(updatedUser)
-        SitePermissions.assignRole(updatedUser, if (isInstructor) 'teacher else 'student)
+        SitePermissions.assignRole(updatedUser, getUserRole(user.username, isInstructor))
 
         updateCollections(updatedUser, isInstructor)
       }
@@ -114,7 +132,7 @@ object Cas extends Controller {
         val personId = getAttribute(xml, "personId").getOrElse("")
         val fulltime = getAttribute(xml, "activeFulltimeInstructor").getOrElse("false").toBoolean
         val parttime = getAttribute(xml, "activeParttimeInstructor").getOrElse("false").toBoolean
-        implicit val isInstructor = fulltime || parttime
+        val isInstructor = fulltime || parttime
         Logger.debug(s"The person is an instructor $isInstructor")
 
         updateAccount(user, isInstructor)
@@ -134,3 +152,4 @@ object Cas extends Controller {
       }
   }
 }
+
