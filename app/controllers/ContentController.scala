@@ -10,11 +10,8 @@ import dataAccess.{PlayGraph, ResourceController}
 import java.net.{URLDecoder, URI, URL}
 import play.api.mvc._
 import play.api.Logger
-import play.api.libs.ws.WS
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.json.Json
-import java.text.SimpleDateFormat
-import java.util.Calendar
 
 
 /**
@@ -32,7 +29,7 @@ trait ContentController {
             if (collection.userCanViewContent(user) || user.hasSitePermission("admin")) { Ok(content.toJson) }
             else { Forbidden(Json.obj( "message" -> "User is not authorized to view this content." )) }
           }
-          else { BadRequest(Json.obj( "message" -> "Illegal Content Type." )) }
+          else { Errors.api.badRequest("Illegal Content Type.") }
         }
   }
 

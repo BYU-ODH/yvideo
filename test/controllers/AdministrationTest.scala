@@ -1,17 +1,15 @@
 import play.api.test._
 import play.api.mvc._
-import org.specs2.concurrent.ExecutionEnv
 import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import play.api.libs.json._
 
 import models.{Content, User, Course, Collection}
 import controllers.Administration
+import test.ApplicationContext
 
-object AdministrationControllerSpec extends Specification {
+object AdministrationControllerSpec extends Specification with ApplicationContext {
 
   class AdministrationTestController() extends Controller with Administration
 
@@ -20,55 +18,52 @@ object AdministrationControllerSpec extends Specification {
 
     "The Admin Dashboard Endpoint" should {
       "serve the admin dashboard to admins" in {
-          implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
-                  user.id mustNotEqual None
-                  val controller = new AdministrationTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.admin(request)
-                  status(result) shouldEqual 200
-              }
+        application {
+          val userOpt = User.findByUsername('password, "admin")
+          userOpt mustNotEqual None
+          implicit val user = userOpt.get
+          user.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+          val result = controller.admin(request)
+          status(result) shouldEqual 200
+        }
       }
     }
 
     "The Manage Users Endpoint" should {
       "serve the admin dashboard user view to admins" in {
-          implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
-                  user.id mustNotEqual None
-                  val controller = new AdministrationTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.manageUsers(request)
-                  status(result) shouldEqual 200
-              }
+        application {
+          val userOpt = User.findByUsername('password, "admin")
+          userOpt mustNotEqual None
+          implicit val user = userOpt.get
+          user.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+          val result = controller.manageUsers(request)
+          status(result) shouldEqual 200
+        }
       }
     }
 
     "The Paged Users Endpoint" should {
       "return a JSON of user objects with the length and starting point" in {
-          implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
-                  val userOpt = User.findByUsername('password, "admin")
-                  userOpt mustNotEqual None
-                  implicit val user = userOpt.get
-                  user.id mustNotEqual None
-                  val controller = new AdministrationTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val length = 10
-                  //with paging going forward
-                  val result = controller.pagedUsers(1, length, true)(request)
-                  contentType(result) mustEqual Some("application/json")
-                  val jsonResult = contentAsJson(result)
-                  val jsVal: JsValue = Json.parse(jsonResult.toString)
-                  val idList = (jsVal \\ "id")
-                  idList.size mustEqual length
-              }
+        application {
+          val userOpt = User.findByUsername('password, "admin")
+          userOpt mustNotEqual None
+          implicit val user = userOpt.get
+          user.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+          val length = 10
+          //with paging going forward
+          val result = controller.pagedUsers(1, length, true)(request)
+          contentType(result) mustEqual Some("application/json")
+          val jsonResult = contentAsJson(result)
+          val jsVal: JsValue = Json.parse(jsonResult.toString)
+          val idList = (jsVal \\ "id")
+          idList.size mustEqual length
+        }
         //entries should be user objects
         //some way to check between up and down pagination
       }
@@ -134,8 +129,7 @@ object AdministrationControllerSpec extends Specification {
 
     "The Manage Collections Endpoint" should {
       "serve the manage collections page to admins" in {
-          implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
+        application {
                   val userOpt = User.findByUsername('password, "admin")
                   userOpt mustNotEqual None
                   implicit val user = userOpt.get
@@ -163,8 +157,7 @@ object AdministrationControllerSpec extends Specification {
 
     "The Manage Content Endpoint" should {
       "serve the manage content page to admins" in {
-        implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
+        application {
                   val userOpt = User.findByUsername('password, "admin")
                   userOpt mustNotEqual None
                   implicit val user = userOpt.get
@@ -186,8 +179,7 @@ object AdministrationControllerSpec extends Specification {
 
     "The Home Page Content Endpoint" should {
       "serve the home page management page to admins" in {
-        implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
+        application {
                   val userOpt = User.findByUsername('password, "admin")
                   userOpt mustNotEqual None
                   implicit val user = userOpt.get
@@ -222,8 +214,7 @@ object AdministrationControllerSpec extends Specification {
 
     "The Site Settings Endpoint" should {
       "serve the site settings page to admins" in {
-        implicit ee: ExecutionEnv =>
-              running(FakeApplication()) {
+        application {
                   val userOpt = User.findByUsername('password, "admin")
                   userOpt mustNotEqual None
                   implicit val user = userOpt.get

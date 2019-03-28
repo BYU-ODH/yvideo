@@ -14,7 +14,6 @@ import play.api.Logger
  * This controller manages all the endpoints relating to collections, including authentication.
  */
 trait Collections {
-  // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
   this: Controller =>
 
   val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
@@ -37,6 +36,7 @@ trait Collections {
       Ok(Json.toJson(Collection.findById(id).map(collection =>
         Json.obj(
           "name" -> collection.name,
+          "owner" -> collection.owner,
           "thumbnail" -> Json.toJson(collection.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
           "published" -> collection.published,
           "archived" -> collection.archived,
@@ -128,25 +128,23 @@ trait Collections {
   /**
    * Creates a new collection
    */
-  def create = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def create = Authentication.secureAPIAction(BodyParsers.parse.json) {
     implicit request =>
       implicit user =>
-        Future {
-          // Check if the user is allowed to create a collection
-          if (user.hasSitePermission("createCollection")) {
-
-            // Collect info
-            val collectionName = request.body("collectionName")(0)
-
-            // Create the collection
-            val collection = Collection(None, user.id.get, collectionName, false, false).save
-            user.enroll(collection, true)
-
-            // Redirect to the collection page
-            Redirect(routes.Collections.view(collection.id.get)).flashing("success" -> "Collection Added")
-          } else
-          Errors.forbidden
-        }
+        // Check if the user is allowed to create a collection
+        if (user.hasSitePermission("createCollection")) {
+          // Collect info
+          (request.body \ "name").validate[String] match {
+            case JsSuccess(name, _) => {
+              val collection = Collection(None, user.id.get, name, false, false).save
+              user.enroll(collection, true)
+              Ok(Json.obj("id" -> collection.id.get))
+            }
+            case _:JsError => {
+              Errors.api.badRequest("No collection name specified.")
+            }
+          }
+        } else Errors.api.badRequest()
   }
 
   /**
