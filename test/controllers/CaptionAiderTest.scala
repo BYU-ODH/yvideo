@@ -12,8 +12,9 @@ import models.{Content, User, Course, Collection}
 import controllers.CaptionAider
 import test.ApplicationContext
 import test.TestHelpers
+import test.DBClear
 
-object CaptionAiderControllerSpec extends Specification with ApplicationContext with TestHelpers{
+object CaptionAiderControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers {
 
   class CaptionAiderTestController() extends Controller with CaptionAider
 
@@ -22,10 +23,15 @@ object CaptionAiderControllerSpec extends Specification with ApplicationContext 
     "The View Endpoint" should {
       "serve the CaptionAider page to users" in {
         application {
-          val user = newCasAdmin("admin")
           val controller = new CaptionAiderTestController()
+          val user = newCasAdmin("admin")
+          user.id mustNotEqual None
+          val newCol = newCollection("Captionaider view test 1", user)
+          newCol.id mustNotEqual None
+          val newCon = newContent("Captionaider test content 1")(user, newCol)
+          newCon.id mustNotEqual None
           val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-          val result = controller.view(1,0)(request) //volatile - we need to add a specific content and use that instead of 9
+          val result = controller.view(newCon.id.get, newCol.id.get)(request) //volatile - we need to add a specific content and use that instead of 9
           status(result) shouldEqual 200
         }
         //should we make sure that users who aren't collection TAs or higher can't view?

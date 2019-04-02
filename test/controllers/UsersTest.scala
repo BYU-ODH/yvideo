@@ -11,8 +11,9 @@ import models.{Content, User, Course}
 import controllers.Users
 import test.ApplicationContext
 import test.TestHelpers
+import test.DBClear
 
-object UserControllerSpec extends Specification with ApplicationContext with TestHelpers {
+object UserControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers {
 
   class UsersTestController() extends Controller with Users
 

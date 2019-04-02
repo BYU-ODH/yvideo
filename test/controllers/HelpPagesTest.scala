@@ -8,40 +8,36 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import play.api.libs.json._
 
-import models.{Content, User, Course, Collection}
+import models.{Content, User, Course, Collection, HelpPage}
 import controllers.HelpPages
 import test.ApplicationContext
 import test.TestHelpers
+import test.DBClear
 
-object HelpPagesControllerSpec extends Specification with ApplicationContext with TestHelpers {
+object HelpPagesControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers {
 
   class HelpPagesTestController() extends Controller with HelpPages
 
   "HelpPages Controller Tests" >> {
   	"The Table Of Contents Endpoint" should {
-  		"serve the table of contents view to a user" in {
-          application {
-                  val user = newCasAdmin("admin")
-                  user.id mustNotEqual None
-                  val controller = new HelpPagesTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.tableOfContents(request)
-                  status(result) shouldEqual 200
-              }
-  		}
+      "serve a json listing of the help pages" in {
+        ok
+      }
   	}
 
   	"The View Endpoint" should {
-  		"serve a specific help page to a user" in {
-          application {
-                  val user = newCasAdmin("admin")
-                  user.id mustNotEqual None
-                  val controller = new HelpPagesTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.view(1)(request) //volatile - should use help page we create for this test
-                  status(result) shouldEqual 200
-              }	
-  		}
+      "serve a specific help page to a user" in {
+        application {
+          val user = newCasAdmin("admin")
+          user.id mustNotEqual None
+          val page = HelpPage(None, "Title", "Contents", "Category").save
+          page.id mustNotEqual None
+          val controller = new HelpPagesTestController()
+          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+          val result = controller.view(page.id.get)(request)
+          status(result) shouldEqual 200
+        }	
+      }
   	}
 
   	"The Edit Endpoint" should {

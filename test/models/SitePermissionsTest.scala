@@ -3,8 +3,9 @@ import org.specs2.mutable._
 import models.{User, SitePermissions}
 import test.ApplicationContext
 import test.TestHelpers
+import test.DBClear
 
-object SitePermissionsSpec extends Specification with ApplicationContext with TestHelpers {
+object SitePermissionsSpec extends Specification with ApplicationContext with DBClear with TestHelpers {
   "Site Permissions Model Test" >> {
     "The listByPerm function" should {
       // The order of the tests for this function is important if we are using BeforeAll instead of
@@ -45,6 +46,7 @@ object SitePermissionsSpec extends Specification with ApplicationContext with Te
       "assign the manager role successfully" in {
         val user = newCasStudent("person1")
         SitePermissions.listByUser(user).sorted === SitePermissions.roles('student).sorted
+        SitePermissions.removeAllUserPermissions(user)
         SitePermissions.assignRole(user, 'manager)
         SitePermissions.listByUser(user).sorted === SitePermissions.roles('manager).sorted
       }
@@ -52,6 +54,7 @@ object SitePermissionsSpec extends Specification with ApplicationContext with Te
       "convert a manager to an admin" in {
         val user = newCasManager("manager4")
         SitePermissions.listByUser(user).sorted === SitePermissions.roles('manager).sorted
+        SitePermissions.removeAllUserPermissions(user)
         SitePermissions.assignRole(user, 'admin)
         SitePermissions.listByUser(user).sorted === SitePermissions.roles('admin).sorted
       }
@@ -59,6 +62,7 @@ object SitePermissionsSpec extends Specification with ApplicationContext with Te
       "convert an admin to a manager" in {
         val user = newCasAdmin("admin4")
         SitePermissions.listByUser(user).sorted === SitePermissions.roles('admin).sorted
+        SitePermissions.removeAllUserPermissions(user)
         SitePermissions.assignRole(user, 'manager)
         SitePermissions.listByUser(user).sorted === SitePermissions.roles('manager).sorted
       }

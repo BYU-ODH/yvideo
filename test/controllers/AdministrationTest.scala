@@ -9,8 +9,9 @@ import models.{Content, User, Course, Collection}
 import controllers.Administration
 import test.ApplicationContext
 import test.TestHelpers
+import test.DBClear
 
-object AdministrationControllerSpec extends Specification with ApplicationContext with TestHelpers {
+object AdministrationControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers {
 
   class AdministrationTestController() extends Controller with Administration
 
@@ -33,7 +34,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Manage Users Endpoint" should {
       "serve the admin dashboard user view to admins" in {
         application {
-          val user = newCasAdmin("admin")
+          val user = newCasAdmin("admin1")
           user.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -46,13 +47,15 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Paged Users Endpoint" should {
       "return a JSON of user objects with the length and starting point" in {
         application {
-          val user = newCasAdmin("admin")
+          val users = List("joe", "jack", "john", "jill", "jane") map newCasStudent
+          users.foreach(_.id mustNotEqual None)
+          val user = newCasAdmin("admin3")
           user.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-          val length = 10
+          val length = users.length
           //with paging going forward
-          val result = controller.pagedUsers(1, length, true)(request)
+          val result = controller.pagedUsers(users(0).id.get, length, true)(request)
           contentType(result) mustEqual Some("application/json")
           val jsonResult = contentAsJson(result)
           val jsVal: JsValue = Json.parse(jsonResult.toString)
@@ -204,17 +207,16 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Site Settings Endpoint" should {
       "serve the site settings page to admins" in {
         application {
-                  val user = newCasAdmin("admin")
-                  user.id mustNotEqual None
-                  val controller = new AdministrationTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.siteSettings(request)
-                  status(result) shouldEqual 200
-              }
+          val user = newCasAdmin("admin")
+          user.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
+          val result = controller.siteSettings(request)
+          println(headers(result))
+          status(result) shouldEqual 200
+        }
       }
-    }
 
-    "The Save Site Settings Endpoint" should {
       "apply changes to the site settings with the map of values" in {
         1 mustEqual 1
       }
