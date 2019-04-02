@@ -5,7 +5,8 @@ import play.api.data.validation.ValidationError
 import org.specs2.matcher.Matcher
 import org.specs2.matcher.MatchersImplicits._
 
-import models.{SitePermissions, User}
+import service.HashTools
+import models.{SitePermissions, User, Collection, Content}
 
 trait TestHelpers {
   /**
@@ -42,6 +43,48 @@ trait TestHelpers {
     SitePermissions.assignRole(user, perm)
     user
   }
+
+  /**
+   * Create a new collection which is:
+   * pub: published and not archived
+   * arc: archived and not published
+   * pubArc: published and archived
+   * unpub: unpublished and not archived
+   * @param name The String name of the collection
+   * @param user User to be the owner of the collection
+   */
+  def newCollection(name: String, user: User) = createCollection(user.id.get, name, false, false)
+  def pubCollection(name: String, user: User) = createCollection(user.id.get, name, true, false)
+  def arcCollection(name: String, user: User) = createCollection(user.id.get, name, false, true)
+  def pubArcCollection(name: String, user: User) = createCollection(user.id.get, name, true, true)
+
+  def createCollection(owner: Long, name: String, pub: Boolean, arc: Boolean): Collection =
+    Collection(None, owner, name, pub, arc).save
+
+  /**
+   *  Create Content
+   */
+  def newContent(name: String)(implicit user: User, col: Collection) =
+    createContent(name, 'video, col.id.get, HashTools.md5Hex(scala.util.Random.nextString(16)), false, false, true, None,
+      user.name+user.email.getOrElse(""), false, false)
+
+  def createContent(name: String, t: Symbol, cid: Long, rid: String, phys: Boolean, copy: Boolean, enabled: Boolean,
+                    date: Option[String], req: String, pub: Boolean, full: Boolean): Content =
+    Content(
+      id=None,
+      name=name,
+      contentType=t,
+      collectionId=cid,
+      thumbnail="asdf",
+      resourceId=rid,
+      physicalCopyExists=phys,
+      isCopyrighted=copy,
+      enabled=enabled,
+      dateValidated=date,
+      requester=req,
+      published=pub,
+      fullVideo=full
+      ).save
 
   /**
    * Returns the name in lower case without spaces

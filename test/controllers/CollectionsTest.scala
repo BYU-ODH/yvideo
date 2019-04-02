@@ -11,8 +11,9 @@ import models.{Content, User, Course, Collection, SitePermissions}
 import controllers.Collections
 import test.ApplicationContext
 import test.TestHelpers
+import test.DBClear
 
-object CollectionsControllerSpec extends Specification with ApplicationContext with TestHelpers {
+object CollectionsControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers {
 
   class CollectionsTestController() extends Controller with Collections
   implicit val collectionReads = Json.reads[Collection]
@@ -21,27 +22,38 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
     "The Get Collection function" should {
       "return a collection" in {
         val controller = new CollectionsTestController()
-        val coll = controller.getCollection(5) { col =>
-          col.id.get === 5
-          col.owner === 5
+        val user = newCasTeacher("Teacher Person")
+        user.id !== None
+        val newCol = newCollection("collection1", user)
+        newCol.id !== None
+        val coll = controller.getCollection(newCol.id.get) { col =>
+          col.id.get === newCol.id.get
+          col.owner === newCol.id.get
+          println("TEST")
           Results.Ok(col.toJson)
         }
+        println(headers(coll))
+        println(contentAsString(coll))
         status(coll) === 200
       }
     }
 
     "The collectionAsJson endpoint" should {
-      "" in {
+      "allow admins to view any collection" in {
         application {
           val controller = new CollectionsTestController()
           val admin = newCasAdmin("admin")
           admin.id mustNotEqual None
-          val res = controller.collectionAsJson(1)(FakeRequest().withSession("userId" -> admin.id.get.toString))
+          val user = newCasTeacher("Teacher Teacher")
+          user.id mustNotEqual None
+          val newCol = newCollection("Teacher's Collection", user)
+          newCol.id mustNotEqual None
+          val res = controller.collectionAsJson(newCol.id.get)(FakeRequest().withSession("userId" -> user.id.get.toString))
           val json = contentAsJson(res)
           json.validate[Collection] match {
             case JsSuccess(c, _) => {
-              c.id.get === 1
-              c.published === true
+              c.id.get === newCol.id.get
+              c.published === false
               c.archived === false
             }
             case e: JsError => jserr2string(e) must fail
@@ -54,10 +66,12 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
         "serve the collection based on the id to the user if they are allowed to view it" in {
           application {
             val controller = new CollectionsTestController()
-            val user = newCasAdmin("admin")
+            val user = newCasAdmin("admin dude")
             user.id mustNotEqual None
+            val newCol = newCollection("View Endpoint Test Collection", user)
+            newCol.id mustNotEqual None
             val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-            val result = controller.view(2)(request) // volatile - change after fixtures work
+            val result = controller.view(newCol.id.get)(request) // volatile - change after fixtures work
             println(headers(result))
             status(result) shouldEqual 200
           }
