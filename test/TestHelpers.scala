@@ -68,7 +68,7 @@ trait TestHelpers {
     createContent(name, 'video, col.id.get, HashTools.md5Hex(scala.util.Random.nextString(16)), false, false, true, None,
       user.name+user.email.getOrElse(""), false, false)
 
-  def createContent(name: String, t: Symbol, cid: Long, rid: String, phys: Boolean, copy: Boolean, enabled: Boolean,
+  def createContent(name: String, t: Symbol, cid: Long, rid: String, phys: Boolean, copy: Boolean, expired: Boolean,
                     date: Option[String], req: String, pub: Boolean, full: Boolean): Content =
     Content(
       id=None,
@@ -79,7 +79,7 @@ trait TestHelpers {
       resourceId=rid,
       physicalCopyExists=phys,
       isCopyrighted=copy,
-      enabled=enabled,
+      expired=expired,
       dateValidated=date,
       requester=req,
       published=pub,

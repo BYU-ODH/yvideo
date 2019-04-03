@@ -185,7 +185,7 @@ case class Collection(id: Option[Long], owner: Long, name: String, published: Bo
   def getContentFor(user: User): List[Content] =
     if (user.hasSitePermission("admin") || userIsTeacher(user) || userIsTA(user)) this.getContent
     else this.getContent.filter { c =>
-      c.published && c.enabled
+      c.published && c.expired
     }
 
   def getLinkedCourses: List[Course] = cache.getForCollection[Course](cache.linkedCourses_=, cache.linkedCourses _, CollectionCourseLink.listCollectionCourses) match {

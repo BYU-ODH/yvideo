@@ -19,7 +19,7 @@ import java.text.Normalizer
  * @param resourceId The id of the resource
  */
 case class Content(id: Option[Long], name: String, contentType: Symbol, collectionId: Long, thumbnail: String, resourceId: String,
-                   physicalCopyExists: Boolean, isCopyrighted: Boolean, enabled: Boolean, dateValidated: Option[String],
+                   physicalCopyExists: Boolean, isCopyrighted: Boolean, expired: Boolean, dateValidated: Option[String],
                    requester: String, published: Boolean, fullVideo: Boolean = true, authKey: String = HashTools.md5Hex(util.Random.nextString(16)),
                    views: Long = 0)
   extends SQLSavable with SQLDeletable {
@@ -31,13 +31,13 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
   def save =
     if (id.isDefined) {
       update(Content.tableName, 'id -> id.get, 'name -> normalize(name), 'contentType -> contentType.name,
-        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled, 'dateValidated -> dateValidated.map(str => normalize(str)),
+        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'expired -> expired, 'dateValidated -> dateValidated.map(str => normalize(str)),
         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId,
         'published -> published, 'fullVideo -> fullVideo, 'authKey -> authKey, 'views -> views)
       this
     } else {
       val id = insert(Content.tableName, 'name -> normalize(name), 'contentType -> contentType.name,
-        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'enabled -> enabled,
+        'physicalCopyExists -> physicalCopyExists, 'isCopyrighted -> isCopyrighted, 'expired -> expired,
         'dateValidated -> dateValidated.map(str => normalize(str)),
         'requester -> requester, 'collectionId -> collectionId, 'thumbnail -> thumbnail, 'resourceId -> resourceId, 'published -> published,
         'fullVideo -> fullVideo, 'authKey -> authKey, 'views -> views)
@@ -130,7 +130,7 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "thumbnail" -> thumbnail,
     "physicalCopyExists" -> physicalCopyExists,
     "isCopyrighted" -> isCopyrighted,
-    "enabled" -> enabled,
+    "expired" -> expired,
     "dateValidated" -> dateValidated.getOrElse("").asInstanceOf[String],
     "requester" -> requester,
     "resourceId" -> resourceId,
@@ -155,7 +155,7 @@ object Content extends SQLSelectable[Content] {
       get[String](tableName + ".resourceId") ~
       get[Boolean](tableName + ".physicalCopyExists") ~
       get[Boolean](tableName + ".isCopyrighted") ~
-      get[Boolean](tableName + ".enabled") ~
+      get[Boolean](tableName + ".expired") ~
       get[Option[String]](tableName + ".dateValidated") ~
       get[String](tableName + ".requester") ~
       get[Boolean](tableName + ".published") ~
@@ -163,9 +163,9 @@ object Content extends SQLSelectable[Content] {
       get[String](tableName + ".authKey") ~
       get[Long](tableName + ".views") map {
       case id ~ name ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-         enabled ~ dateValidated ~ requester ~ published ~ fullVideo ~ authKey ~ views =>
+         expired ~ dateValidated ~ requester ~ published ~ fullVideo ~ authKey ~ views =>
         Content(id, name, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists, isCopyrighted,
-          enabled, dateValidated, requester, published, fullVideo, authKey, views)
+          expired, dateValidated, requester, published, fullVideo, authKey, views)
     }
   }
 
@@ -182,7 +182,7 @@ object Content extends SQLSelectable[Content] {
     get[String]("resourceId") ~
     get[Boolean]("physicalCopyExists") ~
     get[Boolean]("isCopyrighted") ~
-    get[Boolean]("enabled") ~
+    get[Boolean]("expired") ~
     get[Option[String]]("dateValidated") ~
     get[String]("requester") ~
     get[Boolean]("published") ~
@@ -201,10 +201,10 @@ object Content extends SQLSelectable[Content] {
     get[String]("created") ~
     get[String]("lastLogin") map {
       case contentId ~ cname ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
-        enabled ~ dateValidated ~ requester ~ published ~ fullVideo ~ authKey ~ views ~
+        expired ~ dateValidated ~ requester ~ published ~ fullVideo ~ authKey ~ views ~
         userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
           Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists,
-            isCopyrighted, enabled, dateValidated, requester, published, fullVideo, authKey, views) ->
+            isCopyrighted, expired, dateValidated, requester, published, fullVideo, authKey, views) ->
           User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
     }
   }
@@ -370,7 +370,7 @@ object Content extends SQLSelectable[Content] {
   def expire(id: Long) =
     DB.withConnection { implicit connection =>
       try {
-        SQL(s"update $tableName set enabled = 0 where id = {id}")
+        SQL(s"update $tableName set expired = 0 where id = {id}")
           .on('id -> id).executeUpdate()
       } catch {
         case e: SQLException =>
@@ -380,7 +380,7 @@ object Content extends SQLSelectable[Content] {
     }
 
   /**
-   * Sets the given content as enabled, updates the dateValidated, and sets the requester
+   * Sets the given content as expired, updates the dateValidated, and sets the requester
    * @param id The content id
    * @param requester The person requesting the renewal
    */
@@ -389,7 +389,7 @@ object Content extends SQLSelectable[Content] {
       val date = TimeTools.now()
       try {
         SQL(s"""
-             update $tableName set enabled = 1, dateValidated = {date}, requester = {requester}
+             update $tableName set expired = 1, dateValidated = {date}, requester = {requester}
              where id = {id}
              """).on('date -> date, 'requester -> requester, 'id -> id).executeUpdate()
       } catch {
