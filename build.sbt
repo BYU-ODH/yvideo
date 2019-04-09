@@ -27,3 +27,4 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
 
 resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
 scalacOptions ++= Seq("-Xmax-classfile-name","78")
+unmanagedSourceDirectories in Test += baseDirectory.value / "test"

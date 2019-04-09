@@ -11,24 +11,22 @@ import service.{TimeTools}
 import play.api.Logger
 
 /**
- * This controller manages all the pages relating to collections, including authentication.
+ * This controller manages all the endpoints relating to collections, including authentication.
  */
 trait Collections {
-  // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
   this: Controller =>
 
   val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
 
   /**
-   * Gets the collection. A mix-in for action composition.
+   * Gets the collection.
    * @param id The id of the collection
    * @param f The action body. Returns a result
-   * @param request The implicit http request
-   * @return A result
+   * @return A future result
    */
-  def getCollection(id: Long)(f: Collection => Future[Result])(implicit request: Request[_]): Future[Result] = {
-    Collection.findById(id).map(collection => f(collection))
-      .getOrElse(Future(Errors.notFound))
+  def getCollection(id: Long)(f: Collection => Result): Future[Result] = {
+    Future(Collection.findById(id).map(collection => f(collection))
+      .getOrElse(Errors.notFound))
   }
 
 
@@ -38,7 +36,10 @@ trait Collections {
       Ok(Json.toJson(Collection.findById(id).map(collection =>
         Json.obj(
           "name" -> collection.name,
+          "owner" -> collection.owner,
           "thumbnail" -> Json.toJson(collection.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
+          "published" -> collection.published,
+          "archived" -> collection.archived,
           "id" -> collection.id.get,
           "content" -> collection.getContent.map(content =>
             Json.obj(
@@ -56,16 +57,13 @@ trait Collections {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
-          Future {
-            // TODO: Once the users get the "viewCollection" permission, use
-            // if (user.hasCollectionPermission(collection, "viewCollection")) instead
-            if (collection.getMembers.contains(user) ||  SitePermissions.userHasPermission(user, "admin"))
-              Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString,
-                Json.toJson(User.findUsersByUserIdList(CollectionMembership.getExceptionsByCollection(collection).map(_.userId)).map(_.toJson)).toString,
-                Json.toJson(collection.getTAs.map(_.toJson)).toString))
-            else
-              Errors.forbidden
-          }
+          // if (user.hasCollectionPermission(collection, "viewCollection")) instead
+          if (collection.getMembers.contains(user) ||  SitePermissions.userHasPermission(user, "admin"))
+            Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString,
+              Json.toJson(User.findUsersByUserIdList(CollectionMembership.getExceptionsByCollection(collection).map(_.userId)).map(_.toJson)).toString,
+              Json.toJson(collection.getTAs.map(_.toJson)).toString))
+          else
+            Errors.forbidden
         }
   }
 
@@ -76,14 +74,12 @@ trait Collections {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
-          Future {
-            if (user.isCollectionTA(collection)) {
-              val name = request.body("name")(0)
-              collection.copy(name = name).save
-              Redirect(routes.Collections.view(id)).flashing("info" -> "Collection updated")
-            } else
-              Errors.forbidden
-          }
+          if (user.isCollectionTA(collection)) {
+            val name = request.body("name")(0)
+            collection.copy(name = name).save
+            Redirect(routes.Collections.view(id)).flashing("info" -> "Collection updated")
+          } else
+            Errors.forbidden
         }
   }
 
@@ -95,18 +91,16 @@ trait Collections {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
-          Future {
-            // Only collection owners and TAs can add content
-            if (user.isCollectionTA(collection)) {
-              for ( // Add the content to the collection
-                id <- request.body.dataParts("addContent");
-                content <- Content.findById(id.toLong)
-              ) { collection.addContent(content) }
-              Redirect(routes.Collections.view(id))
-              .flashing("success" -> "Content added to collection.")
-            } else
-              Errors.forbidden
-          }
+          // Only collection owners and TAs can add content
+          if (user.isCollectionTA(collection)) {
+            for ( // Add the content to the collection
+              id <- request.body.dataParts("addContent");
+              content <- Content.findById(id.toLong)
+            ) { collection.addContent(content) }
+            Redirect(routes.Collections.view(id))
+            .flashing("success" -> "Content added to collection.")
+          } else
+            Errors.forbidden
         }
   }
 
@@ -118,43 +112,77 @@ trait Collections {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
-          Future {
-            // Only non-guest members and admins can remove content
-            if (user.isCollectionTA(collection)) {
-              for ( // Remove the content to the collection
-                id <- request.body("removeContent");
-                content <- Content.findById(id.toLong)
-              ) { collection.removeContent(content) }
-              Redirect(routes.Collections.view(id))
-              .flashing("success" -> "Content removed from collection.")
-            } else
-              Errors.forbidden
-          }
+          // Only non-guest members and admins can remove content
+          if (user.isCollectionTA(collection)) {
+            for ( // Remove the content to the collection
+              id <- request.body("removeContent");
+              content <- Content.findById(id.toLong)
+            ) { collection.removeContent(content) }
+            Redirect(routes.Collections.view(id))
+            .flashing("success" -> "Content removed from collection.")
+          } else
+            Errors.forbidden
         }
   }
 
   /**
    * Creates a new collection
    */
-  def create = Authentication.authenticatedAction(parse.urlFormEncoded) {
-    request =>
-      user =>
-        Future {
-          // Check if the user is allowed to create a collection
-          if (user.hasSitePermission("createCollection")) {
+  def create = Authentication.secureAPIAction(BodyParsers.parse.json) {
+    implicit request =>
+      implicit user =>
+        // Check if the user is allowed to create a collection
+        if (user.hasSitePermission("createCollection")) {
+          // Collect info
+          (request.body \ "name").validate[String] match {
+            case JsSuccess(name, _) => {
+              val collection = Collection(None, user.id.get, name, false, false).save
+              user.enroll(collection, true)
+              Ok(Json.obj("id" -> collection.id.get))
+            }
+            case _:JsError => {
+              Errors.api.badRequest("No collection name specified.")
+            }
+          }
+        } else Errors.api.badRequest()
+  }
 
-            // Collect info
-            val collectionName = request.body("collectionName")(0)
+  /**
+   * Some Functions to publish/unpublish archive/unarchive a collection
+   */
+  private val publish = (value: Boolean, c: Collection) => c.setPublished(value).toJson;
+  private val archive = (value: Boolean, c: Collection) => c.setArchived(value).toJson;
 
-            // Create the collection
-            val collection = Collection(None, user.id.get, collectionName).save
-            user.enroll(collection, true)
-
-            // Redirect to the collection page
-            Redirect(routes.Collections.view(collection.id.get)).flashing("success" -> "Collection Added")
-          } else
-          Errors.forbidden
+  /**
+   * Endpoint to set published/archived flags
+   * @param id the collection id
+   * @param action A String that is one of the following: publish, unpublished, archive, unarchive
+   */
+  def setFlag(id: Long, action: String) = Authentication.secureAPIAction() {
+    implicit request =>
+      implicit user =>
+        {action match {
+          case "publish"   => processCollection(id, publish(true, _))
+          case "unpublish" => processCollection(id, publish(false, _))
+          case "archive"   => processCollection(id, archive(true, _))
+          case "unarchive" => processCollection(id, archive(false, _))
+          case _ => Json.toJson("Failed")
+        }} match {
+          case Right(collection: JsValue) => Ok(collection)
+          case Left(errorMessage: JsValue) => BadRequest(errorMessage)
         }
+  }
+
+  /**
+   * Runs a function on a collection if it is found.
+   * @param id The collection id
+   * @param proc The function to run on the collection
+   * @return Right(JsValue) if the Collection was found, Left(JsValue) if the collection was not found
+   */
+  def processCollection(id: Long, proc: Collection => JsValue)(implicit user: User): Either[JsValue, JsValue] = {
+    Collection.findById(id).map { col =>
+      Right(proc(col))
+    }.getOrElse(Left(Json.toJson(s"Collection ${id} not found.")))
   }
 
   /**
@@ -185,21 +213,13 @@ trait Collections {
   }
 
   /**
-   * Used when one removes oneself from a specific collection and one is a user
-   * @param id the Collection Id
+   * Links the given courses to the collection in question by creating collectionCourseLink records
+   * This will create course records if they do not exist
+   * The json request body will contain a List of Course objects as defined in the course model
+   * @param collectionId The collection id to which we want to add courses
+   * @return Http response that contains a json list of the newly created courses. If a course if requested to be linked
+   * but already exists as a record in the database, then that course is not included in the response.
    */
-  def quitCollection(id: Long) = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        getCollection(id) { collection =>
-          user.unenroll(collection)
-          Future {
-            Redirect(routes.Application.home)
-              .flashing("info" -> s"You just quit ${collection.name}")
-          }
-        }
-  }
-
   def linkCourses(collectionId: Long) = Authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
@@ -449,27 +469,25 @@ trait Collections {
       implicit user =>
         val data = request.body.dataParts
         getCollection(id) { collection =>
-          Future {
-            if(user.isCollectionTeacher(collection)) {
-              User.findById(data("userId")(0).toLong) foreach { member =>
-                operation match {
-                  case "remove" =>
-                    data("permission").foreach { permission =>
-                      member.removeCollectionPermission(collection, permission)
-                    }
-                  case "match" =>
-                    user.removeAllCollectionPermissions(collection)
-                    data("permission").foreach { permission =>
-                      member.addCollectionPermission(collection, permission)
-                    }
-                  case _ => data("permission").foreach { permission =>
+          if(user.isCollectionTeacher(collection)) {
+            User.findById(data("userId")(0).toLong) foreach { member =>
+              operation match {
+                case "remove" =>
+                  data("permission").foreach { permission =>
+                    member.removeCollectionPermission(collection, permission)
+                  }
+                case "match" =>
+                  user.removeAllCollectionPermissions(collection)
+                  data("permission").foreach { permission =>
                     member.addCollectionPermission(collection, permission)
                   }
+                case _ => data("permission").foreach { permission =>
+                  member.addCollectionPermission(collection, permission)
                 }
               }
-              Ok
-            } else Results.Forbidden
-          }
+            }
+            Ok
+          } else Results.Forbidden
         }
   }
 }

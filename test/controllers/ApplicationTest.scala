@@ -9,18 +9,18 @@ import scala.concurrent.Future
 
 import models.{Content, User, Course, Collection}
 import controllers.Application
+import test.ApplicationContext
+import test.TestHelpers
+import test.DBClear
 
-object ApplicationControllerSpec extends Specification {
+object ApplicationControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers {
 
   class ApplicationTestController() extends Controller with Application
 
   "The Login Endpoint" should {
     "redirect defined users home" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
-              val userOpt = User.findByUsername('password, "admin")
-              userOpt mustNotEqual None
-              val user = userOpt.get
+      application {
+              val user = newCasAdmin("admin")
               user.id mustNotEqual None
               val controller = new ApplicationTestController()
               val request = FakeRequest().withSession("userId" -> user.id.get.toString)
@@ -29,8 +29,7 @@ object ApplicationControllerSpec extends Specification {
           }
     }
     "serve the secret login page to everyone else" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
+      application {
               val controller = new ApplicationTestController()
               val request = FakeRequest()
               val result = controller.login(request)
@@ -41,11 +40,8 @@ object ApplicationControllerSpec extends Specification {
 
   "The Home Endpoint" should {
     "send defined users home" in {
-      implicit ee: ExecutionEnv =>
-          running(FakeApplication()) {
-              val userOpt = User.findByUsername('password, "admin")
-              userOpt mustNotEqual None
-              val user = userOpt.get
+      application {
+              val user = newCasAdmin("admin")
               user.id mustNotEqual None
               val controller = new ApplicationTestController()
               val request = FakeRequest().withSession("userId" -> user.id.get.toString)

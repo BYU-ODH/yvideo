@@ -109,25 +109,6 @@
                                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                             <i class="icon-book"></i> Collection <b class="caret"></b>
                                         </a>
-                                        <ul class="dropdown-menu">
-                                          @if(user.get.isCollectionTA(collection.get)) {
-                                            <li><a href="#" id="collectionremovebtn"><i class="icon-remove"></i> Remove from collection</a></li>
-                                            <script>
-                                                document.getElementById("collectionremovebtn").addEventListener("click",function(){
-                                                    var xhr = new XMLHttpRequest();
-                                                    xhr.addEventListener('load',function(){
-                                                        if(history.pushState){ history.pushState(null,"",xhr.responseURL); }
-                                                        document.open();
-                                                        document.write(xhr.responseText);
-                                                        document.close();
-                                                    },false);
-                                                    xhr.addEventListener('error',function(){ alert("Error removing content"); },false);
-                                                    xhr.open("POST", "@routes.CollectionContent.removeFromCollection(content.id.get, collection.get.id.get)");
-                                                    xhr.send();
-                                                },false);
-                                            </script>
-                                          }
-                                        </ul>
                                     </li>
                                 }
                             }

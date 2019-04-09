@@ -27,16 +27,14 @@ GET     /collection/:id                                     controllers.Collecti
 POST    /collection/:id                                     controllers.Collections.edit(id: Long)
 POST    /collection/:id/addContent                          controllers.Collections.addContent(id: Long)
 POST    /collection/:id/removeContent                       controllers.Collections.removeContent(id: Long)
-POST    /collection/:id/quit                                controllers.Collections.quitCollection(id: Long)
 POST    /collection/:id/setPermission/:operation            controllers.Collections.setPermission(id: Long, operation: String)
 POST    /collection/:id/addTA                               controllers.Collections.addTA(id: Long)
 POST    /collection/:collectionId/removeTA                  controllers.Collections.removeTA(collectionId: Long)
 POST    /collection/:collectionId/linkCourses               controllers.Collections.linkCourses(collectionId: Long)
 POST    /collection/:collectionId/unlinkCourses             controllers.Collections.unlinkCourses(collectionId: Long)
-GET     /collection/:collectionId/content/:id               controllers.CollectionContent.viewInCollection(id: Long, collectionId: Long)
-POST    /collection/:collectionId/content/:id/remove        controllers.CollectionContent.removeFromCollection(id: Long, collectionId: Long)
 POST    /collection/:collectionId/addException              controllers.Collections.addException(collectionId: Long)
 POST    /collection/:collectionId/removeException           controllers.Collections.removeException(collectionId: Long)
+GET     /collection/:collectionId/:action                   controllers.Collections.setFlag(collectionId: Long, action: String)
 
 # Content pages
 GET     /content/create/:page                               controllers.ContentController.createPage(page: String, collectionId: Long = 0)
@@ -48,7 +46,6 @@ POST    /content/create/resource                            controllers.ContentC
 POST    /content/create/playlist                            controllers.ContentController.createPlaylist(collectionId: Long)
 GET     /content/:id                                        controllers.ContentController.view(id: Long)
 POST    /content/:id/delete                                 controllers.ContentController.delete(id: Long)
-POST    /content/:id/addToCollection                        controllers.CollectionContent.addToCollection(id: Long)
 POST    /content/:id/settings                               controllers.ContentEditing.setSettings(id: Long)
 POST    /content/:id/metadata                               controllers.ContentEditing.setMetadata(id: Long)
 POST    /content/:id/thumbnail                              controllers.ContentEditing.changeThumbnail(id: Long)
@@ -129,6 +126,7 @@ GET     /api/user/recent                                    controllers.Users.re
 
 # content API
 GET     /api/content/:id                                    controllers.ContentController.contentAsJson(id: Long)
+GET     /api/content/:id/addview                            controllers.ContentController.addView(id: Long)
 
 # collection API
 GET     /api/collection/:id                                 controllers.Collections.collectionAsJson(id: Long)
