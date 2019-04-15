@@ -39,7 +39,6 @@
                     <td>@collection.getMembers.size</td>
                     <td>@collection.getContent.size</td>
                     <td>
-                        <a href="@routes.Collections.view(collection.id.get)" target="_blank" class="btn btn-small btn-gray"><i class="icon-eye-open"></i></a>
                         <a href="#editModal" role="button" data-toggle="modal" class="btn btn-small btn-yellow editCollection" data-id="@collection.id.get" data-name="@collection.name"><i class="icon-pencil"></i></a>
                         <a href="#deleteModal" role="button" data-toggle="modal" class="btn btn-small btn-magenta deleteCollection" data-id="@collection.id.get"><i class="icon-trash"></i></a>
                         @if(collection.getTeachers.size > 0 && collection.getTeachers(0) != user) {

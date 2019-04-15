@@ -119,6 +119,14 @@ object Authentication extends Controller {
       Future { Errors.forbidden }
   }
 
+  def enforcePermissionAPI(permission: String)(result: Result)(implicit request: Request[_], user: User): Result = {
+    if (user.hasSitePermission(permission))
+      result
+    else
+      Errors.api.forbidden()
+  }
+
+
   def getUserFromRequest()(implicit request: RequestHeader): Option[User] = {
     request.session.get("userId").flatMap( userId => User.findById(userId.toLong) )
   }

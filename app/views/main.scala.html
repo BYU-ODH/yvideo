@@ -55,11 +55,6 @@
                             </a>
                             <div class="headerDropdown" id="collectionsDropdown">
                                 <div class="dropdownPoint"></div>
-                                @for(collection <- user.get.getEnrollment) {
-                                    <div class="dropdownItem">
-                                        <a href="@routes.Collections.view(collection.id.get)"><i class="icon-book"></i> @collection.name</a>
-                                    </div>
-                                }
                                 @if(user.get.hasSitePermission("createCollection")) {
                                     <div class="dropdownItem">
                                         <a href="@routes.Collections.createPage()"><i class="icon-plus"></i> Create a new collection</a>
@@ -89,11 +84,6 @@
                                 <div class="dropdownItem">
                                     <a href="@routes.Users.accountSettings()"><i class="icon-cog"></i> Account Settings</a>
                                 </div>
-                                @if(user.get.hasSitePermission("admin")) {
-                                    <div class="dropdownItem">
-                                        <a href="@routes.Administration.admin()"><i class="icon-wrench"></i> Admin Dashboard</a>
-                                    </div>
-                                }
                                 <div class="dropdownItem">
                                     <a href="@controllers.authentication.routes.Authentication.logout()"><i class="icon-off"></i> Log out</a>
                                 </div>
@@ -118,9 +108,6 @@
                             <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-3">
-                                        @if(user.exists(_.hasSitePermission("joinCollection"))) {
-                                            <div><a href="@routes.Collections.list()">Collection Directory</a></div>
-                                        }
                                     </div>
                                     <div class="col-md-3">
                                         <div><a href="#" id="feedback">Feedback</a></div>

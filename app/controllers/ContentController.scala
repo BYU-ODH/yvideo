@@ -236,7 +236,7 @@ trait ContentController {
                 val redirect = if (!createAndAdd.isEmpty) {
                   Redirect(routes.ContentController.createPage("url", collectionId))
                 } else {
-                  Redirect(routes.Collections.view(collectionId))
+                  Redirect(routes.Application.home)
                 }
                 ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
                   .map { _ =>
@@ -318,7 +318,7 @@ trait ContentController {
                 val redirect = if (!createAndAdd.isEmpty) {
                   Redirect(routes.ContentController.createPage("url", collectionId))
                 } else {
-                  Redirect(routes.Collections.view(collectionId))
+                  Redirect(routes.Application.home)
                 }
                 ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
                   .map { _ =>

@@ -22,11 +22,11 @@ trait Collections {
    * Gets the collection.
    * @param id The id of the collection
    * @param f The action body. Returns a result
-   * @return A future result
    */
-  def getCollection(id: Long)(f: Collection => Result): Future[Result] = {
-    Future(Collection.findById(id).map(collection => f(collection))
-      .getOrElse(Errors.notFound))
+  def getCollection(id: Long)(f: Collection => Result): Result = {
+    Collection.findById(id).map { collection => 
+      f(collection)
+    }.getOrElse(Errors.api.notFound())
   }
 
 
@@ -51,35 +51,18 @@ trait Collections {
   }
 
   /**
-   * The collection page.
-   */
-  def view(id: Long) = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        getCollection(id) { collection =>
-          // if (user.hasCollectionPermission(collection, "viewCollection")) instead
-          if (collection.getMembers.contains(user) ||  SitePermissions.userHasPermission(user, "admin"))
-            Ok(views.html.collections.view(collection, Json.toJson(collection.getLinkedCourses.map(_.toJson)).toString,
-              Json.toJson(User.findUsersByUserIdList(CollectionMembership.getExceptionsByCollection(collection).map(_.userId)).map(_.toJson)).toString,
-              Json.toJson(collection.getTAs.map(_.toJson)).toString))
-          else
-            Errors.forbidden
-        }
-  }
-
-  /**
    * Edit collection information
    */
-  def edit(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def edit(id: Long) = Authentication.secureAPIAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
           if (user.isCollectionTA(collection)) {
             val name = request.body("name")(0)
             collection.copy(name = name).save
-            Redirect(routes.Collections.view(id)).flashing("info" -> "Collection updated")
+            Ok(Json.obj("message" -> JsString("User permissions updated")))
           } else
-            Errors.forbidden
+            Errors.api.forbidden()
         }
   }
 
@@ -87,7 +70,7 @@ trait Collections {
    * Add the content(s) to a specified collection.
    * @param id The ID of the collection
    */
-  def addContent(id: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def addContent(id: Long) = Authentication.secureAPIAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
@@ -97,8 +80,7 @@ trait Collections {
               id <- request.body.dataParts("addContent");
               content <- Content.findById(id.toLong)
             ) { collection.addContent(content) }
-            Redirect(routes.Collections.view(id))
-            .flashing("success" -> "Content added to collection.")
+            Ok(Json.obj("message" -> JsString("Collection updated")))
           } else
             Errors.forbidden
         }
@@ -108,7 +90,7 @@ trait Collections {
    * Remove the content(s) from a specified collection.
    * @param id The ID of the collection
    */
-  def removeContent(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def removeContent(id: Long) = Authentication.secureAPIAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
@@ -118,10 +100,9 @@ trait Collections {
               id <- request.body("removeContent");
               content <- Content.findById(id.toLong)
             ) { collection.removeContent(content) }
-            Redirect(routes.Collections.view(id))
-            .flashing("success" -> "Content removed from collection.")
+            Ok(Json.obj("message" -> JsString("Content removed from collection")))
           } else
-            Errors.forbidden
+            Errors.api.forbidden()
         }
   }
 
@@ -198,17 +179,6 @@ trait Collections {
             Ok(views.html.collections.create())
           else
             Errors.forbidden
-        }
-  }
-
-  /**
-   * Lists all the collections
-   */
-  def list = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermission("joinCollection") {
-          Future(Ok(views.html.collections.list(Collection.list)))
         }
   }
 
@@ -464,7 +434,7 @@ trait Collections {
    * Give permissions to a user
    * @param operation add, remove or match
    */
-  def setPermission(id: Long, operation: String = "") = Authentication.authenticatedAction(parse.multipartFormData) {
+  def setPermission(id: Long, operation: String = "") = Authentication.secureAPIAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         val data = request.body.dataParts
@@ -486,8 +456,8 @@ trait Collections {
                 }
               }
             }
-            Ok
-          } else Results.Forbidden
+            Ok(Json.obj("message" -> JsString("User permissions set")))
+          } else Errors.api.forbidden()
         }
   }
 }

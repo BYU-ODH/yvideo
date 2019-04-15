@@ -64,13 +64,6 @@
                     <div class="col-md-4">
                         <div class="homeContent">
                             <div class="homeContentContainer">
-                                <h3>My Collections</h3>
-                                <ul>
-                                    @for(collection <- user.getEnrollment) {
-                                        <li><a href="@routes.Collections.view(collection.id.get)">@collection.name</a></li>
-                                    }
-                                </ul>
-
                                 @if(user.hasSitePermission("createCollection")) {
                                     <a href="@routes.Collections.create()" class="btn btn-magenta"><i class="icon-group"></i> Create a new collection</a>
                                 }

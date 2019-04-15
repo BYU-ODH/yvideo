@@ -20,10 +20,8 @@ GET     /auth/logout                                        controllers.authenti
 GET     /auth/logout/redirect*path                          controllers.authentication.Authentication.logoutWithService(path: String)
 
 # Collection pages
-GET     /collection                                         controllers.Collections.list
 GET     /collection/create                                  controllers.Collections.createPage
 POST    /collection/create                                  controllers.Collections.create
-GET     /collection/:id                                     controllers.Collections.view(id: Long)
 POST    /collection/:id                                     controllers.Collections.edit(id: Long)
 POST    /collection/:id/addContent                          controllers.Collections.addContent(id: Long)
 POST    /collection/:id/removeContent                       controllers.Collections.removeContent(id: Long)
@@ -65,19 +63,14 @@ POST    /user/changePassword                                controllers.Users.ch
 POST    /user/uploadPicture                                 controllers.Users.uploadProfilePicture
 
 # Admin pages
-GET     /admin                                              controllers.Administration.admin
-GET     /admin/users                                        controllers.Administration.manageUsers
 GET     /admin/users/:id/:limit/:up                         controllers.Administration.pagedUsers(id: Long, limit: Long, up: Boolean)
 GET     /admin/users/count                                  controllers.Administration.userCount
 GET     /admin/users/:columnName/:searchValue               controllers.Administration.searchUsers(columnName: String, searchValue: String)
 POST    /admin/users/setPermission/:operation               controllers.Administration.setPermission(operation: String)
 POST    /admin/users/notify                                 controllers.Administration.sendNotification(currentPage: Int)
 POST    /admin/users/:id/delete                             controllers.Administration.delete(id: Long)
-GET     /admin/collections                                  controllers.Administration.manageCollections
 POST    /admin/collections/:id                              controllers.Administration.editCollection(id: Long)
 POST    /admin/collections/:id/delete                       controllers.Administration.deleteCollection(id: Long)
-GET     /admin/content                                      controllers.Administration.manageContent
-GET     /admin/settings                                     controllers.Administration.siteSettings
 POST    /admin/settings                                     controllers.Administration.saveSiteSettings
 GET     /admin/proxy/:id                                    controllers.Administration.proxy(id: Long)
 

@@ -59,7 +59,6 @@
                                 <div class="dropdownPoint"></div>
                                 @for(collection <- user.getEnrollment) {
                                     <div class="dropdownItem">
-                                        <a href="@routes.Collections.view(collection.id.get)"><i class="icon-book"></i> @collection.name</a>
                                     </div>
                                 }
                                 @if(user.hasSitePermission("createCollection")) {
@@ -87,11 +86,6 @@
                                 <div class="dropdownItem">
                                     <a href="@routes.Users.accountSettings()"><i class="icon-cog"></i> Account Settings</a>
                                 </div>
-                                @if(user.hasSitePermission("admin")) {
-                                    <div class="dropdownItem">
-                                        <a href="@routes.Administration.admin()"><i class="icon-wrench"></i> Admin Dashboard</a>
-                                    </div>
-                                }
                                 <div class="dropdownItem">
                                     <a href="@controllers.authentication.routes.Authentication.logout()"><i class="icon-off"></i> Log out</a>
                                 </div>

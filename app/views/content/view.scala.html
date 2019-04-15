@@ -76,7 +76,6 @@
     <div class="padded">
         @if(collection.isDefined) {
             <ul class="breadcrumb">
-                <li><a href="@routes.Collections.view(collection.get.id.get)">@collection.get.name</a> <span class="divider"></span></li>
                 <li class="active">@content.name</li>
             </ul>
         }
