@@ -29,11 +29,8 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
         val coll = controller.getCollection(newCol.id.get) { col =>
           col.id.get === newCol.id.get
           col.owner === newCol.id.get
-          println("TEST")
           Results.Ok(col.toJson)
         }
-        println(headers(coll))
-        println(contentAsString(coll))
         status(coll) === 200
       }
     }
@@ -72,7 +69,6 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
             newCol.id mustNotEqual None
             val request = FakeRequest().withSession("userId" -> user.id.get.toString)
             val result = controller.view(newCol.id.get)(request) // volatile - change after fixtures work
-            println(headers(result))
             status(result) shouldEqual 200
           }
           //return a forbidden error if the user does not have permission
