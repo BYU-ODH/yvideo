@@ -27,11 +27,9 @@ trait Administration {
   def pagedUsers(id: Long, limit: Long, up: Boolean) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-      //check if admin
-      if (user.hasSitePermission("admin"))
+      Authentication.enforcePermissionAPI("admin") {
         Ok(Json.toJson(User.listPaginated(id, limit, up).map(_.toJson)))
-      else 
-        Forbidden(JsObject(Seq("message" -> JsString("You must an admin to use this endpoint"))))
+      }
   }
 
 
@@ -42,10 +40,9 @@ trait Administration {
   def userCount() = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-      if (user.hasSitePermission("admin"))
+      Authentication.enforcePermissionAPI("admin") {
         Ok(Json.toJson(User.count))
-      else 
-        Forbidden(JsObject(Seq("message" -> JsString("You must an admin to use this endpoint"))))
+      }
   }
 
 
@@ -57,13 +54,13 @@ trait Administration {
     implicit request =>
       implicit user =>
       val allowedColumns = List("username", "name", "email")
-      if (user.hasSitePermission("admin")) {
+      Authentication.enforcePermissionAPI("admin") {
         if (allowedColumns.contains(columnName)) {
           if (searchValue.length > 3) {
               Ok(Json.toJson(User.userSearch(columnName, searchValue).map(_.toJson)))
           } else { Forbidden(JsObject(Seq("message" -> JsString("Search value was too short"))))}
         } else { Forbidden(JsObject(Seq("message" -> JsString("Search column is not allowed"))))}
-      } else { Forbidden(JsObject(Seq("message" -> JsString("You must be an admin to use this endpoint"))))}
+      } 
   }
   /**
    * Helper function for finding user accounts

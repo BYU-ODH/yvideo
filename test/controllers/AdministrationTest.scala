@@ -18,58 +18,54 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
   "Administration Controller Tests" >> {
     // Authentication.enforcePermission("admin") will be tested in the Authentication Controller
 
-    "The Admin Dashboard Endpoint" should {
-      "serve the admin dashboard to admins" in {
-        application {
-          val user = newCasAdmin("admin")
-          user.id mustNotEqual None
-          val controller = new AdministrationTestController()
-          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-          val result = controller.admin(request)
-          status(result) shouldEqual 200
-        }
-      }
-    }
-
-    "The Manage Users Endpoint" should {
-      "serve the admin dashboard user view to admins" in {
-        application {
-          val user = newCasAdmin("admin1")
-          user.id mustNotEqual None
-          val controller = new AdministrationTestController()
-          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-          val result = controller.manageUsers(request)
-          status(result) shouldEqual 200
-        }
-      }
-    }
-
     "The Paged Users Endpoint" should {
-      "return a JSON of user objects with the length and starting point" in {
+      "return a JSON of user objects with the length and starting point (forward paging)" in {
         application {
           val users = List("joe", "jack", "john", "jill", "jane") map newCasStudent
           users.foreach(_.id mustNotEqual None)
-          val user = newCasAdmin("admin3")
-          user.id mustNotEqual None
+          val admin = newCasAdmin("admin3")
+          admin.id mustNotEqual None
           val controller = new AdministrationTestController()
-          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-          val length = users.length
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          val length = users.length + 1 //one more for the admin
           //with paging going forward
           val result = controller.pagedUsers(users(0).id.get, length, true)(request)
           contentType(result) mustEqual Some("application/json")
           val jsonResult = contentAsJson(result)
           val jsVal: JsValue = Json.parse(jsonResult.toString)
+          // [{"id":1,"authScheme":"cas","username":"joe","name":"joe","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.894Z"},
+          //  {"id":2,"authScheme":"cas","username":"jack","name":"jack","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.985Z"},
+          //  {"id":3,"authScheme":"cas","username":"john","name":"john","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.988Z"},
+          //  {"id":4,"authScheme":"cas","username":"jill","name":"jill","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.991Z"},
+          //  {"id":5,"authScheme":"cas","username":"jane","name":"jane","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.994Z"},
+          //  {"id":6,"authScheme":"cas","username":"admin3","name":"admin3","email":"","linked":-1,"permissions":["admin","delete"],"lastLogin":"2019-04-16T14:44:10.010Z"}]
           val idList = (jsVal \\ "id")
           idList.size mustEqual length
         }
         //entries should be user objects
         //some way to check between up and down pagination
+        //make sure it doesn't break when we ask for more results than there are users
       }
     }
 
     "The User Count Endpoint" should {
       "return the number of users in the database" in {
-        1 mustEqual 1
+        application {
+          val users = List("joe", "jack", "john", "jill", "jane") map newCasStudent
+          users.foreach(_.id mustNotEqual None)
+          val admin = newCasAdmin("admin3")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          val length = users.length + 1 //one more for the admin
+          val result = controller.userCount()(request)
+          contentType(result) mustEqual Some("application/json")
+          val jsonResult = contentAsJson(result)
+          val jsVal: JsValue = Json.parse(jsonResult.toString)
+          // ['6']
+          val countList = jsVal.as[JsArray].value.toList
+          countList(0).toString mustEqual length.toString
+        }
         //must be of type JSON
         //number in JSON should match the number of users in the database
       }
@@ -125,19 +121,6 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
       }
     }
 
-    "The Manage Collections Endpoint" should {
-      "serve the manage collections page to admins" in {
-        application {
-                  val user = newCasAdmin("admin")
-                  user.id mustNotEqual None
-                  val controller = new AdministrationTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.manageCollections(request)
-                  status(result) shouldEqual 200
-              }
-      }
-    }
-
     "The Edit Collection Endpoint" should {
       "update a collection with the map of values" in {
         1 mustEqual 1
@@ -151,38 +134,12 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     }
     //And be rejected if they aren't either one
 
-    "The Manage Content Endpoint" should {
-      "serve the manage content page to admins" in {
-        application {
-                  val user = newCasAdmin("admin")
-                  user.id mustNotEqual None
-                  val controller = new AdministrationTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.manageContent(request)
-                  status(result) shouldEqual 200
-              }
-      }
-    }
-
     "The Batch Update Content Endpoint" should {
       "update multiple content items with the map of values" in {
         1 mustEqual 1
       }
     }
     //And throw an error if something goes wrong
-
-    "The Home Page Content Endpoint" should {
-      "serve the home page management page to admins" in {
-        application {
-                  val user = newCasAdmin("admin")
-                  user.id mustNotEqual None
-                  val controller = new AdministrationTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.homePageContent(request)
-                  status(result) shouldEqual 200
-              }
-      }
-    }
 
     "The Create Home Page Content Endpoint" should {
       "create a banner for displaying on the homepage with the map of values" in {
@@ -200,24 +157,6 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
 
     "The Delete Home Page Content Endpoint" should {
       "delete an existing homepage banner" in {
-        1 mustEqual 1
-      }
-    }
-
-    "The Site Settings Endpoint" should {
-      "serve the site settings page to admins" in {
-        application {
-          val user = newCasAdmin("admin")
-          user.id mustNotEqual None
-          val controller = new AdministrationTestController()
-          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-          val result = controller.siteSettings(request)
-          println(headers(result))
-          status(result) shouldEqual 200
-        }
-      }
-
-      "apply changes to the site settings with the map of values" in {
         1 mustEqual 1
       }
     }

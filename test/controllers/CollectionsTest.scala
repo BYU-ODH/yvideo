@@ -19,22 +19,6 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
   implicit val collectionReads = Json.reads[Collection]
 
   "Collections Controller Tests" >> {
-    "The Get Collection function" should {
-      "return a collection" in {
-        val controller = new CollectionsTestController()
-        val user = newCasTeacher("Teacher Person")
-        user.id !== None
-        val newCol = newCollection("collection1", user)
-        newCol.id !== None
-        val coll = controller.getCollection(newCol.id.get) { col =>
-          col.id.get === newCol.id.get
-          col.owner === newCol.id.get
-          Results.Ok(col.toJson)
-        }
-        status(coll) === 200
-      }
-    }
-
     "The collectionAsJson endpoint" should {
       "allow admins to view any collection" in {
         application {
@@ -57,24 +41,6 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
           }
         }
       }
-    }
-
-    "The View Endpoint" should {
-        "serve the collection based on the id to the user if they are allowed to view it" in {
-          application {
-            val controller = new CollectionsTestController()
-            val user = newCasAdmin("admin dude")
-            user.id mustNotEqual None
-            val newCol = newCollection("View Endpoint Test Collection", user)
-            newCol.id mustNotEqual None
-            val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-            val result = controller.view(newCol.id.get)(request) // volatile - change after fixtures work
-            status(result) shouldEqual 200
-          }
-          //return a forbidden error if the user does not have permission
-          //make sure all the TAs and linked courses are included
-          //check for an admin and a teacher
-        }
     }
 
     "The Edit Endpoint" should {
@@ -125,19 +91,6 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
             status(result) shouldEqual 200
           }
                         //return a forbidden error if the user does not have permission
-        }
-    }
-
-    "The List Endpoint" should {
-        "serve the page that lists all the collections to anyone" in { //Shouldn't this only be admins?
-          application {
-            val user = newCasAdmin("admin")
-            user.id mustNotEqual None
-            val controller = new CollectionsTestController()
-            val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-            val result = controller.list(request)
-            status(result) shouldEqual 200
-          }
         }
     }
 
