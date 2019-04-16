@@ -16,9 +16,9 @@ import play.api.libs.json.Json
 /**
  * Controller dealing with word lists
  */
-object WordLists extends Controller {
+class WordLists @Inject (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
 
-  val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
+  val isHTTPS = configuration.getBoolean("HTTPS").getOrElse(false)
 
   /*
    * Recognize and fix certain diacritics that can cause issues in sql
@@ -30,7 +30,7 @@ object WordLists extends Controller {
   /**
    * Adds a word (or text) to a word list. For AJAX calls
    */
-  def add = Authentication.authenticatedAction(parse.multipartFormData) {
+  def add = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         user.addWord(normalize(request.body.dataParts("word")(0)), request.body.dataParts("srcLang")(0), request.body.dataParts("destLang")(0))
@@ -40,7 +40,7 @@ object WordLists extends Controller {
   /**
    * View the user's word list (in html)
    */
-  def view = Authentication.authenticatedAction() {
+  def view = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         val wordList = user.getWordList
@@ -50,7 +50,7 @@ object WordLists extends Controller {
   /**
    * View the user's word list (in JSON)
    */
-  def viewJSON = Authentication.authenticatedAction() {
+  def viewJSON = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         val wordList = user.getWordList
@@ -63,7 +63,7 @@ object WordLists extends Controller {
    * Delete a word from the word list
    * @param id The ID of the word list entry
    */
-  def deleteWord(id: Long) = Authentication.authenticatedAction() {
+  def deleteWord(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         WordListEntry.findById(id).map(_.delete())
@@ -85,7 +85,7 @@ object WordLists extends Controller {
   /**
    * Exports the word list to quizlet
    */
-  def export = Authentication.authenticatedAction(parse.multipartFormData) {
+  def export = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       user =>
         val token = request.body.dataParts("token")(0)
@@ -101,7 +101,7 @@ object WordLists extends Controller {
   /**
    * Starts the oauth authorization process with Quizlet
    */
-  def authorize = Authentication.authenticatedAction() {
+  def authorize = authentication.authenticatedAction() {
     implicit request =>
       user =>
         val data = Map(
@@ -117,7 +117,7 @@ object WordLists extends Controller {
   /**
    * Finished the oauth authorization process with Quizlet
    */
-  def authorizeCallback = Authentication.authenticatedAction() {
+  def authorizeCallback = authentication.authenticatedAction() {
     implicit request =>
       user =>
       // Check for an error

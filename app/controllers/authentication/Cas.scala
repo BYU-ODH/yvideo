@@ -21,7 +21,7 @@ import models.Collection
 /**
  * Controller which handles BYU CAS authentication.
  */
-object Cas extends Controller {
+class Cas @Inject (configuration: play.api.Configuration, aim: AIM, authentication: Authentication) extends Controller {
 
   // For parsing schedule service
   case class BYU_Course(course: String, course_title: String, instructor: String)
@@ -32,9 +32,9 @@ object Cas extends Controller {
     case _ => Nil
   }
 
-  val admins: List[String] = getList(current.configuration.getStringList("admins"))
-  val managers: List[String] = getList(current.configuration.getStringList("managers"))
-  val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
+  val admins: List[String] = getList(configuration.getStringList("admins"))
+  val managers: List[String] = getList(configuration.getStringList("managers"))
+  val isHTTPS = configuration.getBoolean("HTTPS").getOrElse(false)
 
   /**
    * Redirects to the CAS login page.
@@ -128,7 +128,7 @@ object Cas extends Controller {
         Logger.debug("Cas user information:")
         Logger.debug(xml.toString)
         val username = ((xml \ "authenticationSuccess") \ "user").text
-        val user = Authentication.getAuthenticatedUser(username, 'cas, getAttribute(xml, "name"), getAttribute(xml, "emailAddress"))
+        val user = authentication.getAuthenticatedUser(username, 'cas, getAttribute(xml, "name"), getAttribute(xml, "emailAddress"))
         val personId = getAttribute(xml, "personId").getOrElse("")
         val fulltime = getAttribute(xml, "activeFulltimeInstructor").getOrElse("false").toBoolean
         val parttime = getAttribute(xml, "activeParttimeInstructor").getOrElse("false").toBoolean
@@ -137,14 +137,14 @@ object Cas extends Controller {
 
         updateAccount(user, isInstructor)
 
-        Authentication.login(user, path)
+        authentication.login(user, path)
       }
 
       try {
         Await.result(r, 20 seconds)
       } catch  {
         case _: Throwable =>
-          val advice = Play.configuration.getString("smtp.address") match {
+          val advice = configuration.getString("smtp.address") match {
             case Some(address) => "Please contact us at " + address + " so that we can figure out what went wrong."
             case None => "Please contact us at arlitelab@gmail.com so that we can figure out what went wrong."
           }

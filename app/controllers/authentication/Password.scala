@@ -7,7 +7,7 @@ import models.{User, SitePermissions}
 /**
  * Controller which handles password authentication and account creation
  */
-object Password extends Controller {
+class Password @Inject (authentication: Authentication) extends Controller {
 
   /**
    * Logs the user in
@@ -27,7 +27,7 @@ object Password extends Controller {
       // Check that the user exists and the password matches
       if (user.isDefined && user.get.authId == passwordHash) {
 
-        Authentication.login(user.get, path)
+        authentication.login(user.get, path)
       } else {
 
         Redirect(controllers.routes.Application.login().toString(), request.queryString)

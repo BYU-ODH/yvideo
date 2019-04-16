@@ -10,8 +10,7 @@ import dataAccess.ResourceController
 /**
  * Controller dealing with help pages
  */
-trait HelpPages {
-  this: Controller =>
+class HelpPages @Inject (authentication: Authentication) extends Controller {
 
   /**
    * Table of contents view
@@ -39,10 +38,10 @@ trait HelpPages {
    * Edit a particular help page
    * @param id The ID of the help page
    */
-  def edit(id: Long) = Authentication.authenticatedAction() {
+  def edit(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           val helpPage = HelpPage.findById(id)
           Future(Ok(views.html.help.edit(helpPage)))
         }
@@ -52,10 +51,10 @@ trait HelpPages {
    * Delete a particular help page
    * @param id The ID of the help page
    */
-  def delete(id: Long) = Authentication.authenticatedAction() {
+  def delete(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           HelpPage.findById(id).map(_.delete())
           Future {
             Redirect(routes.HelpPages.tableOfContents())
@@ -68,10 +67,10 @@ trait HelpPages {
    * Save/update a particular help page
    * @param id The ID of the help page
    */
-  def save(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def save(id: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
 
           val helpPage = HelpPage.findById(id)
           val title = request.body("title")(0)
@@ -94,5 +93,3 @@ trait HelpPages {
   }
 
 }
-
-object HelpPages extends Controller with HelpPages

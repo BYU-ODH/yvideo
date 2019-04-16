@@ -12,7 +12,7 @@ import play.api.libs.json._
 /**
  * Controller for checker users' permissions pertaining to content
  */
-object PermissionChecker extends Controller {
+class PermissionChecker @Inject (authentication: Authentication) extends Controller {
 
   /**
    * AJAX endpoint which checks a user's permissions to see if he/she is allowed to do things with content
@@ -23,7 +23,7 @@ object PermissionChecker extends Controller {
    * - documentType: What kind of document we want to deal with. Valid options: captionTrack, annotations
    * Returns a JS array of resource IDs which are permitted.
    */
-  def check = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def check = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         val contentId = request.body("contentId")(0).toLong

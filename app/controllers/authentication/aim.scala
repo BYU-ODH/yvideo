@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import models.User
 import models.Course
 
-object aim {
+class AIM @Inject (configuration: play.api.Configuration) extends Controller {
 
   case class UserEnrollment(
     person_id: String,
@@ -39,8 +39,8 @@ object aim {
   implicit val byuClassReads = Json.reads[BYU_Class]
   implicit val userEnrollmentReads = Json.reads[UserEnrollment]
 
-  val CONSUMER_KEY = Play.application.configuration.getString("aim.consumerkey").get
-  val CONSUMER_SECRET = Play.application.configuration.getString("aim.consumersecret").get
+  val CONSUMER_KEY = configuration.getString("aim.consumerkey").get
+  val CONSUMER_SECRET = configuration.getString("aim.consumersecret").get
 
   def getScheduleUrl(idValue: String, yearTerm: String, isInstructor: Boolean, idType: String = "netid") = {
     val service = if (isInstructor) "instructorschedule" else "studentschedule"

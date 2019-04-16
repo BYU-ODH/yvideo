@@ -18,14 +18,14 @@ import scala.util.matching.Regex
 /**
  * Controller that deals with the editing of content
  */
-trait ContentEditing {
-  this: Controller =>
+
+class ContentEditing @Inject (authentication: Authentication) extends Controller {
 
   /**
    * Sets the metadata for a particular content object
    * @param id The ID of the content
    */
-  def setMetadata(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def setMetadata(id: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) {  content =>
@@ -95,7 +95,7 @@ trait ContentEditing {
    * Sets the content's settings
    * @param id The ID of the content
    */
-  def setSettings(id: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def setSettings(id: Long) = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
@@ -115,7 +115,7 @@ trait ContentEditing {
    * Image editing view
    * @param id The ID of the content
    */
-  def editImage(id: Long) = Authentication.authenticatedAction() {
+  def editImage(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) {  content =>
@@ -133,7 +133,7 @@ trait ContentEditing {
    * Saves the image edits.
    * @param id The id of the content
    */
-  def saveImageEdits(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def saveImageEdits(id: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
@@ -179,7 +179,7 @@ trait ContentEditing {
    * Sets the thumbnail for content from either a URL or a file
    * @param id The ID of the content that the thumbnail will be for
    */
-  def changeThumbnail(id: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def changeThumbnail(id: Long) = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
@@ -217,7 +217,7 @@ trait ContentEditing {
    * @param id The ID of the content
    * @param time The time in the video which will be used as the thumbnail
    */
-  def createThumbnail(id: Long, time: Double) = Authentication.authenticatedAction() {
+  def createThumbnail(id: Long, time: Double) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
@@ -300,7 +300,7 @@ trait ContentEditing {
    * Sets the downloadUri of the primary resource associated with the content
    * @param id The ID of the content
    */
-  def setMediaSource(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def setMediaSource(id: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
@@ -318,5 +318,3 @@ trait ContentEditing {
   }
 
 }
-
-object ContentEditing extends Controller with ContentEditing

@@ -13,13 +13,12 @@ import play.api.libs.json._
 /**
  * Controller that deals with documents (annotation sets and caption tracks)
  */
-trait DocumentManager {
-  this: Controller =>
+class DocumentManager @Inject (authentication: Authenticdation) extends Controller {
 
   /**
    * Annotation editor view
    */
-  def editAnnotations(id: Long) = Authentication.authenticatedAction() {
+  def editAnnotations(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
@@ -30,7 +29,7 @@ trait DocumentManager {
   /**
    * AJAX endpoint which saves the annotation set.
    */
-  def saveAnnotations = Authentication.authenticatedAction(parse.multipartFormData) {
+  def saveAnnotations = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         val params = request.body.dataParts.mapValues(_(0))
@@ -114,7 +113,7 @@ trait DocumentManager {
   }
 
   /*** The method to save annotations that have been edited by the annotation text editor ***/
-  def saveEditedAnnotations = Authentication.authenticatedAction(parse.multipartFormData) {
+  def saveEditedAnnotations = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user=>
       val params = request.body.dataParts.mapValues(_(0))
@@ -207,7 +206,7 @@ trait DocumentManager {
    * @param id The ID of the content
    * @param docId The ID of resource being deleted
    */
-  def deleteDocument(id: Long, docId: String) = Authentication.authenticatedAction() {
+  def deleteDocument(id: Long, docId: String) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
@@ -229,5 +228,3 @@ trait DocumentManager {
   }
 
 }
-
-object DocumentManager extends Controller with DocumentManager

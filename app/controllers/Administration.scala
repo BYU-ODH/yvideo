@@ -14,17 +14,15 @@ import play.api.libs.json.{Json, JsValue}
 /**
  * Controller for Administration pages and actions
  */
-trait Administration {
-  // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
-  this: Controller =>
+class Administration @Inject (authentication: Authentication) extends Controller {
 
   /**
    * Admin dashboard view
    */
-  def admin = Authentication.authenticatedAction() {
+  def admin = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future(Ok(views.html.admin.dashboard()))
         }
   }
@@ -32,10 +30,10 @@ trait Administration {
   /**
    * User management view
    */
-  def manageUsers = Authentication.authenticatedAction() {
+  def manageUsers = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future(Ok(views.html.admin.users()))
         }
   }
@@ -46,11 +44,11 @@ trait Administration {
    * @param limit The size of the list of users queried from the db
    * @return list of user JSON objects
    */
-  def pagedUsers(id: Long, limit: Long, up: Boolean) = Authentication.authenticatedAction() {
+  def pagedUsers(id: Long, limit: Long, up: Boolean) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
       //check if admin
-      Authentication.enforcePermission("admin") {
+      authentication.enforcePermission("admin") {
         Future(Ok(Json.toJson(User.listPaginated(id, limit, up).map(_.toJson))))
       }
   }
@@ -60,10 +58,10 @@ trait Administration {
    * Get the number of all current users
    * @return the total number of current users
    */
-  def userCount() = Authentication.authenticatedAction() {
+  def userCount() = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-      Authentication.enforcePermission("admin") {
+      authentication.enforcePermission("admin") {
         println(Json.toJson(User.count))
         Future(Ok(Json.toJson(User.count)))
       }
@@ -74,13 +72,13 @@ trait Administration {
    * Get the users that match the given search criteria
    * @return a list of users based on the given search criteria
    */
-   def searchUsers(columnName: String, searchValue: String) = Authentication.authenticatedAction() {
+   def searchUsers(columnName: String, searchValue: String) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
       val allowedColumns = List("username", "name", "email")
       if (allowedColumns.contains(columnName)) {
         if (searchValue.length > 3) {
-          Authentication.enforcePermission("admin") {
+          authentication.enforcePermission("admin") {
             Future(Ok(Json.toJson(User.userSearch(columnName, searchValue).map(_.toJson))))
           }
         } else {
@@ -111,10 +109,10 @@ trait Administration {
   /**
    * Give permissions to a user
    */
-  def setPermission(operation: String = "") = Authentication.authenticatedAction(parse.multipartFormData) {
+  def setPermission(operation: String = "") = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           val data = request.body.dataParts
           getUser(data("userId")(0).toLong) { targetUser =>
             operation match {
@@ -143,11 +141,11 @@ trait Administration {
   /**
    * Sends an email notification to a user
    */
-  def sendNotification(currentPage: Int) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def sendNotification(currentPage: Int) = authentication.authenticatedAction(parse.urlFormEncoded) {
     //There may be a better way to control the way the user is redirected than with an Integer...
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           val id = request.body("userId")(0).toLong
           getUser(id) { targetUser =>
 
@@ -172,10 +170,10 @@ trait Administration {
    * Deletes a user
    * @param id The ID of the user
    */
-  def delete(id: Long) = Authentication.authenticatedAction() {
+  def delete(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           getUser(id) { targetUser =>
             targetUser.delete()
             Future {
@@ -189,10 +187,10 @@ trait Administration {
   /**
    * The collection management view
    */
-  def manageCollections = Authentication.authenticatedAction() {
+  def manageCollections = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           val collections = Collection.list
           Future(Ok(views.html.admin.collections(collections)))
         }
@@ -202,10 +200,10 @@ trait Administration {
    * Updates the name of the collection
    * @param id The ID of the collection
    */
-  def editCollection(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def editCollection(id: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Collections.getCollection(id) { collection =>
             // Update the collection
             val params = request.body.mapValues(_(0))
@@ -221,7 +219,7 @@ trait Administration {
    * Deletes a collection
    * @param id The ID of the collection to delete
    */
-  def deleteCollection(id: Long) = Authentication.authenticatedAction() {
+  def deleteCollection(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Collections.getCollection(id) { collection =>
@@ -240,10 +238,10 @@ trait Administration {
   /**
    * The content management view
    */
-  def manageContent = Authentication.authenticatedAction() {
+  def manageContent = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future(Ok(views.html.admin.content(Content.list, ResourceController.baseUrl)))
         }
   }
@@ -251,10 +249,10 @@ trait Administration {
   /**
    * The home page content view
    */
-  def homePageContent = Authentication.authenticatedAction() {
+  def homePageContent = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future(Ok(views.html.admin.homePageContent()))
         }
   }
@@ -262,10 +260,10 @@ trait Administration {
   /**
    * Creates new home page content
    */
-  def createHomePageContent = Authentication.authenticatedAction(parse.multipartFormData) {
+  def createHomePageContent = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           val redirect = Redirect(routes.Administration.homePageContent())
           Future {
             try {
@@ -300,10 +298,10 @@ trait Administration {
    * Toggles a particular home page content
    * @param id The ID of the home page content
    */
-  def toggleHomePageContent(id: Long) = Authentication.authenticatedAction() {
+  def toggleHomePageContent(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future {
             HomePageContent.findById(id).map { homePageContent =>
               homePageContent.copy(active = !homePageContent.active).save
@@ -323,10 +321,10 @@ trait Administration {
    * Deletes a particular home page content
    * @param id The ID of the home page content
    */
-  def deleteHomePageContent(id: Long) = Authentication.authenticatedAction() {
+  def deleteHomePageContent(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future {
             HomePageContent.findById(id).map { homePageContent =>
               homePageContent.delete()
@@ -342,10 +340,10 @@ trait Administration {
   /**
    * The site settings view
    */
-  def siteSettings = Authentication.authenticatedAction() {
+  def siteSettings = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future(Ok(views.html.admin.settings(Setting.list)))
         }
   }
@@ -353,10 +351,10 @@ trait Administration {
   /**
    * Saves and updates the site settings
    */
-  def saveSiteSettings = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def saveSiteSettings = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           request.body.mapValues(_(0)).foreach { data =>
             Setting.findByName(data._1).get.copy(value = data._2).save
             Logger.debug(data._1 + ": " + data._2)
@@ -372,10 +370,10 @@ trait Administration {
    * Proxies in as a different user
    * @param id The ID of the user to be proxied in as
    */
-  def proxy(id: Long) = Authentication.authenticatedAction() {
+  def proxy(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future {
             User.findById(id) match {
             case Some(proxyUser) =>
@@ -390,5 +388,3 @@ trait Administration {
         }
   }
 }
-
-object Administration extends Controller with Administration

@@ -19,12 +19,13 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
     "com.google.gdata" % "core" % "1.47.1",
     "com.amazonaws" % "aws-java-sdk" % "1.4.1",
     "org.codemonkey.simplejavamail" % "simple-java-mail" % "2.1",
-    "com.typesafe.play" %% "anorm" % "2.4.0",
-    specs2 % Test,
+    "com.typesafe.play" %% "anorm" % "2.5.1",
+    "org.specs2" %% "specs2-core" % "4.3.4" % "test",
     filters
   )
 )
 
 resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
 scalacOptions ++= Seq("-Xmax-classfile-name","78")
+scalacOptions in Test ++= Seq("-Yrangepos")
 unmanagedSourceDirectories in Test += baseDirectory.value / "test"

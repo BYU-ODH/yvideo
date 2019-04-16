@@ -9,15 +9,14 @@ import service.EmailTools
 import models.Content
 import play.api.libs.json.{JsNull, Json}
 
-trait Application {
-  this: Controller =>
 
+class Application @Inject (authentication: Authentication) extends Controller {
   /**
    * A special login page for admins
    */
   def login = Action {
     implicit request =>
-      val user = Authentication.getUserFromRequest()
+      val user = authentication.getUserFromRequest()
       if (user.isDefined)
         Redirect(controllers.routes.Application.home())
       else {
@@ -29,7 +28,7 @@ trait Application {
   /**
    * The home page
    */
-  def home = Authentication.authenticatedAction() {
+  def home = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Future(Ok(views.html.application.home()))
@@ -69,7 +68,7 @@ trait Application {
   /**
    * Saves feedback submissions (bug reports, suggestions, ratings)
    */
-  def saveFeedback = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def saveFeedback = authentication.authenticatedAction(parse.urlFormEncoded) {
     request =>
       user =>
         val category = request.body("category")(0)
@@ -90,7 +89,7 @@ trait Application {
   /**
    * Saves feedback submitted on an error
    */
-  def saveErrorFeedback = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def saveErrorFeedback = authentication.authenticatedAction(parse.urlFormEncoded) {
     request =>
       user =>
         val description = request.body("description")(0)
@@ -100,5 +99,3 @@ trait Application {
         Future(Ok)
   }
 }
-
-object Application extends Controller with Application

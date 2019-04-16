@@ -13,10 +13,10 @@ import scala.collection.JavaConverters._
 /**
  * This controller does logging out and has a bunch of helpers for dealing with authentication and permissions.
  */
-object Authentication extends Controller {
+class Authentication @Inject (configuration: play.api.Configuration) extends Controller {
 
-  val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
-  val allowedOrigins: Option[List[String]] = current.configuration.getList("allowedOrigins").map(_.asScala.toList.map(_.unwrapped.toString))
+  val isHTTPS = configuration.getBoolean("HTTPS").getOrElse(false)
+  val allowedOrigins: Option[List[String]] = configuration.getList("allowedOrigins").map(_.asScala.toList.map(_.unwrapped.toString))
 
   /**
    * Given a user, logs the user in and sets up the session

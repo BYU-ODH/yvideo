@@ -9,13 +9,13 @@ import dataAccess.{ResourceController, PlayGraph}
 /**
  * Controller dealing with playlists (playgraphs)
  */
-object Playlists extends Controller {
+class Playlists @Inject (authentication: Authentication) extends Controller {
 
   /**
    * The about page. View information/description of the playlist
    * @param id The ID of the playlist
    */
-  def about(id: Long) = Authentication.authenticatedAction() {
+  def about(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Future {
@@ -39,7 +39,7 @@ object Playlists extends Controller {
    * View (play) a particular playlist
    * @param id The ID of the playlist
    */
-  def view(id: Long) = Authentication.authenticatedAction() {
+  def view(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Future {

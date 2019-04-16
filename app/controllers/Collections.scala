@@ -13,10 +13,9 @@ import play.api.Logger
 /**
  * This controller manages all the endpoints relating to collections, including authentication.
  */
-trait Collections {
-  this: Controller =>
+class Collections @Inject (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
 
-  val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
+  val isHTTPS = configuration.getBoolean("HTTPS").getOrElse(false)
 
   /**
    * Gets the collection.
@@ -30,7 +29,7 @@ trait Collections {
   }
 
 
-  def collectionAsJson(id: Long) = Authentication.secureAPIAction() {
+  def collectionAsJson(id: Long) = authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
       Ok(Json.toJson(Collection.findById(id).map(collection =>
@@ -53,7 +52,7 @@ trait Collections {
   /**
    * The collection page.
    */
-  def view(id: Long) = Authentication.authenticatedAction() {
+  def view(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
@@ -70,7 +69,7 @@ trait Collections {
   /**
    * Edit collection information
    */
-  def edit(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def edit(id: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
@@ -87,7 +86,7 @@ trait Collections {
    * Add the content(s) to a specified collection.
    * @param id The ID of the collection
    */
-  def addContent(id: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def addContent(id: Long) = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
@@ -108,7 +107,7 @@ trait Collections {
    * Remove the content(s) from a specified collection.
    * @param id The ID of the collection
    */
-  def removeContent(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def removeContent(id: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
@@ -128,7 +127,7 @@ trait Collections {
   /**
    * Creates a new collection
    */
-  def create = Authentication.secureAPIAction(BodyParsers.parse.json) {
+  def create = authentication.secureAPIAction(BodyParsers.parse.json) {
     implicit request =>
       implicit user =>
         // Check if the user is allowed to create a collection
@@ -158,7 +157,7 @@ trait Collections {
    * @param id the collection id
    * @param action A String that is one of the following: publish, unpublished, archive, unarchive
    */
-  def setFlag(id: Long, action: String) = Authentication.secureAPIAction() {
+  def setFlag(id: Long, action: String) = authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         {action match {
@@ -188,7 +187,7 @@ trait Collections {
   /**
    * The 'create a new collection' view
    */
-  def createPage = Authentication.authenticatedAction() {
+  def createPage = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
 
@@ -204,10 +203,10 @@ trait Collections {
   /**
    * Lists all the collections
    */
-  def list = Authentication.authenticatedAction() {
+  def list = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("joinCollection") {
+        authentication.enforcePermission("joinCollection") {
           Future(Ok(views.html.collections.list(Collection.list)))
         }
   }
@@ -220,7 +219,7 @@ trait Collections {
    * @return Http response that contains a json list of the newly created courses. If a course if requested to be linked
    * but already exists as a record in the database, then that course is not included in the response.
    */
-  def linkCourses(collectionId: Long) = Authentication.authenticatedAction(parse.json) {
+  def linkCourses(collectionId: Long) = authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
         Future {
@@ -252,7 +251,7 @@ trait Collections {
         }
   }
 
-  def unlinkCourses(collectionId: Long) = Authentication.authenticatedAction(parse.json) {
+  def unlinkCourses(collectionId: Long) = authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
         Future {
@@ -288,7 +287,7 @@ trait Collections {
    * Add a TA to the collection based on a Cas username
    * @param id The collection id
    */
-  def addTA(id: Long) = Authentication.authenticatedAction(parse.json) {
+  def addTA(id: Long) = authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
         Future {
@@ -319,7 +318,7 @@ trait Collections {
    * Remove a TA from the collection based on a Cas username
    * @param id the Collection id
    */
-  def removeTA(id: Long) = Authentication.authenticatedAction(parse.json) {
+  def removeTA(id: Long) = authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
         Future {
@@ -347,7 +346,7 @@ trait Collections {
    * Add a student to the collection based on a Cas username
    * @param id The collection id
    */
-  def addException(id: Long) = Authentication.authenticatedAction(parse.json) {
+  def addException(id: Long) = authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
         Future {
@@ -409,7 +408,7 @@ trait Collections {
    * Remove a student from the collection based on a Cas username
    * @param id The collection id
    */
-  def removeException(id: Long) = Authentication.authenticatedAction(parse.json) {
+  def removeException(id: Long) = authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
         Future {
@@ -469,7 +468,7 @@ trait Collections {
    * Give permissions to a user
    * @param operation add, remove or match
    */
-  def setPermission(id: Long, operation: String = "") = Authentication.authenticatedAction(parse.multipartFormData) {
+  def setPermission(id: Long, operation: String = "") = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         val data = request.body.dataParts
@@ -496,5 +495,3 @@ trait Collections {
         }
   }
 }
-
-object Collections extends Controller with Collections

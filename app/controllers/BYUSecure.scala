@@ -2,7 +2,6 @@ package controllers
 
 import authentication.Authentication
 import play.api.mvc.Controller
-import play.api.Play.{current, configuration}
 import play.api.Logger
 import java.net.URL
 import java.security.MessageDigest
@@ -14,9 +13,7 @@ import ExecutionContext.Implicits.global
 /**
  * Controller for generating signed BYU URLs.
  */
-// object BYUSecure extends Controller {
-trait BYUSecure {
-  this: Controller =>
+class BYUSecure @Inject (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
 
   // These values are configurable and should be pulled from config.
   val lifespan = configuration.getLong("byusecure.lifetime").getOrElse[Long](28800)
@@ -25,7 +22,7 @@ trait BYUSecure {
   val algorithm = configuration.getString("byusecure.algorithm").getOrElse("SHA-256")
   val haship = configuration.getBoolean("byusecure.haship").getOrElse(false)
 
-  def buildUrl = Authentication.authenticatedAction(parse.multipartFormData) {
+  def buildUrl = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
 	  implicit user =>
         val data = request.body.dataParts
@@ -69,5 +66,3 @@ trait BYUSecure {
         Future(Ok(response))
   }
 }
-
-object BYUSecure extends Controller with BYUSecure

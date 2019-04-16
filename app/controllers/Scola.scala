@@ -2,7 +2,6 @@ package controllers
 
 import authentication.Authentication
 import play.api.mvc.Controller
-import play.api.Play.{current, configuration}
 import play.api.Logger
 import java.net.URL
 import java.security.MessageDigest
@@ -14,7 +13,7 @@ import ExecutionContext.Implicits.global
 /**
  * Controller for generating signed SCOLA URLs.
  */
-object Scola extends Controller {
+class Scola @Inject (configuration: play.api.Configuration) extends Controller {
 
   // These values are configurable and should be pulled from config.
   val lifespan = configuration.getLong("scola.lifetime").getOrElse[Long](28800)
@@ -23,7 +22,7 @@ object Scola extends Controller {
   val algorithm = configuration.getString("scola.algorithm").getOrElse("SHA-256")
   val haship = configuration.getBoolean("scola.haship").getOrElse(false)
 
-  def buildUrl = Authentication.authenticatedAction(parse.multipartFormData) {
+  def buildUrl = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
 	  implicit user =>
         val data = request.body.dataParts

@@ -13,13 +13,13 @@ import ExecutionContext.Implicits.global
 /**
  * Controller dealing with users
  */
-trait Users { this: Controller =>
+class Users @Inject (authentication: Authentication) extends Controller {
 
   /**
    * Get the collections that a user belongs to
    * @return Result[json array] of collections
    */
-  def collectionsPreview = Authentication.secureAPIAction() {
+  def collectionsPreview = authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         Ok(Json.toJson(user.getEnrollment.map(coll =>
@@ -36,7 +36,7 @@ trait Users { this: Controller =>
                   "views" -> cont.views))))))
   }
 
-  def roles = Authentication.secureAPIAction() {
+  def roles = authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         val perms = SitePermissions.listByUser(user)
@@ -46,7 +46,7 @@ trait Users { this: Controller =>
           "roles" -> Json.toJson(SitePermissions.permissionsToRoles(perms))))
   }
 
-  def getAsJson = Authentication.secureAPIAction() {
+  def getAsJson = authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         Ok(user.toJson)
@@ -56,7 +56,7 @@ trait Users { this: Controller =>
    * Get the user's 4 most recently viewed contents
    * @return Result[json array] of content with id, name, thumbnail, and collection name
    */
-  def recentContent = Authentication.secureAPIAction() {
+  def recentContent = authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         Ok(Json.toJson(ViewingHistory.getUserViews(user.id.get).foldLeft(List[ViewingHistory]()){
@@ -79,7 +79,7 @@ trait Users { this: Controller =>
   /**
    * The account settings view
    */
-  def accountSettings = Authentication.authenticatedAction() {
+  def accountSettings = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Future(Ok(views.html.users.accountSettings()))
@@ -88,7 +88,7 @@ trait Users { this: Controller =>
   /**
    * Saves the user account information
    */
-  def saveSettings = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def saveSettings = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
 
@@ -106,7 +106,7 @@ trait Users { this: Controller =>
   /**
    * Changes the user's password
    */
-  def changePassword = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def changePassword = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
 
@@ -127,7 +127,7 @@ trait Users { this: Controller =>
   /**
    * Updates the user's profile picture
    */
-  def uploadProfilePicture = Authentication.authenticatedAction(parse.multipartFormData) {
+  def uploadProfilePicture = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         val redirect = Redirect(routes.Users.accountSettings())
@@ -164,5 +164,3 @@ trait Users { this: Controller =>
   }
 
 }
-
-object Users extends Controller with Users

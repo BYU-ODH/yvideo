@@ -14,14 +14,13 @@ import play.api.libs.json.{JsObject, Json}
 /**
  * Controller associated with CaptionAider.
  */
-trait CaptionAider {
-  this: Controller =>
+class CaptionAider @Inject (authentication: Authentication) extends Controller {
 
   /**
    * View CaptionAider. You specify the ID of the content and the ID of the collection under whose context we will operate.
    * If there is no collection, specify 0 as the ID.
    */
-  def view(id: Long, collectionId: Long) = Authentication.authenticatedAction() {
+  def view(id: Long, collectionId: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
@@ -41,7 +40,7 @@ trait CaptionAider {
    * - language: The language of the track
    * - kind: "subtitles" or "captions"
    */
-  def save = Authentication.authenticatedAction(parse.multipartFormData) {
+  def save = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
 
@@ -136,5 +135,3 @@ trait CaptionAider {
         }
     }
 }
-
-object CaptionAider extends Controller with CaptionAider

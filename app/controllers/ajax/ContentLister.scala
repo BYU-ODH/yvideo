@@ -11,12 +11,12 @@ import models.Content
  * Controller for listing out content the user can see. For AJAX calls. These need to be cross-domain so as to work with
  * the PlayGraph editor.
  */
-object ContentLister extends Controller {
+class ContentLister @Inject (authentication: Authentication) extends Controller {
 
   /**
    * Lists the collections the user is in and the content under each collection.
    */
-  def collection = Authentication.authenticatedAction() {
+  def collection = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         val collections = user.getEnrollment
@@ -34,7 +34,7 @@ object ContentLister extends Controller {
    * Returns a particular content
    * @param id The ID of the content
    */
-  def get(id: Long) = Authentication.authenticatedAction() {
+  def get(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Future {

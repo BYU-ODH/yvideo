@@ -17,10 +17,9 @@ import play.api.libs.json.Json
 /**
  * The controller for dealing with content.
  */
-trait ContentController {
-  this: Controller =>
+class ContentController @Inject (authentication: Authentication) extends Controller {
 
-  def contentAsJson(id: Long) = Authentication.secureAPIAction() {
+  def contentAsJson(id: Long) = authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         getContentCollection(id) { (content, collection) =>
@@ -62,10 +61,10 @@ trait ContentController {
   /**
    * Content creation page
    */
-  def createPage(page: String = "file", collectionId: Long = 0) = Authentication.authenticatedAction() {
+  def createPage(page: String = "file", collectionId: Long = 0) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforceCollectionAdmin(Collection.findById(collectionId)) {
+        authentication.enforceCollectionAdmin(Collection.findById(collectionId)) {
           Future {
             page match {
             case "url" => Ok(views.html.content.create.url(collectionId))
@@ -97,11 +96,11 @@ trait ContentController {
   /**
    * Creates content based on the posted data (URL)
    */
-  def createFromBatch(collectionId: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def createFromBatch(collectionId: Long) = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
 
-        Authentication.enforcePermission("createContent") {
+        authentication.enforcePermission("createContent") {
 
           // Collect the information
           val data = request.body.dataParts
@@ -199,11 +198,11 @@ trait ContentController {
   /**
    * Creates content based on the posted data (URL)
    */
-  def createFromUrl(collectionId: Long, annotations: Boolean = false) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def createFromUrl(collectionId: Long, annotations: Boolean = false) = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
 
-        Authentication.enforceCollectionAdmin(Collection.findById(collectionId)) {
+        authentication.enforceCollectionAdmin(Collection.findById(collectionId)) {
 
           // Collect the information
           val data = request.body.dataParts
@@ -289,11 +288,11 @@ trait ContentController {
   /**
    * Creates content based on the posted data (File)
    */
-  def createFromFile(collectionId: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def createFromFile(collectionId: Long) = authentication.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
 
-        Authentication.enforcePermission("createContent") {
+        authentication.enforcePermission("createContent") {
 
           // Collect the information
           val data = request.body.dataParts
@@ -352,11 +351,11 @@ trait ContentController {
   /**
    * Creates content based on the posted data (File)
    */
-  def createFromResource(collectionId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def createFromResource(collectionId: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
 
-        Authentication.enforcePermission("createContent") {
+        authentication.enforcePermission("createContent") {
 
           // Create from resource
           val resourceId = request.body("resourceId")(0)
@@ -408,11 +407,11 @@ trait ContentController {
   /**
    * Creates content based on the posted data (File)
    */
-  def createPlaylist(collectionId: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def createPlaylist(collectionId: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
 
-        Authentication.enforcePermission("createContent") {
+        authentication.enforcePermission("createContent") {
 
           // Create the node content
           PlayGraph.Author.NodeContent.create("").flatMap { nodeContentJson =>
@@ -449,7 +448,7 @@ trait ContentController {
   /**
    * Content view page
    */
-  def view(id: Long) = Authentication.authenticatedAction() {
+  def view(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
         Future {
@@ -475,10 +474,10 @@ trait ContentController {
   /**
    * Content deletion endpoint
    */
-  def delete(id: Long) = Authentication.authenticatedAction() {
+  def delete(id: Long) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           getContent(id) { content =>
             Future {
               // Make sure the user is able to edit
@@ -495,10 +494,10 @@ trait ContentController {
   /**
    * Disable expired content
    */
-  def disableExpired = Authentication.authenticatedAction() {
+  def disableExpired = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future {
             val contentList = Content.list
             var count = 0
@@ -516,10 +515,10 @@ trait ContentController {
   /**
    * Update content and re-enable
    */
-  def renewContent(id: Long, renewer: String) = Authentication.authenticatedAction() {
+  def renewContent(id: Long, renewer: String) = authentication.authenticatedAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
+        authentication.enforcePermission("admin") {
           Future {
             Content.renew(id, renewer)
             Redirect(routes.Application.home()).flashing("success" -> s"Successfully renewed content $id")
@@ -530,7 +529,7 @@ trait ContentController {
   /**
    * Increment add a userview to the userView table
    */
-  def addView(contentId: Long) = Authentication.secureAPIAction() {
+  def addView(contentId: Long) = authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         getContentCollection(contentId) { (content, collection) =>
@@ -553,5 +552,3 @@ trait ContentController {
   }
 
 }
-
-object ContentController extends Controller with ContentController
