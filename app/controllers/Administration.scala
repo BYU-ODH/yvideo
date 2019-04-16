@@ -19,21 +19,6 @@ trait Administration {
   this: Controller =>
 
   /**
-   * Get Users {limit} at a time
-   * @param id The id for the last user currently loaded on the page
-   * @param limit The size of the list of users queried from the db
-   * @return list of user JSON objects
-   */
-  def pagedUsers(id: Long, limit: Long, up: Boolean) = Authentication.secureAPIAction() {
-    implicit request =>
-      implicit user =>
-      Authentication.enforcePermissionAPI("admin") {
-        Ok(Json.toJson(User.listPaginated(id, limit, up).map(_.toJson)))
-      }
-  }
-
-
-  /**
    * Get the number of all current users
    * @return the total number of current users
    */
@@ -57,7 +42,7 @@ trait Administration {
       Authentication.enforcePermissionAPI("admin") {
         if (allowedColumns.contains(columnName)) {
           if (searchValue.length > 3) {
-              Ok(Json.toJson(User.userSearch(columnName, searchValue).map(_.toJson)))
+              Ok(Json.toJson(User.search(columnName, searchValue).map(_.toJson)))
           } else { Forbidden(JsObject(Seq("message" -> JsString("Search value was too short"))))}
         } else { Forbidden(JsObject(Seq("message" -> JsString("Search column is not allowed"))))}
       } 

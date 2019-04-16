@@ -211,7 +211,7 @@ case class Collection(id: Option[Long], owner: Long, name: String, published: Bo
 object Collection extends SQLSelectable[Collection] {
   val tableName = "collection"
 
-  val simple = {
+  implicit val simple = {
     get[Option[Long]](tableName + ".id") ~
       get[Long](tableName + ".owner") ~
       get[String](tableName + ".name") ~

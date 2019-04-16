@@ -301,7 +301,7 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
 object User extends SQLSelectable[User] {
   val tableName = "userAccount"
 
-  val simple = {
+  implicit val simple = {
     get[Option[Long]](tableName + ".id") ~
       get[String](tableName + ".authId") ~
       get[String](tableName + ".authScheme") ~
@@ -408,57 +408,6 @@ object User extends SQLSelectable[User] {
           Logger.debug("Error getting user count. User.scala")
           Nil
       }
-    }
-  }
-
-  /**
-   * Returns a paginated list of users for the admin user view
-   * @param id The id of the last user in the current page
-   * @param limit The desired size of the page
-   * @param up: The direction in which to paginate i.e. up will be true when getting the next page
-   * @return a paginated list of users
-   */
-  def listPaginated(id: Long, limit: Long, up: Boolean): List[User] = {
-    DB.withConnection {
-      implicit connection =>
-        try {
-          if (up) {
-            SQL(s"select * from $tableName where id >= {lowerBound} order by id asc limit {upperBound}")
-              .on('lowerBound -> id, 'upperBound -> (limit))
-              .as(simple *)
-          } else {
-            SQL(s"select * from (select * from $tableName where id <= {lowerBound} order by id desc limit {upperBound}) as a order by id asc")
-              .on('lowerBound -> id, 'upperBound -> (limit))
-              .as(simple *)
-          }
-        } catch {
-          case e: SQLException =>
-            Logger.debug("Error getting paginated users. User.scala")
-            Nil
-        }
-    }
-  }
-
-
-  /**
-   * Returns a list of users based on the search criteria that is passed in
-   * @param columnName The column that is being searched - Must be username, name or email
-   * @param searchValue The value to be search for in the given columnEXIT
-   * @return a list of users based on the given search criteria
-   */
-  def userSearch(columnName: String, searchValue: String): List[User] = {
-    DB.withConnection {
-      implicit connection =>
-        try {
-          val searchVal = "%"+searchValue+"%"
-          SQL(s"select * from $tableName where $columnName like {searchValue}")
-            .on('columnName -> columnName, 'searchValue -> searchVal)
-            .as(simple *)
-        } catch {
-          case e: SQLException =>
-            Logger.debug("Error getting user search results. User.scala")
-            Nil
-        }
     }
   }
 

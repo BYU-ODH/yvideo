@@ -146,7 +146,7 @@ object Content extends SQLSelectable[Content] {
   val tableName = "content"
   val settingTable = "contentSetting"
 
-  val simple = {
+  implicit val simple = {
     get[Option[Long]](tableName + ".id") ~
       get[String](tableName + ".name") ~
       get[String](tableName + ".contentType") ~

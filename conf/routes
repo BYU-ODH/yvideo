@@ -63,7 +63,6 @@ POST    /user/changePassword                                controllers.Users.ch
 POST    /user/uploadPicture                                 controllers.Users.uploadProfilePicture
 
 # Admin pages
-GET     /admin/users/:id/:limit/:up                         controllers.Administration.pagedUsers(id: Long, limit: Long, up: Boolean)
 GET     /admin/users/count                                  controllers.Administration.userCount
 GET     /admin/users/:columnName/:searchValue               controllers.Administration.searchUsers(columnName: String, searchValue: String)
 POST    /admin/users/setPermission/:operation               controllers.Administration.setPermission(operation: String)
@@ -125,7 +124,6 @@ GET     /api/content/:id/addview                            controllers.ContentC
 GET     /api/collection/:id                                 controllers.Collections.collectionAsJson(id: Long)
 
 # admin API
-GET     /api/admin/users/:id/:limit/:up                     controllers.Administration.pagedUsers(id: Long, limit: Long, up: Boolean)
 GET     /api/admin/users/count                              controllers.Administration.userCount
 GET     /api/admin/users/:columnName/:searchValue           controllers.Administration.searchUsers(columnName: String, searchValue: String)
 

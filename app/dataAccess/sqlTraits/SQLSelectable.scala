@@ -65,4 +65,27 @@ trait SQLSelectable[T] {
           List[R]()
       }
     }
+
+  /**
+   * Returns a list of objects based on the search criteria that is passed in
+   * @param columnName The column that is being searched
+   * @param searchValue The value to be search for in the given column
+   * @return a list of objects based on the given search criteria
+   */
+  def search(columnName: String, searchValue: String)(implicit parser: RowParser[T]): List[T] = {
+    DB.withConnection {
+      implicit connection =>
+        try {
+          val searchVal = "%"+searchValue+"%"
+          SQL(s"select * from $tableName where $columnName like {searchValue}")
+            .on('columnName -> columnName, 'searchValue -> searchVal)
+            .as(parser *)
+        } catch {
+          case e: SQLException =>
+            Logger.debug(s"Failed to search $tableName for search value $searchValue and column $columnName")
+            Logger.debug(e.getMessage())
+            List[T]()
+        }
+    }
+  }
 }

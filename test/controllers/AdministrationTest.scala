@@ -16,37 +16,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
   class AdministrationTestController() extends Controller with Administration
 
   "Administration Controller Tests" >> {
-    // Authentication.enforcePermission("admin") will be tested in the Authentication Controller
-
-    "The Paged Users Endpoint" should {
-      "return a JSON of user objects with the length and starting point (forward paging)" in {
-        application {
-          val users = List("joe", "jack", "john", "jill", "jane") map newCasStudent
-          users.foreach(_.id mustNotEqual None)
-          val admin = newCasAdmin("admin3")
-          admin.id mustNotEqual None
-          val controller = new AdministrationTestController()
-          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
-          val length = users.length + 1 //one more for the admin
-          //with paging going forward
-          val result = controller.pagedUsers(users(0).id.get, length, true)(request)
-          contentType(result) mustEqual Some("application/json")
-          val jsonResult = contentAsJson(result)
-          val jsVal: JsValue = Json.parse(jsonResult.toString)
-          // [{"id":1,"authScheme":"cas","username":"joe","name":"joe","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.894Z"},
-          //  {"id":2,"authScheme":"cas","username":"jack","name":"jack","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.985Z"},
-          //  {"id":3,"authScheme":"cas","username":"john","name":"john","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.988Z"},
-          //  {"id":4,"authScheme":"cas","username":"jill","name":"jill","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.991Z"},
-          //  {"id":5,"authScheme":"cas","username":"jane","name":"jane","email":"","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-16T14:44:09.994Z"},
-          //  {"id":6,"authScheme":"cas","username":"admin3","name":"admin3","email":"","linked":-1,"permissions":["admin","delete"],"lastLogin":"2019-04-16T14:44:10.010Z"}]
-          val idList = (jsVal \\ "id")
-          idList.size mustEqual length
-        }
-        //entries should be user objects
-        //some way to check between up and down pagination
-        //make sure it doesn't break when we ask for more results than there are users
-      }
-    }
+    // Authentication.enforcePermission("admin") will be tested in the Authentication Controller 
 
     "The User Count Endpoint" should {
       "return the number of users in the database" in {
