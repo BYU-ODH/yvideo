@@ -53,7 +53,7 @@ trait Users { this: Controller =>
   }
 
   /**
-   * Get the user's 4 most recently viewed contents
+   * Get the user's most recently viewed contents
    * @return Result[json array] of content with id, name, thumbnail, and collection name
    */
   def recentContent = Authentication.secureAPIAction() {

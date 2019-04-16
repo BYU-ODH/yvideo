@@ -2,7 +2,10 @@ package test
 
 import play.api.libs.json._
 import play.api.data.validation.ValidationError
+import play.api.test.FakeRequest
+
 import org.specs2.matcher.Matcher
+import org.specs2.matcher.JsonMatchers
 import org.specs2.matcher.MatchersImplicits._
 
 import service.HashTools
@@ -12,15 +15,27 @@ trait TestHelpers {
   /**
    * Custom matcher for descriptive failures
    * Call like so:
-   *  "Error message" must fail
+   *  {{{"Error message" must fail}}}
    */
   def fail: Matcher[String] = { s: String => (false, s) }
 
   /**
    * Convert JsErrors into readable strings
+   * Can be used in conjunction with the fail function in this file.
+   * {{{ jserr2string(error) must fail }}}
+   * JsError objects may contain multiple errors. This function combines them all into one string.
+   * @param err The play JsError
+   * @return A String representation of the given error
    */
   def jserr2string(err: JsError): String =
     err.errors.map(t=>s"JsError: ${t._1.toJsonString}: ${t._2.map(_.message).mkString(",")}").mkString("\n")
+
+  /**
+   * Get A FakeRequest with a user session instantiated.
+   * @param user The User object. The user must have Some(id) otherwise this will result in a runtime error.
+   * @return Request with a session that is parseable by the Authentication functions.
+   */
+  def sessionReq(user: User) = FakeRequest().withSession("userId" -> user.id.get.toString)
 
   /**
    * Creates new CAS user with admin, manager, teacher or student privileges

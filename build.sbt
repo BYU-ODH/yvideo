@@ -13,14 +13,16 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala).settings(
     filters,
     jdbc,
     cache,
-	ws,
+    ws,
     "mysql" % "mysql-connector-java" % "5.1.45",
     "commons-io" % "commons-io" % "2.4",
     "com.google.gdata" % "core" % "1.47.1",
     "com.amazonaws" % "aws-java-sdk" % "1.4.1",
     "org.codemonkey.simplejavamail" % "simple-java-mail" % "2.1",
     "com.typesafe.play" %% "anorm" % "2.4.0",
-    specs2 % Test,
+    "org.specs2" %% "specs2-core" % "4.3.4" % "test",
+    "org.specs2" %% "specs2-junit" % "4.3.4" % "test",
+    "org.specs2" %% "specs2-matcher-extra" % "4.3.4" % "test",
     filters
   )
 )

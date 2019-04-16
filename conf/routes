@@ -110,6 +110,13 @@ GET     /ajax/content/:id                                   controllers.ajax.Con
 POST    /feedback                                           controllers.Application.saveFeedback
 POST    /feedback/error                                     controllers.Application.saveErrorFeedback
 
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file                                       controllers.Assets.at(path="/public", file)
+
+#################
+# API Endpoints #
+#################
+
 # user API
 GET     /api/user                                           controllers.Users.getAsJson
 GET     /api/user/auth                                      controllers.Users.roles
@@ -130,5 +137,3 @@ GET     /api/admin/users/:columnName/:searchValue           controllers.Administ
 # wordlist API
 GET     /wordList                                           controllers.WordLists.viewJson
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                                       controllers.Assets.at(path="/public", file)

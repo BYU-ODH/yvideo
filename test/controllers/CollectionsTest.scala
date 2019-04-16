@@ -4,7 +4,6 @@ import play.api.mvc.Result
 import play.api.mvc.Results
 import play.api.mvc.Controller
 import play.api.test.Helpers._
-import play.api.test.FakeRequest
 import org.specs2.mutable._
 
 import models.{Content, User, Course, Collection, SitePermissions}
@@ -29,7 +28,7 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
           user.id mustNotEqual None
           val newCol = newCollection("Teacher's Collection", user)
           newCol.id mustNotEqual None
-          val res = controller.collectionAsJson(newCol.id.get)(FakeRequest().withSession("userId" -> user.id.get.toString))
+          val res = controller.collectionAsJson(newCol.id.get)(sessionReq(user))
           val json = contentAsJson(res)
           json.validate[Collection] match {
             case JsSuccess(c, _) => {
@@ -73,8 +72,7 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
               val user = newCasAdmin("admin")
               user.id mustNotEqual None
               val controller = new CollectionsTestController()
-              val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-              val result = controller.createPage(request)
+              val result = controller.createPage(sessionReq(user))
               status(result) shouldEqual 200
           }
         }
@@ -86,8 +84,7 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
             val user = newCasAdmin("admin")
             user.id mustNotEqual None
             val controller = new CollectionsTestController()
-            val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-            val result = controller.createPage(request)
+            val result = controller.createPage(sessionReq(user))
             status(result) shouldEqual 200
           }
                         //return a forbidden error if the user does not have permission
