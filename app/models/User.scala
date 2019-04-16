@@ -367,16 +367,16 @@ object User extends SQLSelectable[User] {
    * Gets the number of users in the DB
    * @return the number of total users
    */
-  def count: List[Int] = {
+  def count: Int = {
     DB.withConnection {
       implicit connection =>
       try {
         SQL(s"select COUNT(id) as c from $tableName")
-        .as(get[Int]("c") *)
+        .as(get[Int]("c").single)
       } catch {
         case e: SQLException =>
           Logger.debug("Error getting user count. User.scala")
-          Nil
+          -1
       }
     }
   }

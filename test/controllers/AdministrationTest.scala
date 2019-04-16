@@ -1,6 +1,7 @@
 import play.api.test._
 import play.api.mvc._
 import org.specs2.mutable._
+import org.specs2.matcher.JsonMatchers
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.json._
@@ -11,7 +12,7 @@ import test.ApplicationContext
 import test.TestHelpers
 import test.DBClear
 
-object AdministrationControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers {
+object AdministrationControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers with JsonMatchers{
 
   class AdministrationTestController() extends Controller with Administration
 
@@ -31,13 +32,10 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           val result = controller.userCount()(request)
           contentType(result) mustEqual Some("application/json")
           val jsonResult = contentAsJson(result)
-          val jsVal: JsValue = Json.parse(jsonResult.toString)
-          // ['6']
-          val countList = jsVal.as[JsArray].value.toList
-          countList(0).toString mustEqual length.toString
+          // '6'
+          val count = jsonResult.toString
+          count mustEqual length.toString
         }
-        //must be of type JSON
-        //number in JSON should match the number of users in the database
       }
     }
 
