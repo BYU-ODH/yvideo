@@ -39,7 +39,6 @@ object UserControllerSpec extends Specification with ApplicationContext with DBC
         val user = newCasStudent("Cas Student")
         user.id must beSome
         val newcolls = List("c1", "c2", "c3", "c4").map(x => pubCollection(x, user))
-        newcolls must contain(beSome).forall
 
         val resp = controller.collectionsPreview(sessionReq(user))
         status(resp) === 200

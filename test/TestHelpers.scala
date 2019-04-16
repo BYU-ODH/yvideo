@@ -42,17 +42,30 @@ trait TestHelpers {
    * @name The user's full name
    * @return User object with Some(id)
    */
-  def newCasAdmin(name: String): User = casUserWithRole(name, 'admin)
-  def newCasManager(name: String): User = casUserWithRole(name, 'manager)
-  def newCasTeacher(name: String): User = casUserWithRole(name, 'teacher)
-  def newCasStudent(name: String): User = casUserWithRole(name, 'student)
+  def newCasAdmin(name: String): User = casUserWithRole(name, perm='admin)
+  def newCasManager(name: String): User = casUserWithRole(name, perm='manager)
+  def newCasTeacher(name: String): User = casUserWithRole(name, perm='teacher)
+  def newCasStudent(name: String): User = casUserWithRole(name, perm='student)
 
-  def casUserWithRole(name: String, perm: Symbol): User = {
+  /**
+   * For testing search functions in models
+   */
+  def customManager(name: String = "FullName", email: String = "userperson@yvideo.net", netid: String = "userperson123"): User =
+    casUserWithRole(name, email, netid, 'manager)
+  def customAdmin(name: String = "FullName", email: String = "userperson@yvideo.net", netid: String = "userperson123"): User =
+    casUserWithRole(name, email, netid, 'admin)
+  def customTeacher(name: String = "FullName", email: String = "userperson@yvideo.net", netid: String = "userperson123"): User =
+    casUserWithRole(name, email, netid, 'teacher)
+  def customStudent(name: String = "FullName", email: String = "userperson@yvideo.net", netid: String = "userperson123"): User =
+    casUserWithRole(name, email, netid, 'student)
+
+  def casUserWithRole(name: String, email: String = "user@yvideo.net", netid: String = "mynetid", perm: Symbol = 'student): User = {
     val user = User(
         id=None,
         authId=formatName(name),
         authScheme='cas,
-        username=formatName(name),
+        email=Some(email),
+        username=netid,
         name=Some(name)
       ).save
     SitePermissions.assignRole(user, perm)
