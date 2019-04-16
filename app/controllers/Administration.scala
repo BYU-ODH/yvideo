@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import authentication.Authentication
 import play.api.mvc._
 import models._
@@ -14,15 +16,16 @@ import play.api.libs.json.{Json, JsValue}
 /**
  * Controller for Administration pages and actions
  */
-class Administration @Inject (authentication: Authentication) extends Controller {
+class Administration @Inject
+  (auth: Authentication) extends Controller {
 
   /**
    * Admin dashboard view
    */
-  def admin = authentication.authenticatedAction() {
+  def admin = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           Future(Ok(views.html.admin.dashboard()))
         }
   }
@@ -30,10 +33,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
   /**
    * User management view
    */
-  def manageUsers = authentication.authenticatedAction() {
+  def manageUsers = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           Future(Ok(views.html.admin.users()))
         }
   }
@@ -44,11 +47,11 @@ class Administration @Inject (authentication: Authentication) extends Controller
    * @param limit The size of the list of users queried from the db
    * @return list of user JSON objects
    */
-  def pagedUsers(id: Long, limit: Long, up: Boolean) = authentication.authenticatedAction() {
+  def pagedUsers(id: Long, limit: Long, up: Boolean) = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
       //check if admin
-      authentication.enforcePermission("admin") {
+      auth.enforcePermission("admin") {
         Future(Ok(Json.toJson(User.listPaginated(id, limit, up).map(_.toJson))))
       }
   }
@@ -58,10 +61,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
    * Get the number of all current users
    * @return the total number of current users
    */
-  def userCount() = authentication.authenticatedAction() {
+  def userCount() = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-      authentication.enforcePermission("admin") {
+      auth.enforcePermission("admin") {
         println(Json.toJson(User.count))
         Future(Ok(Json.toJson(User.count)))
       }
@@ -72,13 +75,13 @@ class Administration @Inject (authentication: Authentication) extends Controller
    * Get the users that match the given search criteria
    * @return a list of users based on the given search criteria
    */
-   def searchUsers(columnName: String, searchValue: String) = authentication.authenticatedAction() {
+   def searchUsers(columnName: String, searchValue: String) = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
       val allowedColumns = List("username", "name", "email")
       if (allowedColumns.contains(columnName)) {
         if (searchValue.length > 3) {
-          authentication.enforcePermission("admin") {
+          auth.enforcePermission("admin") {
             Future(Ok(Json.toJson(User.userSearch(columnName, searchValue).map(_.toJson))))
           }
         } else {
@@ -109,10 +112,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
   /**
    * Give permissions to a user
    */
-  def setPermission(operation: String = "") = authentication.authenticatedAction(parse.multipartFormData) {
+  def setPermission(operation: String = "") = auth.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           val data = request.body.dataParts
           getUser(data("userId")(0).toLong) { targetUser =>
             operation match {
@@ -141,11 +144,11 @@ class Administration @Inject (authentication: Authentication) extends Controller
   /**
    * Sends an email notification to a user
    */
-  def sendNotification(currentPage: Int) = authentication.authenticatedAction(parse.urlFormEncoded) {
+  def sendNotification(currentPage: Int) = auth.authenticatedAction(parse.urlFormEncoded) {
     //There may be a better way to control the way the user is redirected than with an Integer...
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           val id = request.body("userId")(0).toLong
           getUser(id) { targetUser =>
 
@@ -170,10 +173,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
    * Deletes a user
    * @param id The ID of the user
    */
-  def delete(id: Long) = authentication.authenticatedAction() {
+  def delete(id: Long) = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           getUser(id) { targetUser =>
             targetUser.delete()
             Future {
@@ -187,10 +190,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
   /**
    * The collection management view
    */
-  def manageCollections = authentication.authenticatedAction() {
+  def manageCollections = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           val collections = Collection.list
           Future(Ok(views.html.admin.collections(collections)))
         }
@@ -200,10 +203,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
    * Updates the name of the collection
    * @param id The ID of the collection
    */
-  def editCollection(id: Long) = authentication.authenticatedAction(parse.urlFormEncoded) {
+  def editCollection(id: Long) = auth.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           Collections.getCollection(id) { collection =>
             // Update the collection
             val params = request.body.mapValues(_(0))
@@ -219,7 +222,7 @@ class Administration @Inject (authentication: Authentication) extends Controller
    * Deletes a collection
    * @param id The ID of the collection to delete
    */
-  def deleteCollection(id: Long) = authentication.authenticatedAction() {
+  def deleteCollection(id: Long) = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
         Collections.getCollection(id) { collection =>
@@ -238,10 +241,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
   /**
    * The content management view
    */
-  def manageContent = authentication.authenticatedAction() {
+  def manageContent = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           Future(Ok(views.html.admin.content(Content.list, ResourceController.baseUrl)))
         }
   }
@@ -249,10 +252,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
   /**
    * The home page content view
    */
-  def homePageContent = authentication.authenticatedAction() {
+  def homePageContent = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           Future(Ok(views.html.admin.homePageContent()))
         }
   }
@@ -260,10 +263,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
   /**
    * Creates new home page content
    */
-  def createHomePageContent = authentication.authenticatedAction(parse.multipartFormData) {
+  def createHomePageContent = auth.authenticatedAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           val redirect = Redirect(routes.Administration.homePageContent())
           Future {
             try {
@@ -298,10 +301,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
    * Toggles a particular home page content
    * @param id The ID of the home page content
    */
-  def toggleHomePageContent(id: Long) = authentication.authenticatedAction() {
+  def toggleHomePageContent(id: Long) = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           Future {
             HomePageContent.findById(id).map { homePageContent =>
               homePageContent.copy(active = !homePageContent.active).save
@@ -321,10 +324,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
    * Deletes a particular home page content
    * @param id The ID of the home page content
    */
-  def deleteHomePageContent(id: Long) = authentication.authenticatedAction() {
+  def deleteHomePageContent(id: Long) = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           Future {
             HomePageContent.findById(id).map { homePageContent =>
               homePageContent.delete()
@@ -340,10 +343,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
   /**
    * The site settings view
    */
-  def siteSettings = authentication.authenticatedAction() {
+  def siteSettings = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           Future(Ok(views.html.admin.settings(Setting.list)))
         }
   }
@@ -351,10 +354,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
   /**
    * Saves and updates the site settings
    */
-  def saveSiteSettings = authentication.authenticatedAction(parse.urlFormEncoded) {
+  def saveSiteSettings = auth.authenticatedAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           request.body.mapValues(_(0)).foreach { data =>
             Setting.findByName(data._1).get.copy(value = data._2).save
             Logger.debug(data._1 + ": " + data._2)
@@ -370,10 +373,10 @@ class Administration @Inject (authentication: Authentication) extends Controller
    * Proxies in as a different user
    * @param id The ID of the user to be proxied in as
    */
-  def proxy(id: Long) = authentication.authenticatedAction() {
+  def proxy(id: Long) = auth.authenticatedAction() {
     implicit request =>
       implicit user =>
-        authentication.enforcePermission("admin") {
+        auth.enforcePermission("admin") {
           Future {
             User.findById(id) match {
             case Some(proxyUser) =>
