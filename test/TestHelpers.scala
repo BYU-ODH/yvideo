@@ -62,8 +62,6 @@ trait TestHelpers {
   def casUserWithRole(name: String, email: String = "user@yvideo.net", netid: String = "mynetid", perm: Symbol = 'student): User = {
     val user = User(
         id=None,
-        authId=formatName(name),
-        authScheme='cas,
         email=Some(email),
         username=netid,
         name=Some(name)

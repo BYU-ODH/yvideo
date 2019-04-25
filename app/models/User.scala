@@ -14,14 +14,12 @@ import service.{EmailTools, TimeTools}
 /**
  * User
  * @param id The ID of the user.
- * @param authId ID returned from authentication
- * @param authScheme Which authentication scheme this user used
- * @param username The username (often the same as authId)
+ * @param username The username
  * @param name A displayable name for the user
  * @param email The user's email address
  * @param role The permissions of the user
  */
-case class User(id: Option[Long], authId: String, authScheme: Symbol, username: String,
+case class User(id: Option[Long], username: String,
                 name: Option[String] = None, email: Option[String] = None,
                 picture: Option[String] = None, accountLinkId: Long = -1,
                 created: String = TimeTools.now(), lastLogin: String = TimeTools.now())
@@ -34,14 +32,12 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   def save =
     if (id.isDefined) {
       update(User.tableName,
-        'authId -> authId, 'authScheme -> authScheme.name,
         'username -> username, 'name -> name, 'email -> email, 'picture -> picture,
         'accountLinkId -> accountLinkId, 'created -> created, 'lastLogin -> lastLogin
       )
       this
     } else {
       val id = insert(User.tableName,
-        'authId -> authId, 'authScheme -> authScheme.name,
         'username -> username, 'name -> name, 'email -> email, 'picture -> picture,
         'accountLinkId -> accountLinkId, 'created -> created, 'lastLogin -> lastLogin
       )
@@ -146,7 +142,6 @@ case class User(id: Option[Long], authId: String, authScheme: Symbol, username: 
   def toJson = {
     Json.obj(
       "id" -> id,
-      "authScheme" -> authScheme.name,
       "username" -> username,
       "name" -> getStringFromOption(name),
       "email" -> getStringFromOption(email),
@@ -303,8 +298,6 @@ object User extends SQLSelectable[User] {
 
   implicit val simple = {
     get[Option[Long]](tableName + ".id") ~
-      get[String](tableName + ".authId") ~
-      get[String](tableName + ".authScheme") ~
       get[String](tableName + ".username") ~
       get[Option[String]](tableName + ".name") ~
       get[Option[String]](tableName + ".email") ~
@@ -312,10 +305,10 @@ object User extends SQLSelectable[User] {
       get[Long](tableName + ".accountLinkId") ~
       get[String](tableName + ".created") ~
       get[String](tableName + ".lastLogin") map {
-      case id ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin => {
+      case id ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin => {
         val _name = if (name.isEmpty) None else name
         val _email = if (email.isEmpty) None else email
-        User(id, authId, Symbol(authScheme), username, _name, _email, picture, accountLinkId, created, lastLogin)
+        User(id, username, _name, _email, picture, accountLinkId, created, lastLogin)
       }
     }
   }
@@ -344,39 +337,16 @@ object User extends SQLSelectable[User] {
     }
   }
 
-
   /**
-   * Search the DB for a user with the given authentication info
-   * @param authId The id from the auth scheme
-   * @param authScheme Which auth scheme
-   * @return If a user was found, then Some[User], otherwise None
-   */
-  def findByAuthInfo(authId: String, authScheme: Symbol): Option[User] = {
-    DB.withConnection { implicit connection =>
-      try {
-        SQL(s"select * from $tableName where authId = {authId} and authScheme = {authScheme}")
-          .on('authId -> authId, 'authScheme -> authScheme.name)
-          .as(simple.singleOpt)
-      } catch {
-        case e: SQLException =>
-          Logger.debug("Failed in User.scala / findByAuthInfo")
-          Logger.debug(e.getMessage())
-          None
-      }
-    }
-  }
-
-  /**
-   * Finds a user based on the username and the authScheme.
-   * @param authScheme The auth scheme to search
+   * Finds a user based on the username
    * @param username The username to look for
    * @return If a user was found, then Some[User], otherwise None
    */
-  def findByUsername(authScheme: Symbol, username: String): Option[User] = {
+  def findByUsername(username: String): Option[User] = {
     DB.withConnection { implicit connection =>
       try {
-        SQL(s"select * from $tableName where authScheme = {authScheme} and username = {username}")
-          .on('authScheme -> authScheme.name, 'username -> username)
+        SQL(s"select * from $tableName where username = {username}")
+          .on('username -> username)
           .as(simple.singleOpt)
       } catch {
         case e: SQLException =>
@@ -415,11 +385,15 @@ object User extends SQLSelectable[User] {
   /**
    * Create a user from fixture data
    * @param data Fixture data
+   *  1: username
+   *  2: name
+   *  3: email
+   *  4: permissions role
    * @return The user
    */
-  def fromFixture(data: (String, Symbol, String, Option[String], Option[String], Symbol)): User = {
-    val user = User(None, data._1, data._2, data._3, data._4, data._5).save
-    SitePermissions.assignRole(user, data._6)
+  def fromFixture(data: (String, Option[String], Option[String], Symbol)): User = {
+    val user = User(None, data._1, data._2, data._3).save
+    SitePermissions.assignRole(user, data._4)
     user
   }
 }

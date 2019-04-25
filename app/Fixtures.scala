@@ -9,36 +9,31 @@ import scala.collection.JavaConverters._
 object Fixtures {
 
   object data {
-    type UserFixture = (String, Symbol, String, Option[String], Option[String], Symbol)
 
-    val admin2fixture: String => UserFixture = (netid => (netid, 'cas, netid, None, None, 'admin))
-    val manager2fixture: String => UserFixture = (netid => (netid, 'cas, netid, None, None, 'manager))
-
-    // Gets list of strings from play config
     def predefList(listname: String, permission: Symbol): List[String] =
       current.configuration.getStringList(listname) match {
         case Some(l) => l.asScala.toList
         case None => Nil
       }
 
-    val adminFixtures = predefList("admins", 'admin) map admin2fixture
-    val managerFixtures = predefList("managers", 'manager) map manager2fixture
+    val admins = predefList("admins", 'admin).map(netid => (netid, None, None, 'admin))
+    val managers = predefList("managers", 'manager).map(netid => (netid, None, None, 'manager))
 
     val passwordHash = HashTools.sha256Base64("test123")
     val users = List(
-      (passwordHash, 'password, "student1", Some("Student 1"), Some("s1@ayamel.byu.edu"), 'student),
-      (passwordHash, 'password, "student2", Some("Student 2"), Some("s2@ayamel.byu.edu"), 'student),
-      (passwordHash, 'password, "student3", Some("Student 3"), Some("s3@ayamel.byu.edu"), 'student),
-      (passwordHash, 'password, "student4", Some("Student 4"), Some("s4@ayamel.byu.edu"), 'student),
-      (passwordHash, 'password, "student5", Some("Student 5"), Some("s5@ayamel.byu.edu"), 'student),
-      (passwordHash, 'password, "student6", Some("Student 6"), Some("s6@ayamel.byu.edu"), 'student),
-      (passwordHash, 'password, "teacher1", Some("Teacher 1"), Some("t1@ayamel.byu.edu"), 'teacher),
-      (passwordHash, 'password, "teacher2", Some("Teacher 2"), Some("t2@ayamel.byu.edu"), 'teacher),
-      (passwordHash, 'password, "teacher3", Some("Teacher 3"), Some("t3@ayamel.byu.edu"), 'teacher),
-      (passwordHash, 'password, "teacher4", Some("Teacher 4"), Some("t4@ayamel.byu.edu"), 'teacher),
-      (passwordHash, 'password, "teacher5", Some("Teacher 5"), Some("t5@ayamel.byu.edu"), 'teacher),
-      (passwordHash, 'password, "teacher6", Some("Teacher 6"), Some("t6@ayamel.byu.edu"), 'teacher)
-    ) ::: adminFixtures ::: managerFixtures
+      ("student1", Some("Student 1"), Some("s1@ayamel.byu.edu"), 'student),
+      ("student2", Some("Student 2"), Some("s2@ayamel.byu.edu"), 'student),
+      ("student3", Some("Student 3"), Some("s3@ayamel.byu.edu"), 'student),
+      ("student4", Some("Student 4"), Some("s4@ayamel.byu.edu"), 'student),
+      ("student5", Some("Student 5"), Some("s5@ayamel.byu.edu"), 'student),
+      ("student6", Some("Student 6"), Some("s6@ayamel.byu.edu"), 'student),
+      ("teacher1", Some("Teacher 1"), Some("t1@ayamel.byu.edu"), 'teacher),
+      ("teacher2", Some("Teacher 2"), Some("t2@ayamel.byu.edu"), 'teacher),
+      ("teacher3", Some("Teacher 3"), Some("t3@ayamel.byu.edu"), 'teacher),
+      ("teacher4", Some("Teacher 4"), Some("t4@ayamel.byu.edu"), 'teacher),
+      ("teacher5", Some("Teacher 5"), Some("t5@ayamel.byu.edu"), 'teacher),
+      ("teacher6", Some("Teacher 6"), Some("t6@ayamel.byu.edu"), 'teacher)
+    ) ::: admins ::: managers
 
     val content = List(
       ("Dreyfus by Yves Duteil", 'video, 1L, "", "515c9b7d35e544681f000000", false, false, true, Some("adatestring"), "me@pm.me", true),

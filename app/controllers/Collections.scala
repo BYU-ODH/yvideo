@@ -268,7 +268,7 @@ trait Collections {
           } else {
             request.body.validate[String] match {
               case success: JsSuccess[String] => {
-                val userOpt = User.findByUsername('cas, success.get)
+                val userOpt = User.findByUsername(success.get)
                 if (userOpt.isEmpty) {
                   Results.BadRequest("User not found. Make sure the user has previously logged in via CAS")
                 } else {
@@ -299,7 +299,7 @@ trait Collections {
           } else {
             request.body.validate[String] match {
               case success: JsSuccess[String] => {
-                val userOpt = User.findByUsername('cas, success.get)
+                val userOpt = User.findByUsername(success.get)
                 if (userOpt.isEmpty) {
                   Results.BadRequest("User not found.")
                 } else {
@@ -331,7 +331,7 @@ trait Collections {
             request.body.validate[String] match {
               case success: JsSuccess[String] => {
                 val username = success.get
-                val userOpt = User.findByUsername('cas, username)
+                val userOpt = User.findByUsername(username)
 
                 if (userOpt.isEmpty)
                   BadRequest("""{"Message": "NetId does not exist. Make sure that user has logged in via CAS."}""").as("application/json")
@@ -392,7 +392,7 @@ trait Collections {
             request.body.validate[String] match {
               case success: JsSuccess[String] => {
                 val username = success.get
-                val userOpt = User.findByUsername('cas, username)
+                val userOpt = User.findByUsername(username)
 
                 // Validate user
                 if (userOpt.isEmpty)

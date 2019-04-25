@@ -104,27 +104,6 @@ trait Users { this: Controller =>
   }
 
   /**
-   * Changes the user's password
-   */
-  def changePassword = Authentication.authenticatedAction(parse.urlFormEncoded) {
-    implicit request =>
-      implicit user =>
-
-        val password1 = request.body("password1")(0)
-        val password2 = request.body("password2")(0)
-        val redirect = Redirect(routes.Users.accountSettings())
-
-        // Make sure the passwords match
-        Future {
-          if (password1 == password2) {
-            user.copy(authId = HashTools.sha256Base64(password1)).save
-            redirect.flashing("info" -> "Password changed.")
-          } else
-            redirect.flashing("alert" -> "Passwords don't match.")
-        }
-  }
-
-  /**
    * Updates the user's profile picture
    */
   def uploadProfilePicture = Authentication.authenticatedAction(parse.multipartFormData) {

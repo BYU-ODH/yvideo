@@ -150,7 +150,6 @@ object UserControllerSpec extends Specification with ApplicationContext with DBC
         val resp = controller.getAsJson(sessionReq(user))
         status(resp) === 200
         contentAsString(resp) must /("id" -> user.id.get.toInt)
-        contentAsString(resp) must /("authScheme" -> user.authScheme.name)
         contentAsString(resp) must /("username" -> user.username)
         contentAsString(resp) must /("email" -> user.email.getOrElse[String](""))
         contentAsString(resp) must /("name" -> user.name.getOrElse[String](""))

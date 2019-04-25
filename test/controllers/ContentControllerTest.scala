@@ -30,7 +30,7 @@ object ContentControllerSpec extends Specification with ApplicationContext with 
   		"return a content by id as Json" in {
   			//implicit ee: ExecutionEnv =>
             //running(FakeApplication()) {
-                //val userOpt = User.findByUsername('password, "admin")
+                //val userOpt = User.findByUsername("admin")
                 //userOpt mustNotEqual None
                 //implicit val user = userOpt.get
                 //user.id mustNotEqual None

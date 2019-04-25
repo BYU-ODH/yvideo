@@ -20,7 +20,6 @@ var xApi = (function() {
         if (args.extensions) {
             // some universal xApi extensions that should be included in each request
             args.extensions[baseUri+"contextId"] = course.id || -1;
-            args.extensions[baseUri+"authScheme"] = user.authScheme;
             stmt.object.definition.extensions = args.extensions;
         }
         // send statement and log response

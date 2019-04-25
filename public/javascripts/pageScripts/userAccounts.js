@@ -24,7 +24,6 @@ $(function(){
                 <td>{{.lastLogin.substr(0,10)}}</td><td>{{{shorten(.username)}}}</td>\
                 <td>{{{(.name?shorten(.name):"<em>Not set</em>")}}}</td>\
                 <td>{{{(.email?shorten(.email):"<em>Not set</em>")}}}</td>\
-                <td>{{.authScheme}}</td>\
                 <td>\
                     {{#is_missing(.permissions, activePermissions)}}<a on-tap="add:{{index}}" class="btn btn-small btn-yellow">Add Missing</a>{{/missing}}\
                     {{#has_extra(.permissions, activePermissions)}}<a on-tap="remove:{{index}}" class="btn btn-small btn-yellow">Remove Extra</a>{{/extra}}\

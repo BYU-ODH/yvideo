@@ -48,7 +48,7 @@ object Authentication extends Controller {
       getUserFromRequest()(request).map { user =>
         val casLogoutUrl  = "https://cas.byu.edu/cas/logout?service="
 
-        val redir:String = if (user.authScheme == 'cas) { casLogoutUrl + service } else { service }
+        val redir: String = casLogoutUrl + service
         Redirect(redir)
       }.getOrElse(Redirect(service))
         .withNewSession
@@ -62,7 +62,7 @@ object Authentication extends Controller {
       getUserFromRequest()(request).map { user =>
         val casLogoutUrl  = "https://cas.byu.edu/cas/logout?service="
 
-        val redir: String = if (user.authScheme == 'cas) { casLogoutUrl + service } else { service }
+        val redir: String = casLogoutUrl + service
         Redirect(redir)
       }.getOrElse(Redirect(service))
         .withNewSession
@@ -72,14 +72,13 @@ object Authentication extends Controller {
    * Once the user is authenticated with some scheme, call this to get the actual user object. If it doesn't exist then
    * it will be created.
    * @param username The username of the user
-   * @param authScheme The auth scheme used to authenticate
    * @param name The name of the user. Used only if creating the user.
    * @param email The email of the user. Used only if creating the user.
    * @return The user
    */
-  def getAuthenticatedUser(username: String, authScheme: Symbol, name: Option[String] = None, email: Option[String] = None): User = {
+  def getAuthenticatedUser(username: String, name: Option[String] = None, email: Option[String] = None): User = {
     // Check if the user is already created
-    val user = User.findByAuthInfo(username, authScheme)
+    val user = User.findByUsername(username)
 
     // Add the email and username if they are empty
     val updatedUser = user.map { user =>
@@ -90,7 +89,7 @@ object Authentication extends Controller {
     }
 
     updatedUser.getOrElse {
-      val user = User(None, username, authScheme, username, name, email).save
+      val user = User(None, username, name, email).save
       SitePermissions.assignRole(user, 'student)
       user
     }
