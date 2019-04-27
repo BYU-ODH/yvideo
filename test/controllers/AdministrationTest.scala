@@ -40,21 +40,22 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     }
 
     "The Search Users Endpoint" should {
-      "return a JSON of user objects based on the search criteria" in {
+      "return a JSON of user objects based on the username" in {
         application {
           val users = List(
             customStudent("joe black", "joe@yvideo.net", "joe12345"),
             customStudent("jack blue", "jack@yvideo.net", "jack12345"),
             customStudent("john black", "john@yvideo.com", "john45678"),
             customTeacher("jill red", "jill@yvideo.com", "jill45678"),
-            customManager("jane green", "jane@yvideo.org", "jane78910"))
+            customManager("jane green", "jane@test.com", "jane78910"))
           users.foreach(_.id mustNotEqual None) 
-          val admin = customAdmin("admin man", "admin@yvideo.net", "admin12345")
+          val admin = customAdmin("admin man", "admin@example.net", "admin12345")
           admin.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
           // First search by username 
           val resultUsername = controller.searchUsers("username", "12345")(request)
+          // [{"id":1,"authScheme":"cas","username":"joe12345","name":"joe black","email":"joe@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.076Z"},{"id":2,"authScheme":"cas","username":"jack12345","name":"jack blue","email":"jack@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.081Z"},{"id":6,"authScheme":"cas","username":"admin12345","name":"admin man","email":"admin@yvideo.net","linked":-1,"permissions":["admin","delete"],"lastLogin":"2019-04-27T05:20:50.100Z"}]
           contentType(resultUsername) mustEqual Some("application/json")
           val jsonUsername = contentAsJson(resultUsername).as[List[JsValue]]
           jsonUsername.foreach { user =>
@@ -67,16 +68,79 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
             us must /("permissions" -> anyValue)
             us must /("lastLogin" -> anyValue)
           }
-          // [{"id":1,"authScheme":"cas","username":"joe12345","name":"joe black","email":"joe@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.076Z"},{"id":2,"authScheme":"cas","username":"jack12345","name":"jack blue","email":"jack@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.081Z"},{"id":6,"authScheme":"cas","username":"admin12345","name":"admin man","email":"admin@yvideo.net","linked":-1,"permissions":["admin","delete"],"lastLogin":"2019-04-27T05:20:50.100Z"}]
           jsonUsername.length mustEqual 3
         }
-        //must be of type JSON
-        //search based on username
-        //search based on email
-        //search based on name
+      }
+
+      "return a JSON of user objects based on the name" in {
+        application {
+          val users = List(
+            customStudent("joe black", "joe@yvideo.net", "joe12345"),
+            customStudent("jack blue", "jack@yvideo.net", "jack12345"),
+            customStudent("john black", "john@yvideo.com", "john45678"),
+            customTeacher("jill red", "jill@yvideo.com", "jill45678"),
+            customManager("jane green", "jane@test.com", "jane78910"))
+          users.foreach(_.id mustNotEqual None) 
+          val admin = customAdmin("admin man", "admin@example.net", "admin12345")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          val resultName = controller.searchUsers("name", "black")(request)
+          contentType(resultName) mustEqual Some("application/json")
+          val jsonName = contentAsJson(resultName).as[List[JsValue]]
+          jsonName.foreach { user =>
+            val us = user.toString
+            us must /("id" -> anyValue)
+            us must /("authScheme" -> anyValue)
+            us must /("name" -> anyValue)
+            us must /("email" -> anyValue)
+            us must /("linked" -> anyValue)
+            us must /("permissions" -> anyValue)
+            us must /("lastLogin" -> anyValue)
+          }
+          jsonName.length mustEqual 2
+        }
+      }
+
+      "return a JSON of user objects based on the name" in {
+        application {
+          val users = List(
+            customStudent("joe black", "joe@yvideo.net", "joe12345"),
+            customStudent("jack blue", "jack@yvideo.net", "jack12345"),
+            customStudent("john black", "john@yvideo.com", "john45678"),
+            customTeacher("jill red", "jill@yvideo.com", "jill45678"),
+            customManager("jane green", "jane@test.com", "jane78910"))
+          users.foreach(_.id mustNotEqual None) 
+          val admin = customAdmin("admin man", "admin@example.net", "admin12345")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          val resultEmail = controller.searchUsers("email", "yvideo")(request)
+          contentType(resultEmail) mustEqual Some("application/json")
+          val jsonEmail = contentAsJson(resultEmail).as[List[JsValue]]
+          jsonEmail.foreach { user =>
+            val us = user.toString
+            us must /("id" -> anyValue)
+            us must /("authScheme" -> anyValue)
+            us must /("name" -> anyValue)
+            us must /("email" -> anyValue)
+            us must /("linked" -> anyValue)
+            us must /("permissions" -> anyValue)
+            us must /("lastLogin" -> anyValue)
+          }
+          jsonEmail.length mustEqual 4
+        }
+      }
+
+      "return a forbidden when the search column is bad" in {
+        1 mustEqual 1
+      }
+      
+      "return a forbidden when the search value is too short" in {
+        1 mustEqual 1
+      }
         //error from search value too short
         //error from bad search column
-      }
     }
 
     "The Get User Endpoint" should {
