@@ -41,7 +41,35 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
 
     "The Search Users Endpoint" should {
       "return a JSON of user objects based on the search criteria" in {
-        1 mustEqual 1
+        application {
+          val users = List(
+            customStudent("joe black", "joe@yvideo.net", "joe12345"),
+            customStudent("jack blue", "jack@yvideo.net", "jack12345"),
+            customStudent("john black", "john@yvideo.com", "john45678"),
+            customTeacher("jill red", "jill@yvideo.com", "jill45678"),
+            customManager("jane green", "jane@yvideo.org", "jane78910"))
+          users.foreach(_.id mustNotEqual None) 
+          val admin = customAdmin("admin man", "admin@yvideo.net", "admin12345")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          // First search by username 
+          val resultUsername = controller.searchUsers("username", "12345")(request)
+          contentType(resultUsername) mustEqual Some("application/json")
+          val jsonUsername = contentAsJson(resultUsername).as[List[JsValue]]
+          jsonUsername.foreach { user =>
+            val us = user.toString
+            us must /("id" -> anyValue)
+            us must /("authScheme" -> anyValue)
+            us must /("name" -> anyValue)
+            us must /("email" -> anyValue)
+            us must /("linked" -> anyValue)
+            us must /("permissions" -> anyValue)
+            us must /("lastLogin" -> anyValue)
+          }
+          // [{"id":1,"authScheme":"cas","username":"joe12345","name":"joe black","email":"joe@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.076Z"},{"id":2,"authScheme":"cas","username":"jack12345","name":"jack blue","email":"jack@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.081Z"},{"id":6,"authScheme":"cas","username":"admin12345","name":"admin man","email":"admin@yvideo.net","linked":-1,"permissions":["admin","delete"],"lastLogin":"2019-04-27T05:20:50.100Z"}]
+          jsonUsername.length mustEqual 3
+        }
         //must be of type JSON
         //search based on username
         //search based on email
