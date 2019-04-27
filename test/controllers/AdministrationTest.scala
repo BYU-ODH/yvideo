@@ -64,7 +64,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
             us must /("authScheme" -> anyValue)
             us must /("name" -> anyValue)
             us must /("email" -> anyValue)
-            us must /("linked" -> anyValue)
+            us must /("linked" -> -1)
             us must /("permissions" -> anyValue)
             us must /("lastLogin" -> anyValue)
           }
@@ -94,7 +94,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
             us must /("authScheme" -> anyValue)
             us must /("name" -> anyValue)
             us must /("email" -> anyValue)
-            us must /("linked" -> anyValue)
+            us must /("linked" -> -1)
             us must /("permissions" -> anyValue)
             us must /("lastLogin" -> anyValue)
           }
@@ -124,7 +124,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
             us must /("authScheme" -> anyValue)
             us must /("name" -> anyValue)
             us must /("email" -> anyValue)
-            us must /("linked" -> anyValue)
+            us must /("linked" -> -1)
             us must /("permissions" -> anyValue)
             us must /("lastLogin" -> anyValue)
           }
@@ -135,15 +135,13 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
       "return a forbidden when the search column is bad" in {
         1 mustEqual 1
       }
-      
+
       "return a forbidden when the search value is too short" in {
         1 mustEqual 1
       }
-        //error from search value too short
-        //error from bad search column
     }
 
-    "The Get User Endpoint" should {
+    "The Get User Helper Function" should {
       //redirect non-authenticated users?
       "return a single user object from an id" in {
         1 mustEqual 1
@@ -168,14 +166,12 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     }
 
     "The Send Notification Endpoint" should {
-      //should also redirect based on the current page with info message
       "send a notification to a giver user with a message" in {
         1 mustEqual 1
       }
     }
 
     "The Delete Endpoint" should {
-      //should also redirect with info message
       "delete a user based on the id" in {
         1 mustEqual 1
       }
@@ -188,38 +184,18 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     }
 
     "The Delete Collection Endpoint" should {
-      "delete the collection if the current user is the collection teacher or an admin" in {
+      "delete the collection if the current user is an admin" in {
         1 mustEqual 1
       }
     }
     //And be rejected if they aren't either one
 
-    "The Batch Update Content Endpoint" should {
-      "update multiple content items with the map of values" in {
+    "The Save Site Settings Endpoint" should {
+      "update the site settings with the map of values" in {
         1 mustEqual 1
       }
     }
     //And throw an error if something goes wrong
-
-    "The Create Home Page Content Endpoint" should {
-      "create a banner for displaying on the homepage with the map of values" in {
-        1 mustEqual 1
-      }
-    }
-    //Have a case for the background being empty
-    //Throw an error if something goes wrong
-
-    "The Toggle Home Page Content Endpoint" should {
-      "toggle an existing homepage banner to be active/inactive" in {
-        1 mustEqual 1
-      }
-    }
-
-    "The Delete Home Page Content Endpoint" should {
-      "delete an existing homepage banner" in {
-        1 mustEqual 1
-      }
-    }
 
     "The Proxy Endpoint" should {
       "allow an admin to log in as the user" in {
