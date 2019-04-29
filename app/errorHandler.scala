@@ -10,7 +10,7 @@ import scala.concurrent._
 class ErrorHandler extends HttpErrorHandler {
   def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
     Future.successful(
-      Status(statusCode)(Json.toJson(s"Client Error: $message"))
+      Status(statusCode)(Json.toJson(s"Client Error: ${if(message.length > 0) message else "Bad Request Format or URL"}"))
     )
   }
 
