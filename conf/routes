@@ -13,9 +13,6 @@ GET     /auth/cas/redirect*path                             controllers.authenti
 GET     /auth/cas/merge                                     controllers.authentication.Cas.login(action: String = "merge", path: String = "")
 GET     /auth/cas/callback/:action                          controllers.authentication.Cas.callback(action: String, path: String = "")
 GET     /auth/cas/callback/:action/redirect*path            controllers.authentication.Cas.callback(action: String, path: String)
-POST    /auth/password                                      controllers.authentication.Password.login(action: String = "login", path: String = "")
-POST    /auth/password/redirect*path                        controllers.authentication.Password.login(action: String = "login", path: String)
-POST    /auth/password/merge                                controllers.authentication.Password.login(action: String = "merge", path: String = "")
 GET     /auth/logout                                        controllers.authentication.Authentication.logout
 GET     /auth/logout/redirect*path                          controllers.authentication.Authentication.logoutWithService(path: String)
 
@@ -59,7 +56,6 @@ GET     /playlist/:id                                       controllers.Playlist
 # User pages
 GET     /user/settings                                      controllers.Users.accountSettings
 POST    /user/settings                                      controllers.Users.saveSettings
-POST    /user/changePassword                                controllers.Users.changePassword
 POST    /user/uploadPicture                                 controllers.Users.uploadProfilePicture
 
 # Admin pages

@@ -128,7 +128,7 @@ object Cas extends Controller {
         Logger.debug("Cas user information:")
         Logger.debug(xml.toString)
         val username = ((xml \ "authenticationSuccess") \ "user").text
-        val user = Authentication.getAuthenticatedUser(username, 'cas, getAttribute(xml, "name"), getAttribute(xml, "emailAddress"))
+        val user = Authentication.getAuthenticatedUser(username, getAttribute(xml, "name"), getAttribute(xml, "emailAddress"))
         val personId = getAttribute(xml, "personId").getOrElse("")
         val fulltime = getAttribute(xml, "activeFulltimeInstructor").getOrElse("false").toBoolean
         val parttime = getAttribute(xml, "activeParttimeInstructor").getOrElse("false").toBoolean
@@ -143,7 +143,8 @@ object Cas extends Controller {
       try {
         Await.result(r, 20 seconds)
       } catch  {
-        case _: Throwable =>
+        case e: Throwable =>
+          Logger.error(s"Failed in Cas Callback: ${e.toString}")
           val advice = Play.configuration.getString("smtp.address") match {
             case Some(address) => "Please contact us at " + address + " so that we can figure out what went wrong."
             case None => "Please contact us at arlitelab@gmail.com so that we can figure out what went wrong."

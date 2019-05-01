@@ -191,8 +191,6 @@ object Content extends SQLSelectable[Content] {
     get[Long]("views") ~
     // user object
     get[Option[Long]]("userId") ~
-    get[String]("authId") ~
-    get[String]("authScheme") ~
     get[String]("username") ~
     get[Option[String]]("name") ~
     get[Option[String]]("email") ~
@@ -202,10 +200,10 @@ object Content extends SQLSelectable[Content] {
     get[String]("lastLogin") map {
       case contentId ~ cname ~ contentType ~ collectionId ~ thumbnail ~ resourceId ~ physicalCopyExists ~ isCopyrighted ~
         expired ~ dateValidated ~ requester ~ published ~ fullVideo ~ authKey ~ views ~
-        userId ~ authId ~ authScheme ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
+        userId ~ username ~ name ~ email ~ picture ~ accountLinkId ~ created ~ lastLogin =>
           Content(contentId, cname, Symbol(contentType), collectionId, thumbnail, resourceId, physicalCopyExists,
             isCopyrighted, expired, dateValidated, requester, published, fullVideo, authKey, views) ->
-          User(userId, authId, Symbol(authScheme), username, name, email, picture, accountLinkId, created, lastLogin)
+          User(userId, username, name, email, picture, accountLinkId, created, lastLogin)
     }
   }
 

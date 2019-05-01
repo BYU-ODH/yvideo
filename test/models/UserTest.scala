@@ -36,7 +36,7 @@
 //   "User Model Tests" >> {
 
 //     "Correct Creation (in memory) Test" >> {
-//       // User(id: Option[Long], authId: String, authScheme: Symbol, username: String, name: Option[String])
+//       // User(id: Option[Long], username: String, name: Option[String])
 //       val testUser = User(None, "", 'password, "hpotter1234", Some("POTTER, Harry"))
 
 //       "Correct name" >> {
