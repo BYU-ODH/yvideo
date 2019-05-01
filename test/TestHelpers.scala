@@ -4,7 +4,7 @@ import play.api.libs.json._
 import play.api.data.validation.ValidationError
 import play.api.test.FakeRequest
 
-import org.specs2.matcher.Matcher
+import org.specs2.matcher.{Matcher, MatchResult, Expectable}
 import org.specs2.matcher.JsonMatchers
 import org.specs2.matcher.MatchersImplicits._
 
@@ -18,6 +18,22 @@ trait TestHelpers {
    *  {{{"Error message" must fail}}}
    */
   def fail: Matcher[String] = { s: String => (false, s) }
+
+  /**
+   * Checks if an iterable contains all successes
+   * Example:
+   * {{{
+   * list.map { obj =>
+   *   obj === something
+   * } must allSucceed()
+   * }}}
+   */
+  case class allSucceed() extends Matcher[Iterable[MatchResult[Any]]] {
+    def apply[S <: Iterable[MatchResult[Any]]](s: Expectable[S]) = {
+      result(s.value.forall(x => x.isSuccess),
+        "Tests Succeeded", "Some test failed", s)
+    }
+  }
 
   /**
    * Convert JsErrors into readable strings

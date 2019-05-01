@@ -39,18 +39,19 @@ object UserControllerSpec extends Specification with ApplicationContext with DBC
         val user = newCasStudent("Cas Student")
         user.id must beSome
         val newcolls = List("c1", "c2", "c3", "c4").map(x => pubCollection(x, user))
+        newcolls.map(c => c.id must beSome) must allSucceed()
 
         val resp = controller.collectionsPreview(sessionReq(user))
         status(resp) === 200
         val collections = contentAsJson(resp).as[List[JsValue]]
-        collections.foreach { coll =>
+        collections.map { coll =>
           val cs = coll.toString
           cs must /("name" -> anyValue)
           cs must /("thumbnail" -> anyValue)
           cs must /("id" -> anyValue)
           cs must /("content" -> anyValue)
           // TODO: check for the content in the collection
-        }
+        } must allSucceed()
         collections.length === 0
       }
     }
