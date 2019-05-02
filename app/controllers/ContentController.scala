@@ -543,7 +543,7 @@ trait ContentController {
                 NoContent
               }
               else {
-                Forbidden(Json.obj("message" -> "Request repeated too quickly."))
+                TooManyRequest(Json.obj("message" -> "Request repeated too quickly."))
               }
             }
             else { Forbidden(Json.obj( "message" -> "User is not authorized to view this content." )) }
