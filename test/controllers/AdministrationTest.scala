@@ -24,13 +24,14 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
         application {
           val users = List("joe", "jack", "john", "jill", "jane") map newCasStudent
           users.foreach(_.id mustNotEqual None)
-          val admin = newCasAdmin("admin3")
+          val admin = newCasAdmin("admin")
           admin.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
           val length = users.length + 1 //one more for the admin
           val result = controller.userCount()(request)
           contentType(result) mustEqual Some("application/json")
+          status(result) mustEqual 200
           val jsonResult = contentAsJson(result)
           // '6'
           val count = jsonResult.toString
@@ -56,6 +57,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           // First search by username 
           val resultUsername = controller.searchUsers("username", "12345")(request)
           // [{"id":1,"authScheme":"cas","username":"joe12345","name":"joe black","email":"joe@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.076Z"},{"id":2,"authScheme":"cas","username":"jack12345","name":"jack blue","email":"jack@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.081Z"},{"id":6,"authScheme":"cas","username":"admin12345","name":"admin man","email":"admin@yvideo.net","linked":-1,"permissions":["admin","delete"],"lastLogin":"2019-04-27T05:20:50.100Z"}]
+          status(resultUsername) mustEqual 200
           contentType(resultUsername) mustEqual Some("application/json")
           val jsonUsername = contentAsJson(resultUsername).as[List[JsValue]]
           jsonUsername.foreach { user =>
@@ -87,6 +89,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
           // Now search by name
           val resultName = controller.searchUsers("name", "black")(request)
+          status(resultName) mustEqual 200
           contentType(resultName) mustEqual Some("application/json")
           val jsonName = contentAsJson(resultName).as[List[JsValue]]
           jsonName.foreach { user =>
@@ -118,6 +121,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
           // Finally search by email
           val resultEmail = controller.searchUsers("email", "yvideo")(request)
+          status(resultEmail) mustEqual 200
           contentType(resultEmail) mustEqual Some("application/json")
           val jsonEmail = contentAsJson(resultEmail).as[List[JsValue]]
           jsonEmail.foreach { user =>
@@ -135,7 +139,15 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
       }
 
       "return a forbidden when the search column is bad" in {
-        1 mustEqual 1
+        application {
+          val admin = newCasAdmin("admin")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession()
+          val resultBadColumn = controller.searchUsers("toast", "yvideo")(request)
+          contentType(resultBadColumn) mustEqual Some("application/json")
+          status(resultBadColumn) mustEqual 403
+        }
       }
 
       "return a forbidden when the search value is too short" in {
