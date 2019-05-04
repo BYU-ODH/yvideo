@@ -62,7 +62,7 @@ POST    /user/uploadPicture                                 controllers.Users.up
 GET     /admin/users/count                                  controllers.Administration.userCount
 GET     /admin/users/:columnName/:searchValue               controllers.Administration.searchUsers(columnName: String, searchValue: String)
 POST    /admin/users/setPermission/:operation               controllers.Administration.setPermission(operation: String)
-POST    /admin/users/notify                                 controllers.Administration.sendNotification(currentPage: Int)
+POST    /admin/users/notify                                 controllers.Administration.sendNotification
 POST    /admin/users/:id/delete                             controllers.Administration.delete(id: Long)
 POST    /admin/collections/:id                              controllers.Administration.editCollection(id: Long)
 POST    /admin/collections/:id/delete                       controllers.Administration.deleteCollection(id: Long)

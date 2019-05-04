@@ -90,18 +90,16 @@ trait Administration {
   /**
    * Sends an email notification to a user
    */
-  def sendNotification(currentPage: Int) = Authentication.secureAPIAction(parse.urlFormEncoded) {
+  def sendNotification() = Authentication.secureAPIAction(parse.urlFormEncoded) {
     implicit request =>
       implicit user =>
         Authentication.enforcePermissionAPI("admin") {
           val id = request.body("userId")(0).toLong
           getUser(id) { targetUser =>
-
-            // Send a notification to the user
+            // Send a notification email to the user
             val message = request.body("message")(0)
             targetUser.sendNotification(message)
-
-            Ok(Json.obj("message" -> JsString("Notification sent to user")))
+            Ok(Json.obj("message" -> JsString("Notification sent to "+targetUser.username)))
           }
         }
   }
