@@ -143,25 +143,37 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           val admin = newCasAdmin("admin")
           admin.id mustNotEqual None
           val controller = new AdministrationTestController()
-          val request = FakeRequest().withSession()
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
           val resultBadColumn = controller.searchUsers("toast", "yvideo")(request)
           contentType(resultBadColumn) mustEqual Some("application/json")
           status(resultBadColumn) mustEqual 403
+          val jsonBadColumn = contentAsJson(resultBadColumn)
+          val expectedError = """{"message":"Search column is not allowed"}"""
+          jsonBadColumn.toString mustEqual expectedError
         }
       }
 
       "return a forbidden when the search value is too short" in {
-        1 mustEqual 1
+        application {
+          val admin = newCasAdmin("admin")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          val resultBadColumn = controller.searchUsers("email", "abc")(request)
+          contentType(resultBadColumn) mustEqual Some("application/json")
+          status(resultBadColumn) mustEqual 403
+          val jsonBadColumn = contentAsJson(resultBadColumn)
+          val expectedError = """{"message":"Search value was too short"}"""
+          jsonBadColumn.toString mustEqual expectedError
+        }
       }
     }
 
-    "The Get User Helper Function" should {
-      //redirect non-authenticated users?
-      "return a single user object from an id" in {
-        1 mustEqual 1
-        //return error not found if user doesn't exist
-      }
-    }
+    // Should we not test this helper function?
+    // "The Get User Helper Function" should {
+    //   "return a single user object from an id" in {
+    //   }
+    // }
 
     //consider updating this endpoint to fit more with Y-Video (teacher, student, TA, etc.)
     "The Set Permissions Endpoint" should {
@@ -181,13 +193,49 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
 
     "The Send Notification Endpoint" should {
       "send a notification to a giver user with a message" in {
-        1 mustEqual 1
+        application {
+          val admin = customAdmin("admin man", "braden.hutchinson@hotmail.com", "admin12345")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest()
+            .withSession("userId" -> admin.id.get.toString)
+            .withFormUrlEncodedBody(
+              "userId" -> admin.id.get.toString,
+              "message" -> "hello there!"
+            )
+          val result = controller.sendNotification()(request)
+          1 mustEqual 1
+          // contentType(result) mustEqual Some("application/json")
+          // status(result) mustEqual 403
+          // val jsonResult = contentAsJson(result)
+          // val expectedResult = """{"message":"Notification sent to admin12345"}"""
+          // jsonResult.toString mustEqual expectedResult
+        }
       }
     }
 
     "The Delete Endpoint" should {
       "delete a user based on the id" in {
-        1 mustEqual 1
+        application {
+          val user = newCasStudent("Bob")
+          user.id mustNotEqual None
+          val admin = newCasAdmin("admin")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          // Make sure they're both in the db
+          val countBefore = controller.userCount()(request)
+          contentAsJson(countBefore).toString mustEqual "2"
+          val result = controller.delete(user.id.get)(request)
+          contentType(result) mustEqual Some("application/json")
+          status(result) mustEqual 200
+          val jsonResult = contentAsJson(result)
+          val expectedResult = """{"message":"User deleted"}"""
+          jsonResult.toString mustEqual expectedResult
+          // And check that the user is gone
+          val countAfter = controller.userCount()(request)
+          contentAsJson(countAfter).toString mustEqual "1"
+        }
       }
     }
 
@@ -199,6 +247,22 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
 
     "The Delete Collection Endpoint" should {
       "delete the collection if the current user is an admin" in {
+        application {
+          val admin = newCasAdmin("admin")
+          admin.id mustNotEqual None
+          val collection = newCollection("Test Collection", admin)
+          collection.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          val result = controller.deleteCollection(collection.id.get)(request)
+          contentType(result) mustEqual Some("application/json")
+          status(result) mustEqual 200
+          val jsonResult = contentAsJson(result)
+          val expectedResult = """{"message":"Collection deleted"}"""
+          jsonResult.toString mustEqual expectedResult
+        }
+      }
+      "archive the collection if the current user is the teacher of the collection" in {
         1 mustEqual 1
       }
     }
