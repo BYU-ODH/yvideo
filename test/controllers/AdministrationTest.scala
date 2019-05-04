@@ -85,6 +85,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           admin.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          // Now search by name
           val resultName = controller.searchUsers("name", "black")(request)
           contentType(resultName) mustEqual Some("application/json")
           val jsonName = contentAsJson(resultName).as[List[JsValue]]
@@ -115,6 +116,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           admin.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          // Finally search by email
           val resultEmail = controller.searchUsers("email", "yvideo")(request)
           contentType(resultEmail) mustEqual Some("application/json")
           val jsonEmail = contentAsJson(resultEmail).as[List[JsValue]]

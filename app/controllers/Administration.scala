@@ -177,20 +177,16 @@ trait Administration {
    * Proxies in as a different user
    * @param id The ID of the user to be proxied in as
    */
-  def proxy(id: Long) = Authentication.authenticatedAction() {
+  def proxy(id: Long) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
-          Future {
-            User.findById(id) match {
-            case Some(proxyUser) =>
-              Redirect(routes.Application.home())
-                .withSession("userId" -> id.toString)
-                .flashing("info" -> s"You are now using the site as ${proxyUser.displayName}. To end proxy you must log out then back in with your normal account.")
-            case _ =>
-              Redirect(routes.Application.home())
-                .flashing("info" -> ("Requested Proxy User Not Found"))
-            }
+        Authentication.enforcePermissionAPI("admin") {
+          User.findById(id) match {
+          case Some(proxyUser) =>
+            Ok(Json.obj("message" -> JsString("Now proxying as user "+user.username)))
+              .withSession("userId" -> user.id.get.toString)
+          case _ =>
+            Forbidden(JsObject(Seq("message" -> JsString("Requested Proxy User Not Found"))))
           }
         }
   }
