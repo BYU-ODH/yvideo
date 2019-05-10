@@ -114,7 +114,8 @@ GET     /assets/*file                                       controllers.Assets.a
 # user API
 GET     /api/user                                           controllers.Users.getAsJson
 GET     /api/user/auth                                      controllers.Users.roles
-GET     /api/user/collectionsPreview                        controllers.Users.collectionsPreview
+GET     /api/user/collections                               controllers.Users.getEnrollment
+GET     /api/user/privilegedCollections                     controllers.Users.getCollectionsForTeacherOrTA
 GET     /api/user/recent                                    controllers.Users.recentContent
 
 # content API

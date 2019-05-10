@@ -19,7 +19,7 @@ trait Users { this: Controller =>
    * Get the collections that a user belongs to
    * @return Result[json array] of collections
    */
-  def collectionsPreview = Authentication.secureAPIAction() {
+  def getEnrollment = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         Ok(Json.toJson(user.getEnrollment.map(coll =>
@@ -27,6 +27,34 @@ trait Users { this: Controller =>
             "name" -> coll.name,
             "thumbnail" -> Json.toJson(coll.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
             "id" -> coll.id.get,
+            "published" -> coll.published,
+            "archived" -> coll.archived,
+            "content" -> coll.getContent.map(cont =>
+                Json.obj(
+                  "id" -> cont.id,
+                  "name" -> cont.name,
+                  "contentType" -> cont.contentType.toString,
+                  "thumbnail" -> cont.thumbnail,
+                  "views" -> cont.views))))))
+  }
+
+  /**
+   * Get the collections in which the user is a teacher or a ta
+   * Calling this function with an admin does not return all collections
+   * @return Result[json array] of collections
+   */
+  def getCollectionsForTeacherOrTA = Authentication.secureAPIAction() {
+    implicit request =>
+      implicit user =>
+        Ok(Json.toJson(user.getEnrollment.filter(_.userIsAdmin(user)).map(coll =>
+          Json.obj(
+            "name" -> coll.name,
+            "thumbnail" -> Json.toJson(coll.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
+            "id" -> coll.id.get,
+            "published" -> coll.published,
+            "archived" -> coll.archived,
+            "owner" -> coll.owner,
+            "role" -> (if (coll.userIsTA(user)) "ta" else "teacher"),
             "content" -> coll.getContent.map(cont =>
                 Json.obj(
                   "id" -> cont.id,
@@ -65,7 +93,7 @@ trait Users { this: Controller =>
         }.map { recentContent =>
           Content.findById(recentContent.contentId).map { content =>
             Json.obj(
-              "contentId" -> recentContent.contentId,
+              "id" -> recentContent.contentId,
               "name" -> content.name,
               "thumbnail" -> content.thumbnail,
               "collection" -> Collection.findById(content.collectionId).get.name)

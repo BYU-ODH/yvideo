@@ -32,8 +32,8 @@ object UserControllerSpec extends Specification with ApplicationContext with DBC
     //also redirect to the settings view
   }
 
-  "The collectionsPreview endpoint" should {
-    "get all of a student's collections" in {
+  "The getEnrollment endpoint" should {
+    "get all of a user's collections" in {
       application {
         val controller = new UsersTestController()
         val user = newCasStudent("Cas Student")
@@ -41,7 +41,7 @@ object UserControllerSpec extends Specification with ApplicationContext with DBC
         val newcolls = List("c1", "c2", "c3", "c4").map(x => pubCollection(x, user))
         newcolls.map(c => c.id must beSome) must allSucceed()
 
-        val resp = controller.collectionsPreview(sessionReq(user))
+        val resp = controller.getEnrollment(sessionReq(user))
         status(resp) === 200
         val collections = contentAsJson(resp).as[List[JsValue]]
         collections.map { coll =>
@@ -56,14 +56,39 @@ object UserControllerSpec extends Specification with ApplicationContext with DBC
       }
     }
 
-    "return empty array if user is not enrolled in anything" in {
+    "return an empty array if user is not enrolled in anything" in {
       application {
         val controller = new UsersTestController()
         val user = newCasStudent("Cas Student")
         user.id must beSome
-        val resp = controller.collectionsPreview(sessionReq(user))
+        val resp = controller.getEnrollment(sessionReq(user))
         val collections = contentAsJson(resp).as[List[JsValue]]
         collections.length === 0
+      }
+    }
+  }
+
+  "The getCollectionsForTeacherOrTA endpoint" should {
+    "get the collections a user has created" in {
+      application {
+        val controller = new UsersTestController()
+        val user = newCasTeacher("Cas Teacher")
+        user.id must beSome
+        val newcolls = List("c1", "c2", "c3", "c4").map(x => pubCollection(x, user))
+        newcolls.map(c => c.id must beSome) must allSucceed()
+        val resp = controller.getCollectionsForTeacherOrTA(sessionReq(user))
+        status(resp) === 200
+        val collections = contentAsJson(resp).as[List[JsValue]]
+        collections.map { coll =>
+          val cs = coll.toString
+          cs must /("name" -> anyValue)
+          cs must /("thumbnail" -> anyValue)
+          cs must /("id" -> anyValue)
+          cs must /("content" -> anyValue)
+          cs must /("role" -> "teacher")
+          // TODO: check for the content in the collection
+        } must allSucceed()
+        collections.length === newcolls.length
       }
     }
   }
