@@ -63,7 +63,6 @@ GET     /admin/users/count                                  controllers.Administ
 GET     /admin/users/:columnName/:searchValue               controllers.Administration.searchUsers(columnName: String, searchValue: String)
 POST    /admin/users/notify                                 controllers.Administration.sendNotification
 POST    /admin/users/:id/delete                             controllers.Administration.delete(id: Long)
-POST    /admin/collections/:id                              controllers.Administration.editCollection(id: Long)
 POST    /admin/collections/:id/delete                       controllers.Administration.deleteCollection(id: Long)
 POST    /admin/settings                                     controllers.Administration.saveSiteSettings
 GET     /admin/proxy/:id                                    controllers.Administration.proxy(id: Long)

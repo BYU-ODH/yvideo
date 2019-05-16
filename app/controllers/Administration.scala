@@ -91,40 +91,18 @@ trait Administration {
   }
 
   /**
-   * Updates the name of the collection
-   * @param id The ID of the collection
-   */
-  def editCollection(id: Long) = Authentication.secureAPIAction(parse.urlFormEncoded) {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermissionAPI("admin") {
-          Collections.getCollection(id) { collection =>
-            // Update the collection
-            val params = request.body.mapValues(_(0))
-            collection.copy(
-              name = params("name")
-            ).save
-            Ok(Json.obj("message" -> JsString("Collection updated")))
-          }
-        }
-  }
-
-  /**
    * Deletes a collection
    * @param id The ID of the collection to delete
    */
   def deleteCollection(id: Long) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Collections.getCollection(id) { collection =>
-          if (user.isCollectionTeacher(collection)) {
-            collection.delete()
-            Ok(Json.obj("message" -> JsString("Collection deleted")))
-          } else if(user.hasSitePermission("admin")) {
-            collection.delete()
-            Ok(Json.obj("message" -> JsString("Collection deleted")))
-          } else Errors.api.forbidden()
-      }
+        Authentication.enforcePermissionAPI("admin") {
+          Collections.getCollection(id) { collection =>
+              collection.delete()
+              Ok(Json.obj("message" -> JsString("Collection deleted")))
+          } 
+        }
   }
 
   /**
@@ -135,6 +113,7 @@ trait Administration {
       implicit user =>
         Authentication.enforcePermissionAPI("admin") {
           request.body.mapValues(_(0)).foreach { data =>
+            println(data)
             Setting.findByName(data._1).get.copy(value = data._2).save
             Logger.debug(data._1 + ": " + data._2)
           }
