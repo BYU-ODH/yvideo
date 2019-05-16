@@ -13,6 +13,9 @@ import test.TestHelpers
 import test.DBClear
 
 
+import models._
+
+
 
 object AdministrationControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers with JsonMatchers{
 
@@ -244,16 +247,19 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     "The Save Site Settings Endpoint" should {
       "update the site settings with the map of values" in {
         application {
+          Setting(None, "test", "false").save
           val admin = newCasAdmin("admin")
           admin.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest()
             .withSession("userId" -> admin.id.get.toString)
             .withFormUrlEncodedBody(
-              "notifications.emails" -> "true"
+              "test" -> "true"
             )
           val result = call(controller.saveSiteSettings, request)
-          contentType(result) mustEqual 200
+          contentType(result) mustEqual Some("application/json")
+          status(result) mustEqual 200
+          Setting.findByName("test").get.value mustEqual "true"
         }
       }
     }

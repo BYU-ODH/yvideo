@@ -113,9 +113,7 @@ trait Administration {
       implicit user =>
         Authentication.enforcePermissionAPI("admin") {
           request.body.mapValues(_(0)).foreach { data =>
-            println(data)
             Setting.findByName(data._1).get.copy(value = data._2).save
-            Logger.debug(data._1 + ": " + data._2)
           }
           Ok(Json.obj("message" -> JsString("Site settings updated")))  
         }
