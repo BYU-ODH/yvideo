@@ -60,7 +60,7 @@ trait Collections {
           if (user.isCollectionTA(collection)) {
             val name = request.body("name")(0)
             collection.copy(name = name).save
-            Ok(Json.obj("message" -> JsString("User permissions updated")))
+            Ok(Json.obj("message" -> JsString("Collection updated")))
           } else
             Errors.api.forbidden()
         }

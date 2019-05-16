@@ -171,16 +171,10 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
       }
     }
 
-    // Should we not test this helper function?
-    // "The Get User Helper Function" should {
-    //   "return a single user object from an id" in {
-    //   }
-    // }
-
     "The Send Notification Endpoint" should {
       "send a notification to a giver user with a message" in {
         application {
-          val admin = customAdmin("admin man", "braden.hutchinson@hotmail.com", "admin12345")
+          val admin = customAdmin("admin man", "arclitelab@gmail.com", "admin12345")
           admin.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest()
@@ -189,7 +183,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
               "userId" -> admin.id.get.toString,
               "message" -> "hello there!"
             )
-          val result = call(controller.sendNotification(), request)
+          val result = call(controller.sendNotification, request)
           contentType(result) mustEqual Some("application/json")
           status(result) mustEqual 200
           val jsonResult = contentAsJson(result)
@@ -204,6 +198,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
         application {
           val user = newCasStudent("Bob")
           user.id mustNotEqual None
+          val userId = user.id.get
           val admin = newCasAdmin("admin")
           admin.id mustNotEqual None
           val controller = new AdministrationTestController()
@@ -218,15 +213,10 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           val expectedResult = """{"message":"User deleted"}"""
           jsonResult.toString mustEqual expectedResult
           // And check that the user is gone
+          User.findById(userId) mustEqual None
           val countAfter = controller.userCount()(request)
           contentAsJson(countAfter).toString mustEqual "1"
         }
-      }
-    }
-
-    "The Edit Collection Endpoint" should {
-      "update a collection with the map of values" in {
-        1 mustEqual 1
       }
     }
 
@@ -237,6 +227,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           admin.id mustNotEqual None
           val collection = newCollection("Test Collection", admin)
           collection.id mustNotEqual None
+          val collectionId = collection.id.get
           val controller = new AdministrationTestController()
           val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
           val result = controller.deleteCollection(collection.id.get)(request)
@@ -245,26 +236,47 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           val jsonResult = contentAsJson(result)
           val expectedResult = """{"message":"Collection deleted"}"""
           jsonResult.toString mustEqual expectedResult
+          Collection.findById(collectionId) mustEqual None
         }
       }
-      "archive the collection if the current user is the teacher of the collection" in {
-        1 mustEqual 1
-      }
     }
-    //And be rejected if they aren't either one
 
     "The Save Site Settings Endpoint" should {
       "update the site settings with the map of values" in {
-        1 mustEqual 1
+        application {
+          val admin = newCasAdmin("admin")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest()
+            .withSession("userId" -> admin.id.get.toString)
+            .withFormUrlEncodedBody(
+              "notifications.emails" -> "true"
+            )
+          val result = call(controller.saveSiteSettings, request)
+          contentType(result) mustEqual 200
+        }
       }
     }
-    //And throw an error if something goes wrong
 
     "The Proxy Endpoint" should {
       "allow an admin to log in as the user" in {
-        1 mustEqual 1
+        application {
+          val user = newCasStudent("Bob")
+          user.id mustNotEqual None
+          val userId = user.id.get
+          val admin = newCasAdmin("admin")
+          admin.id mustNotEqual None
+          val controller = new AdministrationTestController()
+          val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
+          // Make sure they're both in the db
+          val result = controller.proxy(user.id.get)(request)
+          contentType(result) mustEqual Some("application/json")
+          status(result) mustEqual 200
+          val jsonResult = contentAsJson(result)
+          val expectedResult = """{"message":"Now proxying as user mynetid"}"""
+          jsonResult.toString mustEqual expectedResult
+        }
       }
     }
-    //And fail if the user is not found
   }
 }
