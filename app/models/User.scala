@@ -120,7 +120,7 @@ case class User(id: Option[Long], username: String,
    * @return The notification
    */
   def sendNotification(message: String) = {
-    if (Setting.findByName("notifications.users.emailOn.notification").get.value == "true" && email.isDefined) {
+    if (email.isDefined) {
       EmailTools.sendEmail(List((displayName, email.get)), "Ayamel notification") {
         s"You have received the following notification:\n\n$message"
       } {
