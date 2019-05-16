@@ -12,6 +12,8 @@ import test.ApplicationContext
 import test.TestHelpers
 import test.DBClear
 
+
+
 object AdministrationControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers with JsonMatchers{
 
   class AdministrationTestController() extends Controller with Administration
@@ -175,22 +177,6 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
     //   }
     // }
 
-    //consider updating this endpoint to fit more with Y-Video (teacher, student, TA, etc.)
-    "The Set Permissions Endpoint" should {
-      //all of these should also redirect with info message
-      "remove the permissions" in {
-        1 mustEqual 1
-      }
-
-      "match the permissions" in {
-        1 mustEqual 1
-      }
-
-      "add the permissions" in {
-        1 mustEqual 1
-      }
-    }
-
     "The Send Notification Endpoint" should {
       "send a notification to a giver user with a message" in {
         application {
@@ -203,13 +189,12 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
               "userId" -> admin.id.get.toString,
               "message" -> "hello there!"
             )
-          val result = controller.sendNotification()(request)
-          1 mustEqual 1
-          // contentType(result) mustEqual Some("application/json")
-          // status(result) mustEqual 403
-          // val jsonResult = contentAsJson(result)
-          // val expectedResult = """{"message":"Notification sent to admin12345"}"""
-          // jsonResult.toString mustEqual expectedResult
+          val result = call(controller.sendNotification(), request)
+          contentType(result) mustEqual Some("application/json")
+          status(result) mustEqual 200
+          val jsonResult = contentAsJson(result)
+          val expectedResult = """{"message":"Notification sent to admin12345"}"""
+          jsonResult.toString mustEqual expectedResult
         }
       }
     }

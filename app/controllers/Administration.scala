@@ -59,35 +59,6 @@ trait Administration {
   }
 
   /**
-   * Give permissions to a user
-   */
-  def setPermission(operation: String = "") = Authentication.secureAPIAction(parse.multipartFormData) {
-    implicit request =>
-      implicit user =>
-        Authentication.enforcePermissionAPI("admin") {
-          val data = request.body.dataParts
-          getUser(data("userId")(0).toLong) { targetUser =>
-            operation match {
-              case "remove" =>
-                data("permission").foreach { permission =>
-                  targetUser.removeSitePermission(permission)
-                }
-              case "match" =>
-                targetUser.removeAllSitePermissions
-                data("permission").foreach { permission =>
-                  targetUser.addSitePermission(permission)
-                }
-              case _ =>
-                data("permission").foreach { permission =>
-                  targetUser.addSitePermission(permission)
-                }
-            }
-            Ok(Json.obj("message" -> JsString("User permissions updated")))
-          }
-        }
-  }
-
-  /**
    * Sends an email notification to a user
    */
   def sendNotification() = Authentication.secureAPIAction(parse.urlFormEncoded) {
