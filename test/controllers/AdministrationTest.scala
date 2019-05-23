@@ -68,7 +68,6 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           jsonUsername.foreach { user =>
             val us = user.toString
             us must /("id" -> anyValue)
-            us must /("authScheme" -> anyValue)
             us must /("name" -> anyValue)
             us must /("email" -> anyValue)
             us must /("linked" -> -1)
@@ -100,7 +99,6 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           jsonName.foreach { user =>
             val us = user.toString
             us must /("id" -> anyValue)
-            us must /("authScheme" -> anyValue)
             us must /("name" -> anyValue)
             us must /("email" -> anyValue)
             us must /("linked" -> -1)
@@ -132,7 +130,6 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           jsonEmail.foreach { user =>
             val us = user.toString
             us must /("id" -> anyValue)
-            us must /("authScheme" -> anyValue)
             us must /("name" -> anyValue)
             us must /("email" -> anyValue)
             us must /("linked" -> -1)
