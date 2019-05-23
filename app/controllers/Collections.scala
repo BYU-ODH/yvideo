@@ -29,25 +29,10 @@ trait Collections {
     }.getOrElse(Errors.api.notFound())
   }
 
-
   def collectionAsJson(id: Long) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-      Ok(Json.toJson(Collection.findById(id).map(collection =>
-        Json.obj(
-          "name" -> collection.name,
-          "owner" -> collection.owner,
-          "thumbnail" -> Json.toJson(collection.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
-          "published" -> collection.published,
-          "archived" -> collection.archived,
-          "id" -> collection.id.get,
-          "content" -> collection.getContent.map(content =>
-            Json.obj(
-              "id" -> content.id,
-              "name" -> content.name,
-              "contentType" -> content.contentType.toString,
-              "thumbnail" -> content.thumbnail,
-              "views" -> content.views))))))
+      Ok(Json.toJson(Collection.findById(id).map(Collection.coll2json)))
   }
 
   /**

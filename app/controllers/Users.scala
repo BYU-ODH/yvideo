@@ -22,20 +22,7 @@ trait Users { this: Controller =>
   def getEnrollment = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Ok(Json.toJson(user.getEnrollment.map(coll =>
-          Json.obj(
-            "name" -> coll.name,
-            "thumbnail" -> Json.toJson(coll.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
-            "id" -> coll.id.get,
-            "published" -> coll.published,
-            "archived" -> coll.archived,
-            "content" -> coll.getContent.map(cont =>
-                Json.obj(
-                  "id" -> cont.id,
-                  "name" -> cont.name,
-                  "contentType" -> cont.contentType.toString,
-                  "thumbnail" -> cont.thumbnail,
-                  "views" -> cont.views))))))
+        Ok(Json.toJson(user.getEnrollment.map(Collection.coll2json)))
   }
 
   /**

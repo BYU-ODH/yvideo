@@ -222,6 +222,23 @@ object Collection extends SQLSelectable[Collection] {
     }
   }
 
+  def coll2json(collection: Collection) = {
+    Json.obj(
+      "name" -> collection.name,
+      "owner" -> collection.owner,
+      "thumbnail" -> Json.toJson(collection.getContent.map(_.thumbnail).find(_.nonEmpty).getOrElse("")),
+      "published" -> collection.published,
+      "archived" -> collection.archived,
+      "id" -> collection.id.get,
+      "content" -> collection.getContent.map(content =>
+        Json.obj(
+          "id" -> content.id,
+          "name" -> content.name,
+          "contentType" -> content.contentType.toString,
+          "thumbnail" -> content.thumbnail,
+          "views" -> content.views)))
+  }
+
   /**
    * Find a collection with the given id
    * @param id The id of the collection
