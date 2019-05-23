@@ -20,6 +20,7 @@ trait CaptionAider {
   /**
    * View CaptionAider. You specify the ID of the content and the ID of the collection under whose context we will operate.
    * If there is no collection, specify 0 as the ID.
+   * SCHEDULED FOR DESTRUCTION
    */
   def view(id: Long, collectionId: Long) = Authentication.authenticatedAction() {
     implicit request =>

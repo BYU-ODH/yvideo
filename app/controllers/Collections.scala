@@ -168,6 +168,7 @@ trait Collections {
 
   /**
    * The 'create a new collection' view
+   * SCHEDULED FOR DESTRUCTION
    */
   def createPage = Authentication.authenticatedAction() {
     implicit request =>

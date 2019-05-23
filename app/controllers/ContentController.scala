@@ -61,6 +61,7 @@ trait ContentController {
 
   /**
    * Content creation page
+   * SCHEDULED FOR DESTRUCTION
    */
   def createPage(page: String = "file", collectionId: Long = 0) = Authentication.authenticatedAction() {
     implicit request =>
@@ -448,6 +449,7 @@ trait ContentController {
 
   /**
    * Content view page
+   * SCHEDULED FOR DESTRUCTION
    */
   def view(id: Long) = Authentication.authenticatedAction() {
     implicit request =>

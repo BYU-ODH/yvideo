@@ -14,6 +14,7 @@ trait Application {
 
   /**
    * A special login page for admins
+   * SCHEDULED FOR DESTRUCTION
    */
   def login = Action {
     implicit request =>
@@ -28,6 +29,7 @@ trait Application {
 
   /**
    * The home page
+   * SCHEDULED FOR DESTRUCTION
    */
   def home = Authentication.authenticatedAction() {
     implicit request =>
@@ -89,6 +91,7 @@ trait Application {
 
   /**
    * Saves feedback submitted on an error
+   * THIS MIGHT BE OBSOLETE???
    */
   def saveErrorFeedback = Authentication.authenticatedAction(parse.urlFormEncoded) {
     request =>
