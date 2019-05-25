@@ -484,35 +484,31 @@ trait ContentController {
   /**
    * Disable expired content
    */
-  def disableExpired = Authentication.authenticatedAction() {
+  def disableExpired = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
-          Future {
-            val contentList = Content.list
-            var count = 0
-            for (content <- contentList) {
-              if (content.dateValidated.getOrElse("") != "" && service.TimeTools.checkExpired(content.dateValidated.get)) {
-                Content.expire(content.id.get)
-                count += 1
-              }
+        Authentication.enforcePermissionAPI("admin") {
+          val contentList = Content.list
+          var count = 0
+          for (content <- contentList) {
+            if (content.dateValidated.getOrElse("") != "" && service.TimeTools.checkExpired(content.dateValidated.get)) {
+              Content.expire(content.id.get)
+              count += 1
             }
-            Redirect(routes.Application.home()).flashing("success" -> s"Successfully expired $count content")
           }
+          Ok(Json.obj("message" -> s"Successfully expired $count content"))
         }
   }
 
   /**
    * Update content and re-enable
    */
-  def renewContent(id: Long, renewer: String) = Authentication.authenticatedAction() {
+  def renewContent(id: Long, renewer: String) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-        Authentication.enforcePermission("admin") {
-          Future {
-            Content.renew(id, renewer)
-            Redirect(routes.Application.home()).flashing("success" -> s"Successfully renewed content $id")
-          }
+        Authentication.enforcePermissionAPI("admin") {
+          Content.renew(id, renewer)
+          Ok(Json.obj("message" -> s"Successfully renewed content $id"))
         }
   }
 
