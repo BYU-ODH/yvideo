@@ -95,7 +95,7 @@ trait Collections {
   /**
    * Creates a new collection
    */
-  def create = Authentication.secureAPIAction(BodyParsers.parse.json) {
+  def create = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
         // Check if the user is allowed to create a collection

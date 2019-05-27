@@ -175,10 +175,10 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           val controller = new AdministrationTestController()
           val request = FakeRequest()
             .withSession("userId" -> admin.id.get.toString)
-            .withFormUrlEncodedBody(
-              "userId" -> admin.id.get.toString,
+            .withJsonBody(Json.obj(
+              "userId" -> admin.id.get,
               "message" -> "hello there!"
-            )
+            ))
           val result = call(controller.sendNotification, request)
           contentType(result) mustEqual Some("application/json")
           status(result) mustEqual 200
@@ -241,14 +241,15 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
       "update the site settings with the map of values" in {
         application {
           Setting(None, "test", "false").save
+          Setting.findByName("test").get.value mustEqual "false"
           val admin = newCasAdmin("admin")
           admin.id mustNotEqual None
           val controller = new AdministrationTestController()
           val request = FakeRequest()
             .withSession("userId" -> admin.id.get.toString)
-            .withFormUrlEncodedBody(
+            .withJsonBody(Json.obj(
               "test" -> "true"
-            )
+            ))
           val result = call(controller.saveSiteSettings, request)
           contentType(result) mustEqual Some("application/json")
           status(result) mustEqual 200

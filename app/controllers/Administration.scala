@@ -60,14 +60,14 @@ trait Administration { this: Controller =>
   /**
    * Sends an email notification to a user
    */
-  def sendNotification() = Authentication.secureAPIAction(parse.urlFormEncoded) {
+  def sendNotification() = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
         Authentication.enforcePermissionAPI("admin") {
-          val id = request.body("userId")(0).toLong
+          val id = (request.body \ "userId").as[Long]
           getUser(id) { targetUser =>
             // Send a notification email to the user
-            val message = request.body("message")(0)
+            val message = (request.body \ "message").as[String]
             targetUser.sendNotification(message)
             Ok(Json.obj("message" -> JsString("Notification sent to "+targetUser.username)))
           }
@@ -107,11 +107,11 @@ trait Administration { this: Controller =>
   /**
    * Saves and updates the site settings
    */
-  def saveSiteSettings = Authentication.secureAPIAction(parse.urlFormEncoded) {
+  def saveSiteSettings = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
         Authentication.enforcePermissionAPI("admin") {
-          request.body.mapValues(_(0)).foreach { data =>
+          request.body.as[Map[String, String]].foreach { data =>
             Setting.findByName(data._1).get.copy(value = data._2).save
           }
           Ok(Json.obj("message" -> JsString("Site settings updated")))  
