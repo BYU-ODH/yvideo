@@ -95,13 +95,16 @@ trait TestHelpers {
    * @param name The String name of the collection
    * @param user User to be the owner of the collection
    */
-  def newCollection(name: String, user: User) = createCollection(user.id.get, name, false, false)
-  def pubCollection(name: String, user: User) = createCollection(user.id.get, name, true, false)
-  def arcCollection(name: String, user: User) = createCollection(user.id.get, name, false, true)
-  def pubArcCollection(name: String, user: User) = createCollection(user.id.get, name, true, true)
+  def newCollection(name: String, user: User) = createCollection(user, name, false, false)
+  def pubCollection(name: String, user: User) = createCollection(user, name, true, false)
+  def arcCollection(name: String, user: User) = createCollection(user, name, false, true)
+  def pubArcCollection(name: String, user: User) = createCollection(user, name, true, true)
 
-  def createCollection(owner: Long, name: String, pub: Boolean, arc: Boolean): Collection =
-    Collection(None, owner, name, pub, arc).save
+  def createCollection(owner: User, name: String, pub: Boolean, arc: Boolean): Collection = {
+    val c = Collection(None, owner.id.get, name, pub, arc).save
+    owner.enroll(c, true)
+    c
+  }
 
   /**
    *  Create Content

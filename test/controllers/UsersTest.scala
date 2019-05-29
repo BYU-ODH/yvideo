@@ -52,7 +52,7 @@ object UserControllerSpec extends Specification with ApplicationContext with DBC
           cs must /("content" -> anyValue)
           // TODO: check for the content in the collection
         } must allSucceed()
-        collections.length === 0
+        collections.length === 4
       }
     }
 

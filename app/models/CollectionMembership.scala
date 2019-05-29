@@ -237,7 +237,7 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
       try {
         SQL(
           s"""
-          select * from (select userId from collectionPermissions where permission = "ta" and collectionId = {id})
+          select * from (select userId from collectionPermissions where permission = 'ta' and collectionId = {id})
           a join userAccount on a.userId = userAccount.id
           """
         )
