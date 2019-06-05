@@ -1,6 +1,7 @@
 package controllers
 
 import authentication.Authentication
+import authentication.Authentication.result2futureresult
 import play.api.mvc._
 import models._
 import service.FileUploader
@@ -14,9 +15,7 @@ import play.api.libs.json._
 /**
  * Controller for Administration pages and actions
  */
-trait Administration {
-  // https://coderwall.com/p/t_rapw/cake-pattern-in-scala-self-type-annotations-explicitly-typed-self-references-explained
-  this: Controller =>
+trait Administration { this: Controller =>
 
   /**
    * Get the number of all current users

@@ -5,6 +5,7 @@ import ExecutionContext.Implicits.global
 import play.api.mvc.Controller
 import play.api.Play.current
 import controllers.authentication.Authentication
+import controllers.authentication.Authentication.result2futureresult
 import service.HashTools
 import dataAccess.Quizlet
 import scala.concurrent.ExecutionContext

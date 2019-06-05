@@ -14,5 +14,6 @@ object Errors {
     def badRequest(msg: String = "Request missing required data.") = BadRequest(Json.obj("message" -> msg))
     def notFound(msg: String = "Not found.") = BadRequest(Json.obj("message" -> msg))
     def forbidden(msg: String = "You cannot do that.") = BadRequest(Json.obj("message" -> msg))
+    def serverError(msg: String = "Woops.") = InternalServerError(Json.obj("message" -> msg))
   }
 }

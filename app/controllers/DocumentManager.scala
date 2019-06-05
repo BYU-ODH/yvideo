@@ -221,7 +221,7 @@ trait DocumentManager {
 
             // Delete this resource
             ResourceController.deleteResource(docId).map { _ =>
-              Redirect(routes.ContentController.view(id)).flashing("info" -> "The document has been deleted.")
+              Ok(Json.obj("info" -> "The document has been deleted."))
             }
           } else
             Future(Errors.forbidden)

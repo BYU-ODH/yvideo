@@ -6,16 +6,12 @@ import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.json._
 
-import models.{Content, User, Course, Collection}
 import controllers.Administration
 import test.ApplicationContext
 import test.TestHelpers
 import test.DBClear
 
-
 import models._
-
-
 
 object AdministrationControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers with JsonMatchers{
 

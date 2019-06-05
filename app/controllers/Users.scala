@@ -1,6 +1,7 @@
 package controllers
 
 import authentication.Authentication
+import authentication.Authentication.result2futureresult
 import play.api.mvc._
 import models._
 import service.{FileUploader, ImageTools, HashTools}

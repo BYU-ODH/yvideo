@@ -1,6 +1,7 @@
 package controllers
 
 import authentication.Authentication
+import authentication.Authentication.result2futureresult
 import service._
 import models.{User, Content, Collection, ViewingHistory}
 import scala.concurrent.{Future, ExecutionContext}
@@ -258,15 +259,14 @@ trait ContentController {
                       Ok(views.html.content.create.url(collectionId))
                         .flashing("success" -> "Content Created")
                     } else {
-                      Redirect(routes.ContentController.createPage("url", collectionId))
-                        .flashing("success" -> "Content Created")
+                      Ok(content.toJson)
                     }
                   } else {
                     play.Logger.debug(request.queryString.toString)
                     if (createFromAnnotations) {
                       Ok(createContentFromAnnotationEditorResponse(content.toJson.toString)).as(HTML)
                     } else {
-                      Redirect(routes.ContentController.view(content.id.get))
+                      Ok(content.toJson)
                     }
                   }
                 }
@@ -386,13 +386,7 @@ trait ContentController {
                 if (collectionId > 0) {
                   ContentManagement.addToCollection(collectionId, content)
                 }
-                if (createAndAdd.isEmpty) {
-                  Redirect(routes.ContentController.view(content.id.get))
-                    .flashing("success" -> "Content Added.")
-                } else {
-                  Redirect(routes.ContentController.createPage("resource", collectionId))
-                    .flashing("success" -> "Content Created")
-                }
+                Ok(content.toJson)
               }
             } else
               Redirect(routes.ContentController.createPage("resource", collectionId))

@@ -329,13 +329,15 @@ object Content extends SQLSelectable[Content] {
             } *
           )
 
-        (Map[String, List[String]]() /: plist) { (acc, next) =>
+        val m = (Map[String, List[String]]() /: plist) { (acc, next) =>
           next match {
             case (setting, argument) =>
               if(acc.contains(setting)) acc + (setting -> (argument :: acc(setting)))
               else acc + (setting -> List(argument))
           }
         }
+        Logger.debug(m.toString)
+        m
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in Content.scala / getSettingMap")

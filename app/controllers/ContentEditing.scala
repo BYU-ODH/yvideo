@@ -2,14 +2,16 @@ package controllers
 
 import play.api.mvc._
 import controllers.authentication.Authentication
-import play.api.libs.json.{JsString, JsArray, Json, JsDefined}
+import controllers.authentication.Authentication.result2futureresult
+import play.api.libs.json._
 import dataAccess.ResourceController
 import models.{User, Collection, Content}
 import service._
 import java.net.URL
 import java.io.IOException
 import javax.imageio.ImageIO
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Await, Future}
+import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import play.api.Logger
 import scala.Some
@@ -25,18 +27,19 @@ trait ContentEditing {
    * Sets the metadata for a particular content object
    * @param id The ID of the content
    */
-  def setMetadata(id: Long) = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def setMetadata(id: Long) = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
-        ContentController.getContent(id) {  content =>
+        ContentController.getContent(id) { content =>
           // Make sure the user is able to edit
           if (content isEditableBy user) {
             // Get the info from the form
-            val title = request.body("title")(0)
-            val description = request.body("description")(0)
-            val categories = request.body.get("categories").map(_.toList).getOrElse(Nil)
-            val keywords = request.body.get("keywords").map(_.toList).getOrElse(Nil).mkString(",")
-            val languages = request.body.get("languages").map(_.toList).getOrElse(List("eng"))
+
+            val title = (request.body \ "title").as[String]
+            val description = (request.body \ "description").as[String]
+            val categories = (request.body \ "categories").as[List[String]]
+            val keywords = (request.body \ "keywords").as[List[String]].mkString(",")
+            val languages = (request.body \ "languages").as[List[String]]
 
             // Update the name of the content
             content.copy(name = title).save
@@ -59,54 +62,57 @@ trait ContentEditing {
               )
             )
 
-            val redirect = Redirect(routes.ContentController.view(id))
-
             // Save the metadata
             ResourceController.updateResource(content.resourceId, obj).map { _ =>
-              redirect.flashing("success" -> "Metadata updated.")
+              Ok(Json.obj("message" -> "Metadata updated."))
             }.recover { case _ =>
-              redirect.flashing("error" -> "Oops! Something went wrong.")
+              Errors.api.serverError("Failed to update resource.")
             }
-
-          } else
-            Future(Errors.forbidden)
+          } else Errors.api.forbidden()
         }
   }
 
   /**
-   * Helper function for setSettings
-   * @param content The content whose settings are being set
+   * Class used for parsing json requests
    */
-  def recordSettings(content: Content, data: Map[String, Seq[String]]) {
-    content.setSetting("captionTrack", data.get("captionTracks").getOrElse(Nil))
-    content.setSetting("annotationDocument", data.get("annotationDocs").getOrElse(Nil))
-    content.setSetting("targetLanguages", data.get("targetLanguages").getOrElse(Nil))
-
-    content.setSetting("aspectRatio", List(data.get("aspectRatio").map(_(0)).getOrElse("1.7778")))
-
-    content.setSetting("showCaptions", List(data.get("showCaptions").map(_(0)).getOrElse("false")))
-    content.setSetting("showAnnotations", List(data.get("showAnnotations").map(_(0)).getOrElse("false")))
-    content.setSetting("allowDefinitions", List(data.get("allowDefinitions").map(_(0)).getOrElse("false")))
-    content.setSetting("showTranscripts", List(data.get("showTranscripts").map(_(0)).getOrElse("false")))
-    content.setSetting("showWordList", List(data.get("showWordList").map(_(0)).getOrElse("false")))
-  }
+  case class ContentSettings(captionTracks: Option[List[String]], annotationDocuments: Option[List[String]],
+    targetLanguages: Option[List[String]], aspectRatio: Option[String], showCaptions: Option[Boolean],
+    showAnnotations: Option[Boolean], allowDefinitions: Option[Boolean], showTranscripts: Option[Boolean],
+    showWordList: Option[Boolean])
+  // implicit json conversion for ContentSetting
+  implicit val csreads = Json.reads[ContentSettings]
 
   /**
    * Sets the content's settings
    * @param id The ID of the content
    */
-  def setSettings(id: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def setSettings(id: Long) = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
-          val data = request.body.dataParts
-          Future {
-            // Make sure the user is able to edit
-            if (content isEditableBy user) {
-              recordSettings(content, data)
-              Ok
-            } else
-              Errors.forbidden
+          // Make sure the user is able to edit
+          if (content isEditableBy user) {
+            Json.fromJson[ContentSettings](request.body) match {
+              case JsSuccess(settings: ContentSettings, _) => {
+                content.setSetting("captionTrack", settings.captionTracks.getOrElse(Nil))
+                content.setSetting("annotationDocument", settings.annotationDocuments.getOrElse(Nil))
+                content.setSetting("targetLanguages", settings.targetLanguages.getOrElse(Nil))
+                content.setSetting("aspectRatio", List(settings.aspectRatio.getOrElse("1.7778")))
+                content.setSetting("showCaptions", List(settings.showCaptions.getOrElse(false).toString))
+                content.setSetting("showAnnotations", List(settings.showAnnotations.getOrElse(false).toString))
+                content.setSetting("allowDefinitions", List(settings.allowDefinitions.getOrElse(false).toString))
+                content.setSetting("showTranscripts", List(settings.showTranscripts.getOrElse(false).toString))
+                content.setSetting("showWordList", List(settings.showWordList.getOrElse(false).toString))
+                Ok(Json.obj("message" -> "Content settings updated."))
+              }
+              case e: JsError => {
+                Logger.debug(e.toString)
+                Errors.api.badRequest("Incorrectly formatted content settings.")
+              }
+            }
+          }
+          else {
+            Errors.api.forbidden("User does not have permission to edit this content.")
           }
         }
   }
@@ -179,14 +185,13 @@ trait ContentEditing {
    * Sets the thumbnail for content from either a URL or a file
    * @param id The ID of the content that the thumbnail will be for
    */
-  def changeThumbnail(id: Long) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def changeThumbnail(id: Long) = Authentication.secureAPIAction(parse.multipartFormData) {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
 
           val file = request.body.file("file")
           val url = request.body.dataParts("url")(0)
-          val redirect = Redirect(routes.ContentController.view(id))
 
           try {
             (if (url.isEmpty) {
@@ -199,15 +204,15 @@ trait ContentEditing {
               case Some(fut) =>
                 fut.map { url =>
                   content.copy(thumbnail = url).save
-                  redirect.flashing("info" -> "Thumbnail changed")
+                  Ok(Json.obj("success" -> "Thumbnail changed."))
                 }.recover { case _ =>
-                  redirect.flashing("error" -> "Unknown error while attempting to create thumbnail")
+                  Errors.api.serverError("Unknown error while attempting to create thumbnail.")
                 }
-              case None => Future(redirect.flashing("error" -> "No file provided"))
+              case None => Ok(JsString("No file provided."))
             }
           } catch {
             case _: IOException =>
-              Future(redirect.flashing("error" -> "Error reading image file"))
+              Errors.api.serverError("Error reading image file.")
           }
         }
   }
@@ -221,7 +226,6 @@ trait ContentEditing {
     implicit request =>
       implicit user =>
         ContentController.getContent(id) { content =>
-          val redirect = Redirect(routes.ContentController.view(id))
 
           // Get the video resource from the content
           ResourceController.getResource(content.resourceId).flatMap { json =>
@@ -258,11 +262,11 @@ trait ContentEditing {
                         .map { url =>
                           // Save it and be done
                           content.copy(thumbnail = url).save
-                          redirect.flashing("info" -> "Thumbnail updated")
+                          Ok(Json.obj("success" -> "Thumbnail updated."))
                         }.recover { case e: Exception =>
-                          redirect.flashing("error" -> e.getMessage())
+                          Errors.api.serverError(e.getMessage())
                         }
-                    case _ => Future {
+                    case _ => {
                       (videoObject \ "mime") match {
                         case videoType:JsDefined =>
                           if (videoType.as[JsString].value == "video/x-youtube") {
@@ -274,24 +278,24 @@ trait ContentEditing {
                                 // Sometimes an extra character gets added on to the video ID so slice off everything but the first 11 chars
                                 val thumbnailUrl = "https://img.youtube.com/vi/" + videoId.get.toString.slice(0, 11) + "/default.jpg"
                                 content.copy(thumbnail = thumbnailUrl.toString).save
-                                redirect.flashing("info" -> "Thumbnail updated")
+                                Ok(Json.obj("success" -> "Thumbnail updated."))
                               }
-                              case _ => redirect.flashing("error" -> "Error getting youtube URL")
+                              case _ => Ok(Json.obj("error" -> "Error getting youtube URL"))
                             }
                           } else {
-                            redirect.flashing("error" -> "Sorry. We can only get youtube thumbnails for now.")
+                            Ok(Json.obj("error" -> "Sorry. We can only get youtube thumbnails for now."))
                           }
-                        case _ => redirect.flashing("error" -> "Error getting video type")
+                        case _ => Ok(Json.obj("error" -> "Error getting video type"))
                       }
                     }
                   }
-                }.getOrElse {
-                  Future(redirect.flashing("error" -> "No video file found"))
+                }.getOrElse[Future[Result]] {
+                  Errors.api.notFound("No video file found.")
                 }
-              case _ => Future(redirect.flashing("error" -> "No files found"))
+              case _ => Errors.api.notFound("No files found")
             }
           }.recover { case _ =>
-            redirect.flashing("error" -> "Could not access video.")
+            Errors.api.serverError("Could not access video.")
           }
         }
   }
@@ -306,14 +310,12 @@ trait ContentEditing {
         ContentController.getContent(id) { content =>
           if (content isEditableBy user) {
             val url = request.body("url")(0)
-            val redirect = Redirect(routes.ContentController.view(id))
             ResourceHelper.updateFileUri(content.resourceId, url).map { _ =>
-              redirect.flashing("info" -> "Media source updated")
+              Ok(Json.obj("message" -> "Media source updated."))
             }.recover { case _ =>
-              redirect.flashing("error" -> "Oops! Something went wrong!")
+              Ok(Json.obj("error" -> "Oops! Something went wrong!"))
             }
-          } else
-            Future(Errors.forbidden)
+          } else Errors.api.forbidden()
         }
   }
 

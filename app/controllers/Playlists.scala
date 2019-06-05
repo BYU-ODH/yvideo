@@ -29,7 +29,7 @@ object Playlists extends Controller {
                 Errors.forbidden
               }
             } else {
-              Redirect(routes.ContentController.view(id))
+              Ok(content.toJson)
             }
           }
         }
@@ -53,7 +53,7 @@ object Playlists extends Controller {
                 Errors.forbidden
               }
             } else {
-              Redirect(routes.ContentController.view(id))
+              Ok(content.toJson)
             }
           }
         }

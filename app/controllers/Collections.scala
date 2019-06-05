@@ -3,6 +3,7 @@ package controllers
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import authentication.Authentication
+import authentication.Authentication.result2futureresult
 import play.api.mvc._
 import play.api.Play.current
 import play.api.libs.json._
