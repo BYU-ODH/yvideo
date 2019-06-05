@@ -17,7 +17,9 @@ import play.api.libs.json.Json
 /**
  * Controller dealing with word lists
  */
-object WordLists extends Controller {
+trait WordLists {
+
+  this: Controller =>
 
   val isHTTPS = current.configuration.getBoolean("HTTPS").getOrElse(false)
 
@@ -128,3 +130,5 @@ object WordLists extends Controller {
         }
   }
 }
+
+object WordLists extends Controller with WordLists
