@@ -25,34 +25,6 @@ object HelpPagesControllerSpec extends Specification with ApplicationContext wit
       }
   	}
 
-  	"The View Endpoint" should {
-      "serve a specific help page to a user" in {
-        application {
-          val user = newCasAdmin("admin")
-          user.id mustNotEqual None
-          val page = HelpPage(None, "Title", "Contents", "Category").save
-          page.id mustNotEqual None
-          val controller = new HelpPagesTestController()
-          val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-          val result = controller.view(page.id.get)(request)
-          status(result) shouldEqual 200
-        }	
-      }
-  	}
-
-  	"The Edit Endpoint" should {
-  		"serve a specific edit page for a help page by id to a user" in {
-          application {
-                  val user = newCasAdmin("admin")
-                  user.id mustNotEqual None
-                  val controller = new HelpPagesTestController()
-                  val request = FakeRequest().withSession("userId" -> user.id.get.toString)
-                  val result = controller.edit(1)(request) //volatile - should use help page we create for this test
-                  status(result) shouldEqual 200
-              }	
-  		}
-  	}
-
   	"The Delete Endpoint" should {
   		"delete a help page by id" in {
   			1 mustEqual 1
