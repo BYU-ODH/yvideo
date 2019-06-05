@@ -135,7 +135,7 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "requester" -> requester,
     "resourceId" -> resourceId,
     "published" -> published,
-    "settings" -> Content.getSettingMap(this).mapValues(_.mkString(",")),
+    "settings" -> Content.getSettingMap(this),
     "fullVideo" -> fullVideo,
     "authKey" -> authKey,
     "views" -> views

@@ -12,7 +12,7 @@ import java.net.{URLDecoder, URI, URL}
 import play.api.mvc._
 import play.api.Logger
 import play.api.libs.iteratee.Enumerator
-import play.api.libs.json.Json
+import play.api.libs.json._
 
 
 /**
@@ -198,91 +198,86 @@ trait ContentController {
   }
 
   /**
+   * Class used to parse json body from request to createFromUrl endpoint
+   * {
+   *  contentType: String,
+   *  title: String,
+   *  url: String,
+   *  description: String,
+   *  categories: Array(String), // Optional
+   *  keywords: Array(String),   // Optional
+   *  languages: Array(String),  // optional
+   * }
+   */
+  case class createUrlData(contentType: String, title: String, url: String, description: String,
+    categories: Option[List[String]], keywords: Option[List[String]],
+    languages: Option[List[String]])
+  implicit val createUrlDataReads = Json.reads[createUrlData]
+
+  /**
+   * Parses the createFromUrl request body into a createUrlData object and
+   * runs the given function
+   */
+  private def parseCreateUrl(js: JsValue)(f: createUrlData => Future[Result]): Future[Result] = {
+    Json.fromJson[createUrlData](js) match {
+      case JsSuccess(data: createUrlData, _) => f(data)
+      case e: JsError => Errors.api.badRequest("Invalid format for create content from url.")
+    }
+  }
+
+  /**
    * Creates content based on the posted data (URL)
    */
-  def createFromUrl(collectionId: Long, annotations: Boolean = false) = Authentication.authenticatedAction(parse.multipartFormData) {
+  def createFromUrl(collectionId: Long, annotations: Boolean = false) = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
 
         Authentication.enforceCollectionAdmin(Collection.findById(collectionId)) {
+          parseCreateUrl(request.body.asOpt[JsObject].getOrElse(Json.obj())) { data =>
+            // Process the URL if it is not "special"
+            val url = if (ResourceHelper.isHTTP(data.url)) processUrl(data.url) else data.url
 
-          // Collect the information
-          val data = request.body.dataParts
-          val contentType = Symbol(data("contentType")(0))
-          val title = data("title")(0)
-          val description = data("description")(0)
-          val categories = data.get("categories").map(_.toList).getOrElse(Nil)
-          val createAndAdd = data.getOrElse("createAndAdd", Nil)
-          val keywords = data.get("keywords").map(_.toList).getOrElse(Nil).mkString(",")
-          val languages = data.get("languages").map(_.toList).getOrElse(List("eng"))
+            if (ResourceHelper.isValidUrl(url)) {
+              val mime = ResourceHelper.getMimeFromUri(url)
+              Logger.debug(s"Got mime: $mime")
 
-          // Get the URL and MIME. Process the URL if it is not "special"
-          val raw_url = data("url")(0)
-          val url = if (ResourceHelper.isHTTP(raw_url)) processUrl(raw_url) else raw_url
+              // Create the content
+              ResourceHelper.getUrlSize(url).recover[Long] { case _ =>
+                Logger.debug(s"Could not access $url to determine size.")
+                0
+              }.flatMap { bytes =>
+                val info = ContentDescriptor(data.title, data.description, data.keywords.getOrElse(Nil).mkString(","), url, bytes, mime,
+                                             categories = data.categories.getOrElse(Nil),
+                                             languages = data.languages.getOrElse(Nil))
 
-          if (ResourceHelper.isValidUrl(url)) {
-            val mime = ResourceHelper.getMimeFromUri(url)
-            Logger.debug(s"Got mime: $mime")
-
-            // Create the content
-            ResourceHelper.getUrlSize(url).recover[Long] { case _ =>
-              Logger.debug(s"Could not access $url to determine size.")
-              0
-            }.flatMap { bytes =>
-              val info = ContentDescriptor(title, description, keywords, url, bytes, mime,
-                                           categories = categories,
-                                           languages = languages)
-
-              if (collectionId > 0) {
-                val redirect = if (!createAndAdd.isEmpty) {
-                  Redirect(routes.ContentController.createPage("url", collectionId))
+                if (collectionId > 0) {
+                  ContentManagement.createAndAddToCollection(info, user, Symbol(data.contentType), collectionId)
+                    .map { _ =>
+                      Ok(Json.obj("success" -> "Content created and added to collection"))
+                    }
+                    .recover { case e: Exception =>
+                      val message = e.getMessage()
+                      Logger.debug(s"Error creating content in collection $collectionId: $message")
+                      Errors.api.serverError(s"Could not add content to collection: $message")
+                    }
                 } else {
-                  Redirect(routes.Application.home)
-                }
-                ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
-                  .map { _ =>
-                    redirect.flashing("success" -> "Content created and added to collection")
+                  ContentManagement.createContentObject(info, user, Symbol(data.contentType), collectionId)
+                  .map{ content =>
+                    play.Logger.debug(request.queryString.toString)
+                    Ok(content.toJson)
                   }
                   .recover { case e: Exception =>
                     val message = e.getMessage()
-                    Logger.debug(s"Error creating content in collection $collectionId: $message")
-                    redirect.flashing("error" -> s"Could not add content to collection: $message")
+                    Logger.debug("Error creating content: " + message)
+                    Errors.api.serverError(s"Failed to create content: $message")
                   }
-              } else {
-                //check if we came from the annotation editor
-                val createFromAnnotations: Boolean = request.queryString.getOrElse("annotations", Nil).contains("true")
-
-                ContentManagement.createContentObject(info, user, contentType, collectionId)
-                .map{ content =>
-                  if (!createAndAdd.isEmpty) {
-                    if (createFromAnnotations) {
-                      Ok(views.html.content.create.url(collectionId))
-                        .flashing("success" -> "Content Created")
-                    } else {
-                      Ok(content.toJson)
-                    }
-                  } else {
-                    play.Logger.debug(request.queryString.toString)
-                    if (createFromAnnotations) {
-                      Ok(createContentFromAnnotationEditorResponse(content.toJson.toString)).as(HTML)
-                    } else {
-                      Ok(content.toJson)
-                    }
-                  }
-                }
-                .recover { case e: Exception =>
-                  val message = e.getMessage()
-                  Logger.debug("Error creating content: " + message)
-                  Redirect(routes.ContentController.createPage("url", collectionId))
-                    .flashing("error" -> s"Failed to create content: $message")
                 }
               }
             }
-          } else
-            Future{
-              Redirect(routes.ContentController.createPage("url", collectionId))
-                .flashing("error" -> "The given URL is invalid.")
+            else {
+              Future(Errors.api.badRequest("The given url is invalid."))
             }
+          }
         }
   }
 
