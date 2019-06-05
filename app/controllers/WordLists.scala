@@ -31,21 +31,14 @@ object WordLists extends Controller {
   /**
    * Adds a word (or text) to a word list. For AJAX calls
    */
-  def add = Authentication.authenticatedAction(parse.multipartFormData) {
+  def add = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
-        user.addWord(normalize(request.body.dataParts("word")(0)), request.body.dataParts("srcLang")(0), request.body.dataParts("destLang")(0))
-        Future(Ok)
-  }
-
-  /**
-   * View the user's word list (in html)
-   */
-  def view = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        val wordList = user.getWordList
-        Future(Ok(views.html.words.view(wordList)))
+        val word = (request.body \ "word").as[String]
+        val srcLang = (request.body \ "srcLang").as[String]
+        val destLang = (request.body \ "destLang").as[String]
+        user.addWord(word, srcLang, destLang)
+        Ok(Json.obj("message" -> "Word added."))
   }
 
   /**
@@ -63,14 +56,11 @@ object WordLists extends Controller {
    * Delete a word from the word list
    * @param id The ID of the word list entry
    */
-  def deleteWord(id: Long) = Authentication.authenticatedAction() {
+  def deleteWord(id: Long) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
         WordListEntry.findById(id).map(_.delete())
-        Future { 
-          Redirect(routes.WordLists.view())
-            .flashing("info" -> "Word deleted.")
-        }
+        Ok(Json.obj("info" -> "Word deleted."))
   }
 
   /**
