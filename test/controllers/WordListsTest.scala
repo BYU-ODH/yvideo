@@ -30,7 +30,6 @@ object WordListsControllerSpec extends Specification with ApplicationContext wit
   				val user = newCasStudent("Bobby")
   				user.id mustNotEqual None
   				val controller = new WordListsTestController()
-  				
   				// First make sure that they have an empty word list
   				val checkRequest = FakeRequest().withSession("userId" -> user.id.get.toString)
   				val wordListBefore = controller.viewJson()(checkRequest)
