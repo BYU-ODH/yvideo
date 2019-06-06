@@ -4,6 +4,7 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.mvc.{Action, Controller}
 import controllers.authentication.Authentication
+import controllers.authentication.Authentication.result2futureresult
 import models.{HelpPage, User}
 import dataAccess.ResourceController
 import play.api.libs.json._
