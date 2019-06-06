@@ -62,7 +62,7 @@ trait WordLists {
     implicit request =>
       implicit user =>
         WordListEntry.findById(id).map(_.delete())
-        Ok(Json.obj("info" -> "Word deleted."))
+        Ok(Json.obj("message" -> "Word deleted."))
   }
 
   /**
