@@ -1,6 +1,7 @@
 package controllers
 
 import authentication.Authentication
+import controllers.authentication.Authentication.result2futureresult
 import play.api.mvc.Controller
 import play.api.Play.{current, configuration}
 import play.api.libs.json._
