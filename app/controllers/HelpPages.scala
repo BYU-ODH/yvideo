@@ -32,15 +32,15 @@ trait HelpPages {
    * Save/update a particular help page
    * @param id The ID of the help page
    */
-  def save(id: Long) = Authentication.secureAPIAction(parse.urlFormEncoded) {
+  def save(id: Long) = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
         Authentication.enforcePermissionAPI("admin") {
 
           val helpPage = HelpPage.findById(id)
-          val title = request.body("title")(0)
-          val contents = request.body("contents")(0)
-          val category = request.body("category")(0)
+          val title = (request.body \ "title").as[String]
+          val contents = (request.body \ "contents").as[String]
+          val category = (request.body \ "category").as[String]
 
           if (helpPage.isDefined) {
             helpPage.get.copy(title = title, contents = contents, category = category).save

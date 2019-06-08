@@ -104,13 +104,13 @@ trait Users { this: Controller =>
   /**
    * Saves the user account information
    */
-  def saveSettings = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def saveSettings = Authentication.authenticatedAction(parse.json) {
     implicit request =>
       implicit user =>
 
         // Change the user information
-        val name = request.body("name")(0)
-        val email = request.body("email")(0)
+        val name = (request.body \ "name").as[String]
+        val email = (request.body \ "email").as[String]
         user.copy(name = Some(name), email = Some(email)).save
 
         Future {

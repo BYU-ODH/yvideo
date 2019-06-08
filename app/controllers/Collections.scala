@@ -39,12 +39,12 @@ trait Collections {
   /**
    * Edit collection information
    */
-  def edit(id: Long) = Authentication.secureAPIAction(parse.urlFormEncoded) {
+  def edit(id: Long) = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
           if (user.isCollectionTA(collection)) {
-            val name = request.body("name")(0)
+            val name = (request.body \ "name").as[String]
             collection.copy(name = name).save
             Ok(Json.obj("message" -> JsString("Collection updated")))
           } else
@@ -56,14 +56,14 @@ trait Collections {
    * Add the content(s) to a specified collection.
    * @param id The ID of the collection
    */
-  def addContent(id: Long) = Authentication.secureAPIAction(parse.multipartFormData) {
+  def addContent(id: Long) = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
           // Only collection owners and TAs can add content
           if (user.isCollectionTA(collection)) {
             for ( // Add the content to the collection
-              id <- request.body.dataParts("addContent");
+              id <- (request.body \ "addContent").as[List[String]];
               content <- Content.findById(id.toLong)
             ) { collection.addContent(content) }
             Ok(Json.obj("message" -> JsString("Collection updated")))
@@ -76,14 +76,14 @@ trait Collections {
    * Remove the content(s) from a specified collection.
    * @param id The ID of the collection
    */
-  def removeContent(id: Long) = Authentication.secureAPIAction(parse.urlFormEncoded) {
+  def removeContent(id: Long) = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
           // Only non-guest members and admins can remove content
           if (user.isCollectionTA(collection)) {
             for ( // Remove the content to the collection
-              id <- request.body("removeContent");
+              id <- (request.body \ "removeContent").as[List[String]];
               content <- Content.findById(id.toLong)
             ) { collection.removeContent(content) }
             Ok(Json.obj("message" -> JsString("Content removed from collection")))
@@ -420,24 +420,24 @@ trait Collections {
    * Give permissions to a user
    * @param operation add, remove or match
    */
-  def setPermission(id: Long, operation: String = "") = Authentication.secureAPIAction(parse.multipartFormData) {
+  def setPermission(id: Long, operation: String = "") = Authentication.secureAPIAction(parse.json) {
     implicit request =>
       implicit user =>
-        val data = request.body.dataParts
+        val data = request.body
         getCollection(id) { collection =>
           if(user.isCollectionTeacher(collection)) {
-            User.findById(data("userId")(0).toLong) foreach { member =>
+            User.findById((data \ "userId").as[Long]) foreach { member =>
               operation match {
                 case "remove" =>
-                  data("permission").foreach { permission =>
+                  (data \ "permission").as[List[String]].foreach { permission =>
                     member.removeCollectionPermission(collection, permission)
                   }
                 case "match" =>
                   user.removeAllCollectionPermissions(collection)
-                  data("permission").foreach { permission =>
+                  (data \ "permission").as[List[String]].foreach { permission =>
                     member.addCollectionPermission(collection, permission)
                   }
-                case _ => data("permission").foreach { permission =>
+                case _ => (data \ "permission").as[List[String]].foreach { permission =>
                   member.addCollectionPermission(collection, permission)
                 }
               }

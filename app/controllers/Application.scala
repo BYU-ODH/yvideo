@@ -69,11 +69,11 @@ trait Application {
   /**
    * Saves feedback submissions (bug reports, suggestions, ratings)
    */
-  def saveFeedback = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def saveFeedback = Authentication.authenticatedAction(parse.json) {
     request =>
       user =>
-        val category = request.body("category")(0)
-        val description = request.body("description")(0)
+        val category = (request.body \ "category").as[String]
+        val description = (request.body \ "description").as[String]
 
         // Send out emails
         category match {
@@ -90,11 +90,11 @@ trait Application {
   /**
    * Saves feedback submitted on an error
    */
-  def saveErrorFeedback = Authentication.authenticatedAction(parse.urlFormEncoded) {
+  def saveErrorFeedback = Authentication.authenticatedAction(parse.json) {
     request =>
       user =>
-        val description = request.body("description")(0)
-        val errorCode = request.body("errorCode")(0)
+        val description = (request.body \ "description").as[String]
+        val errorCode = (request.body \ "errorCode").as[String]
         val userId = user.id.get
         EmailTools.sendAdminNotificationEmail("notifications.notifyOn.errorReport", (errorCode, description, userId))
         Future(Ok)
