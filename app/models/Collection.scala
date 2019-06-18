@@ -234,7 +234,7 @@ object Collection extends SQLSelectable[Collection] {
         Json.obj(
           "id" -> content.id,
           "name" -> content.name,
-          "contentType" -> content.contentType.toString,
+          "contentType" -> content.contentType.name,
           "thumbnail" -> content.thumbnail,
           "views" -> content.views)))
   }
