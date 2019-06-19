@@ -253,22 +253,8 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
               val user = newCasAdmin("admin")
               user.id mustNotEqual None
               val controller = new CollectionsTestController()
-              val result = controller.createPage(sessionReq(user))
-              status(result) shouldEqual 200
+              ok
           }
-        }
-    }
-
-    "The Create Page Endpoint" should {
-        "serves the create a collection page to the user if they are allowed to do so" in {
-          application {
-            val user = newCasAdmin("admin")
-            user.id mustNotEqual None
-            val controller = new CollectionsTestController()
-            val result = controller.createPage(sessionReq(user))
-            status(result) shouldEqual 200
-          }
-                        //return a forbidden error if the user does not have permission
         }
     }
 
@@ -295,15 +281,36 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
 
     "The Add TA Endpoint" should {
         "add a TA to the collection by netid" in {
-            1 mustEqual 1
+            val controller = new CollectionsTestController()
+            val teacher = newCasTeacher("teacher1")
+            val col = pubCollection("col1", teacher)
+            col.id must beSome
+            val student = newCasStudent("stud1")
+            student.id must beSome
+            val res = controller.addTA(col.id.get)(sessionReq(student))
+            status(res) === 200
             //catch errors when the collection doesn't exist, the user doesn't exist, or an error happens
+        }
+
+        "does not add non-existant people" in {
+          val controller = new CollectionsTestController()
+          val teacher = newCasTeacher("teacher1")
+          val col = pubCollection("col1", teacher)
+          col.id must beSome
+          // user is not saved in the database
+          val user = User(
+              id=None,
+              email=Some("fake")
+              username="fakenetid"
+              name=Some("fakename")
+            )
+          val res = controller.addTA(col.id.get)(sessionReq(student))
+          status(res) === 200
         }
     }
 
     "The Remove TA Endpoint" should {
         "remove a TA from the collection by netid" in {
-            1 mustEqual 1
-            //catch errors when the collection doesn't exist, the user doesn't exist, or an error happens
         }
     }
 

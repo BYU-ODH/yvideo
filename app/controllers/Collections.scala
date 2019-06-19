@@ -166,22 +166,6 @@ trait Collections {
   }
 
   /**
-   * The 'create a new collection' view
-   */
-  def createPage = Authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-
-        // Check if the user is allowed to create a collection
-        Future {
-          if (user.hasSitePermission("createCollection"))
-            Ok(views.html.collections.create())
-          else
-            Errors.forbidden
-        }
-  }
-
-  /**
    * Links the given courses to the collection in question by creating collectionCourseLink records
    * This will create course records if they do not exist
    * The json request body will contain a List of Course objects as defined in the course model

@@ -17,7 +17,6 @@ GET     /auth/logout                                        controllers.authenti
 GET     /auth/logout/redirect*path                          controllers.authentication.Authentication.logoutWithService(path: String)
 
 # Collection pages
-GET     /collection/create                                  controllers.Collections.createPage
 POST    /collection/create                                  controllers.Collections.create
 POST    /collection/:id                                     controllers.Collections.edit(id: Long)
 POST    /collection/:id/addContent                          controllers.Collections.addContent(id: Long)
