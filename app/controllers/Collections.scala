@@ -37,6 +37,19 @@ trait Collections {
   }
 
   /**
+   * Gets the content that is viewable by the user
+   */
+  def getContent(id: Long) = Authentication.secureAPIAction() {
+    implicit request =>
+      implicit user =>
+        getCollection(id) { collection =>
+          Authentication.enforceEnrollment(collection)) { isCollAdmin: Boolean =>
+            Ok(JsArray(collection.getContent.filter(c => isCollAdmin || c.published).map(_.toJson)))
+          }
+        }
+  }
+
+  /**
    * Edit collection information
    */
   def edit(id: Long) = Authentication.secureAPIAction(parse.json) {

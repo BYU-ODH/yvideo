@@ -111,6 +111,31 @@ object Authentication extends Controller {
     }
   }
 
+  /**
+   * Takes and Collection and checks if the user is enrolled in said collection
+   * if the user is a collection admin, the passed function is invoked with the collection and true
+   * otherwise the function is invoked with the collection and false
+   * {{{
+   * Authentication.enforceEnrollment(Collection.findById(id)) { (collection: Collection, isCollectionAdmin: Boolean) =>
+   *  //...
+   *  Future(Ok)
+   * }
+   * }}}
+   */
+  def enforceEnrollment(collection: Collection)(result: Boolean => Future[Result])(implicit request: Request[_], user: User): Future[Result] = {
+    if (user.isEnrolled(collection)) {
+      if (collection.userIdAdmin(user)) {
+        result(true)
+      }
+      else {
+        result(false)
+      }
+    }
+    else {
+      Errors.api.forbidden("The user is not enrolled in the collection.")
+    }
+  }
+
   def enforcePermission(permission: String)(result: Future[Result])(implicit request: Request[_], user: User): Future[Result] = {
     if (user.hasSitePermission(permission))
       result
@@ -124,7 +149,6 @@ object Authentication extends Controller {
     else
       Errors.api.forbidden()
   }
-
 
   def getUserFromRequest()(implicit request: RequestHeader): Option[User] = {
     request.session.get("userId").flatMap( userId => User.findById(userId.toLong) )

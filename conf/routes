@@ -119,6 +119,7 @@ GET     /api/content/:id/addview                            controllers.ContentC
 
 # collection API
 GET     /api/collection/:id                                 controllers.Collections.collectionAsJson(id: Long)
+GET     /api/collection/:id/content                         controllers.Collections.getContent(id: Long)
 
 # admin API
 GET     /api/admin/users/count                              controllers.Administration.userCount
