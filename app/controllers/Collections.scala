@@ -24,10 +24,10 @@ trait Collections {
    * @param id The id of the collection
    * @param f The action body. Returns a result
    */
-  def getCollection(id: Long)(f: Collection => Result): Result = {
-    Collection.findById(id).map { collection => 
+  def getCollection(id: Long)(f: Collection => Future[Result]): Future[Result] = {
+    Collection.findById(id).map { collection =>
       f(collection)
-    }.getOrElse(Errors.api.notFound())
+    }.getOrElse(Errors.api.notFound(s"Collection $id not found."))
   }
 
   def collectionAsJson(id: Long) = Authentication.secureAPIAction() {
@@ -43,8 +43,8 @@ trait Collections {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
-          Authentication.enforceEnrollment(collection)) { isCollAdmin: Boolean =>
-            Ok(JsArray(collection.getContent.filter(c => isCollAdmin || c.published).map(_.toJson)))
+          Authentication.enforceEnrollment(collection) { isCollAdmin: Boolean =>
+            Ok(JsArray(collection.getContent.filter(c => isCollAdmin || (c.published && !c.expired)).map(_.toJson)))
           }
         }
   }

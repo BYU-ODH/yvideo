@@ -13,7 +13,7 @@ import test.DBClear
 
 import models._
 
-object AdministrationControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers with JsonMatchers{
+object AdministrationControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers with JsonMatchers {
 
   class AdministrationTestController() extends Controller with Administration
 

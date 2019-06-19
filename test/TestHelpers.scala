@@ -9,7 +9,7 @@ import org.specs2.matcher.JsonMatchers
 import org.specs2.matcher.MatchersImplicits._
 
 import service.HashTools
-import models.{SitePermissions, User, Collection, Content}
+import models.{SitePermissions, User, Collection, Content, CollectionPermissions}
 
 trait TestHelpers {
   /**
@@ -62,6 +62,11 @@ trait TestHelpers {
   def newCasManager(name: String): User = casUserWithRole(name, perm='manager)
   def newCasTeacher(name: String): User = casUserWithRole(name, perm='teacher)
   def newCasStudent(name: String): User = casUserWithRole(name, perm='student)
+  def newCasTA(name: String)(implicit c: Collection): User = {
+    val user = casUserWithRole(name, perm='student).enroll(c, false, true)
+    CollectionPermissions.addTA(c, user)
+    user
+  }
 
   /**
    * For testing search functions in models
@@ -107,14 +112,27 @@ trait TestHelpers {
   }
 
   /**
-   *  Create Content
+   *  Create published non-expired content
    */
-  def newContent(name: String)(implicit user: User, col: Collection) =
-    createContent(name, 'video, col.id.get, HashTools.md5Hex(scala.util.Random.nextString(16)), false, false, true, None,
-      user.name+user.email.getOrElse(""), false, false)
+  def newContent(name: String)(implicit user: User, col: Collection) = createContent(name, cid=col.id.get, pub=true)
 
-  def createContent(name: String, t: Symbol, cid: Long, rid: String, phys: Boolean, copy: Boolean, expired: Boolean,
-                    date: Option[String], req: String, pub: Boolean, full: Boolean): Content =
+  /**
+   * Create unpublished expired content
+   */
+  def expiredUnpublishedContent(name: String)(implicit user: User, col: Collection) =
+    createContent(name, cid=col.id.get, expired=true)
+
+  /**
+   * Create unpublished expired content
+   */
+  def expiredPublishedContent(name: String)(implicit user: User, col: Collection) =
+    createContent(name, expired=true, pub=true)
+
+  /**
+   * Create content
+   */
+  def createContent(name: String, t: Symbol='video, cid: Long=1, rid: String="defaultfakeresid", phys: Boolean=false, copy: Boolean=false, expired: Boolean=false,
+                    date: Option[String]=None, req: String="defaultrequestername", pub: Boolean=false, full: Boolean=false): Content =
     Content(
       id=None,
       name=name,

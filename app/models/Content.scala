@@ -336,7 +336,6 @@ object Content extends SQLSelectable[Content] {
               else acc + (setting -> List(argument))
           }
         }
-        Logger.debug(m.toString)
         m
       } catch {
         case e: SQLException =>

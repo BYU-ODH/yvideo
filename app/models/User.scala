@@ -258,6 +258,8 @@ case class User(id: Option[Long], username: String,
   def hasSitePermission(permission: String): Boolean =
     SitePermissions.userHasPermission(this, permission) || SitePermissions.userHasPermission(this, "admin")
 
+  def isManager: Boolean = hasSitePermission("manager")
+
   def isCollectionTeacher(collection: Collection): Boolean =
     collection.userIsTeacher(this) || SitePermissions.userHasPermission(this, "admin")
 

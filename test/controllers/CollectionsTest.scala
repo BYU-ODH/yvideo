@@ -5,6 +5,7 @@ import play.api.mvc.Results
 import play.api.mvc.Controller
 import play.api.test.Helpers._
 import org.specs2.mutable._
+import org.specs2.matcher.JsonMatchers
 
 import models.{Content, User, Course, Collection, SitePermissions}
 import controllers.Collections
@@ -12,7 +13,7 @@ import test.ApplicationContext
 import test.TestHelpers
 import test.DBClear
 
-object CollectionsControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers {
+object CollectionsControllerSpec extends Specification with ApplicationContext with DBClear with TestHelpers with JsonMatchers {
 
   class CollectionsTestController() extends Controller with Collections
   implicit val collectionReads = Json.reads[Collection]
@@ -40,6 +41,186 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
           }
         }
       }
+    }
+
+    "The getContent endpoint" should {
+        "return the content in a collection if the user is enrolled in the collection" in {
+          application {
+            val controller = new CollectionsTestController()
+            val admin = newCasAdmin("admin1")
+            admin.id must beSome
+            implicit val newCol = newCollection("coll1", admin)
+            newCol.id must beSome
+            implicit val student = newCasStudent("stud1")
+            student.id must beSome
+            student.enroll(newCol)
+            val contents = List("c1", "c2", "c3", "c4").map(name => newContent(name))
+            contents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val res = controller.getContent(newCol.id.get)(sessionReq(student))
+            status(res) === 200
+            val json = contentAsJson(res)
+            json.validate[List[JsValue]] match {
+              case JsSuccess(clist, _) => {
+                clist.map { content =>
+                  val c = content.toString
+                  c must /("expired" -> false)
+                  c must /("published" -> true)
+                } must allSucceed()
+                clist.length === contents.length
+              }
+              case e: JsError => jserr2string(e) must fail
+            }
+          }
+        }
+
+        "respond with a 400 status code if the user is not enrolled in the collection" in {
+          application {
+            val controller = new CollectionsTestController()
+            val admin = newCasAdmin("admin1")
+            admin.id must beSome
+            implicit val student = newCasStudent("stud1")
+            student.id must beSome
+            implicit val newCol = newCollection("coll1", admin)
+            newCol.id must beSome
+            val res = controller.getContent(newCol.id.get)(sessionReq(student))
+            status(res) === 400
+          }
+        }
+
+        "return published content to a student" in {
+          application {
+            val controller = new CollectionsTestController()
+            val admin = newCasAdmin("admin1")
+            admin.id must beSome
+            implicit val newCol = newCollection("coll1", admin)
+            newCol.id must beSome
+            implicit val student = newCasStudent("stud1")
+            student.id must beSome
+            student.enroll(newCol)
+            val contents = List("c1", "c2", "c3", "c4").map(name => newContent(name))
+            contents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val unpublishedcontents = List("c5", "c6", "c7", "c8").map(name => createContent(name, pub=false, cid=newCol.id.get))
+            unpublishedcontents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val res = controller.getContent(newCol.id.get)(sessionReq(student))
+            status(res) === 200
+            val json = contentAsJson(res)
+            json.validate[List[JsValue]] match {
+              case JsSuccess(clist, _) => {
+                clist.map { content =>
+                  val c = content.toString
+                  c must /("expired" -> false)
+                  c must /("published" -> true)
+                } must allSucceed()
+                clist.length === contents.length
+              }
+              case e: JsError => jserr2string(e) must fail
+            }
+          }
+        }
+
+        "return published non-expired content to a student" in {
+          application {
+            val controller = new CollectionsTestController()
+            val admin = newCasAdmin("admin1")
+            admin.id must beSome
+            implicit val newCol = newCollection("coll1", admin)
+            newCol.id must beSome
+            implicit val student = newCasStudent("stud1")
+            student.id must beSome
+            student.enroll(newCol)
+            val contents = List("c1", "c2", "c3", "c4").map(name => newContent(name))
+            contents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val expiredcontents = List("c5", "c6", "c7", "c8").map(name => expiredPublishedContent(name))
+            expiredcontents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val res = controller.getContent(newCol.id.get)(sessionReq(student))
+            status(res) === 200
+            val json = contentAsJson(res)
+            json.validate[List[JsValue]] match {
+              case JsSuccess(clist, _) => {
+                clist.map { content =>
+                  val c = content.toString
+                  c must /("expired" -> false)
+                  c must /("published" -> true)
+                } must allSucceed()
+                clist.length === contents.length
+              }
+              case e: JsError => jserr2string(e) must fail
+            }
+          }
+        }
+
+        "return all content to a collection teacher" in {
+          application {
+            val controller = new CollectionsTestController()
+            implicit val teacher = newCasTeacher("teacher1")
+            teacher.id must beSome
+            implicit val newCol = newCollection("coll1", teacher)
+            newCol.id must beSome
+            val contents = List("c1", "c2", "c3", "c4").map(name => newContent(name))
+            contents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val expiredcontents = List("c5", "c6", "c7", "c8").map(name => expiredPublishedContent(name))
+            expiredcontents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val unpublishedcontents = List("c9", "c10", "c11", "c12").map(name => createContent(name, cid=newCol.id.get))
+            unpublishedcontents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val res = controller.getContent(newCol.id.get)(sessionReq(teacher))
+            status(res) === 200
+            val json = contentAsJson(res)
+            json.validate[List[JsValue]] match {
+              case JsSuccess(clist, _) => {
+                clist.length === contents.length + expiredcontents.length + unpublishedcontents.length
+              }
+              case e: JsError => jserr2string(e) must fail
+            }
+          }
+        }
+
+        "return all content to a collection TA" in {
+          application {
+            val controller = new CollectionsTestController()
+            val teacher = newCasTeacher("teacher1")
+            implicit val newCol = newCollection("coll1", teacher)
+            newCol.id must beSome
+            implicit val TA = newCasTA("ta1")
+            TA.id must beSome
+            val contents = List("c1", "c2", "c3", "c4").map(name => newContent(name))
+            contents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val expiredcontents = List("c5", "c6", "c7", "c8").map(name => expiredPublishedContent(name))
+            expiredcontents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val unpublishedcontents = List("c9", "c10", "c11", "c12").map(name => createContent(name, cid=newCol.id.get))
+            unpublishedcontents.map{ c =>
+              c.id must beSome
+            } must allSucceed()
+            val res = controller.getContent(newCol.id.get)(sessionReq(TA))
+            status(res) === 200
+            val json = contentAsJson(res)
+            json.validate[List[JsValue]] match {
+              case JsSuccess(clist, _) => {
+                clist.length === contents.length + expiredcontents.length + unpublishedcontents.length
+              }
+              case e: JsError => jserr2string(e) must fail
+            }
+          }
+        }
     }
 
     "The Edit Endpoint" should {
