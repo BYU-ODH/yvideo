@@ -135,7 +135,7 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "requester" -> requester,
     "resourceId" -> resourceId,
     "published" -> published,
-    "settings" -> Content.getSettingJson(this),
+    "settings" -> Content.settingsJson(Content.settingsList(this)),
     "fullVideo" -> fullVideo,
     "authKey" -> authKey,
     "views" -> views
@@ -317,20 +317,6 @@ object Content extends SQLSelectable[Content] {
       }
     }
 
-  def getSettingJson(content: Content): List[String] =
-    DB.withConnection { implicit connection =>
-      try {
-        SQL(s"select setting, argument from $settingTable where contentId = {cid}")
-          .on('cid -> content.id.get)
-          .as(get[String](settingTable + ".argument") *)
-      } catch {
-        case e: SQLException =>
-          Logger.debug("Failed in Content.scala / getSetting")
-          Logger.debug(e.getMessage())
-          List[String]()
-      }
-    }
-
   private def settingsList(content: Content) =
     DB.withConnection { implicit connection =>
       try {
@@ -350,7 +336,7 @@ object Content extends SQLSelectable[Content] {
       }
     }
 
-  def getBooleanSettings(plist: List[(String, String)]): JsObject = {
+  def settingsJson(plist: List[(String, String)]): JsObject = {
     val default = Json.obj(
       "allowDefinitions" -> false,
       "showAnnotations" -> false,
