@@ -7,7 +7,7 @@ import dataAccess.sqlTraits._
 import service.{HashTools, SerializationTools, TimeTools}
 import play.api.db.DB
 import play.api.Play.current
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json._
 import play.api.Logger
 import concurrent.Future
 import dataAccess.ResourceController
@@ -20,7 +20,7 @@ import java.text.Normalizer
  */
 case class Content(id: Option[Long], name: String, contentType: Symbol, collectionId: Long, thumbnail: String, resourceId: String,
                    physicalCopyExists: Boolean, isCopyrighted: Boolean, expired: Boolean, dateValidated: Option[String],
-                   requester: String, published: Boolean, fullVideo: Boolean = true, authKey: String = HashTools.md5Hex(util.Random.nextString(16)),
+                   requester: String, published: Boolean, fullVideo: Boolean = true, authKey: String = HashTools.md5Hex(scala.util.Random.nextString(16)),
                    views: Long = 0)
   extends SQLSavable with SQLDeletable {
 
@@ -135,7 +135,7 @@ case class Content(id: Option[Long], name: String, contentType: Symbol, collecti
     "requester" -> requester,
     "resourceId" -> resourceId,
     "published" -> published,
-    "settings" -> Content.getSettingMap(this),
+    "settings" -> Content.getSettingJson(this),
     "fullVideo" -> fullVideo,
     "authKey" -> authKey,
     "views" -> views
@@ -317,10 +317,24 @@ object Content extends SQLSelectable[Content] {
       }
     }
 
-  def getSettingMap(content: Content): Map[String, List[String]] =
+  def getSettingJson(content: Content): List[String] =
     DB.withConnection { implicit connection =>
       try {
-        val plist = SQL(s"select setting, argument from $settingTable where contentId = {id}")
+        SQL(s"select setting, argument from $settingTable where contentId = {cid}")
+          .on('cid -> content.id.get)
+          .as(get[String](settingTable + ".argument") *)
+      } catch {
+        case e: SQLException =>
+          Logger.debug("Failed in Content.scala / getSetting")
+          Logger.debug(e.getMessage())
+          List[String]()
+      }
+    }
+
+  private def settingsList(content: Content) =
+    DB.withConnection { implicit connection =>
+      try {
+        SQL(s"select setting, argument from $settingTable where contentId = {id}")
           .on('id -> content.id)
           .as(
             get[String](settingTable + ".setting") ~
@@ -328,22 +342,44 @@ object Content extends SQLSelectable[Content] {
               case setting ~ argument => setting -> argument
             } *
           )
-
-        val m = (Map[String, List[String]]() /: plist) { (acc, next) =>
-          next match {
-            case (setting, argument) =>
-              if(acc.contains(setting)) acc + (setting -> (argument :: acc(setting)))
-              else acc + (setting -> List(argument))
-          }
-        }
-        m
       } catch {
         case e: SQLException =>
-          Logger.debug("Failed in Content.scala / getSettingMap")
+          Logger.debug("Failed in Content.scala / settingsList")
           Logger.debug(e.getMessage())
-          Map[String, List[String]]()
+          List[(String, String)]()
       }
     }
+
+  def getBooleanSettings(plist: List[(String, String)]): JsObject = {
+    val default = Json.obj(
+      "allowDefinitions" -> false,
+      "showAnnotations" -> false,
+      "showCaptions" -> false,
+      "showTranscripts" -> false,
+      "showWordlist" -> false,
+      "aspectRatio" -> "1.77",
+      "description" -> "",
+      "targetLanguages" -> Seq[String](),
+      "annotationDocument" -> Seq[String](),
+      "captionTracks" -> Seq[String]()
+      )
+      (default /: plist) { (acc, next) =>
+        next match {
+          case (setting, argument) => {
+            setting match {
+              case "allowDefinitions" => acc ++ Json.obj(setting -> argument.toBoolean)
+              case "showAnnotations" => acc ++ Json.obj(setting -> argument.toBoolean)
+              case "showCaptions" => acc ++ Json.obj(setting -> argument.toBoolean)
+              case "showTranscripts" => acc ++ Json.obj(setting -> argument.toBoolean)
+              case "showWordlist" => acc ++ Json.obj(setting -> argument.toBoolean)
+              case "aspectRatio" => acc ++ Json.obj(setting -> argument)
+              case "description" => Json.obj(setting -> argument)
+              case _ => acc ++ Json.obj(setting -> (argument :: (acc \ setting).as[List[String]]))
+            }
+          }
+        }
+      }
+  }
 
   /**
    * Increments the views for a specific content item

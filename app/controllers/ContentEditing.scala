@@ -97,7 +97,7 @@ trait ContentEditing {
                 content.setSetting("captionTrack", settings.captionTracks.getOrElse(Nil))
                 content.setSetting("annotationDocument", settings.annotationDocuments.getOrElse(Nil))
                 content.setSetting("targetLanguages", settings.targetLanguages.getOrElse(Nil))
-                content.setSetting("aspectRatio", List(settings.aspectRatio.getOrElse("1.7778")))
+                content.setSetting("aspectRatio", List(settings.aspectRatio.getOrElse("1.77")))
                 content.setSetting("showCaptions", List(settings.showCaptions.getOrElse(false).toString))
                 content.setSetting("showAnnotations", List(settings.showAnnotations.getOrElse(false).toString))
                 content.setSetting("allowDefinitions", List(settings.allowDefinitions.getOrElse(false).toString))
