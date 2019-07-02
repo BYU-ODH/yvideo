@@ -347,7 +347,7 @@ object Content extends SQLSelectable[Content] {
       "description" -> "",
       "targetLanguages" -> Seq[String](),
       "annotationDocument" -> Seq[String](),
-      "captionTracks" -> Seq[String]()
+      "captionTrack" -> Seq[String]()
       )
       (default /: plist) { (acc, next) =>
         next match {
