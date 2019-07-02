@@ -342,7 +342,7 @@ object Content extends SQLSelectable[Content] {
       "showAnnotations" -> false,
       "showCaptions" -> false,
       "showTranscripts" -> false,
-      "showWordlist" -> false,
+      "showWordList" -> false,
       "aspectRatio" -> "1.77",
       "description" -> "",
       "targetLanguages" -> Seq[String](),
@@ -357,7 +357,7 @@ object Content extends SQLSelectable[Content] {
               case "showAnnotations" => acc ++ Json.obj(setting -> argument.toBoolean)
               case "showCaptions" => acc ++ Json.obj(setting -> argument.toBoolean)
               case "showTranscripts" => acc ++ Json.obj(setting -> argument.toBoolean)
-              case "showWordlist" => acc ++ Json.obj(setting -> argument.toBoolean)
+              case "showWordList" => acc ++ Json.obj(setting -> argument.toBoolean)
               case "aspectRatio" => acc ++ Json.obj(setting -> argument)
               case "description" => Json.obj(setting -> argument)
               case _ => acc ++ Json.obj(setting -> (argument :: (acc \ setting).as[List[String]]))
