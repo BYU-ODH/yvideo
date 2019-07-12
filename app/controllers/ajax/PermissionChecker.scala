@@ -1,5 +1,7 @@
 package controllers.ajax
 
+import javax.inject._
+
 import play.api.mvc.Controller
 import controllers.authentication.Authentication
 import controllers.ContentController
@@ -12,7 +14,8 @@ import play.api.libs.json._
 /**
  * Controller for checker users' permissions pertaining to content
  */
-class PermissionChecker @Inject (authentication: Authentication) extends Controller {
+class PermissionChecker @Inject
+  (authentication: Authentication, ContentController: ContentController) extends Controller {
 
   /**
    * AJAX endpoint which checks a user's permissions to see if he/she is allowed to do things with content

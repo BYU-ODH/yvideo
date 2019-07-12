@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import authentication.Authentication
 import play.api.mvc.Controller
 import play.api.Logger
@@ -13,7 +15,8 @@ import ExecutionContext.Implicits.global
 /**
  * Controller for generating signed BYU URLs.
  */
-class BYUSecure @Inject (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
+class BYUSecure @Inject
+  (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
 
   // These values are configurable and should be pulled from config.
   val lifespan = configuration.getLong("byusecure.lifetime").getOrElse[Long](28800)

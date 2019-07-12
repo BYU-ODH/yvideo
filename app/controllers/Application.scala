@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import authentication.Authentication
 import scala.concurrent._
 import ExecutionContext.Implicits.global
@@ -10,7 +12,8 @@ import models.Content
 import play.api.libs.json.{JsNull, Json}
 
 
-class Application @Inject (authentication: Authentication) extends Controller {
+class Application @Inject
+  (authentication: Authentication) extends Controller {
   /**
    * A special login page for admins
    */

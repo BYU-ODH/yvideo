@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.mvc.Controller
@@ -9,7 +11,8 @@ import dataAccess.{ResourceController, PlayGraph}
 /**
  * Controller dealing with playlists (playgraphs)
  */
-class Playlists @Inject (authentication: Authentication) extends Controller {
+class Playlists @Inject
+  (authentication: Authentication, ContentController: ContentController) extends Controller {
 
   /**
    * The about page. View information/description of the playlist

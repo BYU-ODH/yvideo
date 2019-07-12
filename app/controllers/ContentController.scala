@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import authentication.Authentication
 import service._
 import models.{User, Content, Collection, ViewingHistory}
@@ -17,7 +19,8 @@ import play.api.libs.json.Json
 /**
  * The controller for dealing with content.
  */
-class ContentController @Inject (authentication: Authentication) extends Controller {
+class ContentController @Inject
+  (authentication: Authentication) extends Controller {
 
   def contentAsJson(id: Long) = authentication.secureAPIAction() {
     implicit request =>

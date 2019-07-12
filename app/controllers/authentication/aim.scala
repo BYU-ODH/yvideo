@@ -1,18 +1,22 @@
 package controllers.authentication
 
+import javax.inject._
+
 import play.api.Logger
 import play.api.Play.current
 import play.api.Play
 import play.api.libs.ws.{WS, WSResponse, WSAuthScheme}
 import play.api.libs.json._
+import play.api.mvc.Controller
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.User
 import models.Course
-
-class AIM @Inject (configuration: play.api.Configuration) extends Controller {
+  
+class AIM @Inject
+  (configuration: play.api.Configuration) extends Controller {
 
   case class UserEnrollment(
     person_id: String,

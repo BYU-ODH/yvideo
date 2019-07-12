@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.mvc.Controller
@@ -16,7 +18,8 @@ import play.api.libs.json.Json
 /**
  * Controller dealing with word lists
  */
-class WordLists @Inject (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
+class WordLists @Inject
+  (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
 
   val isHTTPS = configuration.getBoolean("HTTPS").getOrElse(false)
 

@@ -1,5 +1,7 @@
 package controllers.authentication
 
+import javax.inject._
+
 import play.api.mvc.{Action, Controller}
 import service.HashTools
 import models.{User, SitePermissions}
@@ -7,7 +9,8 @@ import models.{User, SitePermissions}
 /**
  * Controller which handles password authentication and account creation
  */
-class Password @Inject (authentication: Authentication) extends Controller {
+class Password @Inject
+  (authentication: Authentication) extends Controller {
 
   /**
    * Logs the user in

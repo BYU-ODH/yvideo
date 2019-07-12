@@ -1,5 +1,7 @@
 package controllers.ajax
 
+import javax.inject._
+
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.mvc.Controller
@@ -11,7 +13,8 @@ import models.Content
  * Controller for listing out content the user can see. For AJAX calls. These need to be cross-domain so as to work with
  * the PlayGraph editor.
  */
-class ContentLister @Inject (authentication: Authentication) extends Controller {
+class ContentLister @Inject
+  (authentication: Authentication) extends Controller {
 
   /**
    * Lists the collections the user is in and the content under each collection.

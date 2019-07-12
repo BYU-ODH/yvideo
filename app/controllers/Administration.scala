@@ -17,7 +17,7 @@ import play.api.libs.json.{Json, JsValue}
  * Controller for Administration pages and actions
  */
 class Administration @Inject
-  (auth: Authentication) extends Controller {
+  (auth: Authentication, Collections: controllers.Collections) extends Controller {
 
   /**
    * Admin dashboard view

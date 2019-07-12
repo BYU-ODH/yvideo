@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import play.api.mvc._
 import controllers.authentication.Authentication
 import play.api.libs.json.{JsString, JsArray, Json, JsDefined}
@@ -19,7 +21,8 @@ import scala.util.matching.Regex
  * Controller that deals with the editing of content
  */
 
-class ContentEditing @Inject (authentication: Authentication) extends Controller {
+class ContentEditing @Inject
+  (authentication: Authentication, ContentController: ContentController) extends Controller {
 
   /**
    * Sets the metadata for a particular content object

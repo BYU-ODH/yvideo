@@ -1,5 +1,7 @@
 package controllers.authentication
 
+import javax.inject._
+
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.mvc._
@@ -13,7 +15,8 @@ import scala.collection.JavaConverters._
 /**
  * This controller does logging out and has a bunch of helpers for dealing with authentication and permissions.
  */
-class Authentication @Inject (configuration: play.api.Configuration) extends Controller {
+class Authentication @Inject
+  (configuration: play.api.Configuration) extends Controller {
 
   val isHTTPS = configuration.getBoolean("HTTPS").getOrElse(false)
   val allowedOrigins: Option[List[String]] = configuration.getList("allowedOrigins").map(_.asScala.toList.map(_.unwrapped.toString))

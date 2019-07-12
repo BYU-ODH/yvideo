@@ -1,8 +1,11 @@
 package controllers
 
+import javax.inject._
+
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import play.api.mvc.{Action, Controller}
+import play.api.libs.json._
 import controllers.authentication.Authentication
 import models.{HelpPage, User}
 import dataAccess.ResourceController
@@ -10,7 +13,8 @@ import dataAccess.ResourceController
 /**
  * Controller dealing with help pages
  */
-class HelpPages @Inject (authentication: Authentication) extends Controller {
+class HelpPages @Inject
+  (authentication: Authentication) extends Controller {
 
   /**
    * Table of contents view
@@ -18,8 +22,7 @@ class HelpPages @Inject (authentication: Authentication) extends Controller {
   def tableOfContents = Action {
     implicit request =>
       implicit val user = request.session.get("userId").flatMap(id => User.findById(id.toLong))
-      val pages = HelpPage.list.groupBy(_.category)
-      Ok(views.html.help.toc(pages, ResourceController.baseUrl))
+      Ok(Json.toJson(HelpPage.list.map(_.toJson)))
   }
 
   /**
@@ -30,21 +33,8 @@ class HelpPages @Inject (authentication: Authentication) extends Controller {
     implicit request =>
       implicit val user = request.session.get("userId").flatMap(id => User.findById(id.toLong))
       HelpPage.findById(id).map( helpPage =>
-        Ok(views.html.help.view(helpPage, ResourceController.baseUrl))
+        Ok(helpPage.toJson)
       ).getOrElse(Errors.notFound)
-  }
-
-  /**
-   * Edit a particular help page
-   * @param id The ID of the help page
-   */
-  def edit(id: Long) = authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        authentication.enforcePermission("admin") {
-          val helpPage = HelpPage.findById(id)
-          Future(Ok(views.html.help.edit(helpPage)))
-        }
   }
 
   /**
@@ -57,8 +47,7 @@ class HelpPages @Inject (authentication: Authentication) extends Controller {
         authentication.enforcePermission("admin") {
           HelpPage.findById(id).map(_.delete())
           Future {
-            Redirect(routes.HelpPages.tableOfContents())
-              .flashing("info" -> "Help page deleted.")
+            Ok(Json.obj("info" -> "Help page deleted."))
           }
         }
   }
@@ -80,13 +69,11 @@ class HelpPages @Inject (authentication: Authentication) extends Controller {
           Future {
             if (helpPage.isDefined) {
               helpPage.get.copy(title = title, contents = contents, category = category).save
-              Redirect(routes.HelpPages.view(helpPage.get.id.get))
-                .flashing("info" -> "Help page saved.")
+                Ok(Json.obj("info" -> "Help page saved."))
             } else {
               // Create new
               val newHelpPage = HelpPage(None, title, contents, category).save
-              Redirect(routes.HelpPages.view(newHelpPage.id.get))
-                .flashing("info" -> "Help page created.")
+                Ok(Json.obj("info" -> "Help page created."))
             }
           }
         }

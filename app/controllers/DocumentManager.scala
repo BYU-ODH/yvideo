@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import play.api.mvc.Controller
 import controllers.authentication.Authentication
 import service.{DocumentPermissionChecker, AdditionalDocumentAdder, ResourceHelper, FileUploader}
@@ -13,7 +15,8 @@ import play.api.libs.json._
 /**
  * Controller that deals with documents (annotation sets and caption tracks)
  */
-class DocumentManager @Inject (authentication: Authenticdation) extends Controller {
+class DocumentManager @Inject
+  (authentication: Authentication, ContentController: ContentController) extends Controller {
 
   /**
    * Annotation editor view

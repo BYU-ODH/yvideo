@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import authentication.Authentication
 import play.api.mvc.Controller
 import play.api.Logger
@@ -13,7 +15,8 @@ import ExecutionContext.Implicits.global
 /**
  * Controller for generating signed SCOLA URLs.
  */
-class Scola @Inject (configuration: play.api.Configuration) extends Controller {
+class Scola @Inject
+  (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
 
   // These values are configurable and should be pulled from config.
   val lifespan = configuration.getLong("scola.lifetime").getOrElse[Long](28800)

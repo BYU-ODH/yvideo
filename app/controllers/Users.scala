@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import authentication.Authentication
 import play.api.mvc._
 import models._
@@ -13,7 +15,8 @@ import ExecutionContext.Implicits.global
 /**
  * Controller dealing with users
  */
-class Users @Inject (authentication: Authentication) extends Controller {
+class Users @Inject
+  (authentication: Authentication) extends Controller {
 
   /**
    * Get the collections that a user belongs to

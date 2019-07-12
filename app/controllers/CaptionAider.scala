@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+ 
 import play.api.mvc._
 import play.api.Logger
 import controllers.authentication.Authentication
@@ -14,7 +16,8 @@ import play.api.libs.json.{JsObject, Json}
 /**
  * Controller associated with CaptionAider.
  */
-class CaptionAider @Inject (authentication: Authentication) extends Controller {
+class CaptionAider @Inject
+  (authentication: Authentication, ContentController: controllers.ContentController) extends Controller {
 
   /**
    * View CaptionAider. You specify the ID of the content and the ID of the collection under whose context we will operate.

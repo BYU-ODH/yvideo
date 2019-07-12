@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject._
+
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import authentication.Authentication
@@ -13,7 +15,8 @@ import play.api.Logger
 /**
  * This controller manages all the endpoints relating to collections, including authentication.
  */
-class Collections @Inject (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
+class Collections @Inject
+  (configuration: play.api.Configuration, authentication: Authentication) extends Controller {
 
   val isHTTPS = configuration.getBoolean("HTTPS").getOrElse(false)
 
@@ -76,7 +79,7 @@ class Collections @Inject (configuration: play.api.Configuration, authentication
           if (user.isCollectionTA(collection)) {
             val name = request.body("name")(0)
             collection.copy(name = name).save
-            Redirect(routes.Collections.view(id)).flashing("info" -> "Collection updated")
+            Ok(Json.obj("info" -> "Collection updated"))
           } else
             Errors.forbidden
         }
@@ -96,8 +99,7 @@ class Collections @Inject (configuration: play.api.Configuration, authentication
               id <- request.body.dataParts("addContent");
               content <- Content.findById(id.toLong)
             ) { collection.addContent(content) }
-            Redirect(routes.Collections.view(id))
-            .flashing("success" -> "Content added to collection.")
+            Ok(Json.obj("success" -> "Content added to collection."))
           } else
             Errors.forbidden
         }
@@ -117,8 +119,7 @@ class Collections @Inject (configuration: play.api.Configuration, authentication
               id <- request.body("removeContent");
               content <- Content.findById(id.toLong)
             ) { collection.removeContent(content) }
-            Redirect(routes.Collections.view(id))
-            .flashing("success" -> "Content removed from collection.")
+            Ok(Json.obj("success" -> "Content removed from collection."))
           } else
             Errors.forbidden
         }
@@ -197,17 +198,6 @@ class Collections @Inject (configuration: play.api.Configuration, authentication
             Ok(views.html.collections.create())
           else
             Errors.forbidden
-        }
-  }
-
-  /**
-   * Lists all the collections
-   */
-  def list = authentication.authenticatedAction() {
-    implicit request =>
-      implicit user =>
-        authentication.enforcePermission("joinCollection") {
-          Future(Ok(views.html.collections.list(Collection.list)))
         }
   }
 

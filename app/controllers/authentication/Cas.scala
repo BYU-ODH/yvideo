@@ -1,5 +1,7 @@
 package controllers.authentication
 
+import javax.inject._
+
 import play.api.Logger
 import play.api.mvc.{Result, Action, Controller}
 import play.api.libs.json._
@@ -21,7 +23,8 @@ import models.Collection
 /**
  * Controller which handles BYU CAS authentication.
  */
-class Cas @Inject (configuration: play.api.Configuration, aim: AIM, authentication: Authentication) extends Controller {
+class Cas @Inject
+  (configuration: play.api.Configuration, aim: AIM, authentication: Authentication) extends Controller {
 
   // For parsing schedule service
   case class BYU_Course(course: String, course_title: String, instructor: String)

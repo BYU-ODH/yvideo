@@ -3,6 +3,7 @@ package models
 import anorm._
 import anorm.SqlParser._
 import dataAccess.sqlTraits.{SQLDeletable, SQLSavable, SQLSelectable}
+import play.api.libs.json.Json
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,6 +33,13 @@ case class HelpPage(id: Option[Long], title: String, contents: String, category:
   def delete() {
     delete(HelpPage.tableName)
   }
+
+  def toJson = Json.obj(
+    "id" -> id.getOrElse[Long](-1),
+    "title" -> title,
+    "contents" -> contents,
+    "category" -> category
+  )
   
 }
 
