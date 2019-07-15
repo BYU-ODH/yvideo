@@ -51,10 +51,10 @@ object ContentManagement {
    * @param collectionId Id of target collection
    * @return The content object in a future
    */
-  def createAndAddToCollection(info: ContentDescriptor, owner: User, contentType: Symbol, collectionId: Long): Future[Long] = {
+  def createAndAddToCollection(info: ContentDescriptor, owner: User, contentType: Symbol, collectionId: Long): Future[Content] = {
     createContentObject(info, owner, contentType, collectionId).map { content =>
       addToCollection(collectionId, content)
-      content.id.get
+      content
     }
   }
 
@@ -66,8 +66,8 @@ object ContentManagement {
    * @param contentType The type of content
    * @return The content id in a future
    */
-  def createContent(info: ContentDescriptor, owner: User, contentType: Symbol, collectionId: Long): Future[Long] = {
-      createContentObject(info, owner, contentType, collectionId).map { content => content.id.get }
+  def createContent(info: ContentDescriptor, owner: User, contentType: Symbol, collectionId: Long): Future[Content] = {
+      createContentObject(info, owner, contentType, collectionId)
   }
 
   /**

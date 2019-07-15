@@ -124,30 +124,20 @@ trait ContentController {
                                                file.ref.file.length(), file.contentType.get,
                                                categories = categories,
                                                languages = languages)
-                  if (collectionId > 0) {
-                    ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
-                      .map { cid => Ok(Json.obj("contentId" -> cid)) }
-                      .recover { case e: Exception =>
-                        val message = e.getMessage()
-                        Logger.debug(s"Error creating content in collection $collectionId: $message")
-                        InternalServerError(Json.obj("message" -> s"Could not add content to collection: $message"))
-                      }
-                  } else {
-                    ContentManagement.createContent(info, user, contentType, collectionId)
-                    .map { cid => Ok(Json.obj("contentId" -> cid)) }
+                  ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
+                    .map { c => Ok(c.toJson) }
                     .recover { case e: Exception =>
                       val message = e.getMessage()
-                      Logger.debug(s"Error creating content $collectionId: $message")
-                      InternalServerError(Json.obj("message" -> s"Could not add content: $message"))
+                      Logger.debug(s"Error creating content in collection $collectionId: $message")
+                      Errors.api.serverError(s"Could not add content to collection: $message")
                     }
-                  }
                 }.recover { case e =>
                   val message = e.getMessage()
                   Logger.debug(s"Failed to upload FILE: $message")
-                  InternalServerError(Json.obj("message" -> s"Failed to upload FILE: $message"))
+                  Errors.api.serverError(s"Failed to upload FILE: $message")
                 }
               }.getOrElse {
-                Future(BadRequest(Json.obj("message" -> "The FILE is missing.")))
+                Errors.api.badRequest("The FILE is missing.")
               }
           }
 
@@ -170,28 +160,17 @@ trait ContentController {
                                              categories = categories,
                                              languages = languages)
 
-                // find alternate create content ↓ through annotations method
-                if (collectionId > 0 && collectionId != 40747105) {
-                  ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
-                    .map { cid => Ok(Json.obj("contentId" -> cid)) }
-                    .recover { case e: Exception =>
-                      val message = e.getMessage()
-                      Logger.debug(s"Error creating content in collection $collectionId: $message")
-                      InternalServerError(Json.obj("message" -> s"Could not add content to collection: $message"))
-                    }
-                } else {
-                  ContentManagement.createContent(info, user, contentType, collectionId)
-                  .map { cid => Ok(Json.obj("contentId" -> cid)) }
-                    .recover { case e: Exception =>
-                      val message = e.getMessage()
-                      Logger.debug(s"Error creating content: $message")
-                      InternalServerError(Json.obj("message" -> s"Could not add content: $message"))
-                    }
-                }
+                ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
+                  .map { c => Ok(c.toJson) }
+                  .recover { case e: Exception =>
+                    val message = e.getMessage()
+                    Logger.debug(s"Error creating content in collection $collectionId: $message")
+                    Errors.api.serverError(s"Could not add content to collection: $message")
+                  }
               }
             } else
               Future{
-                BadRequest(Json.obj("message" -> "The given URL is invalid."))
+                Errors.api.badRequest("The given URL is invalid.")
               }
         }
       }
@@ -250,28 +229,13 @@ trait ContentController {
                                              categories = data.categories.getOrElse(Nil),
                                              languages = data.languages.getOrElse(Nil))
 
-                if (collectionId > 0) {
-                  ContentManagement.createAndAddToCollection(info, user, Symbol(data.contentType), collectionId)
-                    .map { _ =>
-                      Ok(Json.obj("success" -> "Content created and added to collection"))
-                    }
-                    .recover { case e: Exception =>
-                      val message = e.getMessage()
-                      Logger.debug(s"Error creating content in collection $collectionId: $message")
-                      Errors.api.serverError(s"Could not add content to collection: $message")
-                    }
-                } else {
-                  ContentManagement.createContentObject(info, user, Symbol(data.contentType), collectionId)
-                  .map{ content =>
-                    play.Logger.debug(request.queryString.toString)
-                    Ok(content.toJson)
-                  }
+                ContentManagement.createAndAddToCollection(info, user, Symbol(data.contentType), collectionId)
+                  .map { c => Ok(c.toJson) }
                   .recover { case e: Exception =>
                     val message = e.getMessage()
-                    Logger.debug("Error creating content: " + message)
-                    Errors.api.serverError(s"Failed to create content: $message")
+                    Logger.debug(s"Error creating content in collection $collectionId: $message")
+                    Errors.api.serverError(s"Could not add content to collection: $message")
                   }
-                }
               }
             }
             else {
@@ -299,7 +263,6 @@ trait ContentController {
           val createAndAdd = data.getOrElse("createAndAdd", Nil)
           val keywords = data.get("keywords").map(_.toList).getOrElse(Nil).mkString(",")
           val languages = data.get("languages").map(_.toList).getOrElse(List("eng"))
-          lazy val redirect = Redirect(routes.ContentController.createPage("file", collectionId))
 
           // Upload the file
           request.body.file("file").map { file =>
@@ -309,37 +272,18 @@ trait ContentController {
                                            file.ref.file.length(), file.contentType.get,
                                            categories = categories,
                                            languages = languages)
-              if (collectionId > 0) {
-                val redirect = if (!createAndAdd.isEmpty) {
-                  Redirect(routes.ContentController.createPage("url", collectionId))
-                } else {
-                  Redirect(routes.Application.home)
+              ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
+                .map { c => Ok(c.toJson) }
+                .recover { case e: Exception =>
+                  val message = e.getMessage()
+                  Logger.debug(s"Error creating content in collection $collectionId: $message")
+                  Errors.api.serverError(s"Could not add content to collection: $message")
                 }
-                ContentManagement.createAndAddToCollection(info, user, contentType, collectionId)
-                  .map { _ =>
-                    redirect.flashing("success" -> "Content created and added to collection")
-                  }
-                  .recover { case e: Exception =>
-                    val message = e.getMessage()
-                    Logger.debug(s"Error creating content in collection $collectionId: $message")
-                    redirect.flashing("error" -> s"Could not add content to collection: $message")
-                  }
-              } else {
-                ContentManagement.createContent(info, user, contentType, collectionId)
-                .map { _ =>
-                    redirect.flashing("success" -> "Content created")
-                  }
-                  .recover { case e: Exception =>
-                    val message = e.getMessage()
-                    Logger.debug(s"Error creating content: $message")
-                    redirect.flashing("error" -> s"Could not add content: $message")
-                  }
-              }
             }.recover { case _ =>
-              redirect.flashing("error" -> "Failed to upload file")
+              Errors.api.serverError("Failed to upload file")
             }
           }.getOrElse {
-            Future(redirect.flashing("error" -> "Missing file"))
+            Errors.api.badRequest("Missing file")
           }
         }
   }
@@ -364,8 +308,7 @@ trait ContentController {
               val resourceType = (json \ "resource" \ "type").as[String]
 
               if (resourceType == "data" || resourceType == "archive") {
-                Redirect(routes.ContentController.createPage("resource", collectionId))
-                .flashing("error" -> "Can't create content from a data or archive resources.")
+                Errors.api.badRequest("Can't create content from a data or archive resources.")
               } else {
                 //TODO: properly handle collections
                 //TODO: update our code to match the resource library, rather than special-casing "text"
@@ -378,18 +321,13 @@ trait ContentController {
                                       "",    // requester
                                       true   // published
                                       ).save
-                if (collectionId > 0) {
-                  ContentManagement.addToCollection(collectionId, content)
-                }
+                ContentManagement.addToCollection(collectionId, content)
                 Ok(content.toJson)
               }
             } else
-              Redirect(routes.ContentController.createPage("resource", collectionId))
-                .flashing("error" -> "That resource doesn't exist")
+                Errors.api.badRequest("That resource doesn't exist")
           }.recover { case e =>
-            Logger.debug("Couldn't access resource: " + e.getMessage())
-            Redirect(routes.ContentController.createPage("resource", collectionId))
-              .flashing("error" -> "Couldn't access resource")
+              Errors.api.serverError("Couldn't access resource")
           }
         }
   }
@@ -428,7 +366,7 @@ trait ContentController {
                                       ).save
                 content.setSetting("description", List(description))
 
-                Redirect(routes.Playlists.about(content.id.get))
+                Ok(content.toJson)
               }
             }
           }
