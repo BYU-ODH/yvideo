@@ -142,10 +142,10 @@ trait Collections {
     implicit request =>
       implicit user =>
         {action match {
-          case "publish"   => processCollection(id, publish(true, _))
-          case "unpublish" => processCollection(id, publish(false, _))
-          case "archive"   => processCollection(id, archive(true, _))
-          case "unarchive" => processCollection(id, archive(false, _))
+          case "publish"   => withCollection(id, publish(true, _))
+          case "unpublish" => withCollection(id, publish(false, _))
+          case "archive"   => withCollection(id, archive(true, _))
+          case "unarchive" => withCollection(id, archive(false, _))
           case _ => Json.toJson("Failed")
         }} match {
           case Right(collection: JsValue) => Ok(collection)
@@ -159,7 +159,7 @@ trait Collections {
    * @param proc The function to run on the collection
    * @return Right(JsValue) if the Collection was found, Left(JsValue) if the collection was not found
    */
-  def processCollection(id: Long, proc: Collection => JsValue)(implicit user: User): Either[JsValue, JsValue] = {
+  def withCollection(id: Long, proc: Collection => JsValue)(implicit user: User): Either[JsValue, JsValue] = {
     Collection.findById(id).map { col =>
       Right(proc(col))
     }.getOrElse(Left(Json.toJson(s"Collection ${id} not found.")))
@@ -339,7 +339,7 @@ trait Collections {
                   val user = userOpt.get
 
                   // Case: User already has an exception in the given course...
-                  if (CollectionMembership.getExceptionsByCollection(collection).exists(_.id == user.id.get))
+                  if (CollectionMembership.getExceptionsByCollection(collection).exists(_.id.getOrElse(0L) == user.id.get))
                     BadRequest("""{"Message": "This exception has already been added."}""").as("application/json")
 
                   // Case: User is enrolled but does not have an exception...
@@ -401,7 +401,7 @@ trait Collections {
                   val exception = userOpt.get
 
                   // Case: User has an exception in the given course...
-                  if (CollectionMembership.getExceptionsByCollection(collection).exists(_.userId == exception.id.get)){
+                  if (CollectionMembership.getExceptionsByCollection(collection).exists(_.id.getOrElse(0L) == exception.id.get)){
 
                     // update user to have an exception
                     val membershipRecord = CollectionMembership.listByCollection(collection).find(_.userId == exception.id.get)
@@ -457,6 +457,24 @@ trait Collections {
             }
             Ok(Json.obj("message" -> JsString("User permissions set")))
           } else Errors.api.forbidden()
+        }
+  }
+
+  /**
+   * Get the permissions for a collection
+   * @param id the collection id
+   */
+  def getPermissions(id: Long) = Authentication.secureAPIAction() {
+    implicit request =>
+      implicit user =>
+        getCollection(id) { collection =>
+          Authentication.enforceEnrollment(collection) { isCollAdmin: Boolean =>
+            Ok(Json.obj(
+              "courses" -> collection.getLinkedCourses.map(_.toJson),
+              "admins" -> (collection.getTeachers ++ collection.getTAs).map(_.toJson),
+              "exceptions" -> collection.getExceptions.map(_.toJson)
+              ))
+          }
         }
   }
 }

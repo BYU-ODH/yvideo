@@ -123,8 +123,7 @@ case class Collection(id: Option[Long], owner: Long, name: String, published: Bo
 
     var linkedCourses = CacheListHolder[Course]()
 
-    // TODO: make this a list of users
-    var exceptions = CacheListHolder[CollectionMembership]()
+    var exceptions = CacheListHolder[User]()
 
     var tas = CacheListHolder[User]()
 
@@ -151,6 +150,15 @@ case class Collection(id: Option[Long], owner: Long, name: String, published: Bo
    */
   def getStudents: List[User] = cache.getForCollection[User](cache.students_=, cache.students _, CollectionMembership.listClassMembers(_: Collection, false)) match {
     case students: cache.CacheListHolder[User] => students.getList
+    case _ => List[User]()
+  }
+
+  /**
+   * Get the collection exceptions
+   * @return The list of users who are enrolled as exceptions
+   */
+  def getExceptions: List[User] = cache.getForCollection[User](cache.exceptions_=, cache.exceptions _, CollectionMembership.getExceptionsByCollection(_: Collection)) match {
+    case exceptions: cache.CacheListHolder[User] => exceptions.getList
     case _ => List[User]()
   }
 

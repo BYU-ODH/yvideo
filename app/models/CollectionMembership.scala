@@ -256,21 +256,22 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
    * Gets the exceptions in the collection
    * @return the list of CollectionMembership records
    */
-  def getExceptionsByCollection(collection: Collection): List[CollectionMembership] = 
+  def getExceptionsByCollection(collection: Collection): List[User] = 
     DB.withConnection { implicit connection =>
       try {
         SQL (
           s"""
-          select * from $tableName where collectionId = {collId} and exception = true
+          select * from (select userId from collectionPermissions where exception = true and collectionId = {collId})
+          a join userAccount on a.userId = userAccount.id
           """
         )
           .on('collId -> collection.id.get)
-          .as(simple *)
+          .as(User.simple *)
       } catch {
         case e: SQLException =>
           Logger.debug("Failed in CollectionMembership.scala / getExceptionsByCollection")
           Logger.debug(e.getMessage())
-          List[CollectionMembership]()
+          List[User]()
       }
     }
 
