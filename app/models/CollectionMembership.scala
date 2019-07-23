@@ -261,7 +261,7 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
       try {
         SQL (
           s"""
-          select * from (select userId from collectionPermissions where exception = true and collectionId = {collId})
+          select * from (select userId from $tableName where exception = true and collectionId = {collId})
           a join userAccount on a.userId = userAccount.id
           """
         )
