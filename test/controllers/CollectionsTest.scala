@@ -75,7 +75,7 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
           }
         }
 
-        "respond with a 400 status code if the user is not enrolled in the collection" in {
+        "respond with a 403 status code if the user is not enrolled in the collection" in {
           application {
             val controller = new CollectionsTestController()
             val admin = newCasAdmin("admin1")
@@ -85,7 +85,7 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
             implicit val newCol = newCollection("coll1", admin)
             newCol.id must beSome
             val res = controller.getContent(newCol.id.get)(sessionReq(student))
-            status(res) === 400
+            status(res) === 403
           }
         }
 
@@ -326,6 +326,62 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
             1 mustEqual 1
             //tests for each case and forbidden for non-teachers
         }
+    }
+
+    "The getPermissions endpoint" should {
+      "return all of the courses, exceptions and admins in a collection to a collection admin" in {
+        application {
+          val controller = new CollectionsTestController()
+          implicit val teacher = newCasTeacher("teacher1")
+          teacher.id must beSome
+          implicit val newCol = newCollection("coll1", teacher)
+          newCol.id must beSome
+          val students = List("s1", "s2", "s3", "s4").map(name => newCasStudent(name))
+          students.map{ s => s.id must beSome } must allSucceed()
+          // enroll as normal students
+          students.foreach(s => s.enroll(newCol, false, false))
+          val exceptions = List("s5", "s6", "s7", "s8").map(name => newCasStudent(name))
+          exceptions.map{ e => e.id must beSome } must allSucceed()
+          // enroll as exceptions
+          exceptions.foreach(e => e.enroll(newCol, false, true))
+          val res = controller.getPermissions(newCol.id.get)(sessionReq(teacher))
+          status(res) === 200
+          val json = contentAsJson(res)
+          json.validate[JsValue] match {
+            case JsSuccess(obj, _) => {
+              val courses = (obj \ "courses").as[List[JsValue]]
+              val admins = (obj \ "admins").as[List[JsValue]]
+              val ex = (obj \ "exceptions").as[List[JsValue]]
+              courses.length === 0
+              // The teacher is the only admin in this collection
+              admins.length === 1
+              ex.length === 4
+              // make sure the exceptions are the correct users
+              ex.zip(exceptions).map { tup =>
+                tup._1.toString must /("name" -> tup._2.name.getOrElse(""))
+              } must allSucceed()
+            }
+            case e: JsError => jserr2string(e) must fail
+          }
+        }
+      }
+
+      "return a 403 to a user that is enrolled but is not an admin in the collection" in {
+        application {
+          val controller = new CollectionsTestController()
+          implicit val teacher = newCasTeacher("teacher1")
+          teacher.id must beSome
+          implicit val newCol = newCollection("coll1", teacher)
+          newCol.id must beSome
+          val students = List("s1", "s2", "s3", "s4").map(name => newCasStudent(name))
+          students.map{ s => s.id must beSome } must allSucceed()
+          // enroll as normal students
+          students.foreach(s => s.enroll(newCol, false, false))
+          val res = controller.getPermissions(newCol.id.get)(sessionReq(students(0)))
+          status(res) === 403
+        }
+
+      }
     }
   }
 }

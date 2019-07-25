@@ -469,11 +469,15 @@ trait Collections {
       implicit user =>
         getCollection(id) { collection =>
           Authentication.enforceEnrollment(collection) { isCollAdmin: Boolean =>
-            Ok(Json.obj(
-              "courses" -> collection.getLinkedCourses.map(_.toJson),
-              "admins" -> (collection.getTeachers ++ collection.getTAs).map(_.toJson),
-              "exceptions" -> collection.getExceptions.map(_.toJson)
-              ))
+            if (isCollAdmin) {
+              Ok(Json.obj(
+                "courses" -> collection.getLinkedCourses.map(_.toJson),
+                "admins" -> (collection.getTeachers ++ collection.getTAs).map(_.toJson),
+                "exceptions" -> collection.getExceptions.map(_.toJson)
+                ))
+            } else {
+              Errors.api.forbidden(s"User is not a collection admin.")
+            }
           }
         }
   }
