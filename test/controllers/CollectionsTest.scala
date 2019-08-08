@@ -281,7 +281,30 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
 
     "The Link Courses Endpoint" should {
         "link the collection to the courses in the map" in {
-            1 mustEqual 1
+          application {
+            val teacher = newCasTeacher("teacher")
+            teacher.id must beSome
+            val collection = newCollection("col1", teacher)
+            collection.id must beSome
+            val controller = new CollectionsTestController()
+            val request = sessionReq(teacher)
+              .withJsonBody(Json.arr(Json.obj(
+                "department" -> "C S",
+                "catalogNumber" -> "460"
+              )))
+            val res = call(controller.linkCourses(collection.id.get), request)
+            status(res) === 200
+            val json = contentAsJson(res)
+            json.validate[List[JsValue]] match {
+              case JsSuccess(list, _) => {
+                list.length === 1
+                val course = list(0).toString
+                course must /("department" -> "C S")
+                course must /("catalogNumber" -> "460")
+              }
+              case e: JsError => jserr2string(e) must fail
+            }
+          }
             //catch errors when the collection doesn't exist or the course doesn't match
         }
     }

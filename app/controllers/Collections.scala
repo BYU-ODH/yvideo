@@ -59,7 +59,7 @@ trait Collections {
           if (user.isCollectionTA(collection)) {
             val name = (request.body \ "name").as[String]
             collection.copy(name = name).save
-            Ok(Json.obj("message" -> JsString("Collection updated")))
+            Ok(collection.toJson)
           } else
             Errors.api.forbidden()
         }
