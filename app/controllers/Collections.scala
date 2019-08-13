@@ -93,8 +93,8 @@ trait Collections {
     implicit request =>
       implicit user =>
         getCollection(id) { collection =>
-          // Only non-guest members and admins can remove content
-          if (user.isCollectionTA(collection)) {
+          // Only admins can remove content
+          if (user.hasSitePermission("admin")) {
             for ( // Remove the content to the collection
               id <- (request.body \ "removeContent").as[List[String]];
               content <- Content.findById(id.toLong)

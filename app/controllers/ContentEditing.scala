@@ -24,6 +24,14 @@ trait ContentEditing {
   this: Controller =>
 
   /**
+   * Class used for parsing json requests
+   */
+  case class ContentMetadata(title: Option[String], description: Option[String], categories: Option[List[String]],
+    keywords: Option[List[String]], languages: Option[List[String]])
+  // implicit json conversion for ContentMetadata
+  implicit val cmreads = Json.reads[ContentMetadata]
+
+  /**
    * Sets the metadata for a particular content object
    * @param id The ID of the content
    */
@@ -34,39 +42,41 @@ trait ContentEditing {
           // Make sure the user is able to edit
           if (content isEditableBy user) {
             // Get the info from the form
+            Json.fromJson[ContentMetadata](request.body) match {
+              case JsSuccess(metadata, _) => {
 
-            val title = (request.body \ "title").as[String]
-            val description = (request.body \ "description").as[String]
-            val categories = (request.body \ "categories").as[List[String]]
-            val keywords = (request.body \ "keywords").as[List[String]].mkString(",")
-            val languages = (request.body \ "languages").as[List[String]]
+                // Update the name of the content
+                val title = if (!metadata.title.isEmpty)
+                  content.copy(name = metadata.title.get).save.name
+                  else content.name
 
-            // Update the name of the content
-            content.copy(name = title).save
+                val description = metadata.description.getOrElse("")
+                // Validate description
+                val validated = if (description.length > 5000) {
+                  description.substring(0,5000)
+                } else {
+                  description
+                }
 
-            // Validate description
-            val validated = if (description.length > 5000) {
-              description.substring(0,5000)
-            } else {
-              description
-            }
+                // Create the JSON object
+                val obj = Json.obj(
+                  "title" -> title,
+                  "description" -> validated,
+                  "keywords" -> metadata.keywords.getOrElse[List[String]](Nil),
+                  "categories" -> metadata.categories.getOrElse[List[String]](Nil),
+                  "languages" -> Json.obj(
+                    "iso639_3" -> metadata.languages.getOrElse[List[String]](Nil)
+                  )
+                )
 
-            // Create the JSON object
-            val obj = Json.obj(
-              "title" -> title,
-              "description" -> validated,
-              "keywords" -> keywords,
-              "categories" -> categories,
-              "languages" -> Json.obj(
-                "iso639_3" -> languages
-              )
-            )
-
-            // Save the metadata
-            ResourceController.updateResource(content.resourceId, obj).map { _ =>
-              Ok(Json.obj("message" -> "Metadata updated."))
-            }.recover { case _ =>
-              Errors.api.serverError("Failed to update resource.")
+                // Save the metadata
+                ResourceController.updateResource(content.resourceId, obj).map { _ =>
+                  Ok(Json.obj("message" -> "Metadata updated."))
+                }.recover { case _ =>
+                  Errors.api.serverError("Failed to update resource.")
+                }
+              }
+              case e: JsError => Errors.api.badRequest(s"Failed to parse request body.")
             }
           } else Errors.api.forbidden()
         }
@@ -151,7 +161,6 @@ trait ContentEditing {
             val cropLeft = request.body("cropLeft")(0).toDouble
             val cropBottom = request.body("cropBottom")(0).toDouble
             val cropRight = request.body("cropRight")(0).toDouble
-            val redirect = Redirect(routes.ContentController.view(content.id.get))
 
             // Load the image
             ImageTools.loadImageFromContent(content).flatMap { image =>
@@ -166,18 +175,18 @@ trait ContentEditing {
                 // Update the resource
                 ResourceHelper.updateFileUri(content.resourceId, url)
                   .map { _ =>
-                    redirect.flashing("info" -> "Image updated")
+                    Ok(Json.obj("info" -> "Image updated"))
                   }.recover { case _ =>
-                    redirect.flashing("error" -> "Failed to update image")
+                    Errors.api.serverError("Failed to update image")
                   }
               }.recover { case _ =>
-                redirect.flashing("error" -> "Failed to update image")
+                Errors.api.serverError("Failed to update image")
               }
             }.recover { case _ =>
-              redirect.flashing("error" -> "Couldn't load image")
+              Errors.api.serverError("Couldn't load image")
             }
           } else
-            Future(Errors.forbidden)
+            Future(Errors.api.forbidden())
         }
   }
 
