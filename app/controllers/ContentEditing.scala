@@ -27,7 +27,7 @@ trait ContentEditing {
    * Class used for parsing json requests
    */
   case class ContentMetadata(title: Option[String], description: Option[String], categories: Option[List[String]],
-    keywords: Option[List[String]], languages: Option[List[String]])
+    keywords: Option[List[String]], languages: Option[List[String]], published: Option[Boolean])
   // implicit json conversion for ContentMetadata
   implicit val cmreads = Json.reads[ContentMetadata]
 
@@ -44,11 +44,16 @@ trait ContentEditing {
             // Get the info from the form
             Json.fromJson[ContentMetadata](request.body) match {
               case JsSuccess(metadata, _) => {
+                
 
-                // Update the name of the content
-                val title = if (!metadata.title.isEmpty)
-                  content.copy(name = metadata.title.get).save.name
-                  else content.name
+                // Update the name and published flag of the content
+                val title = if (!metadata.title.isEmpty) {
+                  content.copy(name = metadata.title.get, published = metadata.published.getOrElse(content.published)).save.name
+                } else if (!metadata.published.isEmpty) {
+                  content.copy(published = metadata.published.get).save.name
+                } else {
+                  content.name
+                }
 
                 val description = metadata.description.getOrElse("")
                 // Validate description
