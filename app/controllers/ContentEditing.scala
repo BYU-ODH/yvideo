@@ -62,7 +62,7 @@ trait ContentEditing {
                 val obj = Json.obj(
                   "title" -> title,
                   "description" -> validated,
-                  "keywords" -> metadata.keywords.getOrElse[List[String]](Nil),
+                  "keywords" -> metadata.keywords.getOrElse[List[String]](Nil).mkString(","),
                   "categories" -> metadata.categories.getOrElse[List[String]](Nil),
                   "languages" -> Json.obj(
                     "iso639_3" -> metadata.languages.getOrElse[List[String]](Nil)
