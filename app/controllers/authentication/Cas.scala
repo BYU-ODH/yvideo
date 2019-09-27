@@ -63,7 +63,10 @@ object Cas extends Controller {
       byuClass =>
         Course(None, byuClass.subject_area, Some(byuClass.catalog_number), Some(byuClass.section_number))
     })
-    user.getEnrollment.diff(eligibleCollections).foreach(c => {user.unenroll(c)})
+    if (!user.isManager) {
+      // Only unenroll users if they do not have the manager permission (this includes admins)
+      user.getEnrollment.diff(eligibleCollections).foreach(c => {user.unenroll(c)})
+    }
     eligibleCollections.foreach(user.enroll (_, isInstructor))
   }
 
