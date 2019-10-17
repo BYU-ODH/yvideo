@@ -44,7 +44,7 @@ trait Administration { this: Controller =>
               Ok(Json.toJson(User.search(columnName, searchValue).map(_.toJson)))
           } else { Forbidden(JsObject(Seq("message" -> JsString("Search value was too short"))))}
         } else { Forbidden(JsObject(Seq("message" -> JsString("Search column is not allowed"))))}
-      } 
+      }
   }
   /**
    * Helper function for finding user accounts
@@ -100,7 +100,7 @@ trait Administration { this: Controller =>
           Collections.getCollection(id) { collection =>
               collection.delete()
               Ok(Json.obj("message" -> JsString("Collection deleted")))
-          } 
+          }
         }
   }
 
@@ -114,7 +114,7 @@ trait Administration { this: Controller =>
           request.body.as[Map[String, String]].foreach { data =>
             Setting.findByName(data._1).get.copy(value = data._2).save
           }
-          Ok(Json.obj("message" -> JsString("Site settings updated")))  
+          Ok(Json.obj("message" -> JsString("Site settings updated")))
         }
   }
 
@@ -127,11 +127,11 @@ trait Administration { this: Controller =>
       implicit user =>
         Authentication.enforcePermissionAPI("admin") {
           User.findById(id) match {
-          case Some(proxyUser) =>
-            Ok(Json.obj("message" -> JsString("Now proxying as user "+user.username)))
-              .withSession("userId" -> user.id.get.toString)
-          case _ =>
-            Forbidden(JsObject(Seq("message" -> JsString("Requested Proxy User Not Found"))))
+            case Some(proxyUser) =>
+              Ok(Json.obj("message" -> JsString(s"Now proxying as user ${proxyUser.username}")))
+                .withSession("userId" -> proxyUser.id.get.toString)
+            case _ =>
+              Forbidden(JsObject(Seq("message" -> JsString("Requested Proxy User Not Found"))))
           }
         }
   }
