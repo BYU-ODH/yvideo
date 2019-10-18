@@ -215,6 +215,17 @@ object Content extends SQLSelectable[Content] {
   def findById(id: Long): Option[Content] = findById(id, simple)
 
   /**
+   * Search the DB for content
+   * searches for the searchValue in the name and requester columns
+   * @param searchValue The string we are searching for
+   * @return a List of content that match the search criteria
+   */
+  def search(searchValue: String): List[Content] = {
+    val fields = List('name, 'requester).map(_ -> s"%${searchValue}%")
+    search(fields, simple)
+  }
+
+  /**
    * Gets all the content in the DB
    * @return The list of content
    */

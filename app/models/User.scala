@@ -322,6 +322,15 @@ object User extends SQLSelectable[User] {
    */
   def findById(id: Long): Option[User] = findById(id, simple)
 
+  /**
+   * Search the DB for users
+   * @param fields (Symbol, String) corresponds to (column name, search value)
+   * @return a List of users that match the search criteria
+   */
+  def search(searchValue: String): List[User] = {
+    val fields = List('username, 'name, 'email).map(_ -> s"%${searchValue}%")
+    search(fields, simple)
+  }
 
   def findUsersByUserIdList(idList: List[Long]): List[User] = {
     DB.withConnection { implicit connection =>

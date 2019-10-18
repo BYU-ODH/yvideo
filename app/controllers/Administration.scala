@@ -29,23 +29,28 @@ trait Administration { this: Controller =>
       }
   }
 
-
   /**
    * Get the users that match the given search criteria
    * @return a list of users based on the given search criteria
    */
-   def searchUsers(columnName: String, searchValue: String) = Authentication.secureAPIAction() {
+   def searchDB(table: String, searchValue: String) = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>
-      val allowedColumns = List("username", "name", "email")
-      Authentication.enforcePermissionAPI("admin") {
-        if (allowedColumns.contains(columnName)) {
-          if (searchValue.length > 3) {
-              Ok(Json.toJson(User.search(columnName, searchValue).map(_.toJson)))
-          } else { Forbidden(JsObject(Seq("message" -> JsString("Search value was too short"))))}
-        } else { Forbidden(JsObject(Seq("message" -> JsString("Search column is not allowed"))))}
-      }
+        Authentication.enforcePermissionAPI("admin") {
+          if (searchValue.length < 2) {
+            Errors.api.forbidden("Search value was too short")
+          }
+          else {
+            table match {
+              case "user" => Ok(Json.toJson(User.search(searchValue).map(_.toJson)))
+              case "collection" => Ok(Json.toJson(Collection.search(searchValue).map(_.toJson)))
+              case "content" => Ok(Json.toJson(Content.search(searchValue).map(_.toJson)))
+              case _ => Errors.api.badRequest(s"Cannot search for $table")
+            }
+          }
+        }
   }
+
   /**
    * Helper function for finding user accounts
    * @param id The ID of the user account

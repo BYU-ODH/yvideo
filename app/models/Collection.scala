@@ -255,6 +255,17 @@ object Collection extends SQLSelectable[Collection] {
   def findById(id: Long): Option[Collection] = findById(id, simple)
 
   /**
+   * Search the DB for collections
+   * searches for the searchValue in the owner and name columns
+   * @param searchValue The string we are searching for
+   * @return a List of collections that match the search criteria
+   */
+  def search(searchValue: String): List[Collection] = {
+    val fields = List('owner, 'name).map(_ -> s"%${searchValue}%")
+    search(fields, simple)
+  }
+
+  /**
    * Gets all the collections in the DB
    * @return The list of collections
    */

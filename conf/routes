@@ -60,7 +60,6 @@ POST    /user/uploadPicture                                 controllers.Users.up
 
 # Admin pages
 GET     /admin/users/count                                  controllers.Administration.userCount
-GET     /admin/users/:columnName/:searchValue               controllers.Administration.searchUsers(columnName: String, searchValue: String)
 POST    /admin/users/notify                                 controllers.Administration.sendNotification
 POST    /admin/users/:id/delete                             controllers.Administration.delete(id: Long)
 POST    /admin/collections/:id/delete                       controllers.Administration.deleteCollection(id: Long)
@@ -123,7 +122,7 @@ GET     /api/collection/:id/permissions                     controllers.Collecti
 
 # admin API
 GET     /api/admin/users/count                              controllers.Administration.userCount
-GET     /api/admin/users/:columnName/:searchValue           controllers.Administration.searchUsers(columnName: String, searchValue: String)
+GET     /api/admin/:table/:searchValue                      controllers.Administration.searchDB(table: String, searchValue: String)
 
 # wordlist API
 GET     /wordList                                           controllers.WordLists.viewJson

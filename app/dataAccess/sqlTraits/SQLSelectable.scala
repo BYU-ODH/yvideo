@@ -67,25 +67,24 @@ trait SQLSelectable[T] {
     }
 
   /**
-   * Returns a list of objects based on the search criteria that is passed in
-   * @param columnName The column that is being searched
-   * @param searchValue The value to be search for in the given column
-   * @return a list of objects based on the given search criteria
+   * Search the DB for users
+   * @param fields (Symbol, String) corresponds to (column name, search value)
+   * @return a List of objects that match the search criteria
    */
-  def search(columnName: String, searchValue: String)(implicit parser: RowParser[T]): List[T] = {
-    DB.withConnection {
-      implicit connection =>
-        try {
-          val searchVal = "%"+searchValue+"%"
-          SQL(s"select * from $tableName where $columnName like {searchValue}")
-            .on('columnName -> columnName, 'searchValue -> searchVal)
-            .as(parser *)
-        } catch {
-          case e: SQLException =>
-            Logger.debug(s"Failed to search $tableName for search value $searchValue and column $columnName")
-            Logger.debug(e.getMessage())
-            List[T]()
-        }
+  def search(fields: List[(Symbol, String)], parser: RowParser[T]): List[T] = {
+    val searchFields = fields.map(f => s"${f._1.name} like {${f._1.name}}").mkString(" or ")
+
+    DB.withConnection { implicit connection =>
+      try {
+        SQL(s"select * from $tableName where $searchFields")
+          .on(fields.map(f => NamedParameter.symbol(f)):_*)
+          .as(parser *)
+      } catch {
+        case e: SQLException =>
+          Logger.debug(s"Failed searching $tableName")
+          Logger.debug(e.getMessage())
+          throw e
+      }
     }
   }
 }
