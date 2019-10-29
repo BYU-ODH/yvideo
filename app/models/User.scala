@@ -146,7 +146,7 @@ case class User(id: Option[Long], username: String,
       "name" -> getStringFromOption(name),
       "email" -> getStringFromOption(email),
       "linked" -> accountLinkId,
-      "permissions" -> getPermissions,
+      "roles" -> getRoles,
       "lastLogin" -> lastLogin
     )
   }
@@ -251,7 +251,7 @@ case class User(id: Option[Long], username: String,
 
   def getWordList = cache.getWordList
 
-  def getPermissions = SitePermissions.listByUser(this)
+  def getRoles = SitePermissions.permissionsToRoles(SitePermissions.listByUser(this))
 
   def getCollectionPermissions(collection: Collection) = collection.getUserPermissions(this)
 

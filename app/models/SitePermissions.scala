@@ -31,6 +31,10 @@ object SitePermissions extends SQLSelectable[String] {
   def listByUser(user: User): List[String] =
     listByCol("userId", user.id, get[String](tableName+".permission"))
 
+  /**
+   * Gets a list of users from the database
+   * that have the given permission
+   */
   def listByPerm(perm: String): List[User] =
     User.findUsersByUserIdList(listByCol[Long]("permission", perm, get[Long](tableName+".userId")))
 
