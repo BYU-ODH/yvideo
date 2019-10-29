@@ -52,16 +52,6 @@ trait Users { this: Controller =>
                   "views" -> cont.views))))))
   }
 
-  def roles = Authentication.secureAPIAction() {
-    implicit request =>
-      implicit user =>
-        val perms = SitePermissions.listByUser(user)
-        Ok(Json.obj(
-          "authenticated" -> true,
-          "permissions" -> Json.toJson(perms),
-          "roles" -> Json.toJson(SitePermissions.permissionsToRoles(perms))))
-  }
-
   def getAsJson = Authentication.secureAPIAction() {
     implicit request =>
       implicit user =>

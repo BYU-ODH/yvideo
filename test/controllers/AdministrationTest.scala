@@ -57,7 +57,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
           val request = FakeRequest().withSession("userId" -> admin.id.get.toString)
           // First search by username 
           val resultUsername = controller.searchUsers("username", "12345")(request)
-          // [{"id":1,"authScheme":"cas","username":"joe12345","name":"joe black","email":"joe@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.076Z"},{"id":2,"authScheme":"cas","username":"jack12345","name":"jack blue","email":"jack@yvideo.net","linked":-1,"permissions":["joinCollection"],"lastLogin":"2019-04-27T05:20:50.081Z"},{"id":6,"authScheme":"cas","username":"admin12345","name":"admin man","email":"admin@yvideo.net","linked":-1,"permissions":["admin","delete"],"lastLogin":"2019-04-27T05:20:50.100Z"}]
+          // [{"id":1,"authScheme":"cas","username":"joe12345","name":"joe black","email":"joe@yvideo.net","linked":-1,"roles":["student"],"lastLogin":"2019-04-27T05:20:50.076Z"},{"id":2,"authScheme":"cas","username":"jack12345","name":"jack blue","email":"jack@yvideo.net","linked":-1,"roles":["student"],"lastLogin":"2019-04-27T05:20:50.081Z"},{"id":6,"authScheme":"cas","username":"admin12345","name":"admin man","email":"admin@yvideo.net","linked":-1,"roles":["admin","delete"],"lastLogin":"2019-04-27T05:20:50.100Z"}]
           status(resultUsername) mustEqual 200
           contentType(resultUsername) mustEqual Some("application/json")
           val jsonUsername = contentAsJson(resultUsername).as[List[JsValue]]
@@ -67,7 +67,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
             us must /("name" -> anyValue)
             us must /("email" -> anyValue)
             us must /("linked" -> -1)
-            us must /("permissions" -> anyValue)
+            us must /("roles" -> anyValue)
             us must /("lastLogin" -> anyValue)
           }
           jsonUsername.length mustEqual 3
@@ -98,7 +98,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
             us must /("name" -> anyValue)
             us must /("email" -> anyValue)
             us must /("linked" -> -1)
-            us must /("permissions" -> anyValue)
+            us must /("roles" -> anyValue)
             us must /("lastLogin" -> anyValue)
           }
           jsonName.length mustEqual 2
@@ -129,7 +129,7 @@ object AdministrationControllerSpec extends Specification with ApplicationContex
             us must /("name" -> anyValue)
             us must /("email" -> anyValue)
             us must /("linked" -> -1)
-            us must /("permissions" -> anyValue)
+            us must /("roles" -> anyValue)
             us must /("lastLogin" -> anyValue)
           }
           jsonEmail.length mustEqual 4
