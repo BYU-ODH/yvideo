@@ -58,8 +58,8 @@ trait Collections {
         getCollection(id) { collection =>
           if (user.isCollectionTA(collection)) {
             val name = (request.body \ "name").as[String]
-            collection.copy(name = name).save
-            Ok(collection.toJson)
+            val updatedCollection = collection.copy(name = name).save
+            Ok(updatedCollection.toJson)
           } else
             Errors.api.forbidden()
         }

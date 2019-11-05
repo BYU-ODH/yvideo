@@ -225,7 +225,24 @@ object CollectionsControllerSpec extends Specification with ApplicationContext w
 
     "The Edit Endpoint" should {
         "edit the collection based on the id and map if the user is allowed to do so" in {
-            1 mustEqual 1
+            val controller = new CollectionsTestController()
+            val teacher = newCasTeacher("teacher1")
+            implicit val newCol = newCollection("coll1", teacher)
+            newCol.id must beSome
+            val newName = "Updated Collection Name"
+            val request = sessionReq(teacher)
+              .withJsonBody(Json.obj(
+                "name" -> newName
+              ))
+            val res = call(controller.edit(newCol.id.get), request)
+            status(res) === 200
+            val json = contentAsJson(res)
+            json.validate[Collection] match {
+              case JsSuccess(collection, _) => {
+                collection.name === newName
+              }
+              case e: JsError => jserr2string(e) must fail
+            }
             //redirects to the collection when successful
             //return a forbidden error if the user does not have permission
         }
