@@ -7,6 +7,7 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 import org.specs2.specification.BeforeAfterAll
+import org.specs2.mutable._
 
 import play.api.db.DB
 import play.api.test.FakeApplication
@@ -34,7 +35,7 @@ trait DBManagement {
   def dbTeardown()
 }
 
-trait ApplicationContext extends BeforeAfterAll {
+trait ApplicationContext extends Specification with BeforeAfterAll {
   this: DBManagement =>
   type SpecsResult = org.specs2.matcher.MatchResult[Any]
 
@@ -45,10 +46,17 @@ trait ApplicationContext extends BeforeAfterAll {
   // in the context of a Play application
   def application(block: => SpecsResult): SpecsResult =
     mutex.synchronized {
-      dbSetup()
-      val res = block
-      dbTeardown()
-      res
+      try {
+        dbSetup()
+        block
+      }
+      finally {
+        // needs to be in finally block in order to run after a failed test.
+        // The database would be left in the state it was in at the end of the
+        // failed test and subsequent tests may fail because of the data that remains,
+        // leading to confused developers.
+        dbTeardown()
+      }
     }
 
   def beforeAll() { Play.start(app) }
