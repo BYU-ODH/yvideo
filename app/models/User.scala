@@ -51,10 +51,14 @@ case class User(id: Option[Long], username: String,
 
     DB.withConnection { implicit connection =>
       try {
-        SQL("delete from collectionMembership where userId = {userId}")
+        SQL(s"delete from ${CollectionMembership.tableName} where userId = {userId}")
           .on('userId -> id.get).execute()
-        SQL("delete from sitePermissions where userId = {userId}")
+        SQL(s"delete from ${SitePermissions.tableName} where userId = {userId}")
           .on('userId -> id.get).execute()
+        SQL(s"delete from ${ViewingHistory.tableName} where userId = {userId}")
+          .on('userId -> id.get).execute()
+        SQL(s"delete from ${CollectionPermissions.tableName} where collectionId = {cid} and userId = {uid}")
+          .on('cid -> cid, 'uid -> uid).execute()
       } catch {
         case e: SQLException =>
           Logger.debug("Failed to delete User data")

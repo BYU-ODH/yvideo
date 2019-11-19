@@ -39,7 +39,7 @@ case class ViewingHistory(id: Option[Long], userId: Long, contentId: Long, time:
   /**
    */
   def delete() {
-    // Delete the user's views
+    // Delete this ViewingHistory record
     delete(ViewingHistory.tableName)
   }
 

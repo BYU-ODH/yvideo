@@ -59,7 +59,7 @@ case class CollectionMembership(id: Option[Long], userId: Long, collectionId: Lo
     val uid = this.userId
     DB.withConnection { implicit connection =>
       try {
-        SQL("delete from collectionPermissions where collectionId = {cid} and userId = {uid}")
+        SQL(s"delete from ${CollectionPermissions.tableName} where collectionId = {cid} and userId = {uid}")
           .on('cid -> cid, 'uid -> uid).execute()
       } catch {
         case e: SQLException =>
@@ -256,7 +256,7 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
    * Gets the exceptions in the collection
    * @return the list of CollectionMembership records
    */
-  def getExceptionsByCollection(collection: Collection): List[User] = 
+  def getExceptionsByCollection(collection: Collection): List[User] =
     DB.withConnection { implicit connection =>
       try {
         SQL (
@@ -276,10 +276,11 @@ object CollectionMembership extends SQLSelectable[CollectionMembership] {
     }
 
   /**
-   * 
-   *
+   * Returns the collection membership of a user where the user
+   * is enrolled as an exception
+   * @return The list of CollectionMembership records for the user
    */
-  def getExceptionsByUser(user: User): List[CollectionMembership] = 
+  def getExceptionsByUser(user: User): List[CollectionMembership] =
     DB.withConnection { implicit connection =>
       try {
         SQL (
