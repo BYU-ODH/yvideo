@@ -32,50 +32,6 @@
         @*<h1>Spotlight</h1>*@
     </div>
 
-    <div class="padded main-padded">
-
-        <div class="container-fluid">
-            <div id="myAyamel" class="homeNavContent">
-            <h1>My Y-Video</h1>    
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="homeContent">
-                            <div class="homeContentContainer">
-                                <h3>Collection Content Feed</h3>
-                                <div id="latestContent"></div>
-                                <script type="text/javascript">
-                                    $(function() {
-                                        var contentFeed = [];
-                                        @for(contentData <- user.getContentFeed(6)) {
-                                            var content_@contentData._1.id.get = @Html(contentData._1.toJson.toString);
-                                            content_@{contentData._1.id.get}.collectionId = @contentData._2;
-                                            contentFeed.push(content_@contentData._1.id.get);
-                                        }
-                                        ContentItemRenderer.renderAll({
-                                            content: contentFeed,
-                                            holder: document.getElementById("latestContent"),
-                                            format: "icon"
-                                        });
-                                    });
-                                </script>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="homeContent">
-                            <div class="homeContentContainer">
-                                @if(user.hasSitePermission("createCollection")) {
-                                    <a href="@routes.Collections.create()" class="btn btn-magenta"><i class="icon-group"></i> Create a new collection</a>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-
     <script src="@routes.Assets.at("javascripts/libraries/swipe.js")" type="text/javascript"></script>
     <script type="text/javascript">
         $(function() {
