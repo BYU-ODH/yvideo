@@ -51,22 +51,23 @@ case class User(id: Option[Long], username: String,
 
     DB.withConnection { implicit connection =>
       try {
+        val collectionMembership = CollectionMembership.listByUser(this)
+        SQL(s"delete from ${CollectionPermissions.tableName} where collectionId in ({cids}) and userId = {uid}")
+          .on('cids -> collectionMembership.map(_.collectionId), 'uid -> this.id.get).execute()
         SQL(s"delete from ${CollectionMembership.tableName} where userId = {userId}")
           .on('userId -> id.get).execute()
         SQL(s"delete from ${SitePermissions.tableName} where userId = {userId}")
           .on('userId -> id.get).execute()
         SQL(s"delete from ${ViewingHistory.tableName} where userId = {userId}")
           .on('userId -> id.get).execute()
-        SQL(s"delete from ${CollectionPermissions.tableName} where collectionId = {cid} and userId = {uid}")
-          .on('cid -> cid, 'uid -> uid).execute()
+
+        delete(User.tableName)
       } catch {
         case e: SQLException =>
           Logger.debug("Failed to delete User data")
           Logger.debug(e.getMessage())
       }
     }
-
-    delete(User.tableName)
   }
 
 
@@ -196,16 +197,6 @@ case class User(id: Option[Long], username: String,
       teacherEnrollment.get
     }
 
-    var contentFeed: Option[List[(Content, Long)]] = None
-
-    def getContentFeed = {
-      if (contentFeed.isEmpty)
-        contentFeed = Some(
-          getEnrollment.flatMap(collection => collection.getContent.map(c => (c, collection.id.get)))
-        )
-      contentFeed.get
-    }
-
     var wordList: Option[List[WordListEntry]] = None
 
     def getWordList: List[WordListEntry] = {
@@ -245,13 +236,6 @@ case class User(id: Option[Long], username: String,
    * @return A displayable name
    */
   def displayName: String = name.getOrElse(username)
-
-  /**
-   * Gets the latest content from this user's collections.
-   * @param limit The number of content objects to get
-   * @return The content
-   */
-  def getContentFeed(limit: Int = 5): List[(Content, Long)] = cache.getContentFeed.take(limit)
 
   def getWordList = cache.getWordList
 

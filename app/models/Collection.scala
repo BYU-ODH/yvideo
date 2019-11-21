@@ -15,9 +15,10 @@ import play.api.libs.json.JsNumber
 /**
  * A collection. Students and teachers are members. Content can be posted here.
  * @param id The id of the collection
- * @param name The name of the collection
- * @param startDate When the collection become functional
- * @param endDate When the collection ceases to be functional
+ * @param owner The userId of the person that owns the collection currently
+ * @param published Whether the collection is viewable by non-instructor members
+ * @param archived If true, only admins will have access to the collection.
+ *                 Our equivalent of a delete by instructors
  */
 case class Collection(id: Option[Long], owner: Long, name: String, published: Boolean, archived: Boolean) extends SQLSavable with SQLDeletable {
   /**

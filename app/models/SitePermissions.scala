@@ -64,7 +64,7 @@ object SitePermissions extends SQLSelectable[String] {
         try {
           SQL(s"insert into $tableName (userId,permission) values ({uid},{permission})")
             .on('uid -> user.id, 'permission -> permission)
-			.executeUpdate()
+            .executeUpdate()
         } catch {
           case e: SQLException =>
             Logger.debug("Failed in SitePermissions.scala / addUserPermission")

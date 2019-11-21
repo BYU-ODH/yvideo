@@ -1,70 +1,133 @@
-// import play.api.test._
-// import play.api.mvc._
-// import org.specs2.concurrent.ExecutionEnv
-// import org.specs2.mutable._
-// import play.api.test._
-// import play.api.test.Helpers._
-// import scala.concurrent.ExecutionContext.Implicits.global
-// import scala.concurrent.Future
-// import play.api.Logger
-// import play.api.Play.current
-// import models.User
-// import anorm._
-// import play.api.db.DB
-// import org.specs2.specification.AfterEach
+import play.api.test._
+import play.api.mvc._
+import play.api.libs.json._
+import play.api.test._
+import play.api.test.Helpers._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-// object UserModelTest extends Specification with AfterEach {
+import org.specs2.concurrent.ExecutionEnv
+import org.specs2.matcher.JsonMatchers
+import org.specs2.mutable._
 
-//   def truncateTables = {
-//     running(FakeApplication()) {
-//       DB.withConnection {
-//         implicit connection =>
-//         List("accountLink", "addCourseRequest", "collection", "collectionCourseLink", "collectionMembership", "collectionPermissions",
-//           "content", "contentListing", "contentSetting", "course", "contentOwnership", "feedback", "helpPage", "homePageContent", 
-//           "login_tokens", "notification", "scoring", "setting", "sitePermissionRequest", "sitePermissions", "userAccount", "wordList")
-//         foreach { table: String =>
-//           SQL("truncate table {table}").on('table -> table).execute()
-//         }
-//       }
-//     }
-//   }
+import controllers.Users
+import models._
+import test.{ApplicationContext, TestHelpers, DBClear}
+import service.TimeTools
 
-//   def after = {
-//     truncateTables
-//   }
+object UserModelSpec extends Specification with ApplicationContext with DBClear
+  with TestHelpers with JsonMatchers {
 
-//   "User Model Tests" >> {
+  "The save function" should {
+    "create a user record in the database and return a copy with an updated id" in {
+      application {
+        val name = "fake name"
+        val user = User(
+            id=None,
+            email=Some("fake@email.com"),
+            username=name,
+            name=Some(name)
+          ).save
+        user.id must beSome
+      }
+    }
+  }
 
-//     "Correct Creation (in memory) Test" >> {
-//       // User(id: Option[Long], username: String, name: Option[String])
-//       val testUser = User(None, "", 'password, "hpotter1234", Some("POTTER, Harry"))
+  "The delete function" should {
+    "remove a user from the user cache" in {
+      application {
+        ko
+      }
+    }
 
-//       "Correct name" >> {
-//         testUser.name.get must_== "POTTER, Harry"
-//       }
+    "unenroll a user from their collections" in {
+      // the results should be the same for users of all permissions
+      application {
+        val user = newCasTeacher("Cas Teacher")
+        user.id must beSome
 
-//       "Correct username" >> {
-//         testUser.username must_== "hpotter1234"
-//       }
-//     }
+        val collection = newCollection("temp collection", user)
+        collection.id must beSome
 
-//     "User.save" >> {
-//       // Start fake application
-//       running(FakeApplication()) {
-//         val testUser1 = User(None, "", 'password, "hpotter1234", Some("POTTER, Harry")).save
-//         testUser1.id must not be empty
-//       }
-//     }
+        val membership = CollectionMembership.listByUser(user)
+        membership.length === 1
+        membership(0).collectionId === collection.id.get
 
-//     "User.delete" >> {
-//       // Start fake application
-//       running(FakeApplication()) {
-//         // Deleting user
-//         User.findByUsername('password, "hpotter1234").map(_.delete)
+        user.delete()
 
-//         // verify that user does not exist
-//         User.findByUsername('password, "hpotter1234") must be empty
-//       }
-//     }
-//   }
-// }
+        val membershipPostDelete = CollectionMembership.listByUser(user)
+        membershipPostDelete.length === 0
+      }
+    }
+
+    "remove a user's collection permissions" in {
+      // the results should be the same for users of all permissions
+      application {
+        val user = newCasTeacher("Cas Teacher")
+        user.id must beSome
+
+        val collection = newCollection("temp collection", user)
+        collection.id must beSome
+
+        // collection permission are only added for teachers and TAs which are only added
+        // manually when another teacher or a TA are added to a collection that already has a teacher.
+        // so we manually add an unnecessary permission here solely for the test
+        CollectionPermissions.addUserPermission(collection, user, "TA")
+        val perms = CollectionPermissions.listByUser(collection, user)
+        perms.length === 1
+
+        user.delete()
+
+        val permsPostDelete = CollectionPermissions.listByUser(collection, user)
+        permsPostDelete.length === 0
+      }
+    }
+
+    "remove a user's viewing history" in {
+      application {
+        val user = newCasTeacher("Cas Teacher")
+        user.id must beSome
+
+        val collection = newCollection("temp collection", user)
+        collection.id must beSome
+
+        List(1, 2, 3, 4, 5).map(x => ViewingHistory(None, user.id.get, x, TimeTools.now()).save)
+          .map(_.id must beSome) must allSucceed()
+        val views = ViewingHistory.getUserViews(user.id.get)
+        views.length === 5
+
+        user.delete()
+
+        val viewsPostDelete = ViewingHistory.getUserViews(user.id.get)
+        viewsPostDelete.length === 0
+      }
+    }
+
+    "remove a user's site permissions" in {
+      application {
+        val user = newCasTeacher("Cas Teacher")
+        user.id must beSome
+
+        SitePermissions.addUserPermission(user, "admin")
+        val perms = SitePermissions.listByUser(user)
+        perms.last === "admin"
+
+        user.delete()
+
+        val permsPostDelete = SitePermissions.listByUser(user)
+        permsPostDelete.length === 0
+      }
+    }
+
+    "remove the user" in {
+      application {
+        val user = newCasTeacher("Cas Teacher")
+        user.id must beSome
+
+        user.delete()
+
+        User.findById(user.id.get) must beNone
+      }
+    }
+  }
+}
