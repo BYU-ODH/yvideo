@@ -20,7 +20,6 @@ This is the Ayamel site developed by the ARCLITE Lab at Brigham Young University
     - <a href="#production-server">Production Server</a>
  - <a href="#understanding-the-code">Understanding the code</a>
  - <a href="#api">API</a>
- - <a href="#conf/routes">API Routes<a/>
 
 ## Setup
 
@@ -144,3 +143,4 @@ The [wiki](https://github.com/BYU-ARCLITE/Ayamel-Examples/wiki) provides descrip
 ## API
 
 The most up-to-date version of the ScalaDoc is <a href="http://sartre3.byu.edu/ayamel/api">here</a>.
+A list of routes can also be found <a href="https://github.com/BYU-ODH/yvideo/blob/master/conf/routes">here.</a>
