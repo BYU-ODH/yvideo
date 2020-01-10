@@ -20,6 +20,7 @@ This is the Ayamel site developed by the ARCLITE Lab at Brigham Young University
     - <a href="#production-server">Production Server</a>
  - <a href="#understanding-the-code">Understanding the code</a>
  - <a href="#api">API</a>
+ - <a href="#conf/routes">API Routes<a/>
 
 ## Setup
 
