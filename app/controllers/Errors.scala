@@ -15,5 +15,6 @@ object Errors {
     def notFound(msg: String = "Not found.") = NotFound(Json.obj("message" -> msg))
     def forbidden(msg: String = "You cannot do that.") = Forbidden(Json.obj("message" -> msg))
     def serverError(msg: String = "Woops.") = InternalServerError(Json.obj("message" -> msg))
+    det unprocessableEntity(msg: String = "Can't be processed.") = UnprocessableEntity(Json.obj("message" -> msg))
   }
 }

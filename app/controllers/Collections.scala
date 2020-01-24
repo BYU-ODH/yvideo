@@ -136,10 +136,15 @@ trait Collections {
         if (user.hasSitePermission("createCollection")) {
           // Collect info
           parseCreate(request.body.asOpt[JsObject].getOrElse(Json.obj())) { data => 
-            val collection = Collection(None, data.ownerId.getOrElse(user.id.get), data.name, false, false).save
-            val owner = User.findById(data.ownerId).getOrElse(user.id.get)
-            owner.enroll(collection, true)
-            Ok(Json.obj("id" -> collection.id.get))
+            val owner = User.findById(data.ownerId.getOrElse(user.id.get))
+            owner match {
+              case Some(user) => {
+                val collection = Collection(None, user.id.get, data.name, false, false).save
+                user.enroll(collection, true)
+                Ok(Json.obj("id" -> collection.id.get))
+              }
+              case None => Errors.api.unprocessableEntity("Owner/User cannot be processed")
+            }
           }
         } else Errors.api.badRequest()
   }
