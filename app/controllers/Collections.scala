@@ -136,7 +136,7 @@ trait Collections {
         if (user.hasSitePermission("createCollection")) {
           // Collect info
           parseCreate(request.body.asOpt[JsObject].getOrElse(Json.obj())) { data => 
-            if(data.ownerId.getOrElse("").length() > 0) {
+            if(data.ownerId.getOrElse(0) > 0) {
                 val collection = Collection(None, data.ownerId, data.name, false, false).save
                 val owner = User.findById(data.ownerId)
                 owner.enroll(collection, true)
