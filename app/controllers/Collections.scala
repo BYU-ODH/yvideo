@@ -136,17 +136,10 @@ trait Collections {
         if (user.hasSitePermission("createCollection")) {
           // Collect info
           parseCreate(request.body.asOpt[JsObject].getOrElse(Json.obj())) { data => 
-            if(data.ownerId.getOrElse(0) > 0) {
-                val collection = Collection(None, data.ownerId, data.name, false, false).save
-                val owner = User.findById(data.ownerId)
-                owner.enroll(collection, true)
-                Ok(Json.obj("id" -> collection.id.get))
-            }
-            else {
-              val collection = Collection(None, user.id.get, data.name, false, false).save
-              user.enroll(collection, true)
-              Ok(Json.obj("id" -> collection.id.get))
-            }
+            val collection = Collection(None, data.ownerId.getOrElse(user.id.get), data.name, false, false).save
+            val owner = User.findById(data.ownerId.getOrElse(user.id.get))
+            owner.enroll(collection, true)
+            Ok(Json.obj("id" -> collection.id.get))
           }
         } else Errors.api.badRequest()
   }
