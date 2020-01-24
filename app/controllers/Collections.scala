@@ -137,7 +137,7 @@ trait Collections {
           // Collect info
           parseCreate(request.body.asOpt[JsObject].getOrElse(Json.obj())) { data => 
             val collection = Collection(None, data.ownerId.getOrElse(user.id.get), data.name, false, false).save
-            val owner = User.findById(data.ownerId.getOrElse(user.id.get))
+            val owner = User.findById(data.ownerId).getOrElse(user.id.get)
             owner.enroll(collection, true)
             Ok(Json.obj("id" -> collection.id.get))
           }
