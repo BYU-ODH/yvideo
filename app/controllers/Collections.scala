@@ -143,7 +143,7 @@ trait Collections {
                 user.enroll(collection, true)
                 Ok(Json.obj("id" -> collection.id.get))
               }
-              case None => Errors.api.unprocessableEntity("Owner/User cannot be processed")
+              case None => Errors.api.badRequest() // Errors.api.unprocessableEntity("Owner/User cannot be processed.")
             }
           }
         } else Errors.api.badRequest()
