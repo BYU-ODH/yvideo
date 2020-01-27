@@ -143,3 +143,4 @@ The [wiki](https://github.com/BYU-ARCLITE/Ayamel-Examples/wiki) provides descrip
 ## API
 
 The most up-to-date version of the ScalaDoc is <a href="http://sartre3.byu.edu/ayamel/api">here</a>.
+
