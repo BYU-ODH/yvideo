@@ -106,6 +106,27 @@ trait Collections {
   }
 
   /**
+   * Class used to parse json body from request to create endpoint
+   * {
+   *  name: String,
+   *  ownerId: String, // Optional
+   * }
+   */
+  case class createData(name: String, ownerId: Option[Long])
+  implicit val createDataReads = Json.reads[createData]
+
+  /**
+   * Parses the create request body into a createData object and
+   * runs the given function
+   */
+  private def parseCreate(js: JsValue)(f: createData => Future[Result]): Future[Result] = {
+    Json.fromJson[createData](js) match {
+      case JsSuccess(data: createData, _) => f(data)
+      case e: JsError => Errors.api.badRequest("No collection name specified.")
+    }
+  }
+
+  /**
    * Creates a new collection
    */
   def create = Authentication.secureAPIAction(parse.json) {
@@ -114,14 +135,15 @@ trait Collections {
         // Check if the user is allowed to create a collection
         if (user.hasSitePermission("createCollection")) {
           // Collect info
-          (request.body \ "name").validate[String] match {
-            case JsSuccess(name, _) => {
-              val collection = Collection(None, user.id.get, name, false, false).save
-              user.enroll(collection, true)
-              Ok(Json.obj("id" -> collection.id.get))
-            }
-            case _:JsError => {
-              Errors.api.badRequest("No collection name specified.")
+          parseCreate(request.body.asOpt[JsObject].getOrElse(Json.obj())) { data => 
+            val owner = User.findById(data.ownerId.getOrElse(user.id.get))
+            owner match {
+              case Some(user) => {
+                val collection = Collection(None, user.id.get, data.name, false, false).save
+                user.enroll(collection, true)
+                Ok(Json.obj("id" -> collection.id.get))
+              }
+              case None => Errors.api.unprocessableEntity("Owner/User cannot be processed.")
             }
           }
         } else Errors.api.badRequest()
