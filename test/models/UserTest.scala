@@ -34,11 +34,12 @@ object UserModelSpec extends Specification with ApplicationContext with DBClear
   }
 
   "The delete function" should {
-    "remove a user from the user cache" in {
-      application {
-        ko
-      }
-    }
+    // TODO: Implement this test
+    // "remove a user from the user cache" in {
+    //   application {
+    //     ko
+    //   }
+    // }
 
     "unenroll a user from their collections" in {
       // the results should be the same for users of all permissions
