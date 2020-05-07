@@ -1,44 +1,12 @@
 openapi: "3.0.2"
 
 # to edit this document, navigate to http://editor.swagger.io and paste it into the left-hand side
-# permissions: admin, lab, professor, ta, student
 
 info:
   title: "YVideo API"
   version: "1.0"
 
 paths:
-  /user:
-    get:
-      summary: Retrieves the current logged-in user
-      description: "Allowed Roles: admin, manager, professor, student"
-      x-allowed-roles:
-        - admin
-        - manager
-        - professor
-        - student
-      tags:
-        - User
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/user"
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/message"
-        500:
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/message"
-
   /collections:
     get:
       summary: Retrieves collection info for all collections available to the current user
@@ -433,6 +401,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+
+  /user:
+    get:
+      summary: Retrieves the current logged-in user
+      description: "Allowed Roles: admin, manager, professor, student"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
+        - student
+      tags:
+        - User
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
         401:
           description: Unauthorized
           content:
