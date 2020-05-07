@@ -1,6 +1,7 @@
 openapi: "3.0.2"
 
 # to edit this document, navigate to http://editor.swagger.io and paste it into the left-hand side
+# permissions: admin, lab, professor, ta, student
 
 info:
   title: "YVideo API"
@@ -10,6 +11,12 @@ paths:
   /user:
     get:
       summary: Retrieves the current logged-in user
+      description: "Allowed Roles: admin, manager, professor, student"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
+        - student
       tags:
         - User
       responses:
@@ -35,6 +42,12 @@ paths:
   /collections:
     get:
       summary: Retrieves collection info for all collections available to the current user
+      description: "Allowed Roles: admin, manager, professor, student"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
+        - student
       tags:
         - Collections
       responses:
@@ -61,6 +74,11 @@ paths:
 
     post:
       summary: Adds a new collection with the current user as an owner
+      description: "Allowed Roles: admin, manager, professor"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
       tags:
         - Collections
       requestBody:
@@ -97,6 +115,12 @@ paths:
           type: integer
     get:
       summary: Retrieves the specified collection
+      description: "Allowed Roles: admin, manager, professor, student"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
+        - student
       tags:
         - Collections
       responses:
@@ -120,6 +144,11 @@ paths:
                 $ref: "#/components/schemas/message"
     put:
       summary: Edits the specified collection
+      description: "Allowed Roles: admin, manager, professor"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
       tags:
         - Collections
       requestBody:
@@ -148,6 +177,9 @@ paths:
                 $ref: "#/components/schemas/message"
     delete:
       summary: Deletes the specified collection
+      description: "Allowed Roles: admin"
+      x-allowed-roles:
+        - admin
       tags:
         - Collections
       responses:
@@ -179,6 +211,12 @@ paths:
           type: integer
     get:
       summary: Retrieves all the content for the specified collection
+      description: "Allowed Roles: admin, manager, professor, student"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
+        - student
       tags:
         - Collections
       responses:
@@ -204,6 +242,11 @@ paths:
                 $ref: "#/components/schemas/message"
     post:
       summary: Adds a new content to the specified collection
+      description: "Allowed Roles: admin, manager, professor"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
       tags:
         - Collections
       requestBody:
@@ -243,31 +286,14 @@ paths:
         required: true
         schema:
           type: integer
-    delete:
-      summary: Deletes the specified content
-      tags:
-        - Collections
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/message"
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/message"
-        500:
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/message"
     get:
       summary: Retrieves the specified content
+      description: "Allowed Roles: admin, manager, professor, student"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
+        - student
       tags:
         - Collections
       responses:
@@ -291,6 +317,11 @@ paths:
                 $ref: "#/components/schemas/message"
     put:
       summary: Edits the specified content
+      description: "Allowed Roles: admin, manager, professor"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
       tags:
         - Collections
       requestBody:
@@ -317,6 +348,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/message"
+    delete:
+      summary: Deletes the specified content
+      description: "Allowed Roles: admin"
+      x-allowed-roles:
+        - admin
+      tags:
+        - Collections
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
 
   # duplicate, but may be useful
   /content/{id}:
@@ -328,6 +385,12 @@ paths:
           type: integer
     get:
       summary: Retrieves the specified content
+      description: "Allowed Roles: admin, manager, professor, student"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
+        - student
       tags:
         - Content
       responses:
@@ -351,6 +414,11 @@ paths:
                 $ref: "#/components/schemas/message"
     put:
       summary: Edits the specified content
+      description: "Allowed Roles: admin, manager, professor"
+      x-allowed-roles:
+        - admin
+        - manager
+        - professor
       tags:
         - Content
       requestBody:
