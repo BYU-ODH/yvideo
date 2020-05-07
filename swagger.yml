@@ -1,0 +1,526 @@
+openapi: "3.0.2"
+
+# to edit this document, navigate to http://editor.swagger.io and paste it into the left-hand side
+
+info:
+  title: "YVideo API"
+  version: "1.0"
+
+paths:
+  /user:
+    get:
+      summary: Retrieves the current logged-in user
+      tags:
+        - User
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+
+  /collections:
+    get:
+      summary: Retrieves collection info for all collections available to the current user
+      tags:
+        - Collections
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/collection"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+
+    post:
+      summary: Adds a new collection with the current user as an owner
+      tags:
+        - Collections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/collection"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/collection"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+
+  /collections/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Retrieves the specified collection
+      tags:
+        - Collections
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/collection"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+    put:
+      summary: Edits the specified collection
+      tags:
+        - Collections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/collection"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/collection"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+    delete:
+      summary: Deletes the specified collection
+      tags:
+        - Collections
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+
+  /collections/{id}/content:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Retrieves all the content for the specified collection
+      tags:
+        - Collections
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+    post:
+      summary: Adds a new content to the specified collection
+      tags:
+        - Collections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/content"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+
+  /collections/{col_id}/content/{con_id}:
+    parameters:
+      - in: path
+        name: col_id
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: con_id
+        required: true
+        schema:
+          type: integer
+    delete:
+      summary: Deletes the specified content
+      tags:
+        - Collections
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+    get:
+      summary: Retrieves the specified content
+      tags:
+        - Collections
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+    put:
+      summary: Edits the specified content
+      tags:
+        - Collections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/content"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+
+  # duplicate, but may be useful
+  /content/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Retrieves the specified content
+      tags:
+        - Content
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+    put:
+      summary: Edits the specified content
+      tags:
+        - Content
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/content"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/content"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        500:
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+
+components:
+  schemas:
+
+    user:
+      type: object
+      properties:
+        email:
+          type: string
+          pattern: ^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$
+        id:
+          type: integer
+        lastLogin:
+          type: string
+        name:
+          type: string
+        role:
+          type: integer
+        username:
+          type: string
+        assoc_collections:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              role:
+                type: integer
+        words:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              word:
+                type: string
+              src_lang:
+                type: string
+              dest_lang:
+                type: string
+
+    collection:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        published:
+          type: boolean
+        archived:
+          type: boolean
+        assoc_courses:
+          type: array
+          items:
+            $ref: "#/components/schemas/course"
+        assoc_users:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              role:
+                type: integer
+        assoc_content:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              thumbnail:
+                type: string
+              published:
+                type: boolean
+              allow_definitions:
+                type: boolean
+              allow_notes:
+                type: boolean
+              allow_captions:
+                type: boolean
+
+    course:
+      type: object
+      properties:
+        id:
+          type: integer
+        department:
+          type: string
+        catalog_number:
+          type: string
+        section_number:
+          type: string
+
+    content:
+      type: object
+      properties:
+        id:
+          type: integer
+        collection_id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        requester_email:
+          type: string
+          pattern: ^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$
+        thumbnail:
+          type: string
+        copyrighted:
+          type: boolean
+        physical_copy_exists:
+          type: boolean
+        full_video:
+          type: boolean
+        published:
+          type: boolean
+        date_validated:
+          type: string
+        metadata:
+          type: string
+        files:
+          $ref: "#/components/schemas/file"
+
+    file:
+      type: object
+      properties:
+        id:
+          type: integer
+        path:
+          type: string
+        mime:
+          type: string
+        metadata:
+          type: string
+
+    message:
+      type: string
+
